@@ -18,9 +18,15 @@ Use this workflow for every implementation phase. Codex should continue sequenti
 12. Update docs.
 13. Update `phases-progress.md`.
 14. Commit.
-15. Push.
-16. Self-review.
-17. Continue automatically to the next phase.
+15. Push the commit to `main`.
+16. Review the pushed commit.
+17. Identify the top actionable findings.
+18. Fix each top finding in a separate follow-up commit.
+19. Run relevant validation for each fix commit.
+20. Push each fix commit to `main`.
+21. Repeat the post-commit review/fix loop until no top findings remain or a stop condition occurs.
+22. Self-review.
+23. Continue automatically to the next phase.
 
 Do not wait for human approval between normal app, code, documentation, local Docker, CI, test, Helm template, or static validation phases.
 
@@ -53,6 +59,7 @@ Codex must stop before:
 - Force-pushing shared branches.
 - Disabling security checks.
 - Bypassing CI/CD approval gates.
+- Bypassing branch protection to push to `main`.
 - Exposing credentials in logs, commits, or workflow output.
 
 For infrastructure phases, Codex may still safely:
@@ -69,7 +76,9 @@ For infrastructure phases, Codex may still safely:
 - Run static checks.
 - Build local Docker images.
 - Update documentation.
-- Commit and push code.
+- Commit and push code to `main` when branch protection and required checks allow it.
+
+If direct push to `main` is blocked by branch protection, missing permissions, failing required checks, or repository policy, stop and report the blocker. Do not bypass protections or force-push.
 
 ## Loop Completion
 
@@ -80,7 +89,24 @@ The autonomous loop ends only when:
 - A blocker prevents safe progress.
 - Validation fails and Codex cannot fix it safely.
 - Required credentials/access are missing.
+- Direct push to `main` is blocked by branch protection, missing permissions, required checks, or repository policy.
 - Proceeding would violate the current phase scope.
+
+## Post-Commit Review Loop
+
+After each phase commit is pushed to `main`, Codex reviews that commit before moving on.
+
+The review should identify the top actionable findings across:
+
+- Bugs or correctness issues.
+- Security issues.
+- Reliability issues.
+- Observability gaps.
+- Missing validation.
+- Scope discipline problems.
+- Documentation gaps.
+
+Each accepted finding gets its own follow-up commit. Do not bundle unrelated fixes into one commit. After every fix commit, run the relevant validation, push to `main`, and continue reviewing until no top findings remain or a stop condition applies.
 
 ## Required Phase Plan Format
 
@@ -131,6 +157,12 @@ Scope discipline:
 - ...
 
 Risks:
+- ...
+
+Post-commit review:
+- ...
+
+Fix commits:
 - ...
 
 Next phase:

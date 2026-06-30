@@ -3,7 +3,7 @@
 Use this prompt after Codex completes each phase.
 
 ```text
-Review the completed phase implementation before Codex automatically continues to the next phase.
+Review the pushed phase commit before Codex automatically continues to the next phase.
 
 Check whether the implementation:
 1. Matches the phase scope in phases.md.
@@ -21,6 +21,9 @@ Check whether the implementation:
 13. Maintains clear documentation.
 14. Does not perform stop-condition actions without human approval.
 15. Correctly identifies whether the autonomous loop should continue or stop.
+16. Was pushed to `main` without bypassing branch protection or CI/CD approval gates.
+17. Identifies the top actionable findings from the pushed commit.
+18. Uses one separate follow-up commit for each accepted fix.
 
 Report:
 - Summary
@@ -33,6 +36,8 @@ Report:
 - Observability concerns
 - Missing tests
 - Documentation gaps
+- Top findings from pushed commit
+- Follow-up fix commits
 - Stop condition or approval needs
 - Risks
 - Next phase

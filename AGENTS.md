@@ -150,8 +150,20 @@ For each phase:
    - Record security, reliability, and observability notes where relevant.
    - Mark the next phase as `In Progress`.
 12. Commit with a detailed conventional commit message.
-13. Push the branch.
-14. Write a phase review covering:
+13. Push the commit to `main`.
+14. Review the pushed commit and identify the top actionable findings:
+   - Bugs or correctness issues.
+   - Security issues.
+   - Reliability issues.
+   - Observability gaps.
+   - Missing validation.
+   - Scope discipline problems.
+   - Documentation gaps.
+15. Fix each top finding in a separate follow-up commit.
+16. Run the relevant validation for each fix commit.
+17. Push each fix commit to `main`.
+18. Repeat the post-commit review/fix loop until no top findings remain or a stop condition occurs.
+19. Write a phase review covering:
    - Summary.
    - Files changed.
    - Validation.
@@ -161,7 +173,7 @@ For each phase:
    - Scope discipline.
    - Risks.
    - Next phase.
-15. Move to the next phase automatically and repeat.
+20. Move to the next phase automatically and repeat.
 
 Do not wait for human approval between normal app, code, documentation, local Docker, CI, test, Helm template, or static validation phases.
 
@@ -184,6 +196,7 @@ Codex must stop before:
 - Force-pushing shared branches.
 - Disabling security checks.
 - Bypassing CI/CD approval gates.
+- Bypassing branch protection to push to `main`.
 - Exposing credentials in logs, commits, or workflow output.
 
 For infrastructure phases, Codex may still safely:
@@ -200,7 +213,9 @@ For infrastructure phases, Codex may still safely:
 - Run static checks.
 - Build local Docker images.
 - Update documentation.
-- Commit and push code.
+- Commit and push code to `main` when branch protection and required checks allow it.
+
+If direct push to `main` is blocked by branch protection, missing permissions, failing required checks, or repository policy, stop and report the blocker. Do not bypass protections or force-push.
 
 ## Loop completion
 
@@ -211,6 +226,7 @@ The autonomous loop ends only when:
 - A blocker prevents safe progress.
 - Validation fails and Codex cannot fix it safely.
 - Required credentials/access are missing.
+- Direct push to `main` is blocked by branch protection, missing permissions, required checks, or repository policy.
 - Proceeding would violate the current phase scope.
 
 ## Commit message format
@@ -247,7 +263,7 @@ Phase:
 - Phase N: <title>
 ```
 
-## Pull request / review format
+## Phase review and post-commit review format
 
 Every completed phase report should use this format:
 
@@ -288,6 +304,11 @@ Every completed phase report should use this format:
 
 ### Risks / Follow-ups
 - ...
+
+### Post-Commit Review
+- Pushed commit:
+- Top findings:
+- Fix commits:
 
 ### Next Phase
 - Phase N+1: ...
@@ -429,7 +450,8 @@ A phase is done only when:
 - Documentation is updated.
 - `phases-progress.md` is updated.
 - Commit is created with a detailed message.
-- Branch is pushed.
+- Commit is pushed to `main`.
+- Pushed commit is reviewed and top findings are fixed in separate follow-up commits.
 - Self-review is completed.
 - No unrelated phases were implemented prematurely.
 

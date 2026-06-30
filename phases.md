@@ -4,7 +4,7 @@
 
 This roadmap is designed for Codex to implement phases sequentially as an autonomous phase-based engineering agent. Each phase should be small enough for a focused commit and review, while the full project becomes a strong DevOps/cloud portfolio piece.
 
-Codex should complete the current `In Progress` phase, commit and push it, write the phase review, then move automatically to the next phase unless a stop condition in `AGENTS.md` requires human approval or a blocker prevents safe progress.
+Codex should complete the current `In Progress` phase, commit it, push it to `main`, review the pushed commit, fix each top finding in a separate follow-up commit, push each fix to `main`, write the phase review, then move automatically to the next phase unless a stop condition in `AGENTS.md` requires human approval or a blocker prevents safe progress.
 
 The app should stay intentionally scoped. The infrastructure, delivery workflow, observability, security, and reliability story are the main differentiators.
 
@@ -219,7 +219,8 @@ Deliverables:
 
 Acceptance criteria:
 
-- CI runs on pull requests.
+- CI runs on pushes to main.
+- Pull request checks may be supported as optional repository hygiene, but the autonomous Codex flow targets main.
 - CI blocks obvious failures.
 - Security scanning is included.
 - Workflow is documented.
