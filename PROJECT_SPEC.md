@@ -22,6 +22,21 @@ The project should prove:
 - I can handle secrets and security controls responsibly.
 - I can reason about reliability and cost.
 
+## Portfolio relationship
+
+This project is intentionally complementary to Proofbase.
+
+Proofbase is the AI product portfolio piece: permission-aware enterprise RAG, document workflows, retrieval quality, citations, memory safety, and benchmark-driven answer evaluation.
+
+Production AI Platform is the AI operations portfolio piece: a shared LLM gateway with API keys, prompt versions, model routing, request logging, cost/latency/error tracking, deployment automation, cloud infrastructure, observability, secrets, rollback, and reliability runbooks.
+
+The clean portfolio story is:
+
+1. Proofbase shows I can build a serious enterprise AI application.
+2. Production AI Platform shows I can productionize and operate AI workloads.
+
+Future integration path: Proofbase can become a client app that sends provider calls through this platform's gateway, gaining centralized model routing, cost controls, traces, and request logs without changing Proofbase's RAG domain logic.
+
 ## Target audience
 
 Recruiters and hiring managers for:
@@ -359,7 +374,7 @@ This project should not become a huge AI product.
 Avoid over-focusing on:
 
 - complex agent workflows
-- advanced RAG
+- advanced RAG, vector retrieval, citation validation, document ingestion, and benchmark-driven answer evaluation
 - fine-tuning
 - multi-modal AI
 - elaborate chat UX

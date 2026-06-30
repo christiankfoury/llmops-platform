@@ -54,3 +54,22 @@ Reason:
 
 - Keeps the core CI/CD path simpler first.
 - Adds advanced platform credibility near the end.
+
+
+## ADR-006: Relationship to Proofbase and RAG scope
+
+Decision: Keep this project focused on production LLMOps infrastructure and keep advanced RAG capabilities in Proofbase.
+
+Reason:
+
+- Proofbase already demonstrates document ingestion, vector retrieval, citations, permission filtering, memory safety, and benchmark-driven RAG evaluation.
+- This project should demonstrate a different portfolio strength: operating AI workloads with a gateway, API keys, prompt/model routing, observability, secrets, CI/CD, Kubernetes, Terraform, rollback, and cost controls.
+- Separating the projects makes the portfolio easier to explain: one project is the AI application, the other is the production platform layer.
+
+Tradeoff:
+
+- The platform will be less impressive as a standalone AI product, but stronger as infrastructure and LLMOps evidence.
+
+Future integration:
+
+- Proofbase can be documented as a client application that sends model calls through this platform's LLM gateway for centralized cost, latency, tracing, and model-routing controls.

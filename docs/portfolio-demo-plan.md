@@ -10,6 +10,15 @@ I built a production-style LLMOps platform. Apps call a central LLM gateway inst
 
 The main focus is infrastructure: Terraform-managed AWS infrastructure, Kubernetes on EKS, Helm releases, GitHub Actions CI/CD, staged deployments, rollback workflows, OpenTelemetry tracing, Prometheus metrics, Grafana dashboards, Loki logs, External Secrets, and reliability runbooks.
 
+## Portfolio positioning
+
+Pair this project with Proofbase when explaining the portfolio:
+
+- Proofbase: a realistic permission-aware RAG product with citations, scoped retrieval, document workflows, and benchmarked answer quality.
+- Production AI Platform: the production LLMOps layer that centralizes model access, cost, latency, errors, traces, secrets, deployments, rollback, and cloud operations.
+
+The clean demo story: Proofbase shows what the AI product does; this project shows how AI workloads are operated responsibly in production. A future integration can present Proofbase as a client app using this platform's gateway.
+
 ## Demo flow
 
 1. Show README architecture diagram.

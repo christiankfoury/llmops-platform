@@ -6,6 +6,15 @@ Production AI Platform / LLMOps Infrastructure Platform.
 
 This repository is a portfolio-grade DevOps/cloud project connected to AI engineering. The product is a lightweight LLM gateway and usage dashboard, but the main value is the production infrastructure around it: Kubernetes, Terraform, Helm, CI/CD, observability, secrets, reliability, staged environments, rollback, and cost controls.
 
+## Portfolio relationship and scope boundary
+
+This project complements Proofbase, which is the permission-aware enterprise RAG application. Keep the distinction clear in code, docs, README claims, and demo scripts:
+
+- Proofbase proves the AI product layer: document ingestion, scoped retrieval, citations, permission safety, memory boundaries, and benchmark-driven answer quality.
+- Production AI Platform proves the operations layer: LLM gateway, prompt/model routing, API keys, usage tracking, cost/latency/error monitoring, CI/CD, Kubernetes, Terraform, observability, secrets, rollback, and runbooks.
+
+Do not duplicate Proofbase's advanced RAG features in this repository. A future integration can describe Proofbase as a client app that calls this platform's LLM gateway for centralized routing, cost, latency, tracing, and operational controls.
+
 ## Target portfolio claim
 
 By the end of the project, the repository should credibly support this claim:
@@ -379,6 +388,7 @@ Avoid spending too much time on:
 - Multi-modal AI features.
 - Large custom evaluation systems.
 - Huge prompt libraries.
+- Advanced RAG, vector retrieval, citation validation, document ingestion, or benchmark-driven answer evaluation; those belong in Proofbase.
 
 Prioritize infrastructure excellence.
 

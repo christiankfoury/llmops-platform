@@ -61,19 +61,20 @@ Status: In Progress
 
 Implementation notes:
 
-- Pending.
+- Clarified portfolio relationship with Proofbase and scoped this project around LLMOps/platform infrastructure rather than advanced RAG.
+- Added explicit RAG non-goals and future integration path where Proofbase can act as a client app of the gateway.
 
 Validation:
 
-- Pending.
+- Documentation-only scope update; reviewed modified Markdown with text diffs.
 
 Security notes:
 
-- Pending.
+- No runtime or secret-handling changes.
 
 Scope notes:
 
-- Pending.
+- Kept Phase 1 in progress; clarified boundaries before implementation begins.
 
 Next phase:
 
