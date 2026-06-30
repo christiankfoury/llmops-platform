@@ -26,7 +26,7 @@ Phase 6: Prompt versioning and model routing controls
 | 2 | Minimal monorepo and local development foundation | Completed | main | e500c58 | 2026-06-30 | FastAPI health skeleton, Next.js dashboard shell, Docker Compose local stack, env examples, Makefile commands, smoke-tested local health endpoints. |
 | 3 | Database schema and migrations | Completed | main | ee23497 | 2026-06-30 | SQLAlchemy model foundation, Alembic migration, and idempotent local seed data. |
 | 4 | LLM gateway API foundation | Completed | main | 8bf0694 | 2026-06-30 | Gateway endpoint, hashed API key auth, prompt/route lookup, mock provider, and request persistence. |
-| 5 | Cost, latency, and failure tracking | Completed | pending | pending | 2026-06-30 | Latency, token estimates, mock cost calculation, provider failure categories, cost records, and usage summary. |
+| 5 | Cost, latency, and failure tracking | Completed | main | 45ad934 | 2026-06-30 | Latency, token estimates, mock cost calculation, provider failure categories, cost records, and usage summary. |
 | 6 | Prompt versioning and model routing controls | In Progress |  |  |  | Admin config endpoints and audit logs. |
 | 7 | Dashboard MVP | Not Started |  |  |  | Usage, cost, latency, errors, routes, prompts. |
 | 8 | API and frontend quality baseline | Not Started |  |  |  | Lint, tests, type checks, quality commands. |
@@ -374,11 +374,11 @@ Status: Completed
 
 Pushed to:
 
-- pending
+- main
 
 Commit:
 
-- pending
+- 45ad934
 
 Completed date:
 
@@ -447,9 +447,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending post-push review.
-- Fix commits: pending.
+- Pushed commit: 45ad934
+- Top findings: Phase progress used temporary commit placeholders because the final commit hash was unavailable before the commit existed.
+- Fix commits: Follow-up documentation commit records the pushed Phase 5 hash and post-commit review result.
 
 Next phase:
 
