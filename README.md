@@ -71,6 +71,17 @@ Then open:
 - Web dashboard: `http://localhost:3000`
 - API health: `http://localhost:8000/health`
 
+After migrations and seed data are loaded, the local gateway can be smoke-tested with the placeholder seed key:
+
+```bash
+curl -X POST http://localhost:8000/v1/gateway/completions \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: local-dev-placeholder-key-not-a-secret" \
+  -d '{"input":"hello from local development"}'
+```
+
+The placeholder key is for local seeded data only and is stored in PostgreSQL as a hash.
+
 Useful local commands:
 
 ```bash

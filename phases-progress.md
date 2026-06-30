@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 4: LLM gateway API foundation
+Phase 5: Cost, latency, and failure tracking
 
 ## Phase table
 
@@ -25,8 +25,8 @@ Phase 4: LLM gateway API foundation
 | 1 | Project specification and architecture | Completed | main | d09361b | 2026-06-30 | Defined scope, architecture, repo structure, environment strategy, and portfolio claims. |
 | 2 | Minimal monorepo and local development foundation | Completed | main | e500c58 | 2026-06-30 | FastAPI health skeleton, Next.js dashboard shell, Docker Compose local stack, env examples, Makefile commands, smoke-tested local health endpoints. |
 | 3 | Database schema and migrations | Completed | main | ee23497 | 2026-06-30 | SQLAlchemy model foundation, Alembic migration, and idempotent local seed data. |
-| 4 | LLM gateway API foundation | In Progress |  |  |  | API key auth, prompt lookup, model routing, mock provider. |
-| 5 | Cost, latency, and failure tracking | Not Started |  |  |  | Request metrics, cost estimates, failure categories. |
+| 4 | LLM gateway API foundation | Completed | pending | pending | 2026-06-30 | Gateway endpoint, hashed API key auth, prompt/route lookup, mock provider, and request persistence. |
+| 5 | Cost, latency, and failure tracking | In Progress |  |  |  | Request metrics, cost estimates, failure categories. |
 | 6 | Prompt versioning and model routing controls | Not Started |  |  |  | Admin config endpoints and audit logs. |
 | 7 | Dashboard MVP | Not Started |  |  |  | Usage, cost, latency, errors, routes, prompts. |
 | 8 | API and frontend quality baseline | Not Started |  |  |  | Lint, tests, type checks, quality commands. |
@@ -287,6 +287,86 @@ Post-commit review:
 Next phase:
 
 - Phase 4: LLM gateway API foundation
+
+### Phase 4: LLM gateway API foundation
+
+Status: Completed
+
+Pushed to:
+
+- pending
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added `POST /v1/gateway/completions`.
+- Added `X-API-Key` authentication using SHA-256 hash lookup against active API keys.
+- Added project/application resolution through the authenticated API key.
+- Added active prompt version lookup by application, prompt name, and newest version.
+- Added active model route selection by project, application, environment, default flag, and priority.
+- Added a local mock provider adapter.
+- Persisted successful gateway requests with project, app, API key, prompt version, model route, provider, model, status, and request ID.
+- Added success and invalid-key tests for the gateway path.
+- Updated README, architecture, and deployment docs with the local gateway smoke test.
+
+Validation:
+
+- Command: `python -m compileall apps\api\app apps\api\tests apps\api\scripts`
+  Result: Passed.
+- Command: `.venv\Scripts\python -m pytest`
+  Result: Passed, 6 tests.
+- Command: `docker compose build api`
+  Result: Passed.
+- Command: live `POST http://localhost:8000/v1/gateway/completions` with the local placeholder seed key.
+  Result: Passed; returned status `succeeded`, provider `mock`, model `mock-llm-small`, prompt version `1`, and a `req_` request ID.
+- Command: live `POST http://localhost:8000/v1/gateway/completions` with an invalid key.
+  Result: Passed; returned HTTP 401.
+- Command: PostgreSQL query against `gateway_requests`.
+  Result: Passed; successful gateway requests were persisted with status `succeeded`.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: `rg -n "sk-|AKIA|BEGIN .*PRIVATE|OPENAI_API_KEY=|AWS_SECRET_ACCESS_KEY=" . -g '!phases-progress.md' -g '!apps/web/package-lock.json' -g '!node_modules' -g '!.venv' -g '!.npm-cache'`
+  Result: No matches.
+
+Security notes:
+
+- Gateway rejects missing or invalid API keys with HTTP 401.
+- API key comparison uses stored SHA-256 hashes and does not query by plaintext key values.
+- The documented local key is placeholder seed data only and is stored as a hash.
+- No real provider calls, provider keys, or cloud secrets were added.
+
+Reliability notes:
+
+- Gateway route records a stable request ID and succeeded status for successful mock-provider requests.
+- Missing prompt or model route configuration returns a clear 404 instead of falling through to provider execution.
+- Detailed provider timeout/failure behavior is deferred to Phase 5.
+
+Observability notes:
+
+- Successful gateway requests are persisted for future usage, latency, error, and cost dashboards.
+- Full structured logging, metrics, and tracing remain scoped to later observability phases.
+
+Scope notes:
+
+- Completed Phase 4 gateway foundation only.
+- Deferred token usage, latency measurement, cost calculation, provider timeout handling, provider failure categorization, usage summary endpoints, and dashboards to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-push review.
+- Fix commits: pending.
+
+Next phase:
+
+- Phase 5: Cost, latency, and failure tracking
 
 ## Update template
 

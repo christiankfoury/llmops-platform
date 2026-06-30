@@ -54,6 +54,17 @@ make api-migrate
 make api-seed
 ```
 
+Smoke-test the local gateway with the seeded placeholder key:
+
+```bash
+curl -X POST http://localhost:8000/v1/gateway/completions \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: local-dev-placeholder-key-not-a-secret" \
+  -d '{"input":"hello from local development"}'
+```
+
+The local seed key is intentionally non-secret placeholder data and is stored as a hash.
+
 Local environment examples live in:
 
 - `.env.example`
