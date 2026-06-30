@@ -1,0 +1,62 @@
+.panel {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 28px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statusDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--warning);
+}
+
+.statusDot[data-state="ready"] {
+  background: var(--success-text);
+}
+
+.statusDot[data-state="error"] {
+  background: #b42318;
+}
+
+.statusText {
+  font-weight: 700;
+}
+
+.details {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+}
+
+.details div {
+  display: grid;
+  gap: 5px;
+}
+
+.details dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}

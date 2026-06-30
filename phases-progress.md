@@ -16,15 +16,15 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 2: Minimal monorepo and local development foundation
+Phase 3: Database schema and migrations
 
 ## Phase table
 
 | Phase | Title | Status | Pushed To | Commit | Completed Date | Notes |
 |---:|---|---|---|---|---|---|
 | 1 | Project specification and architecture | Completed | main | d09361b | 2026-06-30 | Defined scope, architecture, repo structure, environment strategy, and portfolio claims. |
-| 2 | Minimal monorepo and local development foundation | In Progress |  |  |  | API, web, Docker Compose, local health checks. |
-| 3 | Database schema and migrations | Not Started |  |  |  | PostgreSQL schema and seed data. |
+| 2 | Minimal monorepo and local development foundation | Completed | pending | pending | 2026-06-30 | FastAPI health skeleton, Next.js dashboard shell, Docker Compose local stack, env examples, Makefile commands, smoke-tested local health endpoints. |
+| 3 | Database schema and migrations | In Progress |  |  |  | PostgreSQL schema and seed data. |
 | 4 | LLM gateway API foundation | Not Started |  |  |  | API key auth, prompt lookup, model routing, mock provider. |
 | 5 | Cost, latency, and failure tracking | Not Started |  |  |  | Request metrics, cost estimates, failure categories. |
 | 6 | Prompt versioning and model routing controls | Not Started |  |  |  | Admin config endpoints and audit logs. |
@@ -115,6 +115,96 @@ Post-commit review:
 Next phase:
 
 - Phase 2: Minimal monorepo and local development foundation
+
+### Phase 2: Minimal monorepo and local development foundation
+
+Status: Completed
+
+Pushed to:
+
+- pending
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added a FastAPI skeleton in `apps/api` with `/health`, `/health/live`, and `/health/ready` endpoints.
+- Added local API settings via `pydantic-settings`, including local CORS origins for the Next.js dashboard.
+- Added focused backend health tests and root pytest configuration.
+- Added a Next.js dashboard shell in `apps/web` that fetches API health from `NEXT_PUBLIC_API_BASE_URL`.
+- Added local Docker Compose services for API, web, PostgreSQL, and Redis.
+- Added local development environment examples, a root `.gitignore`, dev Dockerfiles, `.dockerignore` files, and Makefile commands.
+- Updated README, architecture, and deployment docs with the Phase 2 local workflow.
+
+Validation:
+
+- Command: `python -m compileall apps\api\app apps\api\tests`
+  Result: Passed.
+- Command: `.venv\Scripts\python -m pytest`
+  Result: Passed, 2 tests.
+- Command: `npm run lint`
+  Result: Passed.
+- Command: `npm run typecheck`
+  Result: Passed.
+- Command: `npm audit --audit-level=high`
+  Result: Passed for high and critical findings; npm still reports a moderate Next/PostCSS advisory that currently requires a breaking downgrade through `npm audit fix --force`.
+- Command: `docker compose config`
+  Result: Passed; Docker emitted a local warning about inaccessible `C:\Users\Christian\.docker\config.json` outside the repo.
+- Command: `docker compose build api web`
+  Result: Passed.
+- Command: `docker compose up -d`
+  Result: Passed after changing host-exposed PostgreSQL and Redis defaults to `55432` and `56379` to avoid local port conflicts.
+- Command: `Invoke-RestMethod -Uri http://localhost:8000/health`
+  Result: Passed; returned `status=ok`, `service=api`.
+- Command: `Invoke-RestMethod -Uri http://localhost:8000/health/ready`
+  Result: Passed; returned local environment with database and Redis configured.
+- Command: `Invoke-WebRequest -Uri http://localhost:3000 -UseBasicParsing`
+  Result: Passed; returned HTTP 200.
+- Command: `docker compose ps`
+  Result: Passed with API, web, PostgreSQL, and Redis running.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified Markdown files.
+- Command: `rg -n "sk-|AKIA|BEGIN .*PRIVATE|OPENAI_API_KEY=|AWS_SECRET_ACCESS_KEY=" . -g '!phases-progress.md' -g '!apps/web/package-lock.json'`
+  Result: No matches.
+
+Security notes:
+
+- No real credentials, provider keys, AWS account IDs, or secret values were added.
+- Environment files are examples only and use local placeholders.
+- API CORS is scoped to local dashboard origins for Phase 2.
+- `npm audit --audit-level=high` passes, with a documented moderate Next/PostCSS advisory remaining because the available automatic fix is a breaking downgrade.
+
+Reliability notes:
+
+- API exposes basic live and ready health endpoints.
+- PostgreSQL and Redis Compose services include health checks.
+- Local host ports avoid common PostgreSQL and Redis conflicts while preserving service-network URLs inside Compose.
+
+Observability notes:
+
+- Phase 2 does not implement full logs, metrics, or traces.
+- Health endpoints provide the first local runtime signal; structured logs, metrics, and tracing remain scoped to later phases.
+
+Scope notes:
+
+- Completed Phase 2 local development foundation only.
+- Deferred database schema, Alembic migrations, LLM gateway behavior, usage dashboards, production Docker hardening, CI, Terraform, Kubernetes manifests, and Helm chart work to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-push review.
+- Fix commits: pending.
+
+Next phase:
+
+- Phase 3: Database schema and migrations
 
 ## Update template
 

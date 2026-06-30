@@ -51,6 +51,38 @@ The platform includes:
 - Usage dashboard
 - Cost/error/latency dashboard
 
+## Local development
+
+Phase 2 adds the local development foundation:
+
+- FastAPI service in `apps/api`
+- Next.js dashboard in `apps/web`
+- Docker Compose stack with API, web, PostgreSQL, and Redis
+- Health endpoints at `GET /health`, `GET /health/live`, and `GET /health/ready`
+
+Start the local stack:
+
+```bash
+docker compose up --build
+```
+
+Then open:
+
+- Web dashboard: `http://localhost:3000`
+- API health: `http://localhost:8000/health`
+
+Useful local commands:
+
+```bash
+make local-up
+make local-down
+make api-test
+make web-lint
+make web-typecheck
+```
+
+Configuration is documented in `.env.example`, `apps/api/.env.example`, and `apps/web/.env.example`. These examples use local-only placeholder values and do not contain real credentials.
+
 ## Infrastructure Roadmap
 
 The infrastructure roadmap is the center of the project:
@@ -151,4 +183,4 @@ See `phases-progress.md`.
 
 ## Status
 
-Phase 1 defines the specification, architecture, environment strategy, and repository structure. Phase 2 begins the minimal local development foundation.
+Phase 1 defines the specification, architecture, environment strategy, and repository structure. Phase 2 adds the minimal monorepo and local development foundation.

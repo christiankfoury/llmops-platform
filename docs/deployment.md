@@ -11,7 +11,7 @@ The project targets four environments:
 
 ## Local deployment
 
-Target local stack:
+Implemented local stack:
 
 ```text
 Docker Compose:
@@ -21,11 +21,39 @@ Docker Compose:
 - Redis
 ```
 
-Expected command after implementation:
+Start the full stack:
 
 ```bash
 docker compose up --build
 ```
+
+The same command is available as:
+
+```bash
+make local-up
+```
+
+Local service URLs:
+
+- Web dashboard: `http://localhost:3000`
+- API health: `http://localhost:8000/health`
+- API readiness: `http://localhost:8000/health/ready`
+- PostgreSQL host port: `55432`
+- Redis host port: `56379`
+
+Stop containers:
+
+```bash
+make local-down
+```
+
+Local environment examples live in:
+
+- `.env.example`
+- `apps/api/.env.example`
+- `apps/web/.env.example`
+
+These files use placeholder development values only. Real provider keys, cloud account IDs, and production secrets must not be committed.
 
 ## Dev deployment
 

@@ -72,6 +72,7 @@ This flow intentionally avoids advanced RAG behavior. Retrieval, citations, docu
 
 Responsibilities:
 
+- health and readiness endpoints
 - API key authentication
 - LLM gateway endpoint
 - prompt version lookup
@@ -189,6 +190,8 @@ Logs should avoid secrets and sensitive prompt content by default.
 - local Redis
 - mock LLM provider
 - no cloud dependency
+
+Phase 2 implements the local skeleton with API and web health checks plus PostgreSQL and Redis containers. Database schema, migrations, gateway persistence, and Redis-backed behavior begin in later phases.
 
 ### Dev
 
