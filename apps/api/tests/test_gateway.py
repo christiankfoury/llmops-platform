@@ -119,3 +119,26 @@ def test_usage_summary_returns_request_count_and_cost() -> None:
     assert payload["request_count"] >= 1
     assert payload["average_latency_ms"] >= 1
     assert "estimated_cost_usd" in payload
+
+
+@requires_database
+def test_usage_request_lists_return_recent_records() -> None:
+    seed_dev_data()
+    client.post(
+        "/v1/gateway/completions",
+        headers={"X-API-Key": PLACEHOLDER_API_KEY},
+        json={"input": "request list test"},
+    )
+    client.post(
+        "/v1/gateway/completions",
+        headers={"X-API-Key": PLACEHOLDER_API_KEY},
+        json={"input": "[simulate_failure]"},
+    )
+
+    requests_response = client.get("/v1/usage/requests?limit=5")
+    errors_response = client.get("/v1/usage/errors?limit=5")
+
+    assert requests_response.status_code == 200
+    assert errors_response.status_code == 200
+    assert len(requests_response.json()) >= 1
+    assert any(record["status"] == "failed" for record in errors_response.json())

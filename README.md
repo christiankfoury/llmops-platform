@@ -71,6 +71,8 @@ Then open:
 - Web dashboard: `http://localhost:3000`
 - API health: `http://localhost:8000/health`
 
+The dashboard shows real API data: usage totals, estimated cost, average latency, recent requests, recent failures, prompt versions, and model routes.
+
 After migrations and seed data are loaded, the local gateway can be smoke-tested with the placeholder seed key:
 
 ```bash

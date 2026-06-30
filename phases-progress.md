@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 7: Dashboard MVP
+Phase 8: API and frontend quality baseline
 
 ## Phase table
 
@@ -28,8 +28,8 @@ Phase 7: Dashboard MVP
 | 4 | LLM gateway API foundation | Completed | main | 8bf0694 | 2026-06-30 | Gateway endpoint, hashed API key auth, prompt/route lookup, mock provider, and request persistence. |
 | 5 | Cost, latency, and failure tracking | Completed | main | 45ad934 | 2026-06-30 | Latency, token estimates, mock cost calculation, provider failure categories, cost records, and usage summary. |
 | 6 | Prompt versioning and model routing controls | Completed | main | a755132 | 2026-06-30 | Admin prompt/model route controls, activation/default behavior, and audit logs. |
-| 7 | Dashboard MVP | In Progress |  |  |  | Usage, cost, latency, errors, routes, prompts. |
-| 8 | API and frontend quality baseline | Not Started |  |  |  | Lint, tests, type checks, quality commands. |
+| 7 | Dashboard MVP | Completed | pending | pending | 2026-06-30 | Dashboard shows usage summary, requests, failures, prompt versions, and model routes from real API endpoints. |
+| 8 | API and frontend quality baseline | In Progress |  |  |  | Lint, tests, type checks, quality commands. |
 | 9 | Docker production images | Not Started |  |  |  | Production API/web containers. |
 | 10 | CI pipeline | Not Started |  |  |  | GitHub Actions lint, test, build, scan. |
 | 11 | Terraform AWS foundation | Not Started |  |  |  | VPC, ECR, IAM, secrets placeholders. |
@@ -533,6 +533,86 @@ Post-commit review:
 Next phase:
 
 - Phase 7: Dashboard MVP
+
+### Phase 7: Dashboard MVP
+
+Status: Completed
+
+Pushed to:
+
+- pending
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added usage API endpoints for recent gateway requests and recent failed requests.
+- Added backend tests for recent request/error list endpoints.
+- Replaced the placeholder web landing page with a real dashboard MVP.
+- Dashboard reads usage summary, recent requests, recent failures, prompt versions, and model routes from the API.
+- Dashboard shows summary cards for request count, error count, average latency, and estimated cost.
+- Dashboard renders tables/lists for recent requests, failures, prompt versions, and model routes.
+- Updated README, architecture, and deployment docs with dashboard behavior.
+
+Validation:
+
+- Command: `python -m compileall apps\api\app apps\api\tests apps\api\scripts`
+  Result: Passed.
+- Command: `.venv\Scripts\python -m pytest`
+  Result: Passed, 11 tests.
+- Command: `npm run lint`
+  Result: Passed.
+- Command: `npm run typecheck`
+  Result: Passed.
+- Command: `npm run build`
+  Result: Passed.
+- Command: `Invoke-WebRequest -Uri http://localhost:3000 -UseBasicParsing`
+  Result: Passed; returned HTTP 200.
+- Command: `npm audit --audit-level=high`
+  Result: Passed for high and critical findings; npm still reports the previously documented moderate Next/PostCSS advisory requiring a breaking `npm audit fix --force` downgrade.
+- Command: `docker compose build api web`
+  Result: Passed.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: `rg -n "sk-|AKIA|BEGIN .*PRIVATE|OPENAI_API_KEY=|AWS_SECRET_ACCESS_KEY=" . -g '!phases-progress.md' -g '!apps/web/package-lock.json' -g '!node_modules' -g '!.venv' -g '!.npm-cache'`
+  Result: No matches.
+
+Security notes:
+
+- Dashboard reads local API data only and does not introduce secrets.
+- No provider credentials, cloud credentials, or real API keys were added.
+- Existing unauthenticated admin read endpoints remain documented as local/operator foundations pending later security hardening.
+
+Reliability notes:
+
+- Dashboard handles API loading and error states.
+- Fixed-size cards, panels, and tables are responsive across desktop and mobile widths.
+
+Observability notes:
+
+- Dashboard surfaces the first recruiter-visible operational views for usage, errors, latency, estimated cost, prompts, and routes.
+- Prometheus/Grafana/Loki/OpenTelemetry remain later dedicated observability phases.
+
+Scope notes:
+
+- Completed Phase 7 dashboard MVP only.
+- Deferred frontend component tests, broader quality tooling, production Docker hardening, CI, and external observability dashboards to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-push review.
+- Fix commits: pending.
+
+Next phase:
+
+- Phase 8: API and frontend quality baseline
 
 ## Update template
 

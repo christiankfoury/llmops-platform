@@ -102,6 +102,8 @@ Responsibilities:
 - prompt versions
 - model routes
 
+Phase 7 implements the first dashboard screen against real API endpoints.
+
 ### PostgreSQL
 
 Stores:

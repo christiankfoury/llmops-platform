@@ -41,6 +41,8 @@ Local service URLs:
 - PostgreSQL host port: `55432`
 - Redis host port: `56379`
 
+The web dashboard reads the API directly through `NEXT_PUBLIC_API_BASE_URL` and renders usage, recent requests, failures, prompt versions, and model routes.
+
 Stop containers:
 
 ```bash
