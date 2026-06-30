@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 11: Terraform AWS foundation
+Phase 12: Terraform EKS cluster
 
 ## Phase table
 
@@ -32,8 +32,8 @@ Phase 11: Terraform AWS foundation
 | 8 | API and frontend quality baseline | Completed | main | 9e92678 | 2026-06-30 | Ruff lint/format baseline, aggregate check command, frontend Vitest coverage, testing docs, and CI-ready local validation. |
 | 9 | Docker production images | Completed | main | a5ae2d4 | 2026-06-30 | Production API/web Dockerfiles, runtime-only API dependencies, standalone web image, non-root users, health checks, and local image docs. |
 | 10 | CI pipeline | Completed | main | eb1616a | 2026-06-30 | GitHub Actions CI with backend checks, frontend checks, production image builds, dependency audit, image scans, and Terraform/Helm placeholders. |
-| 11 | Terraform AWS foundation | In Progress |  |  |  | VPC, ECR, IAM, secrets placeholders. |
-| 12 | Terraform EKS cluster | Not Started |  |  |  | EKS, node groups, OIDC, access docs. |
+| 11 | Terraform AWS foundation | Completed | main | pending | 2026-06-30 | Terraform dev/staging/prod roots, VPC module, ECR module, Secrets Manager placeholders, optional GitHub OIDC IAM, state docs, and validation docs. |
+| 12 | Terraform EKS cluster | In Progress |  |  |  | EKS, node groups, OIDC, access docs. |
 | 13 | Terraform managed data services | Not Started |  |  |  | RDS PostgreSQL, Redis, backups, security groups. |
 | 14 | Base Kubernetes manifests | Not Started |  |  |  | Deployments, services, ingress, probes, resources. |
 | 15 | Helm chart | Not Started |  |  |  | Chart and values for dev/staging/prod. |
@@ -836,6 +836,87 @@ Post-commit review:
 Next phase:
 
 - Phase 11: Terraform AWS foundation
+
+### Phase 11: Terraform AWS foundation
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added Terraform root modules for `dev`, `staging`, and `prod`.
+- Added an AWS network module for VPC, public subnets, private subnets, route tables, internet gateway, and optional NAT gateway.
+- Added an ECR registry module for immutable API and web repositories with scan-on-push and lifecycle retention.
+- Added a Secrets Manager placeholder module that creates secret containers without secret values or secret versions.
+- Added an IAM module for an optional GitHub Actions OIDC role scoped to repository, branch/environment, and ECR repository ARNs.
+- Added encrypted S3 backend configuration examples for each environment without real bucket or lock table names.
+- Added `.terraform`, state, crash log, and real `.tfvars` ignores while allowing `.tfvars.example`.
+- Added `docs/terraform.md` with remote state, credentials, validation, IAM, and secret-handling guidance.
+- Updated README, deployment docs, and security baseline docs for the Terraform foundation.
+
+Validation:
+
+- Command: `terraform version`
+  Result: Terraform was not installed locally, so validation used the official `hashicorp/terraform:1.10.5` Docker image.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace hashicorp/terraform:1.10.5 fmt -recursive infra/terraform`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/dev hashicorp/terraform:1.10.5 init -backend=false && terraform validate`
+  Result: Passed for dev.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/staging hashicorp/terraform:1.10.5 init -backend=false && terraform validate`
+  Result: Passed for staging.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/prod hashicorp/terraform:1.10.5 init -backend=false && terraform validate`
+  Result: Passed for prod.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace hashicorp/terraform:1.10.5 fmt -check -recursive infra/terraform`
+  Result: Passed.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: `rg -n "sk-|AKIA|BEGIN .*PRIVATE|OPENAI_API_KEY=|AWS_SECRET_ACCESS_KEY=|aws_access_key_id|aws_secret_access_key|[0-9]{12}" . -g '!phases-progress.md' -g '!apps/web/package-lock.json' -g '!node_modules' -g '!.venv' -g '!.npm-cache' -g '!.terraform'`
+  Result: No matches.
+
+Security notes:
+
+- No `terraform apply`, `terraform destroy`, cloud resource creation, or AWS mutation commands were run.
+- No AWS credentials, account IDs, provider keys, or secret values were committed.
+- Secrets Manager module creates placeholders only and does not write secret versions into Terraform state.
+- Optional GitHub OIDC role is disabled by default and uses scoped ECR repository permissions when enabled.
+- `ecr:GetAuthorizationToken` is the only wildcard resource permission and is documented because AWS requires it.
+
+Reliability notes:
+
+- Environments are isolated into separate Terraform roots.
+- Remote state examples use encrypted S3 state and DynamoDB locking placeholders.
+- Staging/prod defaults are more production-like than dev, with longer secret recovery windows and NAT enabled.
+
+Observability notes:
+
+- No runtime observability resources were added in Phase 11.
+- Common resource tags establish environment/project metadata that later monitoring modules can reuse.
+
+Scope notes:
+
+- Completed Phase 11 Terraform AWS foundation only.
+- Deferred EKS, RDS PostgreSQL, ElastiCache Redis, monitoring resources, Kubernetes manifests, Helm charting, and deployment workflows to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-commit review.
+- Fix commits: pending post-commit review.
+
+Next phase:
+
+- Phase 12: Terraform EKS cluster
 
 ## Update template
 

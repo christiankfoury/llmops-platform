@@ -213,6 +213,7 @@ See `phases-progress.md`.
 - `docs/architecture.md`
 - `docs/deployment.md`
 - `docs/testing.md`
+- `docs/terraform.md`
 - `docs/runbook.md`
 - `docs/incident-response.md`
 - `docs/cost-analysis.md`
@@ -221,4 +222,4 @@ See `phases-progress.md`.
 
 ## Status
 
-Phase 1 defines the specification, architecture, environment strategy, and repository structure. Phase 2 adds the minimal monorepo and local development foundation.
+Phases 1-10 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, and CI pipeline. Phase 11 adds the Terraform AWS foundation.

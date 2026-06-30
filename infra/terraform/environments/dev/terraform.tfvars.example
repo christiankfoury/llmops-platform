@@ -1,0 +1,8 @@
+aws_region                = "us-east-1"
+vpc_cidr                  = "10.20.0.0/16"
+az_count                  = 2
+enable_nat_gateway        = false
+max_tagged_images         = 20
+secret_recovery_window_in_days = 7
+create_github_actions_role = false
+github_repository         = "christiankfoury/production-ai-platform"

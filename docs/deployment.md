@@ -150,6 +150,10 @@ Expected flow:
 4. Helm upgrades dev release.
 5. Smoke test runs.
 
+Terraform foundation code for dev, staging, and prod lives under `infra/terraform/environments`. Phase 11 supports safe local `fmt`, `init -backend=false`, and `validate` checks only. Creating AWS resources with `terraform apply` is an explicit approval gate.
+
+See `docs/terraform.md` for backend configuration, AWS credential expectations, and validation commands.
+
 ## Staging deployment
 
 Staging should be manually triggered.

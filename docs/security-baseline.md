@@ -60,6 +60,15 @@ Target controls:
 - explicit security groups
 - backups for non-dev data services
 
+Phase 11 foundation controls:
+
+- AWS provider credentials are not committed and are expected through the standard provider chain.
+- Environment roots are separate for dev, staging, and prod.
+- `backend.hcl.example` files document encrypted S3 state and DynamoDB locking placeholders without real bucket or table names.
+- Secrets Manager resources are placeholders only; secret values are not written to Terraform state.
+- The optional GitHub Actions OIDC role is disabled by default and scoped to repository, branch/environment, and ECR repository ARNs when enabled.
+- `ecr:GetAuthorizationToken` uses resource `"*"` because AWS requires it; ECR publish actions are scoped to repository ARNs.
+
 ## Logging policy
 
 Do log:
