@@ -44,3 +44,19 @@ npm audit --audit-level=high
 ```
 
 npm still reports a moderate Next/PostCSS advisory where the automatic fix is a breaking downgrade. Keep this visible until the Next stable line has a non-breaking patched path.
+
+## CI checks
+
+Phase 10 adds `.github/workflows/ci.yml` for pushes and pull requests targeting `main`.
+
+The workflow runs:
+
+- backend Ruff lint and format checks
+- backend Alembic migration plus pytest against a PostgreSQL service
+- frontend lint, typecheck, Vitest, and high/critical npm audit gate
+- production API and web Docker image builds
+- Trivy high/critical image scans
+- advisory Python dependency scanning with `pip-audit`
+- Terraform and Helm static-check placeholders until those phases add real files
+
+The Python dependency scan is advisory while the dependency policy is still forming. The blocking supply-chain gates in Phase 10 are the frontend high/critical npm audit and high/critical container image scans.

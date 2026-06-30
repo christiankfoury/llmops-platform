@@ -116,6 +116,8 @@ make check
 make docker-build-prod
 ```
 
+GitHub Actions CI runs the same backend/frontend quality checks, production image builds, dependency audit gates, image scans, and infrastructure placeholders on pushes to `main`.
+
 Configuration is documented in `.env.example`, `apps/api/.env.example`, and `apps/web/.env.example`. These examples use local-only placeholder values and do not contain real credentials.
 
 ## Infrastructure Roadmap

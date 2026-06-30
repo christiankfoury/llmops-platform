@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 10: CI pipeline
+Phase 11: Terraform AWS foundation
 
 ## Phase table
 
@@ -31,8 +31,8 @@ Phase 10: CI pipeline
 | 7 | Dashboard MVP | Completed | main | 93e2a73 | 2026-06-30 | Dashboard shows usage summary, requests, failures, prompt versions, and model routes from real API endpoints. |
 | 8 | API and frontend quality baseline | Completed | main | 9e92678 | 2026-06-30 | Ruff lint/format baseline, aggregate check command, frontend Vitest coverage, testing docs, and CI-ready local validation. |
 | 9 | Docker production images | Completed | main | a5ae2d4 | 2026-06-30 | Production API/web Dockerfiles, runtime-only API dependencies, standalone web image, non-root users, health checks, and local image docs. |
-| 10 | CI pipeline | In Progress |  |  |  | GitHub Actions lint, test, build, scan. |
-| 11 | Terraform AWS foundation | Not Started |  |  |  | VPC, ECR, IAM, secrets placeholders. |
+| 10 | CI pipeline | Completed | main | pending | 2026-06-30 | GitHub Actions CI with backend checks, frontend checks, production image builds, dependency audit, image scans, and Terraform/Helm placeholders. |
+| 11 | Terraform AWS foundation | In Progress |  |  |  | VPC, ECR, IAM, secrets placeholders. |
 | 12 | Terraform EKS cluster | Not Started |  |  |  | EKS, node groups, OIDC, access docs. |
 | 13 | Terraform managed data services | Not Started |  |  |  | RDS PostgreSQL, Redis, backups, security groups. |
 | 14 | Base Kubernetes manifests | Not Started |  |  |  | Deployments, services, ingress, probes, resources. |
@@ -762,6 +762,80 @@ Post-commit review:
 Next phase:
 
 - Phase 10: CI pipeline
+
+### Phase 10: CI pipeline
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added `.github/workflows/ci.yml` for pushes and pull requests targeting `main`.
+- Added a backend job with Python 3.12, Ruff lint, Ruff format check, Alembic migration, and pytest against a PostgreSQL service.
+- Added a frontend job with Node 20, npm install, lint, typecheck, Vitest, and high/critical npm audit gate.
+- Added a production Docker job that builds API and web images from the production Dockerfiles.
+- Added Trivy high/critical scans for the production API and web images.
+- Added an advisory Python dependency scan with `pip-audit` while the dependency policy is still forming.
+- Added Terraform format and Helm lint placeholders that become active when later phases add Terraform and Helm files.
+- Updated README and testing docs with the CI workflow scope.
+
+Validation:
+
+- Command: `make check`
+  Result: Passed; Ruff lint, Ruff format check, 11 backend tests, frontend lint, frontend typecheck, and 1 frontend test passed.
+- Command: `make docker-build-prod`
+  Result: Passed; production API and web images built successfully.
+- Command: `npm audit --audit-level=high`
+  Result: Passed for high and critical findings; npm still reports the previously documented moderate Next/PostCSS advisory requiring a breaking `npm audit fix --force` downgrade.
+- Command: workflow sanity check for `.github/workflows/ci.yml`
+  Result: Passed; checked for expected CI/job markers and no tab indentation.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: `rg -n "sk-|AKIA|BEGIN .*PRIVATE|OPENAI_API_KEY=|AWS_SECRET_ACCESS_KEY=" . -g '!phases-progress.md' -g '!apps/web/package-lock.json' -g '!node_modules' -g '!.venv' -g '!.npm-cache'`
+  Result: No matches.
+
+Security notes:
+
+- CI includes frontend high/critical dependency audit and high/critical Trivy image scans.
+- Python dependency audit is included as advisory until a mature allowlist/severity policy is introduced.
+- Workflow permissions are limited to read-only repository contents.
+- No secrets, cloud credentials, provider keys, or real account identifiers were added.
+
+Reliability notes:
+
+- Backend CI runs migrations against PostgreSQL before tests so schema drift breaks the pipeline earlier.
+- Production image builds run in CI before later deployment phases depend on them.
+
+Observability notes:
+
+- No runtime observability behavior changed in Phase 10.
+- CI establishes validation signals that later observability and infrastructure phases can build on.
+
+Scope notes:
+
+- Completed Phase 10 CI workflow only.
+- Deferred registry pushes, deployment workflows, Terraform implementation, Kubernetes manifests, Helm charting, and production approvals to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-commit review.
+- Fix commits: pending post-commit review.
+
+Next phase:
+
+- Phase 11: Terraform AWS foundation
 
 ## Update template
 
