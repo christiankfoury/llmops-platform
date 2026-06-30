@@ -154,6 +154,8 @@ Terraform foundation code for dev, staging, and prod lives under `infra/terrafor
 
 See `docs/terraform.md` for backend configuration, AWS credential expectations, and validation commands.
 
+Phase 12 adds EKS Terraform code and Kubernetes provider wiring. It remains code-only until an explicit approval gate allows AWS resource creation.
+
 ## Staging deployment
 
 Staging should be manually triggered.

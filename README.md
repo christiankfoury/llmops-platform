@@ -222,4 +222,4 @@ See `phases-progress.md`.
 
 ## Status
 
-Phases 1-10 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, and CI pipeline. Phase 11 adds the Terraform AWS foundation.
+Phases 1-11 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, and Terraform AWS foundation. Phase 12 adds the Terraform EKS cluster layer.

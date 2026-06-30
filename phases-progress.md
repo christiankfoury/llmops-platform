@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 12: Terraform EKS cluster
+Phase 13: Terraform managed data services
 
 ## Phase table
 
@@ -33,8 +33,8 @@ Phase 12: Terraform EKS cluster
 | 9 | Docker production images | Completed | main | a5ae2d4 | 2026-06-30 | Production API/web Dockerfiles, runtime-only API dependencies, standalone web image, non-root users, health checks, and local image docs. |
 | 10 | CI pipeline | Completed | main | eb1616a | 2026-06-30 | GitHub Actions CI with backend checks, frontend checks, production image builds, dependency audit, image scans, and Terraform/Helm placeholders. |
 | 11 | Terraform AWS foundation | Completed | main | 53fe58d | 2026-06-30 | Terraform dev/staging/prod roots, VPC module, ECR module, Secrets Manager placeholders, optional GitHub OIDC IAM, state docs, and validation docs. |
-| 12 | Terraform EKS cluster | In Progress |  |  |  | EKS, node groups, OIDC, access docs. |
-| 13 | Terraform managed data services | Not Started |  |  |  | RDS PostgreSQL, Redis, backups, security groups. |
+| 12 | Terraform EKS cluster | Completed | main | pending | 2026-06-30 | EKS module, managed node groups, cluster/node IAM roles, workload identity OIDC provider, Kubernetes provider wiring, and access docs. |
+| 13 | Terraform managed data services | In Progress |  |  |  | RDS PostgreSQL, Redis, backups, security groups. |
 | 14 | Base Kubernetes manifests | Not Started |  |  |  | Deployments, services, ingress, probes, resources. |
 | 15 | Helm chart | Not Started |  |  |  | Chart and values for dev/staging/prod. |
 | 16 | Continuous deployment to dev | Not Started |  |  |  | Auto deploy main to dev. |
@@ -917,6 +917,85 @@ Post-commit review:
 Next phase:
 
 - Phase 12: Terraform EKS cluster
+
+### Phase 12: Terraform EKS cluster
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added a reusable Terraform EKS cluster module.
+- Added EKS control plane IAM role and AWS managed cluster policy attachment.
+- Added managed node group IAM role with EKS worker, CNI, and ECR read-only policies.
+- Added managed node group support with environment-specific scaling, disk, instance type, and label defaults.
+- Added an EKS OIDC provider for IAM Roles for Service Accounts and future External Secrets/workload identity use.
+- Wired the EKS module into dev, staging, and prod Terraform roots.
+- Added Kubernetes provider wiring from EKS cluster data sources for later Kubernetes and Helm phases.
+- Updated Terraform provider locks for AWS, Kubernetes, and TLS providers.
+- Updated Terraform, architecture, deployment, security, and README docs with EKS access and scope notes.
+
+Validation:
+
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace hashicorp/terraform:1.10.5 fmt -recursive infra/terraform`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/dev hashicorp/terraform:1.10.5 init -backend=false -upgrade && terraform validate`
+  Result: Passed for dev.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/staging hashicorp/terraform:1.10.5 init -backend=false -upgrade && terraform validate`
+  Result: Passed for staging.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/prod hashicorp/terraform:1.10.5 init -backend=false -upgrade && terraform validate`
+  Result: Passed for prod.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace hashicorp/terraform:1.10.5 fmt -check -recursive infra/terraform`
+  Result: Passed.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: `rg -n "sk-|AKIA|BEGIN .*PRIVATE|OPENAI_API_KEY=|AWS_SECRET_ACCESS_KEY=|aws_access_key_id|aws_secret_access_key|[0-9]{12}" . -g '!phases-progress.md' -g '!apps/web/package-lock.json' -g '!node_modules' -g '!.venv' -g '!.npm-cache' -g '!.terraform'`
+  Result: No matches.
+
+Security notes:
+
+- No `terraform apply`, `terraform destroy`, cloud resource creation, or AWS mutation commands were run.
+- No AWS credentials, account IDs, provider keys, kubeconfigs, or secret values were committed.
+- Workload identity path is prepared through an environment-specific EKS OIDC provider.
+- Managed node groups use AWS managed worker/CNI/ECR read-only policies; pod-level least privilege is deferred to Kubernetes and secrets phases.
+- Prod defaults disable public EKS endpoint access.
+
+Reliability notes:
+
+- Managed node groups include min/desired/max scaling defaults per environment.
+- EKS control plane log types are configurable and broader for staging/prod than dev.
+- Kubernetes provider wiring prepares later manifest and Helm validation against the cluster after approved creation.
+
+Observability notes:
+
+- EKS control plane log type configuration is included.
+- Prometheus, Grafana, Loki, and OpenTelemetry resources remain dedicated later observability phases.
+
+Scope notes:
+
+- Completed Phase 12 EKS Terraform only.
+- Deferred RDS PostgreSQL, ElastiCache Redis, Kubernetes workload manifests, Helm charting, deployment workflows, and live cluster creation to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-commit review.
+- Fix commits: pending post-commit review.
+
+Next phase:
+
+- Phase 13: Terraform managed data services
 
 ## Update template
 

@@ -21,6 +21,21 @@ module "network" {
   tags               = local.common_tags
 }
 
+module "cluster" {
+  source = "../../modules/cluster"
+
+  name_prefix               = local.name_prefix
+  environment               = local.environment
+  private_subnet_ids        = module.network.private_subnet_ids
+  kubernetes_version        = var.kubernetes_version
+  endpoint_private_access   = var.eks_endpoint_private_access
+  endpoint_public_access    = var.eks_endpoint_public_access
+  public_access_cidrs       = var.eks_public_access_cidrs
+  enabled_cluster_log_types = var.eks_enabled_cluster_log_types
+  node_groups               = var.eks_node_groups
+  tags                      = local.common_tags
+}
+
 module "registry" {
   source = "../../modules/registry"
 

@@ -10,6 +10,7 @@ Current modules:
 - `modules/registry`: ECR repositories for API and web images with immutable tags and scan-on-push
 - `modules/secrets`: AWS Secrets Manager placeholder secrets without secret values
 - `modules/iam`: optional GitHub Actions OIDC role for future ECR publishing
+- `modules/cluster`: EKS cluster, managed node groups, cluster/node IAM roles, and OIDC provider for workload identity
 
 Current environments:
 
@@ -17,7 +18,7 @@ Current environments:
 - `environments/staging`
 - `environments/prod`
 
-Later phases add EKS, RDS PostgreSQL, ElastiCache Redis, Kubernetes, Helm, deployment workflows, and stronger security controls.
+Later phases add RDS PostgreSQL, ElastiCache Redis, Kubernetes workload manifests, Helm, deployment workflows, and stronger security controls.
 
 ## Credentials
 
@@ -60,6 +61,39 @@ docker run --rm -v "$PWD:/workspace" -w /workspace/infra/terraform/environments/
 ```
 
 Repeat `init -backend=false` and `validate` for staging and prod.
+
+## EKS Cluster
+
+Phase 12 wires the EKS module into every environment.
+
+The cluster module creates:
+
+- EKS control plane
+- EKS cluster IAM role
+- managed node group IAM role
+- managed node groups in private subnets
+- EKS OIDC provider for IAM Roles for Service Accounts
+- control plane log type configuration
+
+Environment defaults:
+
+- dev: two availability zones, one small on-demand node group, public and private endpoint access
+- staging: two availability zones, one on-demand node group, full control plane logging
+- prod: three availability zones, larger on-demand node group, private endpoint access by default
+
+`kubernetes_version` defaults to `null` so AWS selects the default supported EKS version at creation time. Pin a version per environment before any approved real deployment if release control requires it.
+
+The Kubernetes provider is configured from the EKS cluster data sources so later Kubernetes and Helm phases can use the same environment root after the cluster exists.
+
+Cluster access after an approved apply:
+
+```bash
+aws eks update-kubeconfig \
+  --region us-east-1 \
+  --name production-ai-platform-dev-eks
+```
+
+Replace the environment and region as needed. Production endpoint defaults are private, so access requires network reachability to the VPC.
 
 ## Environment Defaults
 

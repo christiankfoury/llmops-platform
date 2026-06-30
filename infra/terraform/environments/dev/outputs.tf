@@ -18,6 +18,26 @@ output "ecr_repository_urls" {
   value       = module.registry.repository_urls
 }
 
+output "eks_cluster_name" {
+  description = "Dev EKS cluster name."
+  value       = module.cluster.cluster_name
+}
+
+output "eks_cluster_endpoint" {
+  description = "Dev EKS cluster endpoint."
+  value       = module.cluster.cluster_endpoint
+}
+
+output "eks_oidc_provider_arn" {
+  description = "Dev EKS OIDC provider ARN for workload identity."
+  value       = module.cluster.oidc_provider_arn
+}
+
+output "eks_node_role_arn" {
+  description = "Dev EKS node IAM role ARN."
+  value       = module.cluster.node_role_arn
+}
+
 output "secret_names" {
   description = "Dev Secrets Manager placeholder names."
   value       = module.secrets.secret_names

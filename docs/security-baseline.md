@@ -68,6 +68,7 @@ Phase 11 foundation controls:
 - Secrets Manager resources are placeholders only; secret values are not written to Terraform state.
 - The optional GitHub Actions OIDC role is disabled by default and scoped to repository, branch/environment, and ECR repository ARNs when enabled.
 - `ecr:GetAuthorizationToken` uses resource `"*"` because AWS requires it; ECR publish actions are scoped to repository ARNs.
+- EKS workload identity is prepared through an environment-specific OIDC provider so later Kubernetes service accounts can use scoped IAM roles instead of node-wide credentials.
 
 ## Logging policy
 

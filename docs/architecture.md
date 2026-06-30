@@ -153,6 +153,8 @@ Terraform environments will stay explicit:
 
 Reusable modules will live under `infra/terraform/modules` and should avoid hardcoded account IDs, secrets, or environment-specific assumptions.
 
+Phase 11 adds the AWS foundation modules for network, ECR, IAM, and Secrets Manager placeholders. Phase 12 adds the EKS cluster module with managed node groups, cluster/node IAM roles, workload identity OIDC provider, and Kubernetes provider wiring.
+
 ### Kubernetes
 
 Workloads:

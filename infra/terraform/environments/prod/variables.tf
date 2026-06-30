@@ -22,6 +22,64 @@ variable "enable_nat_gateway" {
   default     = true
 }
 
+variable "kubernetes_version" {
+  description = "Optional EKS Kubernetes version. Null lets AWS choose the default at cluster creation."
+  type        = string
+  default     = null
+}
+
+variable "eks_endpoint_private_access" {
+  description = "Whether the EKS API endpoint is reachable inside the VPC."
+  type        = bool
+  default     = true
+}
+
+variable "eks_endpoint_public_access" {
+  description = "Whether the EKS API endpoint is reachable publicly."
+  type        = bool
+  default     = false
+}
+
+variable "eks_public_access_cidrs" {
+  description = "CIDR ranges allowed to reach the public EKS API endpoint."
+  type        = list(string)
+  default     = []
+}
+
+variable "eks_enabled_cluster_log_types" {
+  description = "EKS control plane log types to enable."
+  type        = list(string)
+  default     = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+}
+
+variable "eks_node_groups" {
+  description = "Managed node groups for prod."
+  type = map(object({
+    ami_type        = optional(string, "AL2_x86_64")
+    capacity_type   = optional(string, "ON_DEMAND")
+    desired_size    = number
+    disk_size       = optional(number, 40)
+    instance_types  = list(string)
+    labels          = optional(map(string), {})
+    max_size        = number
+    max_unavailable = optional(number, 1)
+    min_size        = number
+  }))
+  default = {
+    system = {
+      capacity_type  = "ON_DEMAND"
+      desired_size   = 3
+      disk_size      = 80
+      instance_types = ["t3.large"]
+      labels = {
+        workload = "system"
+      }
+      max_size = 6
+      min_size = 3
+    }
+  }
+}
+
 variable "ecr_repository_names" {
   description = "Application image repositories."
   type        = list(string)
