@@ -24,7 +24,7 @@ Phase 4: LLM gateway API foundation
 |---:|---|---|---|---|---|---|
 | 1 | Project specification and architecture | Completed | main | d09361b | 2026-06-30 | Defined scope, architecture, repo structure, environment strategy, and portfolio claims. |
 | 2 | Minimal monorepo and local development foundation | Completed | main | e500c58 | 2026-06-30 | FastAPI health skeleton, Next.js dashboard shell, Docker Compose local stack, env examples, Makefile commands, smoke-tested local health endpoints. |
-| 3 | Database schema and migrations | Completed | pending | pending | 2026-06-30 | SQLAlchemy model foundation, Alembic migration, and idempotent local seed data. |
+| 3 | Database schema and migrations | Completed | main | ee23497 | 2026-06-30 | SQLAlchemy model foundation, Alembic migration, and idempotent local seed data. |
 | 4 | LLM gateway API foundation | In Progress |  |  |  | API key auth, prompt lookup, model routing, mock provider. |
 | 5 | Cost, latency, and failure tracking | Not Started |  |  |  | Request metrics, cost estimates, failure categories. |
 | 6 | Prompt versioning and model routing controls | Not Started |  |  |  | Admin config endpoints and audit logs. |
@@ -212,11 +212,11 @@ Status: Completed
 
 Pushed to:
 
-- pending
+- main
 
 Commit:
 
-- pending
+- ee23497
 
 Completed date:
 
@@ -280,9 +280,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending post-push review.
-- Fix commits: pending.
+- Pushed commit: ee23497
+- Top findings: Phase progress used temporary commit placeholders because the final commit hash was unavailable before the commit existed.
+- Fix commits: Follow-up documentation commit records the pushed Phase 3 hash and post-commit review result.
 
 Next phase:
 
