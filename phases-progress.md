@@ -29,7 +29,7 @@ Phase 9: Docker production images
 | 5 | Cost, latency, and failure tracking | Completed | main | 45ad934 | 2026-06-30 | Latency, token estimates, mock cost calculation, provider failure categories, cost records, and usage summary. |
 | 6 | Prompt versioning and model routing controls | Completed | main | a755132 | 2026-06-30 | Admin prompt/model route controls, activation/default behavior, and audit logs. |
 | 7 | Dashboard MVP | Completed | main | 93e2a73 | 2026-06-30 | Dashboard shows usage summary, requests, failures, prompt versions, and model routes from real API endpoints. |
-| 8 | API and frontend quality baseline | Completed | main | pending | 2026-06-30 | Ruff lint/format baseline, aggregate check command, frontend Vitest coverage, testing docs, and CI-ready local validation. |
+| 8 | API and frontend quality baseline | Completed | main | 9e92678 | 2026-06-30 | Ruff lint/format baseline, aggregate check command, frontend Vitest coverage, testing docs, and CI-ready local validation. |
 | 9 | Docker production images | In Progress |  |  |  | Production API/web containers. |
 | 10 | CI pipeline | Not Started |  |  |  | GitHub Actions lint, test, build, scan. |
 | 11 | Terraform AWS foundation | Not Started |  |  |  | VPC, ECR, IAM, secrets placeholders. |
@@ -624,7 +624,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- 9e92678
 
 Completed date:
 
@@ -674,9 +674,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending post-commit review.
-- Fix commits: pending post-commit review.
+- Pushed commit: 9e92678
+- Top findings: Phase progress used temporary commit placeholders because the final commit hash was unavailable before the commit existed.
+- Fix commits: Follow-up documentation commit records the pushed Phase 8 hash and post-commit review result.
 
 Next phase:
 
