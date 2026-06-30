@@ -56,6 +56,49 @@ make api-migrate
 make api-seed
 ```
 
+## Production image builds
+
+Phase 9 adds production Dockerfiles for the API and web dashboard while keeping the development Dockerfiles used by Docker Compose.
+
+Build both production images:
+
+```bash
+make docker-build-prod
+```
+
+Equivalent direct commands:
+
+```bash
+docker build -f apps/api/Dockerfile -t production-ai-platform-api:prod apps/api
+docker build -f apps/web/Dockerfile -t production-ai-platform-web:prod apps/web
+```
+
+The API production image:
+
+- installs runtime dependencies from `requirements.prod.txt`
+- excludes test and formatting tools from the runtime dependency set
+- runs as non-root user `10001`
+- exposes port `8000`
+- defines a container health check against `/health/live`
+- reads `ENVIRONMENT`, `DATABASE_URL`, `REDIS_URL`, and `API_CORS_ORIGINS` from environment variables
+
+The web production image:
+
+- uses a multi-stage Next.js standalone build
+- runs as non-root user `10001`
+- exposes port `3000`
+- defines a container health check against `/`
+- reads `API_BASE_URL` or `NEXT_PUBLIC_API_BASE_URL` at runtime through `/api/runtime-config`
+
+Local production-image smoke test:
+
+```bash
+docker run --rm -p 18000:8000 production-ai-platform-api:prod
+docker run --rm -p 13000:3000 -e API_BASE_URL=http://host.docker.internal:8000 production-ai-platform-web:prod
+```
+
+Those commands start containers locally only. Cloud registry publishing and Kubernetes deployment are later-phase work.
+
 Smoke-test the local gateway with the seeded placeholder key:
 
 ```bash

@@ -5,6 +5,9 @@ import { afterEach, beforeEach, test, vi } from "vitest";
 import { Dashboard } from "./dashboard";
 
 const responses: Record<string, unknown> = {
+  "/api/runtime-config": {
+    apiBaseUrl: "http://api.test"
+  },
   "/v1/usage/summary": {
     request_count: 42,
     error_count: 3,
@@ -72,7 +75,9 @@ beforeEach(() => {
     "fetch",
     vi.fn((input: RequestInfo | URL) => {
       const url = input.toString();
-      const path = new URL(url).pathname + new URL(url).search;
+      const path = url.startsWith("/")
+        ? url
+        : new URL(url).pathname + new URL(url).search;
       return Promise.resolve({
         ok: true,
         json: () => Promise.resolve(responses[path])
@@ -94,6 +99,7 @@ test("renders dashboard data from API responses", async () => {
   screen.getByText("3");
   screen.getByText("123 ms");
   screen.getByText("$0.012345");
+  screen.getByText("http://api.test");
   screen.getAllByText("mock-llm-small");
   screen.getByText("provider_error");
   screen.getByText("default-chat");

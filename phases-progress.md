@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 9: Docker production images
+Phase 10: CI pipeline
 
 ## Phase table
 
@@ -30,8 +30,8 @@ Phase 9: Docker production images
 | 6 | Prompt versioning and model routing controls | Completed | main | a755132 | 2026-06-30 | Admin prompt/model route controls, activation/default behavior, and audit logs. |
 | 7 | Dashboard MVP | Completed | main | 93e2a73 | 2026-06-30 | Dashboard shows usage summary, requests, failures, prompt versions, and model routes from real API endpoints. |
 | 8 | API and frontend quality baseline | Completed | main | 9e92678 | 2026-06-30 | Ruff lint/format baseline, aggregate check command, frontend Vitest coverage, testing docs, and CI-ready local validation. |
-| 9 | Docker production images | In Progress |  |  |  | Production API/web containers. |
-| 10 | CI pipeline | Not Started |  |  |  | GitHub Actions lint, test, build, scan. |
+| 9 | Docker production images | Completed | main | pending | 2026-06-30 | Production API/web Dockerfiles, runtime-only API dependencies, standalone web image, non-root users, health checks, and local image docs. |
+| 10 | CI pipeline | In Progress |  |  |  | GitHub Actions lint, test, build, scan. |
 | 11 | Terraform AWS foundation | Not Started |  |  |  | VPC, ECR, IAM, secrets placeholders. |
 | 12 | Terraform EKS cluster | Not Started |  |  |  | EKS, node groups, OIDC, access docs. |
 | 13 | Terraform managed data services | Not Started |  |  |  | RDS PostgreSQL, Redis, backups, security groups. |
@@ -681,6 +681,87 @@ Post-commit review:
 Next phase:
 
 - Phase 9: Docker production images
+
+### Phase 9: Docker production images
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added a production API Dockerfile that installs runtime dependencies from `requirements.prod.txt`.
+- Added a production web Dockerfile that builds a Next.js standalone runtime image.
+- Kept the existing development Dockerfiles for Docker Compose local development.
+- Expanded API and web `.dockerignore` files to keep tests, caches, local env files, and dev artifacts out of production build contexts.
+- Added non-root runtime users for both production images.
+- Added container health checks for API `/health/live` and web `/`.
+- Added a web runtime config endpoint so `API_BASE_URL` or `NEXT_PUBLIC_API_BASE_URL` can be read from environment at container startup.
+- Added `make docker-build-prod` and documented production image build and local smoke commands.
+
+Validation:
+
+- Command: `make check`
+  Result: Passed; Ruff lint, Ruff format check, 11 backend tests, frontend lint, frontend typecheck, and 1 frontend test passed.
+- Command: `make docker-build-prod`
+  Result: Passed; production API and web images built successfully.
+- Command: `docker image inspect production-ai-platform-api:prod` and `docker image inspect production-ai-platform-web:prod`
+  Result: Passed; images define non-root users and health checks.
+- Command: `docker run --rm production-ai-platform-api:prod python -c "... find_spec('pytest') ... find_spec('ruff') ..."`
+  Result: Passed; production API runtime image does not include pytest or Ruff.
+- Command: local production API container smoke on port `18080`
+  Result: Passed; `/health/live` returned `ok` and container user was `uid=10001(appuser)`.
+- Command: local production web container smoke on port `13080`
+  Result: Passed; `/` returned HTTP 200, `/api/runtime-config` returned runtime `API_BASE_URL`, and container user was `uid=10001(nextjs)`.
+- Command: `npm audit --audit-level=high`
+  Result: Passed for high and critical findings; npm still reports the previously documented moderate Next/PostCSS advisory requiring a breaking `npm audit fix --force` downgrade.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: `rg -n "sk-|AKIA|BEGIN .*PRIVATE|OPENAI_API_KEY=|AWS_SECRET_ACCESS_KEY=" . -g '!phases-progress.md' -g '!apps/web/package-lock.json' -g '!node_modules' -g '!.venv' -g '!.npm-cache'`
+  Result: No matches.
+
+Security notes:
+
+- Production containers run as non-root users.
+- API production dependencies exclude test and lint tooling.
+- No secrets, provider keys, cloud credentials, or real API keys were added.
+- Runtime environment variables are documented without committing secret values.
+
+Reliability notes:
+
+- Both images define container health checks.
+- API image exposes the existing liveness endpoint for orchestration health probes.
+- Web image uses Next standalone output to reduce runtime filesystem and dependency surface.
+
+Observability notes:
+
+- No new metrics, traces, or log aggregation were added in Phase 9.
+- Container health checks improve the runtime signal available to later Kubernetes and Helm phases.
+
+Scope notes:
+
+- Completed Phase 9 production image work only.
+- Deferred CI workflow automation, registry publishing, Kubernetes manifests, Helm charting, image scanning enforcement, and cloud deployment to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-commit review.
+- Fix commits: pending post-commit review.
+
+Next phase:
+
+- Phase 10: CI pipeline
 
 ## Update template
 

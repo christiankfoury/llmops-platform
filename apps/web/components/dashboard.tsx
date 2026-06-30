@@ -46,6 +46,7 @@ type DashboardState =
   | { status: "error"; message: string }
   | {
       status: "ready";
+      apiBaseUrl: string;
       summary: UsageSummary;
       requests: GatewayRequest[];
       errors: GatewayRequest[];
@@ -53,16 +54,28 @@ type DashboardState =
       routes: ModelRoute[];
     };
 
-const apiBaseUrl =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ??
-  "http://localhost:8000";
+type RuntimeConfig = {
+  apiBaseUrl: string;
+};
 
-async function getJson<T>(path: string, signal: AbortSignal): Promise<T> {
+async function getJson<T>(
+  apiBaseUrl: string,
+  path: string,
+  signal: AbortSignal
+): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, { signal });
   if (!response.ok) {
     throw new Error(`${path} returned ${response.status}`);
   }
   return (await response.json()) as T;
+}
+
+async function getRuntimeConfig(signal: AbortSignal): Promise<RuntimeConfig> {
+  const response = await fetch("/api/runtime-config", { signal });
+  if (!response.ok) {
+    throw new Error(`runtime config returned ${response.status}`);
+  }
+  return (await response.json()) as RuntimeConfig;
 }
 
 export function Dashboard() {
@@ -73,15 +86,28 @@ export function Dashboard() {
 
     async function loadDashboard() {
       try {
+        const { apiBaseUrl } = await getRuntimeConfig(controller.signal);
         const [summary, requests, errors, prompts, routes] = await Promise.all([
-          getJson<UsageSummary>("/v1/usage/summary", controller.signal),
-          getJson<GatewayRequest[]>("/v1/usage/requests?limit=12", controller.signal),
-          getJson<GatewayRequest[]>("/v1/usage/errors?limit=8", controller.signal),
-          getJson<PromptVersion[]>("/v1/admin/prompt-versions", controller.signal),
-          getJson<ModelRoute[]>("/v1/admin/model-routes", controller.signal)
+          getJson<UsageSummary>(apiBaseUrl, "/v1/usage/summary", controller.signal),
+          getJson<GatewayRequest[]>(
+            apiBaseUrl,
+            "/v1/usage/requests?limit=12",
+            controller.signal
+          ),
+          getJson<GatewayRequest[]>(
+            apiBaseUrl,
+            "/v1/usage/errors?limit=8",
+            controller.signal
+          ),
+          getJson<PromptVersion[]>(
+            apiBaseUrl,
+            "/v1/admin/prompt-versions",
+            controller.signal
+          ),
+          getJson<ModelRoute[]>(apiBaseUrl, "/v1/admin/model-routes", controller.signal)
         ]);
 
-        setState({ status: "ready", summary, requests, errors, prompts, routes });
+        setState({ status: "ready", apiBaseUrl, summary, requests, errors, prompts, routes });
       } catch (error) {
         if (controller.signal.aborted) {
           return;
@@ -162,7 +188,9 @@ export function Dashboard() {
           <p className={styles.kicker}>LLMOps Dashboard</p>
           <h1>Production AI Platform</h1>
         </div>
-        <div className={styles.endpoint}>{apiBaseUrl}</div>
+        <div className={styles.endpoint}>
+          {state.status === "ready" ? state.apiBaseUrl : "loading"}
+        </div>
       </header>
       {content}
     </main>

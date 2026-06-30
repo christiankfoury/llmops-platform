@@ -1,9 +1,13 @@
 API_PYTHON ?= .venv/Scripts/python
 NPM ?= npm
 
-.PHONY: check local-up local-down local-logs api-format-check api-lint api-migrate api-seed api-test web-lint web-test web-typecheck
+.PHONY: check docker-build-prod local-up local-down local-logs api-format-check api-lint api-migrate api-seed api-test web-lint web-test web-typecheck
 
 check: api-lint api-format-check api-test web-lint web-typecheck web-test
+
+docker-build-prod:
+	docker build -f apps/api/Dockerfile -t production-ai-platform-api:prod apps/api
+	docker build -f apps/web/Dockerfile -t production-ai-platform-web:prod apps/web
 
 local-up:
 	docker compose up --build

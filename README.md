@@ -113,6 +113,7 @@ make web-lint
 make web-typecheck
 make web-test
 make check
+make docker-build-prod
 ```
 
 Configuration is documented in `.env.example`, `apps/api/.env.example`, and `apps/web/.env.example`. These examples use local-only placeholder values and do not contain real credentials.
