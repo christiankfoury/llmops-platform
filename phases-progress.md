@@ -25,7 +25,7 @@ Phase 5: Cost, latency, and failure tracking
 | 1 | Project specification and architecture | Completed | main | d09361b | 2026-06-30 | Defined scope, architecture, repo structure, environment strategy, and portfolio claims. |
 | 2 | Minimal monorepo and local development foundation | Completed | main | e500c58 | 2026-06-30 | FastAPI health skeleton, Next.js dashboard shell, Docker Compose local stack, env examples, Makefile commands, smoke-tested local health endpoints. |
 | 3 | Database schema and migrations | Completed | main | ee23497 | 2026-06-30 | SQLAlchemy model foundation, Alembic migration, and idempotent local seed data. |
-| 4 | LLM gateway API foundation | Completed | pending | pending | 2026-06-30 | Gateway endpoint, hashed API key auth, prompt/route lookup, mock provider, and request persistence. |
+| 4 | LLM gateway API foundation | Completed | main | 8bf0694 | 2026-06-30 | Gateway endpoint, hashed API key auth, prompt/route lookup, mock provider, and request persistence. |
 | 5 | Cost, latency, and failure tracking | In Progress |  |  |  | Request metrics, cost estimates, failure categories. |
 | 6 | Prompt versioning and model routing controls | Not Started |  |  |  | Admin config endpoints and audit logs. |
 | 7 | Dashboard MVP | Not Started |  |  |  | Usage, cost, latency, errors, routes, prompts. |
@@ -294,11 +294,11 @@ Status: Completed
 
 Pushed to:
 
-- pending
+- main
 
 Commit:
 
-- pending
+- 8bf0694
 
 Completed date:
 
@@ -360,9 +360,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending post-push review.
-- Fix commits: pending.
+- Pushed commit: 8bf0694
+- Top findings: Phase progress used temporary commit placeholders because the final commit hash was unavailable before the commit existed.
+- Fix commits: Follow-up documentation commit records the pushed Phase 4 hash and post-commit review result.
 
 Next phase:
 
