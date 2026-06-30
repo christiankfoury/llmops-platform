@@ -29,11 +29,7 @@ def complete_with_mock_provider(
     if "[simulate_failure]" in user_input:
         raise MockProviderError("Mock provider failed")
 
-    output = (
-        f"[mock:{route.model_name}] "
-        f"{prompt.content} "
-        f"Input received: {user_input}"
-    )
+    output = f"[mock:{route.model_name}] {prompt.content} Input received: {user_input}"
     return MockProviderResult(
         output=output,
         input_tokens=estimate_tokens(prompt.content) + estimate_tokens(user_input),

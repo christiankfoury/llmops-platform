@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 8: API and frontend quality baseline
+Phase 9: Docker production images
 
 ## Phase table
 
@@ -29,8 +29,8 @@ Phase 8: API and frontend quality baseline
 | 5 | Cost, latency, and failure tracking | Completed | main | 45ad934 | 2026-06-30 | Latency, token estimates, mock cost calculation, provider failure categories, cost records, and usage summary. |
 | 6 | Prompt versioning and model routing controls | Completed | main | a755132 | 2026-06-30 | Admin prompt/model route controls, activation/default behavior, and audit logs. |
 | 7 | Dashboard MVP | Completed | main | 93e2a73 | 2026-06-30 | Dashboard shows usage summary, requests, failures, prompt versions, and model routes from real API endpoints. |
-| 8 | API and frontend quality baseline | In Progress |  |  |  | Lint, tests, type checks, quality commands. |
-| 9 | Docker production images | Not Started |  |  |  | Production API/web containers. |
+| 8 | API and frontend quality baseline | Completed | main | pending | 2026-06-30 | Ruff lint/format baseline, aggregate check command, frontend Vitest coverage, testing docs, and CI-ready local validation. |
+| 9 | Docker production images | In Progress |  |  |  | Production API/web containers. |
 | 10 | CI pipeline | Not Started |  |  |  | GitHub Actions lint, test, build, scan. |
 | 11 | Terraform AWS foundation | Not Started |  |  |  | VPC, ECR, IAM, secrets placeholders. |
 | 12 | Terraform EKS cluster | Not Started |  |  |  | EKS, node groups, OIDC, access docs. |
@@ -613,6 +613,74 @@ Post-commit review:
 Next phase:
 
 - Phase 8: API and frontend quality baseline
+
+### Phase 8: API and frontend quality baseline
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added Ruff as the backend lint and format baseline.
+- Added root Ruff configuration and Makefile commands for `api-lint`, `api-format-check`, `web-test`, and aggregate `check`.
+- Updated existing backend code with Ruff import ordering and formatting.
+- Added Vitest, Testing Library, jsdom, and a dashboard render test covering summary cards and live API-backed sections.
+- Documented local quality commands, CI-ready checks, Docker build checks, Alembic drift checks, and the current npm audit advisory in `docs/testing.md`.
+- Updated README with the one-command local quality workflow.
+
+Validation:
+
+- Command: `make check`
+  Result: Passed; Ruff lint, Ruff format check, 11 backend tests, frontend lint, frontend typecheck, and 1 frontend test passed.
+- Command: `npm audit --audit-level=high`
+  Result: Passed for high and critical findings; npm still reports the previously documented moderate Next/PostCSS advisory requiring a breaking `npm audit fix --force` downgrade.
+- Command: `docker compose build api web`
+  Result: Passed for the local dev API and web images.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: `rg -n "sk-|AKIA|BEGIN .*PRIVATE|OPENAI_API_KEY=|AWS_SECRET_ACCESS_KEY=" . -g '!phases-progress.md' -g '!apps/web/package-lock.json' -g '!node_modules' -g '!.venv' -g '!.npm-cache'`
+  Result: No matches.
+
+Security notes:
+
+- No secrets, provider keys, cloud credentials, or real API keys were added.
+- Dependency audit passes the high/critical threshold; the remaining moderate Next/PostCSS advisory is documented with its breaking automatic fix caveat.
+
+Reliability notes:
+
+- The aggregate `make check` command gives a repeatable pre-CI validation path for backend and frontend changes.
+- Dashboard rendering now has a basic regression test so API-backed dashboard sections are less fragile.
+
+Observability notes:
+
+- No runtime observability behavior changed in Phase 8.
+- Quality checks now protect the existing usage, latency, cost, and error dashboard behavior.
+
+Scope notes:
+
+- Completed Phase 8 quality tooling, tests, and documentation only.
+- Deferred production Docker hardening, CI workflow automation, Terraform, Helm, Kubernetes, and observability instrumentation to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-commit review.
+- Fix commits: pending post-commit review.
+
+Next phase:
+
+- Phase 9: Docker production images
 
 ## Update template
 

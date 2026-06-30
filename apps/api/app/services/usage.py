@@ -9,9 +9,14 @@ from app.schemas.usage import GatewayRequestRecord, UsageSummary
 
 def get_usage_summary(db: Session) -> UsageSummary:
     request_count = db.scalar(select(func.count(GatewayRequest.id))) or 0
-    error_count = db.scalar(
-        select(func.coalesce(func.sum(case((GatewayRequest.status == "failed", 1), else_=0)), 0))
-    ) or 0
+    error_count = (
+        db.scalar(
+            select(
+                func.coalesce(func.sum(case((GatewayRequest.status == "failed", 1), else_=0)), 0)
+            )
+        )
+        or 0
+    )
     average_latency = db.scalar(select(func.coalesce(func.avg(GatewayRequest.latency_ms), 0))) or 0
     estimated_cost = db.scalar(select(func.coalesce(func.sum(CostRecord.estimated_cost_usd), 0)))
 
@@ -25,9 +30,7 @@ def get_usage_summary(db: Session) -> UsageSummary:
 
 def list_recent_requests(db: Session, limit: int = 20) -> list[GatewayRequestRecord]:
     requests = db.scalars(
-        select(GatewayRequest)
-        .order_by(GatewayRequest.created_at.desc())
-        .limit(min(limit, 100))
+        select(GatewayRequest).order_by(GatewayRequest.created_at.desc()).limit(min(limit, 100))
     )
     return [_to_record(request) for request in requests]
 

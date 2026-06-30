@@ -7,8 +7,8 @@ Create Date: 2026-06-30
 
 from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision: str = "0001_create_llmops_schema"
@@ -89,7 +89,9 @@ def upgrade() -> None:
             name="uq_prompt_versions_scope_name_version",
         ),
     )
-    op.create_index(op.f("ix_prompt_versions_application_id"), "prompt_versions", ["application_id"])
+    op.create_index(
+        op.f("ix_prompt_versions_application_id"), "prompt_versions", ["application_id"]
+    )
     op.create_index(op.f("ix_prompt_versions_project_id"), "prompt_versions", ["project_id"])
 
     op.create_table(
@@ -139,12 +141,22 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_gateway_requests_api_key_id"), "gateway_requests", ["api_key_id"])
-    op.create_index(op.f("ix_gateway_requests_application_id"), "gateway_requests", ["application_id"])
-    op.create_index(op.f("ix_gateway_requests_error_category"), "gateway_requests", ["error_category"])
-    op.create_index(op.f("ix_gateway_requests_model_route_id"), "gateway_requests", ["model_route_id"])
+    op.create_index(
+        op.f("ix_gateway_requests_application_id"), "gateway_requests", ["application_id"]
+    )
+    op.create_index(
+        op.f("ix_gateway_requests_error_category"), "gateway_requests", ["error_category"]
+    )
+    op.create_index(
+        op.f("ix_gateway_requests_model_route_id"), "gateway_requests", ["model_route_id"]
+    )
     op.create_index(op.f("ix_gateway_requests_project_id"), "gateway_requests", ["project_id"])
-    op.create_index(op.f("ix_gateway_requests_prompt_version_id"), "gateway_requests", ["prompt_version_id"])
-    op.create_index(op.f("ix_gateway_requests_request_id"), "gateway_requests", ["request_id"], unique=True)
+    op.create_index(
+        op.f("ix_gateway_requests_prompt_version_id"), "gateway_requests", ["prompt_version_id"]
+    )
+    op.create_index(
+        op.f("ix_gateway_requests_request_id"), "gateway_requests", ["request_id"], unique=True
+    )
 
     op.create_table(
         "audit_logs",
@@ -182,7 +194,9 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(["application_id"], ["applications.id"], ondelete="RESTRICT"),
-        sa.ForeignKeyConstraint(["gateway_request_id"], ["gateway_requests.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["gateway_request_id"], ["gateway_requests.id"], ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(["project_id"], ["projects.id"], ondelete="RESTRICT"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("gateway_request_id"),

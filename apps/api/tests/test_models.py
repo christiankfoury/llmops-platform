@@ -1,5 +1,5 @@
-from app.db.base import Base
 from app import models  # noqa: F401
+from app.db.base import Base
 
 
 def test_metadata_includes_phase_three_tables() -> None:

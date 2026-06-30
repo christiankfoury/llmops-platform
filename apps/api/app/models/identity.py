@@ -25,9 +25,7 @@ class Project(UuidPrimaryKeyMixin, TimestampMixin, Base):
 
 class Application(UuidPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "applications"
-    __table_args__ = (
-        UniqueConstraint("project_id", "slug", name="uq_applications_project_slug"),
-    )
+    __table_args__ = (UniqueConstraint("project_id", "slug", name="uq_applications_project_slug"),)
 
     project_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),

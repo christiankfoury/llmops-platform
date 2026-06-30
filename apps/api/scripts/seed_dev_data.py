@@ -1,9 +1,8 @@
 import hashlib
 
-from sqlalchemy import select
-
 from app.db.session import SessionLocal
 from app.models import ApiKey, Application, AuditLog, ModelRoute, Project, PromptVersion
+from sqlalchemy import select
 
 PLACEHOLDER_API_KEY = "local-dev-placeholder-key-not-a-secret"
 

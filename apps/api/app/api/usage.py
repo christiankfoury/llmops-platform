@@ -14,10 +14,14 @@ def read_usage_summary(db: Session = Depends(get_db)) -> UsageSummary:
 
 
 @router.get("/requests", response_model=list[GatewayRequestRecord])
-def read_recent_requests(limit: int = 20, db: Session = Depends(get_db)) -> list[GatewayRequestRecord]:
+def read_recent_requests(
+    limit: int = 20, db: Session = Depends(get_db)
+) -> list[GatewayRequestRecord]:
     return list_recent_requests(db, limit=limit)
 
 
 @router.get("/errors", response_model=list[GatewayRequestRecord])
-def read_recent_errors(limit: int = 20, db: Session = Depends(get_db)) -> list[GatewayRequestRecord]:
+def read_recent_errors(
+    limit: int = 20, db: Session = Depends(get_db)
+) -> list[GatewayRequestRecord]:
     return list_recent_errors(db, limit=limit)

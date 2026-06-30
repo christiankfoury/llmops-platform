@@ -1,4 +1,9 @@
-.PHONY: local-up local-down local-logs api-migrate api-seed api-test web-lint web-typecheck
+API_PYTHON ?= .venv/Scripts/python
+NPM ?= npm
+
+.PHONY: check local-up local-down local-logs api-format-check api-lint api-migrate api-seed api-test web-lint web-test web-typecheck
+
+check: api-lint api-format-check api-test web-lint web-typecheck web-test
 
 local-up:
 	docker compose up --build
@@ -15,11 +20,20 @@ api-migrate:
 api-seed:
 	docker compose exec api python -m scripts.seed_dev_data
 
+api-lint:
+	$(API_PYTHON) -m ruff check apps/api
+
+api-format-check:
+	$(API_PYTHON) -m ruff format --check apps/api
+
 api-test:
-	cd apps/api && python -m pytest
+	$(API_PYTHON) -m pytest
 
 web-lint:
-	cd apps/web && npm run lint
+	cd apps/web && $(NPM) run lint
 
 web-typecheck:
-	cd apps/web && npm run typecheck
+	cd apps/web && $(NPM) run typecheck
+
+web-test:
+	cd apps/web && $(NPM) run test

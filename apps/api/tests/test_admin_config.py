@@ -1,12 +1,11 @@
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
-
 from app.db.session import SessionLocal
 from app.main import app
-from scripts.seed_dev_data import PLACEHOLDER_API_KEY, main as seed_dev_data
-
+from fastapi.testclient import TestClient
+from scripts.seed_dev_data import PLACEHOLDER_API_KEY
+from scripts.seed_dev_data import main as seed_dev_data
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 
 client = TestClient(app)
 

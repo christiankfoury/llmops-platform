@@ -201,8 +201,12 @@ def activate_model_route(
     )
 
 
-def _resolve_scope(db: Session, project_slug: str, application_slug: str) -> tuple[Project, Application]:
-    project = db.scalar(select(Project).where(Project.slug == project_slug, Project.is_active.is_(True)))
+def _resolve_scope(
+    db: Session, project_slug: str, application_slug: str
+) -> tuple[Project, Application]:
+    project = db.scalar(
+        select(Project).where(Project.slug == project_slug, Project.is_active.is_(True))
+    )
     if project is None:
         raise AdminConfigError("Project not found")
 
