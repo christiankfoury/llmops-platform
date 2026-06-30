@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 3: Database schema and migrations
+Phase 4: LLM gateway API foundation
 
 ## Phase table
 
@@ -24,8 +24,8 @@ Phase 3: Database schema and migrations
 |---:|---|---|---|---|---|---|
 | 1 | Project specification and architecture | Completed | main | d09361b | 2026-06-30 | Defined scope, architecture, repo structure, environment strategy, and portfolio claims. |
 | 2 | Minimal monorepo and local development foundation | Completed | main | e500c58 | 2026-06-30 | FastAPI health skeleton, Next.js dashboard shell, Docker Compose local stack, env examples, Makefile commands, smoke-tested local health endpoints. |
-| 3 | Database schema and migrations | In Progress |  |  |  | PostgreSQL schema and seed data. |
-| 4 | LLM gateway API foundation | Not Started |  |  |  | API key auth, prompt lookup, model routing, mock provider. |
+| 3 | Database schema and migrations | Completed | pending | pending | 2026-06-30 | SQLAlchemy model foundation, Alembic migration, and idempotent local seed data. |
+| 4 | LLM gateway API foundation | In Progress |  |  |  | API key auth, prompt lookup, model routing, mock provider. |
 | 5 | Cost, latency, and failure tracking | Not Started |  |  |  | Request metrics, cost estimates, failure categories. |
 | 6 | Prompt versioning and model routing controls | Not Started |  |  |  | Admin config endpoints and audit logs. |
 | 7 | Dashboard MVP | Not Started |  |  |  | Usage, cost, latency, errors, routes, prompts. |
@@ -205,6 +205,88 @@ Post-commit review:
 Next phase:
 
 - Phase 3: Database schema and migrations
+
+### Phase 3: Database schema and migrations
+
+Status: Completed
+
+Pushed to:
+
+- pending
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added SQLAlchemy database base/session helpers.
+- Added ORM models for projects, applications, API keys, prompt versions, model routes, gateway requests, cost records, and audit logs.
+- Added Alembic configuration and the initial migration for the Phase 3 schema.
+- Added an idempotent local seed module that creates one demo project, application, hashed placeholder API key, prompt version, model route, and audit log.
+- Added tests for model metadata coverage and API key hash-only storage.
+- Added Makefile commands for local migrations and seed data.
+- Updated README, architecture, and deployment docs with migration and seed workflow notes.
+
+Validation:
+
+- Command: `python -m compileall apps\api\app apps\api\tests apps\api\scripts`
+  Result: Passed.
+- Command: `.venv\Scripts\python -m pytest`
+  Result: Passed, 4 tests.
+- Command: `docker compose build api`
+  Result: Passed.
+- Command: `docker compose exec -T api alembic upgrade head`
+  Result: Passed; applied `0001_create_llmops_schema`.
+- Command: `docker compose exec -T api alembic current`
+  Result: Passed; current revision is `0001_create_llmops_schema (head)`.
+- Command: `docker compose exec -T api alembic check`
+  Result: Passed; no new upgrade operations detected.
+- Command: `docker compose exec -T api python -m scripts.seed_dev_data`
+  Result: Passed; repeated run stayed idempotent.
+- Command: PostgreSQL seed count query for projects, applications, API keys, prompt versions, model routes, and audit logs.
+  Result: Passed; each seeded table had one expected row.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: `rg -n "sk-|AKIA|BEGIN .*PRIVATE|OPENAI_API_KEY=|AWS_SECRET_ACCESS_KEY=" . -g '!phases-progress.md' -g '!apps/web/package-lock.json' -g '!node_modules' -g '!.venv' -g '!.npm-cache'`
+  Result: No matches.
+
+Security notes:
+
+- API key seed data stores only a SHA-256 hash and non-sensitive prefix.
+- Seed script uses an explicit placeholder value marked as not a secret.
+- No plaintext real credentials, cloud account IDs, provider keys, or secret manifests were added.
+- Schema supports future audit logging for key/config changes without implementing Phase 4 behavior early.
+
+Reliability notes:
+
+- Migration validates against local PostgreSQL through Alembic.
+- Seed script is idempotent so local setup can be rerun safely.
+- Schema includes timestamps and relationships needed for later request, cost, latency, and error tracking.
+
+Observability notes:
+
+- Schema now includes `gateway_requests`, `cost_records`, and `audit_logs` tables for future operational visibility.
+- Runtime metrics, logs, and traces remain scoped to later observability phases.
+
+Scope notes:
+
+- Completed Phase 3 schema, migration, and seed foundation only.
+- Deferred API key authentication, gateway endpoint behavior, mock provider calls, request persistence flow, dashboard data endpoints, and cost calculation logic to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-push review.
+- Fix commits: pending.
+
+Next phase:
+
+- Phase 4: LLM gateway API foundation
 
 ## Update template
 

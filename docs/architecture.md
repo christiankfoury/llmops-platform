@@ -109,6 +109,8 @@ Stores:
 - cost records
 - audit logs
 
+Phase 3 defines these tables through SQLAlchemy models and Alembic migrations. Later phases attach API behavior to the schema.
+
 ### Redis
 
 Used for:

@@ -47,6 +47,13 @@ Stop containers:
 make local-down
 ```
 
+Run database migrations and seed local development data after the stack is running:
+
+```bash
+make api-migrate
+make api-seed
+```
+
 Local environment examples live in:
 
 - `.env.example`

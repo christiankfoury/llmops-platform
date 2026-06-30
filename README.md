@@ -76,6 +76,8 @@ Useful local commands:
 ```bash
 make local-up
 make local-down
+make api-migrate
+make api-seed
 make api-test
 make web-lint
 make web-typecheck
