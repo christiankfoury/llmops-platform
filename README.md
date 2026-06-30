@@ -82,6 +82,14 @@ curl -X POST http://localhost:8000/v1/gateway/completions \
 
 The placeholder key is for local seeded data only and is stored in PostgreSQL as a hash.
 
+Successful gateway responses include a request ID, selected provider/model, latency, estimated token usage, and estimated cost. Local failure handling can be smoke-tested with `"[simulate_failure]"` for a provider error or `"[simulate_timeout]"` for a provider timeout.
+
+Usage summary:
+
+```bash
+curl http://localhost:8000/v1/usage/summary
+```
+
 Useful local commands:
 
 ```bash

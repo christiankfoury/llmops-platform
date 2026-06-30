@@ -65,6 +65,17 @@ curl -X POST http://localhost:8000/v1/gateway/completions \
 
 The local seed key is intentionally non-secret placeholder data and is stored as a hash.
 
+The mock provider supports local failure-path checks:
+
+- `"[simulate_failure]"` returns HTTP 502 and records `provider_error`.
+- `"[simulate_timeout]"` returns HTTP 504 and records `provider_timeout`.
+
+Check aggregate usage after sending gateway requests:
+
+```bash
+curl http://localhost:8000/v1/usage/summary
+```
+
 Local environment examples live in:
 
 - `.env.example`

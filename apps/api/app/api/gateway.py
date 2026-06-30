@@ -3,7 +3,12 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.schemas.gateway import CompletionRequest, CompletionResponse
-from app.services.gateway import GatewayAuthError, GatewayConfigError, process_completion
+from app.services.gateway import (
+    GatewayAuthError,
+    GatewayConfigError,
+    GatewayProviderError,
+    process_completion,
+)
 
 router = APIRouter(prefix="/v1/gateway", tags=["gateway"])
 
@@ -32,3 +37,5 @@ def create_completion(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exc),
         ) from exc
+    except GatewayProviderError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc

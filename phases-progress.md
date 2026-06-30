@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 5: Cost, latency, and failure tracking
+Phase 6: Prompt versioning and model routing controls
 
 ## Phase table
 
@@ -26,8 +26,8 @@ Phase 5: Cost, latency, and failure tracking
 | 2 | Minimal monorepo and local development foundation | Completed | main | e500c58 | 2026-06-30 | FastAPI health skeleton, Next.js dashboard shell, Docker Compose local stack, env examples, Makefile commands, smoke-tested local health endpoints. |
 | 3 | Database schema and migrations | Completed | main | ee23497 | 2026-06-30 | SQLAlchemy model foundation, Alembic migration, and idempotent local seed data. |
 | 4 | LLM gateway API foundation | Completed | main | 8bf0694 | 2026-06-30 | Gateway endpoint, hashed API key auth, prompt/route lookup, mock provider, and request persistence. |
-| 5 | Cost, latency, and failure tracking | In Progress |  |  |  | Request metrics, cost estimates, failure categories. |
-| 6 | Prompt versioning and model routing controls | Not Started |  |  |  | Admin config endpoints and audit logs. |
+| 5 | Cost, latency, and failure tracking | Completed | pending | pending | 2026-06-30 | Latency, token estimates, mock cost calculation, provider failure categories, cost records, and usage summary. |
+| 6 | Prompt versioning and model routing controls | In Progress |  |  |  | Admin config endpoints and audit logs. |
 | 7 | Dashboard MVP | Not Started |  |  |  | Usage, cost, latency, errors, routes, prompts. |
 | 8 | API and frontend quality baseline | Not Started |  |  |  | Lint, tests, type checks, quality commands. |
 | 9 | Docker production images | Not Started |  |  |  | Production API/web containers. |
@@ -367,6 +367,93 @@ Post-commit review:
 Next phase:
 
 - Phase 5: Cost, latency, and failure tracking
+
+### Phase 5: Cost, latency, and failure tracking
+
+Status: Completed
+
+Pushed to:
+
+- pending
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added latency measurement around the gateway provider call.
+- Added simple token estimation for mock-provider input and output.
+- Added static mock-provider pricing and per-request estimated cost calculation.
+- Persisted successful request token counts, estimated cost, and latency.
+- Added `cost_records` writes for successful gateway calls.
+- Added mock provider failure and timeout simulation paths.
+- Persisted failed gateway requests with `provider_error` and `provider_timeout` categories.
+- Added `GET /v1/usage/summary` with request count, error count, average latency, and estimated cost.
+- Added tests for successful cost/latency persistence, provider failure recording, invalid auth, and usage summary.
+- Updated README, architecture, and deployment docs with Phase 5 local smoke checks.
+
+Validation:
+
+- Command: `python -m compileall apps\api\app apps\api\tests apps\api\scripts`
+  Result: Passed.
+- Command: `.venv\Scripts\python -m pytest`
+  Result: Passed, 8 tests.
+- Command: `docker compose build api`
+  Result: Passed.
+- Command: `docker compose exec -T api alembic check`
+  Result: Passed; no schema drift detected.
+- Command: live gateway success smoke test.
+  Result: Passed; response included latency, token counts, and estimated cost.
+- Command: live gateway provider failure smoke test with `[simulate_failure]`.
+  Result: Passed; returned HTTP 502 and persisted `provider_error`.
+- Command: live gateway provider timeout smoke test with `[simulate_timeout]`.
+  Result: Passed; returned HTTP 504 and persisted `provider_timeout`.
+- Command: live `GET /v1/usage/summary`.
+  Result: Passed; returned request count, error count, average latency, and estimated cost.
+- Command: PostgreSQL status/category query against `gateway_requests`.
+  Result: Passed; successful and failed requests were persisted with expected categories.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: `rg -n "sk-|AKIA|BEGIN .*PRIVATE|OPENAI_API_KEY=|AWS_SECRET_ACCESS_KEY=" . -g '!phases-progress.md' -g '!apps/web/package-lock.json' -g '!node_modules' -g '!.venv' -g '!.npm-cache'`
+  Result: No matches.
+
+Security notes:
+
+- No new secrets or external provider credentials were added.
+- Failure simulation uses explicit local test strings and does not call external providers.
+- Usage summary is unauthenticated for the Phase 5 local/operator foundation; access controls are deferred to later admin/security phases.
+
+Reliability notes:
+
+- Provider failures and timeouts now return explicit HTTP 502/504 responses.
+- Failed provider calls are persisted with latency and error category for later dashboards.
+- Provider retry/backoff policy remains deferred to the resilience phase.
+
+Observability notes:
+
+- Gateway request records now include latency, token estimates, estimated cost, and error categories.
+- Usage summary endpoint provides the first aggregate operational view.
+- Prometheus metrics, traces, and structured log correlation remain scoped to later observability phases.
+
+Scope notes:
+
+- Completed Phase 5 cost, latency, and failure tracking only.
+- Deferred prompt/model admin CRUD, dashboard UI, rate limiting, metrics endpoint, tracing, and advanced retry policy to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-push review.
+- Fix commits: pending.
+
+Next phase:
+
+- Phase 6: Prompt versioning and model routing controls
 
 ## Update template
 

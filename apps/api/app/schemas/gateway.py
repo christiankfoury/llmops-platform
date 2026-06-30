@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from pydantic import BaseModel, Field
 
 
@@ -14,3 +16,7 @@ class CompletionResponse(BaseModel):
     model: str
     output: str
     prompt_version: int
+    latency_ms: int
+    input_tokens: int
+    output_tokens: int
+    estimated_cost_usd: Decimal

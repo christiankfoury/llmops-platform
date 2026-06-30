@@ -64,7 +64,9 @@ The intended gateway flow is:
 6. Logs, metrics, and traces are emitted with request and trace identifiers.
 7. The web dashboard reads summary and request data from API endpoints.
 
-Phase 4 implements the first vertical slice of this flow with API key authentication, active prompt lookup, active model route lookup, a mock provider adapter, and persisted gateway request status. Detailed latency, cost, token, and error categorization are Phase 5 scope.
+Phase 4 implements the first vertical slice of this flow with API key authentication, active prompt lookup, active model route lookup, a mock provider adapter, and persisted gateway request status.
+
+Phase 5 adds latency measurement, token estimates, static mock-provider cost calculation, provider failure/timeout categorization, cost records, and a usage summary endpoint.
 
 This flow intentionally avoids advanced RAG behavior. Retrieval, citations, document ingestion, and benchmark-driven answer quality stay in Proofbase.
 
