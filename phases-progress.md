@@ -28,7 +28,7 @@ Phase 8: API and frontend quality baseline
 | 4 | LLM gateway API foundation | Completed | main | 8bf0694 | 2026-06-30 | Gateway endpoint, hashed API key auth, prompt/route lookup, mock provider, and request persistence. |
 | 5 | Cost, latency, and failure tracking | Completed | main | 45ad934 | 2026-06-30 | Latency, token estimates, mock cost calculation, provider failure categories, cost records, and usage summary. |
 | 6 | Prompt versioning and model routing controls | Completed | main | a755132 | 2026-06-30 | Admin prompt/model route controls, activation/default behavior, and audit logs. |
-| 7 | Dashboard MVP | Completed | pending | pending | 2026-06-30 | Dashboard shows usage summary, requests, failures, prompt versions, and model routes from real API endpoints. |
+| 7 | Dashboard MVP | Completed | main | 93e2a73 | 2026-06-30 | Dashboard shows usage summary, requests, failures, prompt versions, and model routes from real API endpoints. |
 | 8 | API and frontend quality baseline | In Progress |  |  |  | Lint, tests, type checks, quality commands. |
 | 9 | Docker production images | Not Started |  |  |  | Production API/web containers. |
 | 10 | CI pipeline | Not Started |  |  |  | GitHub Actions lint, test, build, scan. |
@@ -540,11 +540,11 @@ Status: Completed
 
 Pushed to:
 
-- pending
+- main
 
 Commit:
 
-- pending
+- 93e2a73
 
 Completed date:
 
@@ -606,9 +606,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending post-push review.
-- Fix commits: pending.
+- Pushed commit: 93e2a73
+- Top findings: Phase progress used temporary commit placeholders because the final commit hash was unavailable before the commit existed.
+- Fix commits: Follow-up documentation commit records the pushed Phase 7 hash and post-commit review result.
 
 Next phase:
 
