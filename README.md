@@ -90,6 +90,15 @@ Usage summary:
 curl http://localhost:8000/v1/usage/summary
 ```
 
+Local operator configuration endpoints are available for prompt versions and model routes:
+
+```bash
+curl http://localhost:8000/v1/admin/prompt-versions
+curl http://localhost:8000/v1/admin/model-routes
+```
+
+Create/update operations accept an optional `X-Actor-ID` header and write audit log records. These admin endpoints are local foundations; hardened admin auth is a later security phase.
+
 Useful local commands:
 
 ```bash

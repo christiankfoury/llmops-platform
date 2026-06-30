@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 6: Prompt versioning and model routing controls
+Phase 7: Dashboard MVP
 
 ## Phase table
 
@@ -27,8 +27,8 @@ Phase 6: Prompt versioning and model routing controls
 | 3 | Database schema and migrations | Completed | main | ee23497 | 2026-06-30 | SQLAlchemy model foundation, Alembic migration, and idempotent local seed data. |
 | 4 | LLM gateway API foundation | Completed | main | 8bf0694 | 2026-06-30 | Gateway endpoint, hashed API key auth, prompt/route lookup, mock provider, and request persistence. |
 | 5 | Cost, latency, and failure tracking | Completed | main | 45ad934 | 2026-06-30 | Latency, token estimates, mock cost calculation, provider failure categories, cost records, and usage summary. |
-| 6 | Prompt versioning and model routing controls | In Progress |  |  |  | Admin config endpoints and audit logs. |
-| 7 | Dashboard MVP | Not Started |  |  |  | Usage, cost, latency, errors, routes, prompts. |
+| 6 | Prompt versioning and model routing controls | Completed | pending | pending | 2026-06-30 | Admin prompt/model route controls, activation/default behavior, and audit logs. |
+| 7 | Dashboard MVP | In Progress |  |  |  | Usage, cost, latency, errors, routes, prompts. |
 | 8 | API and frontend quality baseline | Not Started |  |  |  | Lint, tests, type checks, quality commands. |
 | 9 | Docker production images | Not Started |  |  |  | Production API/web containers. |
 | 10 | CI pipeline | Not Started |  |  |  | GitHub Actions lint, test, build, scan. |
@@ -454,6 +454,85 @@ Post-commit review:
 Next phase:
 
 - Phase 6: Prompt versioning and model routing controls
+
+### Phase 6: Prompt versioning and model routing controls
+
+Status: Completed
+
+Pushed to:
+
+- pending
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added admin endpoints for listing, creating, updating, and activating prompt versions.
+- Added admin endpoints for listing, creating, updating, and activating model routes.
+- Added active prompt behavior that deactivates other prompt versions in the same project/application/name scope.
+- Added default model route behavior that clears prior defaults in the same project/application/environment scope.
+- Gateway lookup uses active prompt and route configuration created through admin endpoints.
+- Added audit logging for prompt and model route create/update operations with optional `X-Actor-ID`.
+- Added tests proving admin-created prompt versions and model routes are used by the gateway.
+- Updated docs with local admin endpoint examples and the current admin-auth caveat.
+
+Validation:
+
+- Command: `python -m compileall apps\api\app apps\api\tests apps\api\scripts`
+  Result: Passed.
+- Command: `.venv\Scripts\python -m pytest`
+  Result: Passed, 10 tests.
+- Command: `docker compose build api`
+  Result: Passed.
+- Command: `docker compose exec -T api alembic check`
+  Result: Passed; no schema drift detected.
+- Command: live admin prompt creation plus gateway smoke using that prompt.
+  Result: Passed; gateway output included the admin-created prompt content.
+- Command: live admin model route creation plus gateway smoke using that route.
+  Result: Passed; gateway selected `mock-llm-live-phase6`.
+- Command: PostgreSQL audit log query for `phase6-live`.
+  Result: Passed; prompt and model route create actions were recorded.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: `rg -n "sk-|AKIA|BEGIN .*PRIVATE|OPENAI_API_KEY=|AWS_SECRET_ACCESS_KEY=" . -g '!phases-progress.md' -g '!apps/web/package-lock.json' -g '!node_modules' -g '!.venv' -g '!.npm-cache'`
+  Result: No matches.
+
+Security notes:
+
+- Config changes write audit logs with actor metadata.
+- Admin endpoints are intentionally unauthenticated in Phase 6 and documented as local/operator foundations; hardened admin auth remains later security-phase scope.
+- No secrets, provider keys, or cloud credentials were added.
+
+Reliability notes:
+
+- Prompt activation and route defaulting are scoped to project/application/environment to avoid ambiguous gateway selection.
+- Gateway continues to fail clearly when no active prompt or route exists.
+
+Observability notes:
+
+- Config changes now emit audit log records.
+- Dashboard and operator views over prompts/routes are deferred to Phase 7.
+
+Scope notes:
+
+- Completed Phase 6 prompt and model route controls only.
+- Deferred dashboard UI, admin authentication, rate limiting, metrics, traces, and broader security hardening to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-push review.
+- Fix commits: pending.
+
+Next phase:
+
+- Phase 7: Dashboard MVP
 
 ## Update template
 

@@ -76,6 +76,15 @@ Check aggregate usage after sending gateway requests:
 curl http://localhost:8000/v1/usage/summary
 ```
 
+Inspect local operator configuration:
+
+```bash
+curl http://localhost:8000/v1/admin/prompt-versions
+curl http://localhost:8000/v1/admin/model-routes
+```
+
+Admin create/update calls accept `X-Actor-ID` and write audit logs. These endpoints are intentionally not production-hardened yet; admin authentication and stronger access controls are later-phase work.
+
 Local environment examples live in:
 
 - `.env.example`

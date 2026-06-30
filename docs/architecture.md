@@ -68,6 +68,8 @@ Phase 4 implements the first vertical slice of this flow with API key authentica
 
 Phase 5 adds latency measurement, token estimates, static mock-provider cost calculation, provider failure/timeout categorization, cost records, and a usage summary endpoint.
 
+Phase 6 adds operator-facing API controls for prompt versions and model routes. Config changes write audit log records with actor metadata. Production-grade admin authorization is intentionally deferred to the later security hardening phase.
+
 This flow intentionally avoids advanced RAG behavior. Retrieval, citations, document ingestion, and benchmark-driven answer quality stay in Proofbase.
 
 ## Application components
