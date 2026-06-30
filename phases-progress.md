@@ -30,7 +30,7 @@ Phase 10: CI pipeline
 | 6 | Prompt versioning and model routing controls | Completed | main | a755132 | 2026-06-30 | Admin prompt/model route controls, activation/default behavior, and audit logs. |
 | 7 | Dashboard MVP | Completed | main | 93e2a73 | 2026-06-30 | Dashboard shows usage summary, requests, failures, prompt versions, and model routes from real API endpoints. |
 | 8 | API and frontend quality baseline | Completed | main | 9e92678 | 2026-06-30 | Ruff lint/format baseline, aggregate check command, frontend Vitest coverage, testing docs, and CI-ready local validation. |
-| 9 | Docker production images | Completed | main | pending | 2026-06-30 | Production API/web Dockerfiles, runtime-only API dependencies, standalone web image, non-root users, health checks, and local image docs. |
+| 9 | Docker production images | Completed | main | a5ae2d4 | 2026-06-30 | Production API/web Dockerfiles, runtime-only API dependencies, standalone web image, non-root users, health checks, and local image docs. |
 | 10 | CI pipeline | In Progress |  |  |  | GitHub Actions lint, test, build, scan. |
 | 11 | Terraform AWS foundation | Not Started |  |  |  | VPC, ECR, IAM, secrets placeholders. |
 | 12 | Terraform EKS cluster | Not Started |  |  |  | EKS, node groups, OIDC, access docs. |
@@ -692,7 +692,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- a5ae2d4
 
 Completed date:
 
@@ -755,9 +755,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending post-commit review.
-- Fix commits: pending post-commit review.
+- Pushed commit: a5ae2d4
+- Top findings: Phase progress used temporary commit placeholders because the final commit hash was unavailable before the commit existed.
+- Fix commits: Follow-up documentation commit records the pushed Phase 9 hash and post-commit review result.
 
 Next phase:
 
