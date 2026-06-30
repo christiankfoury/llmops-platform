@@ -119,44 +119,99 @@ The application should implement a realistic but scoped LLMOps platform:
 
 Do not overbuild product features at the expense of infrastructure quality. The app is the payload; the infrastructure is the star.
 
-## Required Codex workflow for every phase
+## Autonomous phase loop
 
-For each phase in `phases.md`, follow this exact loop:
+Codex should operate as an autonomous phase-based engineering agent.
 
-1. Read:
-   - `PROJECT_SPEC.md`
-   - `phases.md`
-   - `phases-progress.md`
-   - Relevant existing code and docs.
-2. Identify the current phase from `phases-progress.md`.
-3. Write a concise implementation plan before editing.
-4. Implement only the current phase scope.
-5. Add or update tests where appropriate.
-6. Run the relevant checks locally:
+Continue implementing phases sequentially until all phases are completed or a stop condition occurs.
+
+For each phase:
+
+1. Read `AGENTS.md`, `PROJECT_SPEC.md`, `phases.md`, and `phases-progress.md`.
+2. Find the current phase marked as `In Progress` in `phases-progress.md`.
+3. Read the deliverables and acceptance criteria for that phase in `phases.md`.
+4. Write a concise implementation plan.
+5. Implement only the current phase scope.
+6. Do not implement future phases early unless a minimal placeholder is required for the current phase to work.
+7. Add or update tests/checks where appropriate.
+8. Run safe validation commands:
    - Backend lint/tests/type checks when backend changes exist.
    - Frontend lint/tests/type checks when frontend changes exist.
    - Docker build checks when Docker changes exist.
    - Terraform format/validate when Terraform changes exist.
    - Helm lint/template checks when Helm changes exist.
    - Kubernetes manifest validation when manifests change.
-7. Fix issues found by checks.
-8. Update documentation affected by the phase.
-9. Update `phases-progress.md`:
-   - Mark the current phase as completed.
-   - Add implementation notes.
-   - Add test/check results.
-   - Set the next phase to `In Progress`.
-10. Create a git commit with a detailed conventional commit message.
-11. Push the branch.
-12. Perform a self-review and report:
-   - What changed.
+9. Fix validation issues.
+10. Update documentation affected by the phase.
+11. Update `phases-progress.md`:
+   - Mark the completed phase as `Completed`.
+   - Record implementation notes.
+   - Record validation results.
+   - Record security, reliability, and observability notes where relevant.
+   - Mark the next phase as `In Progress`.
+12. Commit with a detailed conventional commit message.
+13. Push the branch.
+14. Write a phase review covering:
+   - Summary.
    - Files changed.
-   - Tests/checks run.
-   - Security considerations.
-   - Infra/deployment considerations.
-   - Whether implementation stayed within phase scope.
-   - Risks or follow-up items.
-13. Proceed to the next phase only after the current phase is complete.
+   - Validation.
+   - Security.
+   - Reliability.
+   - Observability.
+   - Scope discipline.
+   - Risks.
+   - Next phase.
+15. Move to the next phase automatically and repeat.
+
+Do not wait for human approval between normal app, code, documentation, local Docker, CI, test, Helm template, or static validation phases.
+
+## Stop conditions and human approval gates
+
+Stop and request human approval before any action that could create cost, downtime, data loss, credential exposure, or production impact.
+
+Codex must stop before:
+
+- Running `terraform apply`.
+- Running `terraform destroy`.
+- Creating paid cloud resources.
+- Modifying real AWS infrastructure.
+- Deploying to production.
+- Deleting cloud resources.
+- Deleting databases, buckets, registries, clusters, namespaces, or secrets.
+- Rotating or changing real secrets.
+- Changing DNS or TLS for a real domain.
+- Running destructive database migrations.
+- Force-pushing shared branches.
+- Disabling security checks.
+- Bypassing CI/CD approval gates.
+- Exposing credentials in logs, commits, or workflow output.
+
+For infrastructure phases, Codex may still safely:
+
+- Write Terraform code.
+- Write Kubernetes manifests.
+- Write Helm charts.
+- Write GitHub Actions workflows.
+- Run `terraform fmt`.
+- Run `terraform validate`.
+- Run `helm lint`.
+- Run `helm template`.
+- Run unit tests.
+- Run static checks.
+- Build local Docker images.
+- Update documentation.
+- Commit and push code.
+
+## Loop completion
+
+The autonomous loop ends only when:
+
+- All phases are marked `Completed`.
+- A stop condition requires human approval.
+- A blocker prevents safe progress.
+- Validation fails and Codex cannot fix it safely.
+- Required credentials/access are missing.
+- Proceeding would violate the current phase scope.
 
 ## Commit message format
 
@@ -374,6 +429,7 @@ A phase is done only when:
 - Documentation is updated.
 - `phases-progress.md` is updated.
 - Commit is created with a detailed message.
+- Branch is pushed.
 - Self-review is completed.
 - No unrelated phases were implemented prematurely.
 

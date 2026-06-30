@@ -3,7 +3,7 @@
 Use this prompt after Codex completes each phase.
 
 ```text
-Review the completed phase implementation.
+Review the completed phase implementation before Codex automatically continues to the next phase.
 
 Check whether the implementation:
 1. Matches the phase scope in phases.md.
@@ -19,9 +19,13 @@ Check whether the implementation:
 11. Keeps infrastructure changes environment-aware.
 12. Keeps Kubernetes resources production-conscious with probes/resources where relevant.
 13. Maintains clear documentation.
+14. Does not perform stop-condition actions without human approval.
+15. Correctly identifies whether the autonomous loop should continue or stop.
 
 Report:
 - Summary
+- Files changed
+- Validation
 - Scope issues
 - Bugs or correctness issues
 - Security concerns
@@ -29,5 +33,7 @@ Report:
 - Observability concerns
 - Missing tests
 - Documentation gaps
-- Recommended fixes before proceeding
+- Stop condition or approval needs
+- Risks
+- Next phase
 ```

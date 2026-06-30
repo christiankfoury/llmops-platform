@@ -2,7 +2,9 @@
 
 # Production AI Platform / LLMOps Infrastructure Platform Roadmap
 
-This roadmap is designed for Codex to implement one phase at a time. Each phase should be small enough for a focused pull request, while the full project becomes a strong DevOps/cloud portfolio piece.
+This roadmap is designed for Codex to implement phases sequentially as an autonomous phase-based engineering agent. Each phase should be small enough for a focused commit and review, while the full project becomes a strong DevOps/cloud portfolio piece.
+
+Codex should complete the current `In Progress` phase, commit and push it, write the phase review, then move automatically to the next phase unless a stop condition in `AGENTS.md` requires human approval or a blocker prevents safe progress.
 
 The app should stay intentionally scoped. The infrastructure, delivery workflow, observability, security, and reliability story are the main differentiators.
 
