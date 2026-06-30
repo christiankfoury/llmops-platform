@@ -25,6 +25,8 @@ The infrastructure surface is intentionally serious:
 - Runbooks
 - Cost controls
 
+The architecture is designed to support a recruiter-facing claim about production operations. The LLM gateway is the workload; the surrounding platform is the main artifact.
+
 ## Logical architecture
 
 ```text
@@ -49,6 +51,20 @@ API emits:
 - Prometheus metrics
 - OpenTelemetry traces
 ```
+
+## Request lifecycle
+
+The intended gateway flow is:
+
+1. A client application sends a request with an application API key.
+2. The API authenticates the key using hashed storage and resolves the project/application context.
+3. The API selects the active prompt version and model route for the request environment.
+4. The provider adapter calls a mock or real LLM provider.
+5. The API records request status, latency, token estimates, cost estimates, model/provider metadata, and error category.
+6. Logs, metrics, and traces are emitted with request and trace identifiers.
+7. The web dashboard reads summary and request data from API endpoints.
+
+This flow intentionally avoids advanced RAG behavior. Retrieval, citations, document ingestion, and benchmark-driven answer quality stay in Proofbase.
 
 ## Application components
 
@@ -100,6 +116,8 @@ Used for:
 - lightweight caching
 - optional worker queue support
 
+Redis is not required for Phase 1, but it is part of the target production architecture because rate limiting and short-lived operational state are realistic LLM gateway concerns.
+
 ## Infrastructure architecture
 
 ### AWS
@@ -115,6 +133,14 @@ Planned services:
 - VPC/subnets/security groups
 - S3/DynamoDB for Terraform state locking if configured
 - Optional Route 53/ACM
+
+Terraform environments will stay explicit:
+
+- `infra/terraform/environments/dev`
+- `infra/terraform/environments/staging`
+- `infra/terraform/environments/prod`
+
+Reusable modules will live under `infra/terraform/modules` and should avoid hardcoded account IDs, secrets, or environment-specific assumptions.
 
 ### Kubernetes
 
@@ -132,6 +158,8 @@ Workloads:
 - PodDisruptionBudget
 - NetworkPolicies
 
+Raw manifests are planned first so the Kubernetes shape is visible before it is abstracted into Helm. The Helm chart will then become the release artifact for dev, staging, and production.
+
 ### Observability
 
 - Prometheus for metrics
@@ -139,6 +167,18 @@ Workloads:
 - Loki for logs
 - OpenTelemetry for traces
 - Alertmanager or equivalent alert routing placeholder
+
+Every gateway request should eventually be traceable across:
+
+- API request handling
+- authentication
+- prompt lookup
+- model route selection
+- provider call
+- database persistence
+- response serialization
+
+Logs should avoid secrets and sensitive prompt content by default.
 
 ## Environment strategy
 
@@ -148,6 +188,7 @@ Workloads:
 - local PostgreSQL
 - local Redis
 - mock LLM provider
+- no cloud dependency
 
 ### Dev
 
@@ -155,6 +196,7 @@ Workloads:
 - small infrastructure
 - relaxed capacity
 - separate namespace and secrets
+- optimized for fast iteration and inexpensive operation
 
 ### Staging
 
@@ -162,6 +204,7 @@ Workloads:
 - production-like config
 - pre-prod validation
 - full observability
+- release candidate validation before production
 
 ### Prod
 
@@ -171,6 +214,45 @@ Workloads:
 - rollback
 - alerts
 - stricter security
+
+## Repository map
+
+```text
+apps/
+  api/                         FastAPI service, gateway routes, persistence, observability
+  web/                         Next.js dashboard
+
+infra/
+  terraform/
+    environments/              dev/staging/prod root modules
+    modules/                   reusable AWS modules
+  helm/
+    ai-platform/               release chart and environment values
+  k8s/
+    base/                      raw base manifests before Helm
+    overlays/                  dev/staging/prod overlays
+
+.github/
+  workflows/                   CI, deploy, and rollback automation
+
+docs/                          architecture, deployment, operations, security, cost, demo plan
+```
+
+## Phase boundaries
+
+Phase 1 defines documentation and repository shape only.
+
+Later phases add:
+
+- application skeleton and Docker Compose
+- database models and migrations
+- gateway API behavior
+- dashboards
+- Docker images
+- CI/CD
+- Terraform modules
+- Kubernetes and Helm deployment
+- observability, security, reliability, and cost controls
 
 ## Design principles
 

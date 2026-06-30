@@ -16,14 +16,14 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 1: Project specification and architecture
+Phase 2: Minimal monorepo and local development foundation
 
 ## Phase table
 
 | Phase | Title | Status | Branch | Commit | Completed Date | Notes |
 |---:|---|---|---|---|---|---|
-| 1 | Project specification and architecture | In Progress |  |  |  | Define scope, architecture, repo structure, and portfolio claims. |
-| 2 | Minimal monorepo and local development foundation | Not Started |  |  |  | API, web, Docker Compose, local health checks. |
+| 1 | Project specification and architecture | Completed | codex/phase-1-architecture | This phase completion commit | 2026-06-30 | Defined scope, architecture, repo structure, environment strategy, and portfolio claims. |
+| 2 | Minimal monorepo and local development foundation | In Progress |  |  |  | API, web, Docker Compose, local health checks. |
 | 3 | Database schema and migrations | Not Started |  |  |  | PostgreSQL schema and seed data. |
 | 4 | LLM gateway API foundation | Not Started |  |  |  | API key auth, prompt lookup, model routing, mock provider. |
 | 5 | Cost, latency, and failure tracking | Not Started |  |  |  | Request metrics, cost estimates, failure categories. |
@@ -57,24 +57,55 @@ Phase 1: Project specification and architecture
 
 ### Phase 1: Project specification and architecture
 
-Status: In Progress
+Status: Completed
+
+Branch:
+
+- codex/phase-1-architecture
+
+Commit:
+
+- This phase completion commit
+
+Completed date:
+
+- 2026-06-30
 
 Implementation notes:
 
 - Clarified portfolio relationship with Proofbase and scoped this project around LLMOps/platform infrastructure rather than advanced RAG.
 - Added explicit RAG non-goals and future integration path where Proofbase can act as a client app of the gateway.
+- Strengthened the README with the target portfolio claim, infrastructure roadmap, expanded repository structure, and Phase 1 status.
+- Expanded the architecture document with request lifecycle, AWS/Terraform boundaries, Kubernetes/Helm path, observability expectations, and phase boundaries.
+- Added tracked `.gitkeep` placeholders for the target app, workflow, Terraform, Helm, and Kubernetes directories without adding implementation from later phases.
 
 Validation:
 
 - Documentation-only scope update; reviewed modified Markdown with text diffs.
+- Command: `rg --files --hidden -g '!.git'`
+  Result: Confirmed the intended Phase 1 repository structure is tracked.
+- Command: `git diff --check`
+  Result: No whitespace errors.
+- Command: `rg -n "sk-|AKIA|BEGIN .*PRIVATE" . -g '!phases-progress.md'`
+  Result: No committed secret values found; only policy/documentation references to secret handling.
 
 Security notes:
 
 - No runtime or secret-handling changes.
+- No secrets, account IDs, credentials, or provider keys were added.
+
+Reliability notes:
+
+- Documented target rollback, health check, staged environment, and runbook expectations; no runtime reliability behavior is implemented in Phase 1.
+
+Observability notes:
+
+- Documented target request logs, metrics, traces, and dashboard architecture; instrumentation begins in later phases.
 
 Scope notes:
 
-- Kept Phase 1 in progress; clarified boundaries before implementation begins.
+- Completed Phase 1 documentation and repository structure only.
+- Deferred FastAPI, Next.js, Docker Compose, Terraform resources, Helm templates, Kubernetes manifests, and CI workflows to later phases.
 
 Next phase:
 

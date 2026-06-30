@@ -1,8 +1,8 @@
 # Production AI Platform / LLMOps Infrastructure Platform
 
-A production-grade AI platform built to demonstrate DevOps, cloud, backend, and LLMOps skills.
+A production-grade AI platform portfolio project for DevOps, cloud, backend, full-stack, and LLMOps roles.
 
-The app is a lightweight LLM gateway and dashboard. The infrastructure is the main portfolio showcase.
+The application is intentionally scoped: a lightweight LLM gateway and usage dashboard. The main value is the production infrastructure around it: Kubernetes, Terraform, Helm, CI/CD, observability, secrets, reliability, rollback, and cost controls.
 
 ## Portfolio relationship
 
@@ -12,9 +12,9 @@ Production AI Platform demonstrates the operating layer: centralized LLM access,
 
 A future integration could make Proofbase a client application of this platform, sending model requests through the LLM gateway so cost, latency, traces, and model routing are managed centrally.
 
-## Portfolio claim
+## Target Portfolio Claim
 
-> Production AI Platform deployed on Kubernetes with Terraform-managed AWS infrastructure, Helm-based releases, GitHub Actions CI/CD, Prometheus/Grafana observability, Loki logs, OpenTelemetry tracing, secret management, staged environments, rollback support, and cost/latency monitoring.
+> Built a production-grade AI platform on AWS using Kubernetes, Terraform, Helm, GitHub Actions, Prometheus, Grafana, Loki, OpenTelemetry, managed PostgreSQL, Redis, external secret management, staged deployments, rollback workflows, request tracing, cost monitoring, and reliability runbooks.
 
 ## What this project demonstrates
 
@@ -51,6 +51,17 @@ The platform includes:
 - Usage dashboard
 - Cost/error/latency dashboard
 
+## Infrastructure Roadmap
+
+The infrastructure roadmap is the center of the project:
+
+- Local development with Docker Compose, PostgreSQL, Redis, API, and web dashboard
+- AWS foundation with Terraform modules for network, registry, IAM, secrets, EKS, RDS PostgreSQL, and ElastiCache Redis
+- Kubernetes deployment through raw manifests first, then a reusable Helm chart
+- GitHub Actions CI/CD with staged dev, staging, production, and rollback workflows
+- Observability through OpenTelemetry traces, Prometheus metrics, Grafana dashboards, Loki logs, and alerting runbooks
+- Security and reliability hardening through External Secrets, workload identity, NetworkPolicies, probes, resource limits, HPA, PDB, backups, and incident response docs
+
 ## Scope boundary
 
 This project does not implement advanced RAG, vector retrieval, citation validation, document ingestion, or benchmark-driven answer evaluation. Those capabilities belong in Proofbase. This repo stays focused on production AI platform operations and LLMOps infrastructure.
@@ -86,8 +97,28 @@ apps/
 
 infra/
   terraform/
+    environments/
+      dev/
+      staging/
+      prod/
+    modules/
+      network/
+      registry/
+      cluster/
+      database/
+      redis/
+      secrets/
+      iam/
+      monitoring/
   helm/
+    ai-platform/
+      templates/
   k8s/
+    base/
+    overlays/
+      dev/
+      staging/
+      prod/
 
 .github/
   workflows/
@@ -97,7 +128,7 @@ docs/
 
 ## Roadmap
 
-See `phases.md`.
+See `phases.md`. The roadmap is intentionally phase-based so each increment can be reviewed, validated, committed, and explained as portfolio evidence.
 
 ## Codex workflow
 
@@ -120,4 +151,4 @@ See `phases-progress.md`.
 
 ## Status
 
-Brand-new project. Phase 1 is the starting point.
+Phase 1 defines the specification, architecture, environment strategy, and repository structure. Phase 2 begins the minimal local development foundation.
