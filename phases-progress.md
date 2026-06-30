@@ -20,9 +20,9 @@ Phase 2: Minimal monorepo and local development foundation
 
 ## Phase table
 
-| Phase | Title | Status | Branch | Commit | Completed Date | Notes |
+| Phase | Title | Status | Pushed To | Commit | Completed Date | Notes |
 |---:|---|---|---|---|---|---|
-| 1 | Project specification and architecture | Completed | codex/phase-1-architecture | This phase completion commit | 2026-06-30 | Defined scope, architecture, repo structure, environment strategy, and portfolio claims. |
+| 1 | Project specification and architecture | Completed | main | d09361b | 2026-06-30 | Defined scope, architecture, repo structure, environment strategy, and portfolio claims. |
 | 2 | Minimal monorepo and local development foundation | In Progress |  |  |  | API, web, Docker Compose, local health checks. |
 | 3 | Database schema and migrations | Not Started |  |  |  | PostgreSQL schema and seed data. |
 | 4 | LLM gateway API foundation | Not Started |  |  |  | API key auth, prompt lookup, model routing, mock provider. |
@@ -59,13 +59,13 @@ Phase 2: Minimal monorepo and local development foundation
 
 Status: Completed
 
-Branch:
+Pushed to:
 
-- codex/phase-1-architecture
+- main
 
 Commit:
 
-- This phase completion commit
+- d09361b
 
 Completed date:
 
@@ -107,6 +107,11 @@ Scope notes:
 - Completed Phase 1 documentation and repository structure only.
 - Deferred FastAPI, Next.js, Docker Compose, Terraform resources, Helm templates, Kubernetes manifests, and CI workflows to later phases.
 
+Post-commit review:
+
+- Reviewed the pushed Phase 1 commit for scope drift, secret exposure, documentation gaps, and structure consistency.
+- No Phase 1 fix commits were required after review.
+
 Next phase:
 
 - Phase 2: Minimal monorepo and local development foundation
@@ -120,7 +125,7 @@ Use this template when completing a phase:
 
 Status: Completed
 
-Branch:
+Pushed to:
 
 Commit:
 
@@ -151,6 +156,12 @@ Scope notes:
 
 - Completed in-scope work only.
 - Deferred out-of-scope items to later phases.
+
+Post-commit review:
+
+- Pushed commit:
+- Top findings:
+- Fix commits:
 
 Next phase:
 
