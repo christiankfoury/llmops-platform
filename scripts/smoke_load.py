@@ -53,7 +53,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Send a small smoke load through the LLM gateway.")
     parser.add_argument("--base-url", default="http://localhost:8000")
     parser.add_argument("--api-key", default="local-dev-placeholder-key-not-a-secret")
-    parser.add_argument("--prompt-name", default="default")
+    parser.add_argument("--prompt-name", default="default-chat")
     parser.add_argument("--requests", type=int, default=20)
     parser.add_argument("--concurrency", type=int, default=4)
     args = parser.parse_args()
