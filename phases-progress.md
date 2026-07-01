@@ -45,7 +45,7 @@ Phase 25: Security hardening
 | 21 | Grafana dashboards | Completed | main | 5080da1 | 2026-07-01 | Provisionable overview, reliability, and cost dashboard JSON with screenshot placeholder docs. |
 | 22 | Loki structured logging | Completed | main | 037ffff | 2026-07-01 | Loki datasource, Promtail config, logs dashboard, LogQL examples, and request/trace search docs. |
 | 23 | Alerts and incident response | Completed | main | 62ff2c6 | 2026-07-01 | Prometheus alert rules, Alertmanager placeholder, runbook triage, severity mapping, and demo incident flow. |
-| 24 | Secrets management | Completed | main | pending | 2026-07-01 | External Secrets manifests, AWS Secrets Manager docs, IRSA role, naming, local fallback, and rotation guidance. |
+| 24 | Secrets management | Completed | main | 5fefce4 | 2026-07-01 | External Secrets manifests, AWS Secrets Manager docs, IRSA role, naming, local fallback, and rotation guidance. |
 | 25 | Security hardening | In Progress |  |  |  | NetworkPolicies, least privilege, rate limiting. |
 | 26 | Autoscaling and resilience | Not Started |  |  |  | HPA, PDB, graceful shutdown, retry policies. |
 | 27 | Backup and restore | Not Started |  |  |  | Backup/restore and DR runbooks. |
@@ -1936,7 +1936,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- 5fefce4
 
 Completed date:
 
@@ -2006,9 +2006,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending post-push review.
-- Fix commits: pending post-push review.
+- Pushed commit: 5fefce4
+- Top findings: Phase progress used temporary commit placeholders because the final commit hash was unavailable before the commit existed.
+- Fix commits: Follow-up documentation commit records the pushed Phase 24 hash and post-commit review result.
 
 Next phase:
 
