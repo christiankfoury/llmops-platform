@@ -7,6 +7,7 @@ After Grafana is deployed and connected to Prometheus, capture recruiter-facing 
 - Production AI Platform Overview
 - Production AI Platform Reliability
 - Production AI Platform Cost
+- Production AI Platform Logs
 
 Store final screenshots under a future documentation asset folder, such as:
 
@@ -14,6 +15,7 @@ Store final screenshots under a future documentation asset folder, such as:
 docs/assets/grafana/overview.png
 docs/assets/grafana/reliability.png
 docs/assets/grafana/cost.png
+docs/assets/grafana/logs.png
 ```
 
 Screenshot checklist:

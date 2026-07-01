@@ -185,6 +185,8 @@ Phase 20 adds Prometheus metrics through the API `/metrics` endpoint. Metrics co
 
 Phase 21 adds Grafana dashboard JSON and provisioning configuration for overview, reliability, and cost dashboards. Panels map to the Prometheus metrics emitted by the API; Grafana and Prometheus deployment remain later operational packaging work.
 
+Phase 22 adds Loki/Promtail integration assets for structured JSON logs. Logs remain searchable by request ID and trace ID through JSON parsing instead of high-cardinality Loki labels, and a Grafana logs dashboard provides error-rate, 5xx, latency, and recent-error panels.
+
 ### Observability
 
 - Prometheus for metrics

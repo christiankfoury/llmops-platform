@@ -41,12 +41,42 @@ Phase 21 adds provisionable Grafana dashboard JSON for:
 - Production AI Platform Overview
 - Production AI Platform Reliability
 - Production AI Platform Cost
+- Production AI Platform Logs
 
 Dashboard files live in `infra/monitoring/grafana/dashboards`, with provisioning config in `infra/monitoring/grafana/provisioning/dashboards`.
 
 The dashboards map directly to the Phase 20 metrics and use a Prometheus datasource variable named `datasource`. See `infra/monitoring/grafana/README.md` for provisioning paths and `docs/dashboard-screenshots.md` for the screenshot capture checklist.
 
-This phase does not deploy Grafana, Prometheus, or alert rules.
+This phase does not deploy Grafana, Prometheus, Loki, or alert rules.
+
+## Loki structured logging
+
+Phase 22 adds Loki integration assets for the API's structured JSON logs.
+
+The API already emits JSON request logs with:
+
+- `request_id`
+- `trace_id`
+- `level`
+- `logger`
+- `message`
+- `http_method`
+- `http_path`
+- `status_code`
+- `latency_ms`
+- `error_category` when present
+
+Promtail config lives in `infra/monitoring/loki/promtail-config.yaml`. It labels bounded fields such as namespace, pod, component, app, level, logger, status code, and error category. Request IDs and trace IDs remain JSON fields so they are searchable without becoming high-cardinality Loki labels.
+
+Useful LogQL examples:
+
+```logql
+{component="api"} | json | request_id="http_abc123"
+{component="api"} | json | trace_id="0123456789abcdef0123456789abcdef"
+{component="api"} | json | status_code >= 500
+```
+
+See `infra/monitoring/loki/README.md` for more queries and label guidance.
 
 ## OpenTelemetry tracing
 

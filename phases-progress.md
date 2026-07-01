@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 22: Loki structured logging
+Phase 23: Alerts and incident response
 
 ## Phase table
 
@@ -43,8 +43,8 @@ Phase 22: Loki structured logging
 | 19 | OpenTelemetry tracing | Completed | main | cdf5597 | 2026-07-01 | OpenTelemetry API setup, request ID propagation, trace-correlated logs, gateway lifecycle spans, and collector docs. |
 | 20 | Prometheus metrics | Completed | main | c6c63cf | 2026-07-01 | API `/metrics`, HTTP/gateway counters and histograms, low-cardinality labels, and Prometheus scrape annotations. |
 | 21 | Grafana dashboards | Completed | main | 5080da1 | 2026-07-01 | Provisionable overview, reliability, and cost dashboard JSON with screenshot placeholder docs. |
-| 22 | Loki structured logging | In Progress |  |  |  | JSON logs and request/trace correlation. |
-| 23 | Alerts and incident response | Not Started |  |  |  | Alert rules, runbook, incident docs. |
+| 22 | Loki structured logging | Completed | main | pending | 2026-07-01 | Loki datasource, Promtail config, logs dashboard, LogQL examples, and request/trace search docs. |
+| 23 | Alerts and incident response | In Progress |  |  |  | Alert rules, runbook, incident docs. |
 | 24 | Secrets management | Not Started |  |  |  | External Secrets + AWS Secrets Manager. |
 | 25 | Security hardening | Not Started |  |  |  | NetworkPolicies, least privilege, rate limiting. |
 | 26 | Autoscaling and resilience | Not Started |  |  |  | HPA, PDB, graceful shutdown, retry policies. |
@@ -1775,6 +1775,81 @@ Post-commit review:
 Next phase:
 
 - Phase 22: Loki structured logging
+
+### Phase 22: Loki structured logging
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-01
+
+Implementation notes:
+
+- Added Promtail configuration for Kubernetes pod logs from Production AI Platform workloads.
+- Parsed the API JSON log fields for request ID, trace ID, HTTP method/path, status code, latency, level, logger, and error category.
+- Labeled only bounded Loki fields such as namespace, pod, container, component, app, level, logger, status code, and error category.
+- Kept request IDs and trace IDs as searchable JSON fields instead of Loki labels to avoid high-cardinality indexes.
+- Added Grafana Loki datasource provisioning with a placeholder in-cluster Loki Gateway URL.
+- Added a Production AI Platform Logs Grafana dashboard with 5xx log rate, error log rate, log-derived p95 latency, status/level volume, recent 5xx logs, and request-correlated logs.
+- Added Loki/Promtail documentation with LogQL examples for request ID search, trace ID search, server errors, error-rate, and log-derived latency.
+- Updated observability, architecture, Grafana, README, and screenshot docs with Phase 22 logging integration details.
+
+Validation:
+
+- Command: `Get-ChildItem infra/monitoring/grafana/dashboards/*.json | ForEach-Object { Get-Content $_.FullName -Raw | ConvertFrom-Json | Out-Null; $_.Name }`
+  Result: Passed; all Grafana dashboard JSON files parsed successfully, including the logs dashboard.
+- Command: Python YAML parse for `infra/monitoring/grafana/provisioning/**/*.yaml` and `infra/monitoring/loki/*.yaml`
+  Result: Passed; Loki datasource and Promtail config parsed successfully.
+- Command: `rg -n "component|request_id|trace_id|status_code|loki|promtail|Loki" infra/monitoring docs/observability.md docs/dashboard-screenshots.md README.md`
+  Result: Passed; docs and dashboards reference Loki integration, bounded selectors, and correlation fields.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: refined secret value scan for provider keys, AWS keys, private keys, committed access-key fields, and secret env assignments
+  Result: No matches.
+
+Security notes:
+
+- No secrets, provider keys, AWS credentials, account IDs, datasource credentials, API keys, or Kubernetes Secret values were committed.
+- Promtail does not label request IDs, trace IDs, prompts, API keys, user data, or credentials.
+- Documentation reiterates that API logs must avoid API key values, provider credentials, raw prompts, database URLs, Redis URLs, and other secrets.
+- No cloud infrastructure, Loki deployment, or production logging pipeline was modified.
+
+Reliability notes:
+
+- Logs dashboard supports troubleshooting with 5xx log rate, error log rate, log-derived latency, recent errors, and request-correlated logs.
+- Promtail config keeps positions under `/run/promtail/positions.yaml` for restart continuity.
+- Phase 22 does not add alerting, Alertmanager routing, retention policy, or live Loki deployment.
+
+Observability notes:
+
+- Request logs are searchable by `request_id` and can correlate with traces through `trace_id`.
+- Loki selectors use the stable `component="api"` label so raw and Helm workloads can both match.
+- Structured logs complement Phase 19 traces, Phase 20 metrics, and Phase 21 dashboards.
+- Alert rules and incident response updates remain scoped to Phase 23.
+
+Scope notes:
+
+- Completed Phase 22 Loki structured logging integration assets and documentation only.
+- Deferred live Loki deployment, retention/storage configuration, Promtail DaemonSet packaging, alert rules, Alertmanager config, and incident response expansion to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-push review.
+- Fix commits: pending post-push review.
+
+Next phase:
+
+- Phase 23: Alerts and incident response
 
 ## Update template
 

@@ -7,8 +7,11 @@ Phase 21 adds provisionable Grafana dashboards for the metrics emitted by the AP
 - `dashboards/ai-platform-overview.json`
 - `dashboards/ai-platform-reliability.json`
 - `dashboards/ai-platform-cost.json`
+- `dashboards/ai-platform-logs.json`
 
 The dashboards use a Grafana datasource variable named `datasource`. Select the Prometheus datasource when importing manually, or provision a datasource with UID `prometheus`.
+
+The logs dashboard uses a Loki datasource variable named `loki`. The sample datasource provisioning file in `provisioning/datasources/loki.yaml` creates a datasource with UID `loki`.
 
 ## Provisioning
 
@@ -22,6 +25,7 @@ Typical container mounts:
 
 ```text
 infra/monitoring/grafana/provisioning/dashboards -> /etc/grafana/provisioning/dashboards
+infra/monitoring/grafana/provisioning/datasources -> /etc/grafana/provisioning/datasources
 infra/monitoring/grafana/dashboards -> /var/lib/grafana/dashboards/production-ai-platform
 ```
 
@@ -42,3 +46,15 @@ The panels map to these Phase 20 metrics:
 - `llm_gateway_rate_limit_rejections_total`
 
 Dashboard queries intentionally avoid request IDs, trace IDs, API key IDs, prompt content, and project IDs.
+
+The logs dashboard maps to structured JSON log fields emitted by the API:
+
+- `request_id`
+- `trace_id`
+- `level`
+- `logger`
+- `http_method`
+- `http_path`
+- `status_code`
+- `latency_ms`
+- `error_category`
