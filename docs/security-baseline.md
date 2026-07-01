@@ -58,6 +58,8 @@ Phase 14 baseline controls:
 
 NetworkPolicies, External Secrets, workload IAM annotations, HPA, and PDB are later hardening phases.
 
+Phase 15 keeps the same secret-reference and non-root workload posture in Helm templates. The chart does not render Kubernetes Secret values.
+
 ## Terraform security
 
 Target controls:

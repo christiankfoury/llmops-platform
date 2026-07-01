@@ -222,4 +222,4 @@ See `phases-progress.md`.
 
 ## Status
 
-Phases 1-13 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, and managed data services. Phase 14 adds base Kubernetes manifests.
+Phases 1-14 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, managed data services, and base Kubernetes manifests. Phase 15 adds the Helm chart.

@@ -193,6 +193,45 @@ The referenced `ai-platform-runtime-secrets` Secret is intentionally not committ
 
 These manifests are raw Kubernetes foundations. Helm packaging, release values, External Secrets, HPA, PDB, and NetworkPolicies are later phases.
 
+## Helm chart
+
+Phase 15 adds the Helm chart at `infra/helm/ai-platform`.
+
+Lint the chart:
+
+```bash
+helm lint infra/helm/ai-platform
+```
+
+Render environment releases:
+
+```bash
+helm template ai-platform-dev infra/helm/ai-platform \
+  -f infra/helm/ai-platform/values-dev.yaml \
+  --namespace ai-platform-dev
+
+helm template ai-platform-staging infra/helm/ai-platform \
+  -f infra/helm/ai-platform/values-staging.yaml \
+  --namespace ai-platform-staging
+
+helm template ai-platform-prod infra/helm/ai-platform \
+  -f infra/helm/ai-platform/values-prod.yaml \
+  --namespace ai-platform-prod
+```
+
+The chart packages:
+
+- namespace creation toggle
+- service accounts
+- API and web ConfigMaps
+- API and web Deployments
+- API and web Services
+- ALB-oriented Ingress
+- optional API and web HPAs
+- runtime Secret references for database and Redis connection strings
+
+The Helm chart is the release artifact for later deployment workflows. It still references placeholder image repositories and example hostnames until the ECR and DNS deployment phases provide real values.
+
 ## Staging deployment
 
 Staging should be manually triggered.

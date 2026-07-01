@@ -1,0 +1,34 @@
+namespace:
+  create: true
+  name: ai-platform-staging
+
+api:
+  replicaCount: 2
+  image:
+    repository: replace-with-staging-ecr/production-ai-platform/api
+    tag: staging
+  config:
+    environment: staging
+    corsOrigins: https://staging.ai-platform.example.com
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    targetCPUUtilizationPercentage: 70
+
+web:
+  replicaCount: 2
+  image:
+    repository: replace-with-staging-ecr/production-ai-platform/web
+    tag: staging
+  config:
+    apiBaseUrl: https://api.staging.ai-platform.example.com
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    targetCPUUtilizationPercentage: 70
+
+ingress:
+  webHost: staging.ai-platform.example.com
+  apiHost: api.staging.ai-platform.example.com

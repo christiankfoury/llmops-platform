@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 15: Helm chart
+Phase 16: Continuous deployment to dev
 
 ## Phase table
 
@@ -36,8 +36,8 @@ Phase 15: Helm chart
 | 12 | Terraform EKS cluster | Completed | main | 60a6661 | 2026-06-30 | EKS module, managed node groups, cluster/node IAM roles, workload identity OIDC provider, Kubernetes provider wiring, and access docs. |
 | 13 | Terraform managed data services | Completed | main | e8e1836 | 2026-06-30 | RDS PostgreSQL and ElastiCache Redis modules, private subnets, EKS-scoped security groups, encryption, backups, and environment sizing defaults. |
 | 14 | Base Kubernetes manifests | Completed | main | bdc5869 | 2026-06-30 | Raw Kustomize-compatible namespace, service accounts, ConfigMaps, API/web Deployments, Services, Ingress, probes, resources, security contexts, and environment overlays. |
-| 15 | Helm chart | In Progress |  |  |  | Chart and values for dev/staging/prod. |
-| 16 | Continuous deployment to dev | Not Started |  |  |  | Auto deploy main to dev. |
+| 15 | Helm chart | Completed | main | pending | 2026-06-30 | Helm chart with dev/staging/prod values, API/web templates, ingress, ConfigMaps, service accounts, secret references, and optional HPAs. |
+| 16 | Continuous deployment to dev | In Progress |  |  |  | Auto deploy main to dev. |
 | 17 | Staging and production release workflows | Not Started |  |  |  | Manual staging/prod workflows and approval. |
 | 18 | Rollback workflow | Not Started |  |  |  | Helm rollback workflow and docs. |
 | 19 | OpenTelemetry tracing | Not Started |  |  |  | Request traces and correlation IDs. |
@@ -1160,6 +1160,81 @@ Post-commit review:
 Next phase:
 
 - Phase 15: Helm chart
+
+### Phase 15: Helm chart
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added Helm chart metadata and default values under `infra/helm/ai-platform`.
+- Added environment values files for dev, staging, and prod.
+- Added reusable Helm helpers for names, labels, namespaces, and service account names.
+- Added namespace, service account, ConfigMap, Deployment, Service, Ingress, and optional HPA templates.
+- Preserved runtime Secret references for database and Redis connection strings without rendering Kubernetes Secret values.
+- Included non-root workload security contexts, probes, resource requests/limits, rolling update strategy, and ingress configuration in chart templates.
+- Enabled HPAs in staging and prod values while leaving dev simpler.
+- Updated deployment, architecture, security, and README docs with Helm lint/template workflow.
+
+Validation:
+
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace alpine/helm:3.15.4 lint infra/helm/ai-platform`
+  Result: Passed; Helm reported only the optional icon recommendation.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace alpine/helm:3.15.4 template ai-platform-dev infra/helm/ai-platform -f infra/helm/ai-platform/values-dev.yaml --namespace ai-platform-dev`
+  Result: Passed; rendered 352 lines.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace alpine/helm:3.15.4 template ai-platform-staging infra/helm/ai-platform -f infra/helm/ai-platform/values-staging.yaml --namespace ai-platform-staging`
+  Result: Passed; rendered 408 lines.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace alpine/helm:3.15.4 template ai-platform-prod infra/helm/ai-platform -f infra/helm/ai-platform/values-prod.yaml --namespace ai-platform-prod`
+  Result: Passed; rendered 408 lines.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: refined secret value scan for provider keys, AWS keys, private keys, committed access-key fields, and account IDs
+  Result: No matches.
+
+Security notes:
+
+- No Kubernetes Secret values, database URLs, Redis URLs, provider keys, cloud credentials, or account IDs were committed.
+- Helm chart references `ai-platform-runtime-secrets` only by name/key.
+- Service account token automounting stays disabled by default.
+- Workloads retain non-root, read-only-root-filesystem, no-privilege-escalation, and dropped-capability security contexts.
+
+Reliability notes:
+
+- Chart includes readiness and liveness probes for API and web.
+- Chart includes rolling update strategy and resource requests/limits.
+- Staging and prod values enable CPU-based HPAs; deeper resilience controls remain later phases.
+
+Observability notes:
+
+- No metrics, tracing, logging, or dashboard resources were added in Phase 15.
+- Labels are standardized for later ServiceMonitor, logging, and Grafana integration.
+
+Scope notes:
+
+- Completed Phase 15 Helm packaging only.
+- Deferred deployment workflows, rollback automation, External Secrets, NetworkPolicies, PDBs, and observability resources to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-commit review.
+- Fix commits: pending post-commit review.
+
+Next phase:
+
+- Phase 16: Continuous deployment to dev
 
 ## Update template
 

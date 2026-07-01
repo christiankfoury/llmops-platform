@@ -1,0 +1,28 @@
+namespace:
+  create: true
+  name: ai-platform-dev
+
+api:
+  replicaCount: 1
+  image:
+    repository: replace-with-dev-ecr/production-ai-platform/api
+    tag: dev
+  config:
+    environment: dev
+    corsOrigins: https://dev.ai-platform.example.com
+  autoscaling:
+    enabled: false
+
+web:
+  replicaCount: 1
+  image:
+    repository: replace-with-dev-ecr/production-ai-platform/web
+    tag: dev
+  config:
+    apiBaseUrl: https://api.dev.ai-platform.example.com
+  autoscaling:
+    enabled: false
+
+ingress:
+  webHost: dev.ai-platform.example.com
+  apiHost: api.dev.ai-platform.example.com
