@@ -111,6 +111,32 @@ def test_gateway_records_provider_failure() -> None:
 
 
 @requires_database
+def test_gateway_retries_transient_provider_failure() -> None:
+    seed_dev_data()
+
+    response = client.post(
+        "/v1/gateway/completions",
+        headers={"X-API-Key": PLACEHOLDER_API_KEY},
+        json={"input": "[simulate_transient_failure]"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "succeeded"
+
+    with SessionLocal() as db:
+        persisted = db.execute(
+            text(
+                "select status, error_category from gateway_requests where request_id = :request_id"
+            ),
+            {"request_id": payload["request_id"]},
+        ).one()
+
+    assert persisted.status == "succeeded"
+    assert persisted.error_category is None
+
+
+@requires_database
 def test_usage_summary_returns_request_count_and_cost() -> None:
     seed_dev_data()
     client.post(

@@ -23,6 +23,8 @@ api:
     minReplicas: 2
     maxReplicas: 4
     targetCPUUtilizationPercentage: 70
+    scaleUpStabilizationWindowSeconds: 60
+    scaleDownStabilizationWindowSeconds: 300
 
 web:
   replicaCount: 2
@@ -36,6 +38,8 @@ web:
     minReplicas: 2
     maxReplicas: 4
     targetCPUUtilizationPercentage: 70
+    scaleUpStabilizationWindowSeconds: 60
+    scaleDownStabilizationWindowSeconds: 300
 
 ingress:
   webHost: staging.ai-platform.example.com

@@ -57,6 +57,9 @@ api:
     rateLimitEnabled: "true"
     rateLimitRequestsPerMinute: "60"
     rateLimitWindowSeconds: "60"
+    providerMaxAttempts: "2"
+    providerRetryBackoffMs: "100"
+    providerTimeoutSeconds: "15"
   service:
     type: ClusterIP
     port: 8000
@@ -84,11 +87,19 @@ api:
       periodSeconds: 20
       timeoutSeconds: 3
       failureThreshold: 3
+  lifecycle:
+    terminationGracePeriodSeconds: 30
+    preStopSleepSeconds: 5
   autoscaling:
     enabled: false
     minReplicas: 2
     maxReplicas: 4
     targetCPUUtilizationPercentage: 70
+    scaleUpStabilizationWindowSeconds: 60
+    scaleDownStabilizationWindowSeconds: 300
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
 
 web:
   replicaCount: 2
@@ -126,11 +137,19 @@ web:
       periodSeconds: 20
       timeoutSeconds: 3
       failureThreshold: 3
+  lifecycle:
+    terminationGracePeriodSeconds: 30
+    preStopSleepSeconds: 5
   autoscaling:
     enabled: false
     minReplicas: 2
     maxReplicas: 4
     targetCPUUtilizationPercentage: 70
+    scaleUpStabilizationWindowSeconds: 60
+    scaleDownStabilizationWindowSeconds: 300
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
 
 ingress:
   enabled: true

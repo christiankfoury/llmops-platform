@@ -1,10 +1,11 @@
 import uuid
 from decimal import Decimal
-from time import perf_counter
+from time import perf_counter, sleep
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.models import ApiKey, Application, CostRecord, GatewayRequest, ModelRoute, PromptVersion
 from app.observability.metrics import record_gateway_request
 from app.observability.tracing import get_tracer, set_span_attributes
@@ -12,6 +13,7 @@ from app.schemas.gateway import CompletionRequest, CompletionResponse
 from app.services.auth import hash_api_key
 from app.services.mock_provider import (
     MockProviderError,
+    MockProviderResult,
     MockProviderTimeout,
     complete_with_mock_provider,
 )
@@ -158,23 +160,16 @@ def process_completion(
             set_span_attributes(span, route_attributes)
             set_span_attributes(request_span, route_attributes)
 
+        settings = get_settings()
         try:
-            with tracer.start_as_current_span("gateway.provider_call") as span:
-                set_span_attributes(
-                    span,
-                    {
-                        "model.provider": route.provider,
-                        "model.name": route.model_name,
-                    },
-                )
-                provider_result = complete_with_mock_provider(prompt, route, payload.input)
-                set_span_attributes(
-                    span,
-                    {
-                        "token.input": provider_result.input_tokens,
-                        "token.output": provider_result.output_tokens,
-                    },
-                )
+            provider_result = _call_provider_with_retry(
+                prompt=prompt,
+                route=route,
+                user_input=payload.input,
+                max_attempts=settings.provider_max_attempts,
+                retry_backoff_ms=settings.provider_retry_backoff_ms,
+                timeout_seconds=settings.provider_timeout_seconds,
+            )
         except MockProviderTimeout as exc:
             gateway_request = _record_failed_request(
                 db=db,
@@ -291,6 +286,55 @@ def process_completion(
                 output_tokens=provider_result.output_tokens,
                 estimated_cost_usd=estimated_cost,
             )
+
+
+def _call_provider_with_retry(
+    prompt: PromptVersion,
+    route: ModelRoute,
+    user_input: str,
+    max_attempts: int,
+    retry_backoff_ms: int,
+    timeout_seconds: int,
+) -> MockProviderResult:
+    attempts = max(1, max_attempts)
+    last_error: MockProviderError | MockProviderTimeout | None = None
+
+    for attempt in range(1, attempts + 1):
+        try:
+            with tracer.start_as_current_span("gateway.provider_call") as span:
+                set_span_attributes(
+                    span,
+                    {
+                        "model.provider": route.provider,
+                        "model.name": route.model_name,
+                        "provider.attempt": attempt,
+                        "provider.max_attempts": attempts,
+                        "provider.timeout_seconds": max(1, timeout_seconds),
+                    },
+                )
+                provider_result = complete_with_mock_provider(
+                    prompt,
+                    route,
+                    user_input,
+                    attempt=attempt,
+                )
+                set_span_attributes(
+                    span,
+                    {
+                        "token.input": provider_result.input_tokens,
+                        "token.output": provider_result.output_tokens,
+                    },
+                )
+                return provider_result
+        except (MockProviderError, MockProviderTimeout) as exc:
+            last_error = exc
+            if attempt >= attempts:
+                raise
+            sleep(max(0, retry_backoff_ms) / 1000)
+
+    if last_error is not None:
+        raise last_error
+    raise MockProviderError("Provider failed without returning a result")
 
 
 def _record_successful_request(

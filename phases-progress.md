@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 26: Autoscaling and resilience
+Phase 27: Backup and restore
 
 ## Phase table
 
@@ -47,8 +47,8 @@ Phase 26: Autoscaling and resilience
 | 23 | Alerts and incident response | Completed | main | 62ff2c6 | 2026-07-01 | Prometheus alert rules, Alertmanager placeholder, runbook triage, severity mapping, and demo incident flow. |
 | 24 | Secrets management | Completed | main | 5fefce4 | 2026-07-01 | External Secrets manifests, AWS Secrets Manager docs, IRSA role, naming, local fallback, and rotation guidance. |
 | 25 | Security hardening | Completed | main | fbb3314 | 2026-07-01 | Rate limiting, NetworkPolicies, workload hardening, private EKS defaults, KMS secret encryption, audit review docs, and blocking supply-chain scans. |
-| 26 | Autoscaling and resilience | In Progress |  |  |  | HPA, PDB, graceful shutdown, retry policies. |
-| 27 | Backup and restore | Not Started |  |  |  | Backup/restore and DR runbooks. |
+| 26 | Autoscaling and resilience | Completed | main | pending | 2026-07-01 | HPA/PDB manifests, graceful termination, provider retry settings, resource tuning notes, and smoke load script. |
+| 27 | Backup and restore | In Progress |  |  |  | Backup/restore and DR runbooks. |
 | 28 | Cost controls and analysis | Not Started |  |  |  | Cloud and LLM cost controls. |
 | 29 | GitOps with Argo CD | Not Started |  |  |  | Optional GitOps deployment path. |
 | 30 | Final documentation and portfolio polish | Not Started |  |  |  | README, diagrams, screenshots, demo script. |
@@ -2113,6 +2113,104 @@ Post-commit review:
 Next phase:
 
 - Phase 26: Autoscaling and resilience
+
+### Phase 26: Autoscaling and resilience
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-01
+
+Implementation notes:
+
+- Added provider retry settings to API configuration: max attempts, retry backoff, and timeout budget.
+- Wrapped gateway mock provider calls with bounded retry behavior and trace attributes for attempt count and timeout budget.
+- Added a transient mock-provider failure path for local retry validation.
+- Added API shutdown lifecycle handling so readiness returns unavailable once shutdown begins.
+- Added Uvicorn graceful shutdown timeout to production and dev API Docker commands.
+- Added graceful pod termination settings to raw Kubernetes and Helm API/web Deployments with `terminationGracePeriodSeconds` and preStop sleep.
+- Added raw Kubernetes API/web HorizontalPodAutoscaler manifests with CPU targets and stabilization behavior.
+- Added raw Kubernetes API/web PodDisruptionBudget manifests.
+- Added Helm API/web PodDisruptionBudget templates and configurable values.
+- Enhanced Helm API/web HPA templates with scale-up and scale-down stabilization behavior.
+- Tuned dev raw overlays for small HPA bounds and prod raw overlays for higher min/max replicas and stricter PDB availability.
+- Added a standard-library `scripts/smoke_load.py` gateway smoke load helper.
+- Updated README, architecture, deployment, runbook, security baseline, and testing docs with resilience behavior and resource tuning notes.
+
+Validation:
+
+- Command: `.venv\Scripts\python.exe -m compileall apps\api\app apps\api\tests apps\api\scripts scripts`
+  Result: Passed.
+- Command: `.venv\Scripts\python.exe -m ruff check apps/api scripts`
+  Result: Passed.
+- Command: `.venv\Scripts\python.exe -m ruff format --check apps/api scripts`
+  Result: Passed.
+- Command: `.venv\Scripts\python.exe -m pytest`
+  Result: Passed, 18 tests.
+- Command: `kubectl kustomize infra/k8s/overlays/dev`, `staging`, and `prod`
+  Result: Passed; rendered 542, 543, and 543 lines.
+- Command: `helm lint infra/helm/ai-platform`
+  Result: Passed; Helm reported only the optional icon recommendation.
+- Command: Helm template render for dev, staging, and prod values
+  Result: Passed; rendered 563, 656, and 656 lines.
+- Command: Docker build for `apps/api/Dockerfile` and `apps/api/Dockerfile.dev`
+  Result: Passed.
+- Command: Production API Docker image smoke test against `/health/live`
+  Result: Passed, HTTP 200.
+- Command: `.venv\Scripts\uvicorn.exe --help`
+  Result: Passed; confirmed `--timeout-graceful-shutdown` is supported.
+- Command: `python scripts/smoke_load.py --help`
+  Result: Passed.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: refined secret-pattern scan
+  Result: No real secrets found; matches were known local placeholder passwords and documentation references.
+
+Security notes:
+
+- No real secrets, provider keys, cloud credentials, kubeconfigs, database URLs, Redis URLs, or Kubernetes Secret values were committed.
+- Provider retry settings are numeric runtime controls and do not expose credentials.
+- Service-account and non-root workload posture remains unchanged.
+- PDBs and HPAs do not add IAM/RBAC permissions.
+
+Reliability notes:
+
+- API and web workloads can scale based on CPU in both raw manifests and Helm chart releases.
+- PDBs reduce voluntary-disruption risk during node maintenance and rollouts.
+- Rolling updates retain `maxUnavailable: 0` and now have graceful termination windows.
+- API readiness fails during shutdown so draining pods stop receiving traffic.
+- Provider transient failures can be retried with bounded attempts and backoff; repeated failures still persist failed gateway requests.
+- Resource tuning notes document current requests/limits and scaling tradeoffs.
+
+Observability notes:
+
+- Provider retry attempts and timeout budget are attached to provider-call spans.
+- Existing gateway success/failure metrics and structured logs continue to capture final request outcomes.
+- Smoke load script can generate local traffic for metrics, logs, traces, and dashboard validation.
+
+Scope notes:
+
+- Completed Phase 26 autoscaling and resilience only.
+- Deferred database backup/restore, Terraform state recovery, Redis persistence decisions, disaster recovery assumptions, cost controls, GitOps, and final portfolio polish to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: Pending review after the pushed commit hash exists.
+- Fix commits: Pending.
+
+Next phase:
+
+- Phase 27: Backup and restore
 
 ## Update template
 

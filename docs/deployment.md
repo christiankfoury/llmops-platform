@@ -235,11 +235,14 @@ The manifests include:
 - resource requests and limits
 - non-root pod and container security contexts
 - default-deny ingress NetworkPolicy with API/web allow rules
+- API and web HorizontalPodAutoscalers
+- API and web PodDisruptionBudgets
+- graceful pod termination with preStop drain delay
 - secret references for `DATABASE_URL` and `REDIS_URL`
 
 The referenced `ai-platform-runtime-secrets` Secret is intentionally not committed. Phase 24 adds External Secrets resources that bind AWS Secrets Manager values into Kubernetes without plaintext manifests.
 
-These manifests are raw Kubernetes foundations. Helm packaging and release values are implemented in the Helm phase. HPA and PDB are later resilience controls.
+These manifests are raw Kubernetes foundations. Helm packaging and release values are implemented in the Helm phase. HPA and PDB are included as resilience controls and should be tuned per environment before applying to a real cluster.
 
 The Phase 25 NetworkPolicies restrict inbound pod traffic:
 
@@ -283,10 +286,47 @@ The chart packages:
 - API and web Deployments
 - API and web Services
 - ALB-oriented Ingress
-- optional API and web HPAs
+- optional API and web HPAs with scale-up and scale-down stabilization behavior
+- API and web PodDisruptionBudgets
+- graceful pod termination settings
 - runtime Secret references for database and Redis connection strings
 
 The Helm chart is the release artifact for deployment workflows. Phase 16 overrides dev image repositories, image tags, ingress hosts, CORS origins, and web API base URL at deploy time from GitHub repository variables.
+
+## Autoscaling and Resilience
+
+Phase 26 adds runtime resilience defaults:
+
+- Dev raw overlays keep HPA minimums small at one pod and maximums at two pods.
+- Staging Helm values scale API and web from two to four pods at 70 percent CPU.
+- Production Helm values scale API and web from three to eight pods at 65 percent CPU.
+- HPAs use faster scale-up and conservative scale-down stabilization to avoid flapping.
+- PDBs keep at least one pod available by default, and production Helm values require two available pods for API and web.
+- API and web pods use `terminationGracePeriodSeconds: 30` and a short preStop sleep to give readiness and load balancers time to drain.
+- The API marks readiness unavailable during shutdown and Uvicorn has a 25 second graceful shutdown timeout.
+
+Provider call resilience is configured through:
+
+```bash
+PROVIDER_MAX_ATTEMPTS=2
+PROVIDER_RETRY_BACKOFF_MS=100
+PROVIDER_TIMEOUT_SECONDS=15
+```
+
+The current mock provider uses these settings to exercise retry paths locally. Future real provider adapters should enforce the same timeout budget around outbound calls.
+
+Resource tuning notes:
+
+- API defaults request `100m` CPU and `256Mi` memory with `500m`/`512Mi` limits.
+- Web defaults request `100m` CPU and `256Mi` memory with `500m`/`512Mi` limits.
+- Increase requests before raising HPA max replicas if pods are consistently CPU throttled.
+- Raise memory requests only after observing container working set in Grafana or Kubernetes metrics.
+
+After local migrations and seed data, run a modest smoke load:
+
+```bash
+python scripts/smoke_load.py --base-url http://localhost:8000 --requests 20 --concurrency 4
+```
 
 ## Staging deployment
 

@@ -23,6 +23,10 @@ api:
     minReplicas: 3
     maxReplicas: 8
     targetCPUUtilizationPercentage: 65
+    scaleUpStabilizationWindowSeconds: 30
+    scaleDownStabilizationWindowSeconds: 300
+  podDisruptionBudget:
+    minAvailable: 2
 
 web:
   replicaCount: 3
@@ -36,6 +40,10 @@ web:
     minReplicas: 3
     maxReplicas: 8
     targetCPUUtilizationPercentage: 65
+    scaleUpStabilizationWindowSeconds: 30
+    scaleDownStabilizationWindowSeconds: 300
+  podDisruptionBudget:
+    minAvailable: 2
 
 ingress:
   webHost: ai-platform.example.com

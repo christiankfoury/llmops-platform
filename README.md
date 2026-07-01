@@ -28,6 +28,7 @@ A future integration could make Proofbase a client application of this platform,
 - Secret management with AWS Secrets Manager and External Secrets
 - Kubernetes NetworkPolicies and non-root workload hardening
 - API gateway rate limiting
+- Autoscaling, disruption budgets, graceful shutdown, and provider retry controls
 - Prometheus metrics
 - Grafana dashboards
 - Loki centralized logs
@@ -86,7 +87,7 @@ curl -X POST http://localhost:8000/v1/gateway/completions \
 
 The placeholder key is for local seeded data only and is stored in PostgreSQL as a hash.
 
-Successful gateway responses include a request ID, selected provider/model, latency, estimated token usage, and estimated cost. Local failure handling can be smoke-tested with `"[simulate_failure]"` for a provider error or `"[simulate_timeout]"` for a provider timeout.
+Successful gateway responses include a request ID, selected provider/model, latency, estimated token usage, and estimated cost. Local failure handling can be smoke-tested with `"[simulate_failure]"` for a provider error or `"[simulate_timeout]"` for a provider timeout. Transient retry behavior can be checked with `"[simulate_transient_failure]"`.
 
 Gateway requests are rate limited by API key hash. Local defaults allow 60 requests per minute and can be adjusted with:
 
@@ -94,6 +95,9 @@ Gateway requests are rate limited by API key hash. Local defaults allow 60 reque
 RATE_LIMIT_ENABLED=true
 RATE_LIMIT_REQUESTS_PER_MINUTE=60
 RATE_LIMIT_WINDOW_SECONDS=60
+PROVIDER_MAX_ATTEMPTS=2
+PROVIDER_RETRY_BACKOFF_MS=100
+PROVIDER_TIMEOUT_SECONDS=15
 ```
 
 Usage summary:
@@ -127,6 +131,12 @@ make docker-build-prod
 ```
 
 GitHub Actions CI runs the same backend/frontend quality checks, production image builds, dependency audit gates, image scans, and infrastructure placeholders on pushes to `main`.
+
+After the local stack is migrated and seeded, a small gateway smoke load can be run with:
+
+```bash
+python scripts/smoke_load.py --requests 20 --concurrency 4
+```
 
 The dev CD workflow builds API and web images, pushes immutable commit-SHA tags to ECR, deploys the Helm release to the dev EKS namespace, checks rollout status, and smoke-tests the API and dashboard. Automatic main-branch deployment is guarded by explicit repository variables so the workflow can be reviewed before it mutates a real AWS environment. Staging and production releases are manual promotion workflows; production binds to a protected GitHub Environment approval gate. Rollback is a manual Helm workflow with selected revision, rollout checks, smoke tests, and production approval.
 
@@ -240,4 +250,4 @@ See `phases-progress.md`.
 
 ## Status
 
-Phases 1-24 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, managed data services, base Kubernetes manifests, Helm chart, guarded dev deployment workflow, manual staging/approved production release workflows, Helm rollback automation, OpenTelemetry tracing, Prometheus metrics, Grafana dashboard definitions, Loki structured logging integration, alert/incident response updates, and External Secrets integration. Phase 25 adds security hardening with rate limiting, NetworkPolicies, workload security posture documentation, and stricter supply-chain scanning.
+Phases 1-25 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, managed data services, base Kubernetes manifests, Helm chart, guarded dev deployment workflow, manual staging/approved production release workflows, Helm rollback automation, OpenTelemetry tracing, Prometheus metrics, Grafana dashboard definitions, Loki structured logging integration, alert/incident response updates, External Secrets integration, and security hardening with rate limiting, NetworkPolicies, workload security posture documentation, and stricter supply-chain scanning. Phase 26 adds autoscaling and resilience controls.

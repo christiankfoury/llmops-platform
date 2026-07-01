@@ -61,3 +61,13 @@ The workflow runs:
 - Terraform and Helm static-check placeholders until those phases add real files
 
 Phase 25 makes the Python dependency scan blocking. The blocking supply-chain gates are frontend high/critical npm audit, Python production dependency audit, high/critical container image scans, and repository-level Trivy filesystem scanning.
+
+## Smoke Load
+
+Phase 26 adds a small gateway smoke load script. After local migrations and seed data are available, run:
+
+```bash
+python scripts/smoke_load.py --base-url http://localhost:8000 --requests 20 --concurrency 4
+```
+
+This is a resilience smoke check, not a benchmark. Use it to verify that the gateway handles modest concurrent traffic, emits request metrics, and keeps failures visible during local demos.

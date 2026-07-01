@@ -27,6 +27,9 @@ class Settings(BaseSettings):
         alias="RATE_LIMIT_REQUESTS_PER_MINUTE",
     )
     rate_limit_window_seconds: int = Field(default=60, alias="RATE_LIMIT_WINDOW_SECONDS")
+    provider_max_attempts: int = Field(default=2, alias="PROVIDER_MAX_ATTEMPTS")
+    provider_retry_backoff_ms: int = Field(default=100, alias="PROVIDER_RETRY_BACKOFF_MS")
+    provider_timeout_seconds: int = Field(default=15, alias="PROVIDER_TIMEOUT_SECONDS")
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

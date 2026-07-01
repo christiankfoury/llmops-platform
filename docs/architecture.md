@@ -193,6 +193,8 @@ Phase 24 adds External Secrets integration. AWS Secrets Manager stores runtime v
 
 Phase 25 adds security hardening. The gateway applies a bounded in-memory fixed-window rate limit keyed by API key hash. Raw Kubernetes manifests and the Helm chart render default-deny ingress NetworkPolicies plus explicit API and web ingress allowances. Workloads continue to use dedicated service accounts with token automounting disabled, non-root pod security contexts, dropped Linux capabilities, no privilege escalation, and read-only root filesystems. CI now treats Python dependency audit findings as blocking and adds a repository-level Trivy filesystem scan for high/critical vulnerability, config, and secret findings.
 
+Phase 26 adds autoscaling and resilience controls. Raw manifests and Helm render API/web HPAs and PodDisruptionBudgets, workloads drain with termination grace periods and preStop delays, the API readiness endpoint fails during shutdown, provider calls use bounded retry settings, and `scripts/smoke_load.py` provides a small repeatable gateway load smoke test.
+
 ### Observability
 
 - Prometheus for metrics

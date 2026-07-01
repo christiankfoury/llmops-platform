@@ -11,6 +11,10 @@ resources:
   - configmap-web.yaml
   - deployment-api.yaml
   - deployment-web.yaml
+  - hpa-api.yaml
+  - hpa-web.yaml
+  - pdb-api.yaml
+  - pdb-web.yaml
   - service-api.yaml
   - service-web.yaml
   - ingress.yaml

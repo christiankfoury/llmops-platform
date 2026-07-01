@@ -15,6 +15,9 @@ data:
   RATE_LIMIT_ENABLED: {{ .Values.api.config.rateLimitEnabled | quote }}
   RATE_LIMIT_REQUESTS_PER_MINUTE: {{ .Values.api.config.rateLimitRequestsPerMinute | quote }}
   RATE_LIMIT_WINDOW_SECONDS: {{ .Values.api.config.rateLimitWindowSeconds | quote }}
+  PROVIDER_MAX_ATTEMPTS: {{ .Values.api.config.providerMaxAttempts | quote }}
+  PROVIDER_RETRY_BACKOFF_MS: {{ .Values.api.config.providerRetryBackoffMs | quote }}
+  PROVIDER_TIMEOUT_SECONDS: {{ .Values.api.config.providerTimeoutSeconds | quote }}
   {{- if .Values.api.config.otelExporterOtlpEndpoint }}
   OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.api.config.otelExporterOtlpEndpoint | quote }}
   {{- end }}

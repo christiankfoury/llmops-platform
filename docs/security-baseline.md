@@ -68,7 +68,7 @@ Phase 14 baseline controls:
 - Deployments include CPU/memory requests and limits.
 - Runtime database and Redis connection strings are referenced from a Kubernetes Secret and are not committed.
 
-NetworkPolicies, HPA, and PDB are later hardening phases.
+NetworkPolicies, HPA, and PDB are included in later Kubernetes and Helm deployment paths.
 
 Phase 15 keeps the same secret-reference and non-root workload posture in Helm templates. The chart does not render Kubernetes Secret values.
 
@@ -91,6 +91,12 @@ Phase 25 adds NetworkPolicies and confirms least-privilege service-account behav
 - Terraform EKS clusters use KMS envelope encryption for Kubernetes Secrets.
 - Dev, staging, and prod EKS API endpoints default to private-only access.
 - RDS PostgreSQL and ElastiCache Redis security groups allow inbound traffic only from approved platform security groups and do not declare public egress.
+
+Phase 26 adds availability controls:
+
+- API and web workloads have HorizontalPodAutoscalers with bounded replica limits.
+- API and web workloads have PodDisruptionBudgets to preserve availability during voluntary disruption.
+- Graceful termination settings give load balancers and readiness checks time to drain pods during rollouts.
 
 ## Supply-chain security
 

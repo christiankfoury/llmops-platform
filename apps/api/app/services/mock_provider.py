@@ -23,9 +23,12 @@ def complete_with_mock_provider(
     prompt: PromptVersion,
     route: ModelRoute,
     user_input: str,
+    attempt: int = 1,
 ) -> MockProviderResult:
     if "[simulate_timeout]" in user_input:
         raise MockProviderTimeout("Mock provider timed out")
+    if "[simulate_transient_failure]" in user_input and attempt == 1:
+        raise MockProviderError("Mock provider transient failure")
     if "[simulate_failure]" in user_input:
         raise MockProviderError("Mock provider failed")
 

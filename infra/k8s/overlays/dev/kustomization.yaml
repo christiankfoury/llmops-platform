@@ -37,6 +37,26 @@ patches:
         path: /spec/replicas
         value: 1
   - target:
+      kind: HorizontalPodAutoscaler
+      name: ai-platform-api
+    patch: |-
+      - op: replace
+        path: /spec/minReplicas
+        value: 1
+      - op: replace
+        path: /spec/maxReplicas
+        value: 2
+  - target:
+      kind: HorizontalPodAutoscaler
+      name: ai-platform-web
+    patch: |-
+      - op: replace
+        path: /spec/minReplicas
+        value: 1
+      - op: replace
+        path: /spec/maxReplicas
+        value: 2
+  - target:
       kind: ConfigMap
       name: ai-platform-api-config
     patch: |-

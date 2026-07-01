@@ -1,8 +1,9 @@
 import logging
 import uuid
+from contextlib import asynccontextmanager
 from time import perf_counter
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
@@ -18,11 +19,25 @@ from app.observability.tracing import configure_tracing, get_tracer, set_span_at
 
 settings = get_settings()
 configure_logging()
+logger = logging.getLogger("app.request")
+
+_is_shutting_down = False
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global _is_shutting_down
+    _is_shutting_down = False
+    yield
+    _is_shutting_down = True
+    logger.info("shutdown_started")
+
 
 app = FastAPI(
     title="Production AI Platform API",
     version="0.1.0",
     description="Local development foundation for the LLMOps gateway.",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -40,7 +55,6 @@ app.include_router(gateway_router)
 app.include_router(usage_router)
 app.include_router(admin_router)
 
-logger = logging.getLogger("app.request")
 tracer = get_tracer()
 
 
@@ -102,6 +116,9 @@ def live() -> dict[str, str]:
 
 @app.get("/health/ready")
 def ready() -> dict[str, str]:
+    if _is_shutting_down:
+        raise HTTPException(status_code=503, detail="shutting down")
+
     settings = get_settings()
     return {
         "status": "ready",

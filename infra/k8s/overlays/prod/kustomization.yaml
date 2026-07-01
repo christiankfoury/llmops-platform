@@ -37,6 +37,52 @@ patches:
         path: /spec/replicas
         value: 3
   - target:
+      kind: HorizontalPodAutoscaler
+      name: ai-platform-api
+    patch: |-
+      - op: replace
+        path: /spec/minReplicas
+        value: 3
+      - op: replace
+        path: /spec/maxReplicas
+        value: 8
+      - op: replace
+        path: /spec/metrics/0/resource/target/averageUtilization
+        value: 65
+      - op: replace
+        path: /spec/behavior/scaleUp/stabilizationWindowSeconds
+        value: 30
+  - target:
+      kind: HorizontalPodAutoscaler
+      name: ai-platform-web
+    patch: |-
+      - op: replace
+        path: /spec/minReplicas
+        value: 3
+      - op: replace
+        path: /spec/maxReplicas
+        value: 8
+      - op: replace
+        path: /spec/metrics/0/resource/target/averageUtilization
+        value: 65
+      - op: replace
+        path: /spec/behavior/scaleUp/stabilizationWindowSeconds
+        value: 30
+  - target:
+      kind: PodDisruptionBudget
+      name: ai-platform-api
+    patch: |-
+      - op: replace
+        path: /spec/minAvailable
+        value: 2
+  - target:
+      kind: PodDisruptionBudget
+      name: ai-platform-web
+    patch: |-
+      - op: replace
+        path: /spec/minAvailable
+        value: 2
+  - target:
       kind: ConfigMap
       name: ai-platform-api-config
     patch: |-

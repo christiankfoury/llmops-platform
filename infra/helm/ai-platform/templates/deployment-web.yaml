@@ -28,6 +28,7 @@ spec:
         app.kubernetes.io/component: web
     spec:
       serviceAccountName: {{ include "ai-platform.webServiceAccountName" . }}
+      terminationGracePeriodSeconds: {{ .Values.web.lifecycle.terminationGracePeriodSeconds }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -41,6 +42,13 @@ spec:
           ports:
             - name: http
               containerPort: 3000
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - sleep {{ .Values.web.lifecycle.preStopSleepSeconds }}
           envFrom:
             - configMapRef:
                 name: {{ include "ai-platform.webName" . }}-config

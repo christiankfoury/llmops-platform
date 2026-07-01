@@ -83,6 +83,20 @@ Triage:
 
 5. Mitigate by scaling, routing to a safer model route, or rolling back a problematic deploy.
 
+If HPA is not scaling as expected, check:
+
+- `kubectl describe hpa`
+- metrics-server availability
+- CPU requests on the target Deployment
+- current pod CPU utilization in Grafana or Kubernetes metrics
+- PDBs blocking voluntary disruption during node maintenance
+
+Provider retry behavior:
+
+- The API uses `PROVIDER_MAX_ATTEMPTS`, `PROVIDER_RETRY_BACKOFF_MS`, and `PROVIDER_TIMEOUT_SECONDS` to bound provider retries.
+- Repeated provider failures are still recorded as failed gateway requests and surfaced in metrics/logs.
+- Do not raise retry attempts during a provider outage without checking cost and latency impact.
+
 ### Cost spike
 
 Check:
