@@ -116,6 +116,8 @@ Runtime values still flow through:
 
 Argo CD needs read access to this public repository and Kubernetes permissions scoped to the target platform namespaces. Cluster-admin installation is an approval-gated bootstrap action, not normal deployment work.
 
+The included AppProject allows only the cluster-scoped `Namespace` and `ClusterSecretStore` resources plus the namespaced resource kinds rendered by the Helm chart. Avoid replacing this with wildcard resource permissions unless a future chart change makes the extra permission necessary and reviewed.
+
 ## Validation
 
 Safe local validation:

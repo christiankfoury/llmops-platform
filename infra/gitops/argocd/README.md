@@ -11,6 +11,8 @@ Manifests:
 - `applications/ai-platform-staging.yaml`: Helm-based staging application with manual sync.
 - `applications/ai-platform-prod.yaml`: Helm-based prod application with manual sync.
 
+The project manifest enumerates the Kubernetes resource kinds rendered by the chart instead of allowing all namespaced resources.
+
 Before applying these manifests:
 
 - Install Argo CD into an approved cluster.
