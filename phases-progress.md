@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 29: GitOps with Argo CD
+Phase 30: Final documentation and portfolio polish
 
 ## Phase table
 
@@ -50,8 +50,8 @@ Phase 29: GitOps with Argo CD
 | 26 | Autoscaling and resilience | Completed | main | a22e905 | 2026-07-01 | HPA/PDB manifests, graceful termination, provider retry settings, resource tuning notes, and smoke load script. |
 | 27 | Backup and restore | Completed | main | cd91577 | 2026-07-01 | Database backup strategy, restore runbook, Terraform state recovery notes, Redis persistence decision, DR assumptions, and RTO/RPO targets. |
 | 28 | Cost controls and analysis | Completed | main | d433c06 | 2026-07-01 | Cloud cost estimates, optional AWS Budget Terraform module, LLM cost tracking explanation, right-sizing notes, and dev teardown guidance. |
-| 29 | GitOps with Argo CD | In Progress |  |  |  | Optional GitOps deployment path. |
-| 30 | Final documentation and portfolio polish | Not Started |  |  |  | README, diagrams, screenshots, demo script. |
+| 29 | GitOps with Argo CD | Completed | main | pending | 2026-07-01 | Optional Argo CD AppProject and Application manifests, Helm-based GitOps docs, sync strategy, and promotion guidance. |
+| 30 | Final documentation and portfolio polish | In Progress |  |  |  | README, diagrams, screenshots, demo script. |
 
 ## Phase execution log
 
@@ -2346,6 +2346,75 @@ Post-commit review:
 Next phase:
 
 - Phase 29: GitOps with Argo CD
+
+### Phase 29: GitOps with Argo CD
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-01
+
+Implementation notes:
+
+- Added optional Argo CD AppProject and Application manifests under `infra/gitops/argocd`.
+- Pointed dev, staging, and prod Applications at the existing Helm chart and environment values files.
+- Documented Argo CD install notes, bootstrap, sync strategy, promotion, rollback, secrets, and validation in `docs/gitops-argocd.md`.
+- Updated README, deployment docs, and the decision log to keep GitHub Actions as the default path while presenting Argo CD as an optional GitOps path.
+
+Validation:
+
+- Command: Dockerized `helm lint infra/helm/ai-platform`
+  Result: Passed with the existing optional icon recommendation.
+- Command: Dockerized `helm template` for dev, staging, and prod values
+  Result: Passed for all three environment values files.
+- Command: `rg -n "kind: Application|kind: AppProject|path: infra/helm/ai-platform|values-dev.yaml|values-staging.yaml|values-prod.yaml|automated|manual|GitHub Actions remains" infra/gitops/argocd docs/gitops-argocd.md docs/deployment.md README.md`
+  Result: Passed; GitOps manifests and docs reference the expected Argo CD resources, Helm path, values files, and sync strategy.
+- Command: `git diff --check`
+  Result: Passed with line-ending warnings only.
+- Command: refined secret value scan for provider keys, AWS keys, private keys, committed access-key fields, and non-placeholder database/Redis URLs
+  Result: Passed with no matches.
+
+Security notes:
+
+- No secrets, kubeconfigs, provider keys, database URLs, Redis URLs, account IDs, or cluster credentials were committed.
+- Argo CD manifests reference only the public repository, Helm chart path, and Kubernetes namespace targets.
+- Docs keep Argo CD installation and cluster mutation behind explicit approval.
+
+Reliability notes:
+
+- Dev GitOps enables self-heal but disables prune to avoid deleting resources during portfolio experimentation.
+- Staging and prod remain manual sync to preserve promotion and approval discipline.
+- Docs warn not to let GitHub Actions and Argo CD both continuously mutate the same Helm release.
+
+Observability notes:
+
+- GitOps validation and rollback docs include checking API readiness, web health, 5xx rate, latency, cost/token metrics, logs, and traces after sync or rollback.
+- Argo CD deploys the same Helm chart that already exposes Prometheus annotations and runtime observability configuration.
+
+Scope notes:
+
+- Completed Phase 29 optional GitOps manifests and documentation only.
+- Did not install Argo CD, mutate a cluster, create namespaces, change DNS/TLS, apply manifests, or replace GitHub Actions workflows.
+- Deferred final README polish, diagrams, screenshots, demo script, incident simulation write-up, cost report, and final portfolio packaging to Phase 30.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending
+- Fix commits: pending
+
+Next phase:
+
+- Phase 30: Final documentation and portfolio polish
 
 ## Update template
 

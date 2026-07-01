@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ai-platform-prod
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: production-ai-platform
+    environment: prod
+spec:
+  project: ai-platform
+  source:
+    repoURL: https://github.com/christiankfoury/production-ai-platform.git
+    targetRevision: main
+    path: infra/helm/ai-platform
+    helm:
+      releaseName: ai-platform-prod
+      valueFiles:
+        - values-prod.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ai-platform-prod
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=false

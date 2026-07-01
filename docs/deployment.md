@@ -475,6 +475,20 @@ See `docs/runbook.md` and `docs/incident-response.md`.
 
 Database rollback is a separate restore operation. If a release damages durable data or requires point-in-time recovery, follow `docs/backup-restore.md` before selecting an application rollback or production cutover path.
 
+## GitOps
+
+Phase 29 adds an optional Argo CD path under `infra/gitops/argocd`.
+
+The Argo CD Applications deploy the existing Helm chart:
+
+- dev uses `values-dev.yaml`
+- staging uses `values-staging.yaml`
+- prod uses `values-prod.yaml`
+
+GitHub Actions remains the default deployment path. If Argo CD controls an environment, disable the overlapping GitHub Actions deploy workflow for that namespace or use Argo CD only as a read-only demo. Do not allow two controllers to continuously mutate the same Helm release.
+
+See `docs/gitops-argocd.md` for install notes, sync strategy, promotion, rollback, and validation.
+
 ## Metrics
 
 Phase 20 adds a Prometheus-compatible `/metrics` endpoint to the API.

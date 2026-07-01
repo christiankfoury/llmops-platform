@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ai-platform
+  namespace: argocd
+spec:
+  description: Production AI Platform GitOps applications
+  sourceRepos:
+    - https://github.com/christiankfoury/production-ai-platform.git
+  destinations:
+    - namespace: ai-platform-dev
+      server: https://kubernetes.default.svc
+    - namespace: ai-platform-staging
+      server: https://kubernetes.default.svc
+    - namespace: ai-platform-prod
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: external-secrets.io
+      kind: ClusterSecretStore
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  orphanedResources:
+    warn: true

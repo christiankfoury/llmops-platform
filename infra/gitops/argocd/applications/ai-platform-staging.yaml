@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ai-platform-staging
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: production-ai-platform
+    environment: staging
+spec:
+  project: ai-platform
+  source:
+    repoURL: https://github.com/christiankfoury/production-ai-platform.git
+    targetRevision: main
+    path: infra/helm/ai-platform
+    helm:
+      releaseName: ai-platform-staging
+      valueFiles:
+        - values-staging.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ai-platform-staging
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=false

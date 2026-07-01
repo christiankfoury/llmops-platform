@@ -22,6 +22,7 @@ A future integration could make Proofbase a client application of this platform,
 - Kubernetes deployment on AWS EKS
 - Helm packaging
 - CI/CD with GitHub Actions
+- Optional Argo CD GitOps manifests
 - Staged environments: dev, staging, prod
 - Production Docker images
 - Managed PostgreSQL and Redis
@@ -154,6 +155,7 @@ The infrastructure roadmap is the center of the project:
 - AWS foundation with Terraform modules for network, registry, IAM, secrets, EKS, RDS PostgreSQL, and ElastiCache Redis
 - Kubernetes deployment through raw manifests first, then a reusable Helm chart
 - GitHub Actions CI/CD with staged dev, staging, production, and rollback workflows
+- Optional Argo CD GitOps Applications that point at the Helm chart without replacing the default GitHub Actions release path
 - Observability through OpenTelemetry traces, Prometheus metrics, Grafana dashboards, Loki logs, and alerting runbooks
 - Security and reliability hardening through External Secrets, workload identity, NetworkPolicies, probes, resource limits, HPA, PDB, backups, restore runbooks, and incident response docs
 

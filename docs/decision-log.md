@@ -48,12 +48,17 @@ Reason:
 
 ## ADR-005: GitOps
 
-Decision: Add Argo CD as a later optional phase.
+Decision: Add Argo CD as an optional GitOps deployment path.
 
 Reason:
 
 - Keeps the core CI/CD path simpler first.
 - Adds advanced platform credibility near the end.
+- Reuses the Helm chart rather than introducing a second deployment package.
+
+Tradeoff:
+
+- GitHub Actions and Argo CD must not both continuously control the same Helm release in the same namespace.
 
 
 ## ADR-006: Relationship to Proofbase and RAG scope
