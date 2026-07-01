@@ -41,7 +41,7 @@ Phase 21: Grafana dashboards
 | 17 | Staging and production release workflows | Completed | main | 720dde9 | 2026-06-30 | Manual staging workflow, approved production workflow, release notes summaries, namespace-scoped deploy access, and promotion docs. |
 | 18 | Rollback workflow | Completed | main | fc7ab52 | 2026-06-30 | Manual Helm rollback workflow with selected revision, environment approval, rollout checks, smoke tests, and runbook recovery steps. |
 | 19 | OpenTelemetry tracing | Completed | main | cdf5597 | 2026-07-01 | OpenTelemetry API setup, request ID propagation, trace-correlated logs, gateway lifecycle spans, and collector docs. |
-| 20 | Prometheus metrics | Completed | main | pending | 2026-07-01 | API `/metrics`, HTTP/gateway counters and histograms, low-cardinality labels, and Prometheus scrape annotations. |
+| 20 | Prometheus metrics | Completed | main | c6c63cf | 2026-07-01 | API `/metrics`, HTTP/gateway counters and histograms, low-cardinality labels, and Prometheus scrape annotations. |
 | 21 | Grafana dashboards | In Progress |  |  |  | Overview, reliability, and cost dashboards. |
 | 22 | Loki structured logging | Not Started |  |  |  | JSON logs and request/trace correlation. |
 | 23 | Alerts and incident response | Not Started |  |  |  | Alert rules, runbook, incident docs. |
@@ -1617,7 +1617,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- c6c63cf
 
 Completed date:
 
@@ -1694,9 +1694,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending post-push review.
-- Fix commits: pending post-push review.
+- Pushed commit: c6c63cf
+- Top findings: Phase progress used temporary commit placeholders because the final commit hash was unavailable before the commit existed.
+- Fix commits: Follow-up documentation commit records the pushed Phase 20 hash and post-commit review result.
 
 Next phase:
 
