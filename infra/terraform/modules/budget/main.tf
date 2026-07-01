@@ -1,5 +1,5 @@
 locals {
-  create_budget = var.enabled && length(var.subscriber_email_addresses) > 0
+  create_budget = var.enabled
 }
 
 resource "aws_budgets_budget" "monthly" {

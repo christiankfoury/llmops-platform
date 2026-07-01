@@ -56,7 +56,8 @@ Phase 28 adds an optional AWS Budget module:
 - `infra/terraform/modules/budget`
 - wired into `dev`, `staging`, and `prod`
 - disabled by default
-- creates a monthly cost budget only when `budget_alert_enabled = true` and at least one alert email is supplied
+- creates a monthly cost budget when `budget_alert_enabled = true`
+- requires at least one alert email before a real plan/apply can succeed
 
 Example environment settings:
 
@@ -75,7 +76,7 @@ Budget defaults:
 | staging | `$250` | 80% |
 | prod | `$650` | 80% |
 
-Budget resources are Terraform code only until an approved `terraform apply` is run. Do not use real personal email addresses or account-specific billing contacts in committed examples.
+Budget resources are Terraform code only until an approved `terraform apply` is run. Do not use real personal email addresses or account-specific billing contacts in committed examples. If a budget is enabled without subscribers, the reviewed plan/apply should fail instead of silently omitting the guardrail.
 
 ## App-Level LLM Cost Tracking
 
