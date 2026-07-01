@@ -1,5 +1,39 @@
 # Observability
 
+## Prometheus metrics
+
+Phase 20 adds a Prometheus-compatible `/metrics` endpoint to the API.
+
+The endpoint exposes:
+
+- `http_requests_total`
+- `http_request_duration_seconds`
+- `llm_gateway_requests_total`
+- `llm_gateway_errors_total`
+- `llm_gateway_request_duration_seconds`
+- `llm_gateway_estimated_cost_usd_total`
+- `llm_gateway_tokens_total`
+- `llm_gateway_api_key_auth_failures_total`
+- `llm_gateway_rate_limit_rejections_total`
+
+Metrics use bounded labels such as HTTP method, route template, status code, provider, model, environment, gateway status, token type, and error category. They intentionally avoid request IDs, API key IDs, project IDs, prompt content, or trace IDs to prevent high-cardinality and sensitive metrics.
+
+The Helm chart and raw Kubernetes API Service include Prometheus scrape annotations:
+
+```yaml
+prometheus.io/scrape: "true"
+prometheus.io/path: /metrics
+prometheus.io/port: "8000"
+```
+
+Local verification:
+
+```bash
+curl http://localhost:8000/metrics
+```
+
+Prometheus deployment, alert rules, Grafana dashboards, and screenshot-ready panels are handled in later observability phases.
+
 ## OpenTelemetry tracing
 
 Phase 19 adds API tracing with OpenTelemetry.
@@ -48,7 +82,7 @@ The API propagates `X-Request-ID` from incoming requests or creates one when the
 
 ## Collector integration
 
-The repository does not create a collector in Phase 19. Later observability phases add Prometheus, Grafana, Loki, and collector manifests or Helm integration.
+The repository does not create a collector in Phase 19. Later observability phases add Grafana, Loki, alerting, and collector manifests or Helm integration.
 
 Expected collector shape:
 

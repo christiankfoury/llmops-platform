@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 20: Prometheus metrics
+Phase 21: Grafana dashboards
 
 ## Phase table
 
@@ -41,8 +41,8 @@ Phase 20: Prometheus metrics
 | 17 | Staging and production release workflows | Completed | main | 720dde9 | 2026-06-30 | Manual staging workflow, approved production workflow, release notes summaries, namespace-scoped deploy access, and promotion docs. |
 | 18 | Rollback workflow | Completed | main | fc7ab52 | 2026-06-30 | Manual Helm rollback workflow with selected revision, environment approval, rollout checks, smoke tests, and runbook recovery steps. |
 | 19 | OpenTelemetry tracing | Completed | main | cdf5597 | 2026-07-01 | OpenTelemetry API setup, request ID propagation, trace-correlated logs, gateway lifecycle spans, and collector docs. |
-| 20 | Prometheus metrics | In Progress |  |  |  | Metrics endpoint and scrape config. |
-| 21 | Grafana dashboards | Not Started |  |  |  | Overview, reliability, and cost dashboards. |
+| 20 | Prometheus metrics | Completed | main | pending | 2026-07-01 | API `/metrics`, HTTP/gateway counters and histograms, low-cardinality labels, and Prometheus scrape annotations. |
+| 21 | Grafana dashboards | In Progress |  |  |  | Overview, reliability, and cost dashboards. |
 | 22 | Loki structured logging | Not Started |  |  |  | JSON logs and request/trace correlation. |
 | 23 | Alerts and incident response | Not Started |  |  |  | Alert rules, runbook, incident docs. |
 | 24 | Secrets management | Not Started |  |  |  | External Secrets + AWS Secrets Manager. |
@@ -1606,6 +1606,101 @@ Post-commit review:
 Next phase:
 
 - Phase 20: Prometheus metrics
+
+### Phase 20: Prometheus metrics
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-01
+
+Implementation notes:
+
+- Added `prometheus-client` to API development and production requirements.
+- Added API observability metrics helpers with Prometheus counters and histograms for HTTP traffic and gateway behavior.
+- Exposed a Prometheus-compatible `/metrics` endpoint.
+- Recorded HTTP request counts and duration histograms with method, route-template, and status-code labels.
+- Recorded LLM gateway request counts, error counts, latency histograms, estimated cost totals, token usage totals, API key auth failures, and a rate-limit rejection metric placeholder.
+- Kept metric labels low-cardinality and avoided request IDs, API key IDs, project IDs, prompt content, trace IDs, and raw unmatched paths.
+- Added Prometheus scrape annotations to the API Service in both Helm and raw Kubernetes manifests.
+- Updated observability, deployment, architecture, and README documentation with metric names, scrape behavior, and scope boundaries.
+- Added tests for `/metrics`, HTTP metric output, gateway metrics, and auth-failure metric exposure.
+
+Validation:
+
+- Command: `.venv\Scripts\python -m pip index versions prometheus-client`
+  Result: Passed; confirmed `prometheus-client==0.25.0` was available from the configured package index.
+- Command: `.venv\Scripts\python -m pip install -r apps/api/requirements.txt`
+  Result: Passed; installed `prometheus-client==0.25.0`.
+- Command: `.venv\Scripts\python -m ruff format apps/api`
+  Result: Passed; no files changed after the final patch.
+- Command: `.venv\Scripts\python -m compileall apps\api\app apps\api\tests`
+  Result: Passed.
+- Command: `.venv\Scripts\python -m ruff check apps/api`
+  Result: Passed.
+- Command: `.venv\Scripts\python -m pytest`
+  Result: Passed, 15 tests; pytest still reports the existing cache write warning for `.pytest_cache`.
+- Command: `kubectl kustomize infra/k8s/overlays/dev | Measure-Object -Line`
+  Result: Passed; rendered 292 lines.
+- Command: `kubectl kustomize infra/k8s/overlays/staging | Measure-Object -Line`
+  Result: Passed; rendered 293 lines.
+- Command: `kubectl kustomize infra/k8s/overlays/prod | Measure-Object -Line`
+  Result: Passed; rendered 293 lines.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace alpine/helm:3.15.4 lint infra/helm/ai-platform`
+  Result: Passed; Helm reported only the optional icon recommendation.
+- Command: Helm template render for dev, staging, and prod values through `alpine/helm:3.15.4`
+  Result: Passed; rendered 359, 416, and 416 lines respectively.
+- Command: `docker build -q -f "S:\github-repos\production-ai-platform\apps\api\Dockerfile" -t production-ai-platform-api:phase20 "S:\github-repos\production-ai-platform\apps\api"`
+  Result: Passed.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: refined secret value scan for provider keys, AWS keys, private keys, committed access-key fields, and secret env assignments
+  Result: No matches.
+
+Security notes:
+
+- No secrets, provider keys, AWS credentials, account IDs, kubeconfigs, database URLs, Redis URLs, or Kubernetes Secret values were committed.
+- Metrics avoid sensitive and high-cardinality labels such as API keys, request IDs, prompt content, project IDs, and trace IDs.
+- Scrape annotations expose only the API `/metrics` endpoint inside the Kubernetes service model.
+- No cloud infrastructure was modified and no production deployment was run.
+
+Reliability notes:
+
+- Metrics cover request volume, errors, latency, token usage, cost estimates, auth failures, and future rate-limit rejection tracking.
+- HTTP unmatched routes use the bounded `unmatched` label instead of raw arbitrary paths.
+- The `/metrics` endpoint is served by the API process and does not change existing readiness, liveness, rollback, or deployment behavior.
+- Phase 20 does not add alerting or autoscaling based on metrics.
+
+Observability notes:
+
+- Prometheus can scrape API metrics through the annotated API Service or directly from `/metrics` in local development.
+- Metrics are designed to back the Phase 21 Grafana overview, reliability, and cost dashboards.
+- Traces and JSON request logs from Phase 19 remain intact.
+- Grafana dashboards, alerting rules, Loki aggregation, and Prometheus deployment details remain scoped to later phases.
+
+Scope notes:
+
+- Completed Phase 20 Prometheus metrics only.
+- Deferred Grafana dashboard JSON/provisioning, screenshots, alert rules, Prometheus server installation, Loki log shipping, and rate-limiting implementation to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-push review.
+- Fix commits: pending post-push review.
+
+Next phase:
+
+- Phase 21: Grafana dashboards
 
 ## Update template
 

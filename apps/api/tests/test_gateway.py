@@ -45,6 +45,11 @@ def test_gateway_completion_persists_successful_request() -> None:
     assert payload["input_tokens"] >= 1
     assert payload["output_tokens"] >= 1
 
+    metrics_response = client.get("/metrics")
+    assert "llm_gateway_requests_total" in metrics_response.text
+    assert "llm_gateway_estimated_cost_usd_total" in metrics_response.text
+    assert "llm_gateway_tokens_total" in metrics_response.text
+
     with SessionLocal() as db:
         persisted = db.execute(
             text(
@@ -72,6 +77,9 @@ def test_gateway_rejects_invalid_api_key() -> None:
 
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid API key"
+
+    metrics_response = client.get("/metrics")
+    assert "llm_gateway_api_key_auth_failures_total" in metrics_response.text
 
 
 @requires_database

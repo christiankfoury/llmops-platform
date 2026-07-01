@@ -422,6 +422,20 @@ Replace the release and namespace for dev or staging. Select a known-good revisi
 
 See `docs/runbook.md` and `docs/incident-response.md`.
 
+## Metrics
+
+Phase 20 adds a Prometheus-compatible `/metrics` endpoint to the API.
+
+The API Service includes scrape annotations in both the Helm chart and raw Kubernetes manifests:
+
+- `prometheus.io/scrape: "true"`
+- `prometheus.io/path: /metrics`
+- `prometheus.io/port: "8000"`
+
+The metrics cover HTTP request volume/latency, gateway request volume, gateway errors, gateway latency, estimated cost, token usage, API key auth failures, and a placeholder rate-limit rejection counter for the later rate-limiting phase.
+
+See `docs/observability.md` for metric names, label guidance, and local verification.
+
 ## Tracing
 
 Phase 19 adds OpenTelemetry tracing to the API.

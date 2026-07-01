@@ -181,6 +181,8 @@ Phase 15 packages the same workload shape as a Helm chart with dev, staging, and
 
 Phase 19 adds OpenTelemetry tracing inside the API. The request middleware creates an `api.request` span, propagates `X-Request-ID`, and emits correlated request logs. The gateway service creates child spans for authentication, prompt lookup, model routing, provider execution, database writes, and response serialization. Tracing is disabled by default and can export to console or an OTLP HTTP collector when enabled.
 
+Phase 20 adds Prometheus metrics through the API `/metrics` endpoint. Metrics cover HTTP volume and latency, gateway request/error counts, gateway latency, estimated LLM cost, token usage, API key auth failures, and rate-limit rejections. Labels stay bounded to method, route, status, provider, model, environment, gateway status, token type, and error category.
+
 ### Observability
 
 - Prometheus for metrics

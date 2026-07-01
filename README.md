@@ -227,4 +227,4 @@ See `phases-progress.md`.
 
 ## Status
 
-Phases 1-18 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, managed data services, base Kubernetes manifests, Helm chart, guarded dev deployment workflow, manual staging/approved production release workflows, and Helm rollback automation. Phase 19 adds OpenTelemetry tracing.
+Phases 1-19 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, managed data services, base Kubernetes manifests, Helm chart, guarded dev deployment workflow, manual staging/approved production release workflows, Helm rollback automation, and OpenTelemetry tracing. Phase 20 adds Prometheus metrics.

@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import ApiKey, Application, CostRecord, GatewayRequest, ModelRoute, PromptVersion
+from app.observability.metrics import record_gateway_request
 from app.observability.tracing import get_tracer, set_span_attributes
 from app.schemas.gateway import CompletionRequest, CompletionResponse
 from app.services.auth import hash_api_key
@@ -192,6 +193,14 @@ def process_completion(
                     "error.category": gateway_request.error_category,
                 },
             )
+            record_gateway_request(
+                provider=route.provider,
+                model=route.model_name,
+                environment=payload.environment,
+                status=gateway_request.status,
+                latency_ms=gateway_request.latency_ms,
+                error_category=gateway_request.error_category,
+            )
             raise GatewayProviderError(
                 "Provider timeout",
                 status_code=504,
@@ -214,6 +223,14 @@ def process_completion(
                     "gateway.status": gateway_request.status,
                     "error.category": gateway_request.error_category,
                 },
+            )
+            record_gateway_request(
+                provider=route.provider,
+                model=route.model_name,
+                environment=payload.environment,
+                status=gateway_request.status,
+                latency_ms=gateway_request.latency_ms,
+                error_category=gateway_request.error_category,
             )
             raise GatewayProviderError(
                 "Provider failure",
@@ -249,6 +266,16 @@ def process_completion(
                 "token.output": provider_result.output_tokens,
                 "cost.estimated_usd": float(estimated_cost),
             },
+        )
+        record_gateway_request(
+            provider=route.provider,
+            model=route.model_name,
+            environment=payload.environment,
+            status=gateway_request.status,
+            latency_ms=latency_ms,
+            input_tokens=provider_result.input_tokens,
+            output_tokens=provider_result.output_tokens,
+            estimated_cost=estimated_cost,
         )
 
         with tracer.start_as_current_span("gateway.response_serialization"):
