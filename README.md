@@ -1,70 +1,87 @@
 # Production AI Platform / LLMOps Infrastructure Platform
 
-A production-grade AI platform portfolio project for DevOps, cloud, backend, full-stack, and LLMOps roles.
+A production-style AI platform portfolio project for DevOps, cloud, platform, backend, full-stack, and LLMOps roles.
 
-The application is intentionally scoped: a lightweight LLM gateway and usage dashboard. The main value is the production infrastructure around it: Kubernetes, Terraform, Helm, CI/CD, observability, secrets, reliability, rollback, and cost controls.
+The app is intentionally scoped: a lightweight LLM gateway and usage dashboard. The main artifact is the production operating layer around it: Terraform, EKS, Helm, GitHub Actions, observability, secrets, rollback, security, reliability, cost controls, and runbooks.
 
-## Portfolio relationship
+## 60-Second Summary
 
-This project complements **Proofbase**, the permission-aware enterprise RAG application. Proofbase demonstrates the AI product layer: document ingestion, retrieval quality, citations, permissions, memory safety, and benchmark-driven answer evaluation.
+This repository shows how I would operate AI workloads in production, not just how I would call an LLM API.
 
-Production AI Platform demonstrates the operating layer: centralized LLM access, API keys, prompt and model routing, usage tracking, cost and latency monitoring, CI/CD, Kubernetes, Terraform, observability, secrets, rollback, and runbooks.
+- Apps call a central LLM gateway instead of calling providers directly.
+- The gateway handles API keys, prompt versions, model routing, request logs, latency, failures, token estimates, and estimated cost.
+- The platform runs locally with Docker Compose and is packaged for Kubernetes with Helm.
+- AWS infrastructure is defined with Terraform modules for EKS, ECR, RDS PostgreSQL, ElastiCache Redis, IAM, Secrets Manager, and optional budget alerts.
+- CI/CD uses GitHub Actions for checks, image builds/scans, dev deploy, staging/prod promotion, and rollback.
+- Observability includes OpenTelemetry traces, Prometheus metrics, Grafana dashboards, Loki log assets, alert rules, and incident runbooks.
+- Safety controls include hashed API keys, rate limiting, non-root containers, NetworkPolicies, External Secrets, private data services, backups, rollback docs, and explicit production approval gates.
 
-A future integration could make Proofbase a client application of this platform, sending model requests through the LLM gateway so cost, latency, traces, and model routing are managed centrally.
+## Portfolio Positioning
+
+This project complements **Proofbase**, the permission-aware enterprise RAG application.
+
+- Proofbase proves the AI product layer: document workflows, retrieval quality, citations, permissions, memory safety, and answer-quality evaluation.
+- Production AI Platform proves the operations layer: centralized model access, cost, latency, errors, traces, secrets, deployments, rollback, and cloud infrastructure.
+
+A future integration could make Proofbase a client app of this gateway so model routing, cost controls, traces, and request logs are centralized here.
 
 ## Target Portfolio Claim
 
 > Built a production-grade AI platform on AWS using Kubernetes, Terraform, Helm, GitHub Actions, Prometheus, Grafana, Loki, OpenTelemetry, managed PostgreSQL, Redis, external secret management, staged deployments, rollback workflows, request tracing, cost monitoring, and reliability runbooks.
 
-## What this project demonstrates
+## What Is Implemented
 
-- Cloud infrastructure with Terraform
-- Kubernetes deployment on AWS EKS
-- Helm packaging
-- CI/CD with GitHub Actions
-- Optional Argo CD GitOps manifests
-- Staged environments: dev, staging, prod
-- Production Docker images
-- Managed PostgreSQL and Redis
-- Secret management with AWS Secrets Manager and External Secrets
-- Kubernetes NetworkPolicies and non-root workload hardening
-- API gateway rate limiting
-- Autoscaling, disruption budgets, graceful shutdown, and provider retry controls
-- Database backup/restore strategy and disaster recovery assumptions
-- Prometheus metrics
-- Grafana dashboards
-- Loki centralized logs
+Application:
+
+- FastAPI LLM gateway
+- Next.js usage dashboard
+- PostgreSQL schema and Alembic migrations
+- hashed API key authentication
+- prompt versioning
+- model routing
+- mock LLM provider
+- request logging
+- cost, latency, token, and error tracking
+- audit logs for prompt/model route changes
+- rate limiting
+
+Platform:
+
+- Docker Compose local stack
+- production Dockerfiles
+- Terraform AWS modules for network, ECR, EKS, RDS, Redis, Secrets Manager, IAM, and budgets
+- raw Kubernetes manifests
+- Helm chart with dev/staging/prod values
+- GitHub Actions CI, deploy, promotion, and rollback workflows
+- optional Argo CD GitOps manifests
 - OpenTelemetry tracing
-- API gateway request tracking
-- LLM cost and latency tracking
-- Environment cost estimates, optional budget alerts, and dev teardown guidance
-- Rollback workflows
-- Incident response runbooks
-- Cost analysis and controls
+- Prometheus metrics and alert rules
+- Grafana dashboard JSON
+- Loki/Promtail/log dashboard assets
+- External Secrets integration
+- security, reliability, incident, backup/restore, cost, and GitOps docs
 
-## Core app
+## Architecture
 
-The platform includes:
+```mermaid
+flowchart LR
+  client["Client apps"] --> ingress["Ingress / TLS"]
+  ingress --> api["LLM Gateway API"]
+  api --> auth["API key auth"]
+  api --> routing["Prompt + model routing"]
+  routing --> provider["Mock or real LLM provider"]
+  api --> postgres[("RDS PostgreSQL")]
+  api --> redis[("Redis")]
+  api --> metrics["Prometheus metrics"]
+  api --> logs["JSON logs -> Loki"]
+  api --> traces["OpenTelemetry traces"]
+  metrics --> grafana["Grafana dashboards"]
+  logs --> grafana
+```
 
-- LLM gateway API
-- API keys per app/project
-- Prompt versioning
-- Model routing
-- Request logging
-- Cost tracking
-- Latency tracking
-- Failure tracking
-- Usage dashboard
-- Cost/error/latency dashboard
+See [docs/architecture-diagrams.md](docs/architecture-diagrams.md) for the deployment diagram and request lifecycle.
 
-## Local development
-
-Phase 2 adds the local development foundation:
-
-- FastAPI service in `apps/api`
-- Next.js dashboard in `apps/web`
-- Docker Compose stack with API, web, PostgreSQL, and Redis
-- Health endpoints at `GET /health`, `GET /health/live`, and `GET /health/ready`
+## Local Demo
 
 Start the local stack:
 
@@ -72,14 +89,19 @@ Start the local stack:
 docker compose up --build
 ```
 
-Then open:
+Run migrations and seed demo data:
+
+```bash
+make api-migrate
+make api-seed
+```
+
+Open:
 
 - Web dashboard: `http://localhost:3000`
 - API health: `http://localhost:8000/health`
 
-The dashboard shows real API data: usage totals, estimated cost, average latency, recent requests, recent failures, prompt versions, and model routes.
-
-After migrations and seed data are loaded, the local gateway can be smoke-tested with the placeholder seed key:
+Send a gateway request with the local placeholder seed key:
 
 ```bash
 curl -X POST http://localhost:8000/v1/gateway/completions \
@@ -88,37 +110,9 @@ curl -X POST http://localhost:8000/v1/gateway/completions \
   -d '{"input":"hello from local development"}'
 ```
 
-The placeholder key is for local seeded data only and is stored in PostgreSQL as a hash.
+The seed key is intentionally non-secret demo data and is stored only as a hash.
 
-Successful gateway responses include a request ID, selected provider/model, latency, estimated token usage, and estimated cost. Local failure handling can be smoke-tested with `"[simulate_failure]"` for a provider error or `"[simulate_timeout]"` for a provider timeout. Transient retry behavior can be checked with `"[simulate_transient_failure]"`.
-
-Gateway requests are rate limited by API key hash. Local defaults allow 60 requests per minute and can be adjusted with:
-
-```bash
-RATE_LIMIT_ENABLED=true
-RATE_LIMIT_REQUESTS_PER_MINUTE=60
-RATE_LIMIT_WINDOW_SECONDS=60
-PROVIDER_MAX_ATTEMPTS=2
-PROVIDER_RETRY_BACKOFF_MS=100
-PROVIDER_TIMEOUT_SECONDS=15
-```
-
-Usage summary:
-
-```bash
-curl http://localhost:8000/v1/usage/summary
-```
-
-Local operator configuration endpoints are available for prompt versions and model routes:
-
-```bash
-curl http://localhost:8000/v1/admin/prompt-versions
-curl http://localhost:8000/v1/admin/model-routes
-```
-
-Create/update operations accept an optional `X-Actor-ID` header and write audit log records. These admin endpoints are local foundations; hardened admin auth is a later security phase.
-
-Useful local commands:
+Useful commands:
 
 ```bash
 make local-up
@@ -131,127 +125,135 @@ make web-typecheck
 make web-test
 make check
 make docker-build-prod
-```
-
-GitHub Actions CI runs the same backend/frontend quality checks, production image builds, dependency audit gates, image scans, and infrastructure placeholders on pushes to `main`.
-
-After the local stack is migrated and seeded, a small gateway smoke load can be run with:
-
-```bash
 python scripts/smoke_load.py --requests 20 --concurrency 4
 ```
 
-The dev CD workflow builds API and web images, pushes immutable commit-SHA tags to ECR, deploys the Helm release to the dev EKS namespace, checks rollout status, and smoke-tests the API and dashboard. Automatic main-branch deployment is guarded by explicit repository variables so the workflow can be reviewed before it mutates a real AWS environment. Staging and production releases are manual promotion workflows; production binds to a protected GitHub Environment approval gate. Rollback is a manual Helm workflow with selected revision, rollout checks, smoke tests, and production approval.
+## Deployment Story
 
-OpenTelemetry tracing is available in the API and disabled by default. When enabled, the gateway emits spans for request handling, authentication, prompt lookup, model routing, provider calls, database writes, and response serialization, with request IDs and trace IDs in structured request logs.
+Default path:
 
-Configuration is documented in `.env.example`, `apps/api/.env.example`, and `apps/web/.env.example`. These examples use local-only placeholder values and do not contain real credentials.
+1. CI runs backend lint/tests, frontend lint/typecheck/tests/audit, production image builds, dependency scans, image scans, repository scan, and infrastructure static checks.
+2. Dev deploy can run automatically from `main` only when explicit repository variables enable it.
+3. Staging deploy is manual.
+4. Production deploy is manual and protected by the GitHub `prod` Environment approval gate.
+5. Rollback is manual, requires a selected Helm revision, and includes rollout checks plus smoke tests.
 
-## Infrastructure Roadmap
+Optional GitOps path:
 
-The infrastructure roadmap is the center of the project:
+- Argo CD AppProject and Application manifests live in `infra/gitops/argocd`.
+- Applications point at the same Helm chart and dev/staging/prod values files.
+- Dev can self-heal; staging and prod are manual sync.
+- GitHub Actions and Argo CD should not both continuously control the same Helm release.
 
-- Local development with Docker Compose, PostgreSQL, Redis, API, and web dashboard
-- AWS foundation with Terraform modules for network, registry, IAM, secrets, EKS, RDS PostgreSQL, and ElastiCache Redis
-- Kubernetes deployment through raw manifests first, then a reusable Helm chart
-- GitHub Actions CI/CD with staged dev, staging, production, and rollback workflows
-- Optional Argo CD GitOps Applications that point at the Helm chart without replacing the default GitHub Actions release path
-- Observability through OpenTelemetry traces, Prometheus metrics, Grafana dashboards, Loki logs, and alerting runbooks
-- Security and reliability hardening through External Secrets, workload identity, NetworkPolicies, probes, resource limits, HPA, PDB, backups, restore runbooks, and incident response docs
+## Observability
 
-## Scope boundary
+Gateway requests emit:
 
-This project does not implement advanced RAG, vector retrieval, citation validation, document ingestion, or benchmark-driven answer evaluation. Those capabilities belong in Proofbase. This repo stays focused on production AI platform operations and LLMOps infrastructure.
+- request ID and trace ID
+- project/application context where safe
+- selected provider/model
+- latency
+- status and error category
+- estimated tokens and cost
 
-## Target architecture
+Assets:
 
-```text
-Client Apps
-   |
-   v
-Ingress / TLS
-   |
-   v
-LLM Gateway API  ---> PostgreSQL
-   |                  Redis
-   |
-   v
-LLM Provider / Mock Provider
+- `/metrics` Prometheus endpoint in the API
+- `llm_gateway_*` cost, token, latency, request, error, auth, and rate-limit metrics
+- Grafana overview, reliability, cost, and logs dashboards
+- Loki/Promtail logging configuration
+- OpenTelemetry request and gateway spans
+- alert rules for errors, latency, 5xx, pod restarts, database availability, and cost spikes
 
-Observability:
-API -> OpenTelemetry -> Collector
-API -> Prometheus metrics
-API -> JSON logs -> Loki
-Grafana -> Prometheus/Loki
-```
+See [docs/observability.md](docs/observability.md) and [docs/dashboard-screenshots.md](docs/dashboard-screenshots.md).
 
-## Repository structure
+## Security, Reliability, And Cost
 
-```text
-apps/
-  api/
-  web/
+Security:
 
-infra/
-  terraform/
-    environments/
-      dev/
-      staging/
-      prod/
-    modules/
-      network/
-      registry/
-      cluster/
-      database/
-      redis/
-      secrets/
-      iam/
-      monitoring/
-  helm/
-    ai-platform/
-      templates/
-  k8s/
-    base/
-    overlays/
-      dev/
-      staging/
-      prod/
+- no committed secrets
+- hashed API keys
+- non-root runtime containers
+- read-only Kubernetes root filesystems
+- dropped Linux capabilities
+- NetworkPolicies
+- External Secrets with AWS Secrets Manager
+- GitHub OIDC deploy roles
+- blocking supply-chain scans
 
-.github/
-  workflows/
+Reliability:
 
-docs/
-```
+- readiness and liveness probes
+- graceful shutdown
+- bounded provider retries and timeouts
+- HPA and PDB manifests/templates
+- rollback workflow
+- backup/restore runbook
+- incident response runbook
 
-## Roadmap
+Cost:
 
-See `phases.md`. The roadmap is intentionally phase-based so each increment can be reviewed, validated, committed, and explained as portfolio evidence.
+- request-level estimated LLM cost
+- cost summary endpoint and dashboard
+- Prometheus cost metric and Grafana cost panels
+- environment cost analysis
+- optional AWS Budget Terraform module
+- dev teardown guidance
 
-## Codex workflow
+See [docs/portfolio-summary.md](docs/portfolio-summary.md), [docs/security-baseline.md](docs/security-baseline.md), [docs/backup-restore.md](docs/backup-restore.md), and [docs/cost-analysis.md](docs/cost-analysis.md).
 
-See `AGENTS.md`.
+## Demo Path
 
-## Progress
+Use [docs/demo-script.md](docs/demo-script.md) for the full walkthrough.
 
-See `phases-progress.md`.
+Recommended flow:
 
-## Documentation
+1. Show this README and architecture diagram.
+2. Run the local stack.
+3. Send a gateway request.
+4. Show the web dashboard.
+5. Show persisted request/cost/error data.
+6. Show CI checks and image scanning.
+7. Show Terraform modules.
+8. Show Helm values and Argo CD manifests.
+9. Show Grafana dashboard definitions and screenshot checklist.
+10. Walk through rollback and incident simulation.
 
-- `PROJECT_SPEC.md`
-- `docs/architecture.md`
-- `docs/deployment.md`
-- `docs/testing.md`
-- `docs/terraform.md`
-- `docs/runbook.md`
-- `docs/incident-response.md`
-- `docs/observability.md`
-- `docs/dashboard-screenshots.md`
-- `docs/secrets-management.md`
-- `docs/security-audit.md`
-- `docs/cost-analysis.md`
-- `docs/security-baseline.md`
-- `docs/portfolio-demo-plan.md`
+## Documentation Map
+
+- [PROJECT_SPEC.md](PROJECT_SPEC.md): full project spec
+- [AGENTS.md](AGENTS.md): autonomous phase workflow
+- [phases.md](phases.md): phase roadmap
+- [phases-progress.md](phases-progress.md): implementation log
+- [docs/architecture.md](docs/architecture.md): architecture details
+- [docs/architecture-diagrams.md](docs/architecture-diagrams.md): Mermaid diagrams
+- [docs/deployment.md](docs/deployment.md): local, Kubernetes, Helm, CI/CD, rollback, GitOps
+- [docs/testing.md](docs/testing.md): validation commands
+- [docs/terraform.md](docs/terraform.md): Terraform modules and state guidance
+- [docs/observability.md](docs/observability.md): metrics, logs, traces, dashboards
+- [docs/runbook.md](docs/runbook.md): operational runbook
+- [docs/incident-response.md](docs/incident-response.md): incident process
+- [docs/incident-simulation.md](docs/incident-simulation.md): demo incident scenario
+- [docs/backup-restore.md](docs/backup-restore.md): backup, restore, RTO/RPO, DR assumptions
+- [docs/secrets-management.md](docs/secrets-management.md): External Secrets and secret handling
+- [docs/security-baseline.md](docs/security-baseline.md): security controls
+- [docs/security-audit.md](docs/security-audit.md): audit log review
+- [docs/cost-analysis.md](docs/cost-analysis.md): cost estimates and controls
+- [docs/gitops-argocd.md](docs/gitops-argocd.md): optional Argo CD path
+- [docs/dashboard-screenshots.md](docs/dashboard-screenshots.md): screenshot capture plan
+- [docs/demo-script.md](docs/demo-script.md): interview/demo script
+- [docs/portfolio-summary.md](docs/portfolio-summary.md): final bullets, summaries, limitations
+
+## Known Limitations
+
+- The provider integration is a mock provider by default; real paid provider calls require refreshed pricing, credentials, quota controls, and approval.
+- Admin prompt/model endpoints are operator foundations, not a full production admin authorization system.
+- Rate limiting is in-process for the portfolio baseline; multi-replica production would use Redis-backed distributed limits.
+- Terraform is code-only until an approved apply creates real AWS resources.
+- Argo CD manifests are optional and are not applied by default.
+- Live Grafana screenshots are not committed because no approved live monitoring deployment exists in this repository; capture guidance is documented.
+- Multi-region disaster recovery is documented as out of scope for this baseline.
 
 ## Status
 
-Phases 1-25 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, managed data services, base Kubernetes manifests, Helm chart, guarded dev deployment workflow, manual staging/approved production release workflows, Helm rollback automation, OpenTelemetry tracing, Prometheus metrics, Grafana dashboard definitions, Loki structured logging integration, alert/incident response updates, External Secrets integration, and security hardening with rate limiting, NetworkPolicies, workload security posture documentation, and stricter supply-chain scanning. Phase 26 adds autoscaling and resilience controls.
+All 30 planned phases are implemented in code and documentation. CI has been kept green during the final phase loop, and the repository is packaged as a portfolio-grade production AI platform rather than a toy LLM app.

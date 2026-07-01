@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 30: Final documentation and portfolio polish
+All phases completed
 
 ## Phase table
 
@@ -51,7 +51,7 @@ Phase 30: Final documentation and portfolio polish
 | 27 | Backup and restore | Completed | main | cd91577 | 2026-07-01 | Database backup strategy, restore runbook, Terraform state recovery notes, Redis persistence decision, DR assumptions, and RTO/RPO targets. |
 | 28 | Cost controls and analysis | Completed | main | d433c06 | 2026-07-01 | Cloud cost estimates, optional AWS Budget Terraform module, LLM cost tracking explanation, right-sizing notes, and dev teardown guidance. |
 | 29 | GitOps with Argo CD | Completed | main | 1143de2 | 2026-07-01 | Optional Argo CD AppProject and Application manifests, Helm-based GitOps docs, sync strategy, and promotion guidance. |
-| 30 | Final documentation and portfolio polish | In Progress |  |  |  | README, diagrams, screenshots, demo script. |
+| 30 | Final documentation and portfolio polish | Completed | main | pending | 2026-07-01 | Final README, diagrams, demo script, incident simulation, portfolio summaries, screenshot guidance, known limitations, and final status. |
 
 ## Phase execution log
 
@@ -2415,6 +2415,72 @@ Post-commit review:
 Next phase:
 
 - Phase 30: Final documentation and portfolio polish
+
+### Phase 30: Final documentation and portfolio polish
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-01
+
+Implementation notes:
+
+- Reworked the README into a recruiter-facing project front door with a 60-second summary, architecture diagram, local demo path, deployment story, observability/security/reliability/cost summaries, documentation map, and known limitations.
+- Added `docs/architecture-diagrams.md` with Mermaid logical, AWS deployment, release/rollback, and request lifecycle diagrams.
+- Added `docs/demo-script.md` for interview and recruiter walkthroughs.
+- Added `docs/incident-simulation.md` for a realistic provider failure and rollback demo.
+- Added `docs/portfolio-summary.md` with final portfolio bullets, cost report, security summary, reliability summary, known limitations, and interview framing.
+- Updated `docs/dashboard-screenshots.md` with screenshot targets, capture checklist, redaction rules, and current evidence paths without faking live screenshots.
+
+Validation:
+
+- Command: `git diff --check`
+  Result: Passed with line-ending warnings only.
+- Command: `rg -n "60-Second Summary|Architecture|Deployment Story|Known Limitations|Final Portfolio Bullets|Cost Report|Security Summary|Reliability Summary|Incident Simulation|Screenshot Targets|mermaid" README.md docs`
+  Result: Passed; final README and documentation cover the required portfolio, diagram, incident, screenshot, cost, security, reliability, and limitation sections.
+- Command: refined secret value scan for provider keys, AWS keys, private keys, committed access-key fields, and non-placeholder database/Redis URLs
+  Result: Passed with no matches.
+
+Security notes:
+
+- No secrets, provider keys, AWS credentials, account IDs, kubeconfigs, database URLs, Redis URLs, or Kubernetes Secret values were committed.
+- Screenshot guidance explicitly warns against exposing credentials, account IDs, customer data, sensitive prompts, or incident data.
+- README known limitations avoid overclaiming real provider integration, live AWS deployment, billing-grade metering, and multi-region DR.
+
+Reliability notes:
+
+- Final docs point to health checks, probes, HPA, PDB, graceful shutdown, bounded retries, rollback, backup/restore, and incident response.
+- Incident simulation demonstrates detection, triage, rollback, and follow-up workflow without mutating production.
+
+Observability notes:
+
+- Final README and diagrams explain logs, metrics, traces, Grafana, Loki, alerts, request IDs, trace IDs, cost metrics, and dashboard assets.
+- Screenshot docs identify the current dashboard evidence and safe capture plan.
+
+Scope notes:
+
+- Completed Phase 30 final documentation and portfolio polish only.
+- Did not create live cloud resources, deploy production, install Grafana/Argo CD, fabricate screenshots, rotate secrets, or change application behavior.
+- All phases are now completed.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending
+- Fix commits: pending
+
+Next phase:
+
+- None; all phases completed.
 
 ## Update template
 
