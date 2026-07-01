@@ -46,7 +46,7 @@ Phase 26: Autoscaling and resilience
 | 22 | Loki structured logging | Completed | main | 037ffff | 2026-07-01 | Loki datasource, Promtail config, logs dashboard, LogQL examples, and request/trace search docs. |
 | 23 | Alerts and incident response | Completed | main | 62ff2c6 | 2026-07-01 | Prometheus alert rules, Alertmanager placeholder, runbook triage, severity mapping, and demo incident flow. |
 | 24 | Secrets management | Completed | main | 5fefce4 | 2026-07-01 | External Secrets manifests, AWS Secrets Manager docs, IRSA role, naming, local fallback, and rotation guidance. |
-| 25 | Security hardening | Completed | main | pending | 2026-07-01 | Rate limiting, NetworkPolicies, workload hardening, private EKS defaults, KMS secret encryption, audit review docs, and blocking supply-chain scans. |
+| 25 | Security hardening | Completed | main | fbb3314 | 2026-07-01 | Rate limiting, NetworkPolicies, workload hardening, private EKS defaults, KMS secret encryption, audit review docs, and blocking supply-chain scans. |
 | 26 | Autoscaling and resilience | In Progress |  |  |  | HPA, PDB, graceful shutdown, retry policies. |
 | 27 | Backup and restore | Not Started |  |  |  | Backup/restore and DR runbooks. |
 | 28 | Cost controls and analysis | Not Started |  |  |  | Cloud and LLM cost controls. |
@@ -2024,7 +2024,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- fbb3314
 
 Completed date:
 
@@ -2106,9 +2106,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: Pending review after the pushed commit hash exists.
-- Fix commits: Pending.
+- Pushed commit: fbb3314
+- Top findings: Phase progress used temporary commit placeholders because the final commit hash was unavailable before the commit existed.
+- Fix commits: Follow-up documentation commit records the pushed Phase 25 hash and post-commit review result.
 
 Next phase:
 
