@@ -218,6 +218,30 @@ variable "secret_recovery_window_in_days" {
   default     = 14
 }
 
+variable "budget_alert_enabled" {
+  description = "Whether to create the optional staging monthly AWS Budget alert."
+  type        = bool
+  default     = false
+}
+
+variable "budget_monthly_limit_usd" {
+  description = "Staging monthly AWS Budget limit in USD."
+  type        = string
+  default     = "250"
+}
+
+variable "budget_alert_threshold_percent" {
+  description = "Staging monthly budget percentage that triggers an alert."
+  type        = number
+  default     = 80
+}
+
+variable "budget_alert_subscriber_emails" {
+  description = "Email addresses for optional staging AWS Budget alerts."
+  type        = list(string)
+  default     = []
+}
+
 variable "create_github_actions_role" {
   description = "Whether to create the optional GitHub Actions OIDC role."
   type        = bool

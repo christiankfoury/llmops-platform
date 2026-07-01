@@ -36,6 +36,7 @@ A future integration could make Proofbase a client application of this platform,
 - OpenTelemetry tracing
 - API gateway request tracking
 - LLM cost and latency tracking
+- Environment cost estimates, optional budget alerts, and dev teardown guidance
 - Rollback workflows
 - Incident response runbooks
 - Cost analysis and controls

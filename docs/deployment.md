@@ -205,6 +205,8 @@ Phase 12 adds EKS Terraform code and Kubernetes provider wiring. It remains code
 
 Phase 13 adds managed PostgreSQL and Redis Terraform code. These resources are private, encrypted, and backed up by default, but they are still not created until an approved `terraform apply`.
 
+Phase 28 adds optional AWS Budget alert Terraform code. Budget resources remain disabled by default and require an approved `terraform apply`, a monthly limit, and alert subscriber emails before they affect a real AWS account.
+
 ## Kubernetes manifests
 
 Phase 14 adds raw Kubernetes manifests under `infra/k8s`.

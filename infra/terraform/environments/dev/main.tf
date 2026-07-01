@@ -109,6 +109,16 @@ module "secrets" {
   tags                         = local.common_tags
 }
 
+module "budget" {
+  source = "../../modules/budget"
+
+  enabled                    = var.budget_alert_enabled
+  name_prefix                = local.name_prefix
+  monthly_limit_usd          = var.budget_monthly_limit_usd
+  alert_threshold_percent    = var.budget_alert_threshold_percent
+  subscriber_email_addresses = var.budget_alert_subscriber_emails
+}
+
 module "iam" {
   source = "../../modules/iam"
 

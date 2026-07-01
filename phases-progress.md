@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 28: Cost controls and analysis
+Phase 29: GitOps with Argo CD
 
 ## Phase table
 
@@ -49,8 +49,8 @@ Phase 28: Cost controls and analysis
 | 25 | Security hardening | Completed | main | fbb3314 | 2026-07-01 | Rate limiting, NetworkPolicies, workload hardening, private EKS defaults, KMS secret encryption, audit review docs, and blocking supply-chain scans. |
 | 26 | Autoscaling and resilience | Completed | main | a22e905 | 2026-07-01 | HPA/PDB manifests, graceful termination, provider retry settings, resource tuning notes, and smoke load script. |
 | 27 | Backup and restore | Completed | main | cd91577 | 2026-07-01 | Database backup strategy, restore runbook, Terraform state recovery notes, Redis persistence decision, DR assumptions, and RTO/RPO targets. |
-| 28 | Cost controls and analysis | In Progress |  |  |  | Cloud and LLM cost controls. |
-| 29 | GitOps with Argo CD | Not Started |  |  |  | Optional GitOps deployment path. |
+| 28 | Cost controls and analysis | Completed | main | pending | 2026-07-01 | Cloud cost estimates, optional AWS Budget Terraform module, LLM cost tracking explanation, right-sizing notes, and dev teardown guidance. |
+| 29 | GitOps with Argo CD | In Progress |  |  |  | Optional GitOps deployment path. |
 | 30 | Final documentation and portfolio polish | Not Started |  |  |  | README, diagrams, screenshots, demo script. |
 
 ## Phase execution log
@@ -2277,6 +2277,75 @@ Post-commit review:
 Next phase:
 
 - Phase 28: Cost controls and analysis
+
+### Phase 28: Cost controls and analysis
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-01
+
+Implementation notes:
+
+- Expanded `docs/cost-analysis.md` with environment cloud cost ranges, AWS pricing references, scaling assumptions, LLM usage cost tracking, right-sizing guidance, and dev teardown steps.
+- Added a reusable Terraform `budget` module for optional monthly AWS Budget alerts.
+- Wired the optional budget module into dev, staging, and prod with disabled-by-default environment variables and placeholder subscriber lists.
+- Updated README, deployment, and Terraform docs to describe cost controls honestly.
+
+Validation:
+
+- Command: `docker run --rm -v "${PWD}:/workspace" -w /workspace hashicorp/terraform:1.10.5 fmt -recursive infra/terraform`
+  Result: Passed.
+- Command: Dockerized `terraform init -backend=false` and `terraform validate` for `infra/terraform/environments/dev`, `staging`, and `prod`
+  Result: Passed for all three environment roots.
+- Command: `git diff --check`
+  Result: Passed with line-ending warnings only.
+- Command: `rg -n "Budget|budget_alert|Monthly estimate|right-sizing|teardown|estimated LLM|llm_gateway_estimated_cost_usd_total" docs README.md infra/terraform phases-progress.md`
+  Result: Passed; cost estimates, budget variables, right-sizing notes, teardown guidance, and LLM cost tracking references are present.
+- Command: refined secret value scan for provider keys, AWS keys, private keys, committed access-key fields, and non-placeholder database/Redis URLs
+  Result: Passed with no matches.
+
+Security notes:
+
+- No real AWS credentials, account IDs, provider keys, database URLs, Redis URLs, billing contacts, or secret values were committed.
+- Budget subscriber examples use a placeholder `example.com` email only.
+- Budget resources are disabled by default and require an approved `terraform apply` before affecting an AWS account.
+
+Reliability notes:
+
+- Cost controls are documented as guardrails rather than availability mechanisms.
+- Right-sizing guidance keeps prod conservative while steering dev toward teardown and local development.
+- Terraform validation confirmed the new budget module composes with all environment roots.
+
+Observability notes:
+
+- Cost analysis links app-level request cost persistence, usage summary, Prometheus estimated-cost metrics, and Grafana cost panels.
+- Cost spike triage remains covered by the existing runbook and alerts.
+
+Scope notes:
+
+- Completed Phase 28 cost controls and analysis only.
+- Did not run `terraform apply`, create AWS Budgets, create cloud resources, destroy dev resources, change provider integrations, or add automated spend-remediation actions.
+- Deferred GitOps and final portfolio polish to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending
+- Fix commits: pending
+
+Next phase:
+
+- Phase 29: GitOps with Argo CD
 
 ## Update template
 

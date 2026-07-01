@@ -13,6 +13,7 @@ Current modules:
 - `modules/cluster`: EKS cluster, managed node groups, cluster/node IAM roles, and OIDC provider for workload identity
 - `modules/database`: private RDS PostgreSQL with encrypted storage, AWS-managed master password, backups, and security group ingress from EKS
 - `modules/redis`: private ElastiCache Redis replication group with encryption, snapshots, and security group ingress from EKS
+- `modules/budget`: optional monthly AWS Budget alert, disabled by default
 
 Current environments:
 
@@ -107,6 +108,7 @@ Dev is cost-conscious by default:
 - NAT gateway disabled
 - shorter ECR image retention
 - 7-day secret recovery window
+- optional monthly budget alert defaulting to `$75`, disabled until an alert email is supplied and apply is approved
 
 Staging and prod are more production-like:
 
@@ -114,6 +116,7 @@ Staging and prod are more production-like:
 - prod uses three availability zones and NAT enabled
 - longer ECR retention
 - longer secret recovery windows
+- optional monthly budget alert defaults of `$250` for staging and `$650` for prod, disabled until alert emails are supplied and apply is approved
 
 These defaults are code only. Applying them creates paid AWS resources and requires explicit approval.
 
@@ -180,3 +183,4 @@ Dev remains deliberately smaller:
 Applying these modules creates paid resources and remains an explicit approval gate.
 
 See `docs/backup-restore.md` for RTO/RPO targets, database restore steps, Redis persistence decisions, and DR assumptions.
+See `docs/cost-analysis.md` for environment cost estimates, right-sizing notes, optional budget alerts, and dev teardown guidance.

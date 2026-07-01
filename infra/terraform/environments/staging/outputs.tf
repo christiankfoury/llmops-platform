@@ -68,3 +68,8 @@ output "github_actions_role_arn" {
   description = "Optional staging GitHub Actions role ARN."
   value       = module.iam.github_actions_role_arn
 }
+
+output "budget_name" {
+  description = "Optional staging AWS Budget name."
+  value       = module.budget.budget_name
+}
