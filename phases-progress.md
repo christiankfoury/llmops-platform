@@ -35,7 +35,7 @@ Phase 15: Helm chart
 | 11 | Terraform AWS foundation | Completed | main | 53fe58d | 2026-06-30 | Terraform dev/staging/prod roots, VPC module, ECR module, Secrets Manager placeholders, optional GitHub OIDC IAM, state docs, and validation docs. |
 | 12 | Terraform EKS cluster | Completed | main | 60a6661 | 2026-06-30 | EKS module, managed node groups, cluster/node IAM roles, workload identity OIDC provider, Kubernetes provider wiring, and access docs. |
 | 13 | Terraform managed data services | Completed | main | e8e1836 | 2026-06-30 | RDS PostgreSQL and ElastiCache Redis modules, private subnets, EKS-scoped security groups, encryption, backups, and environment sizing defaults. |
-| 14 | Base Kubernetes manifests | Completed | main | pending | 2026-06-30 | Raw Kustomize-compatible namespace, service accounts, ConfigMaps, API/web Deployments, Services, Ingress, probes, resources, security contexts, and environment overlays. |
+| 14 | Base Kubernetes manifests | Completed | main | bdc5869 | 2026-06-30 | Raw Kustomize-compatible namespace, service accounts, ConfigMaps, API/web Deployments, Services, Ingress, probes, resources, security contexts, and environment overlays. |
 | 15 | Helm chart | In Progress |  |  |  | Chart and values for dev/staging/prod. |
 | 16 | Continuous deployment to dev | Not Started |  |  |  | Auto deploy main to dev. |
 | 17 | Staging and production release workflows | Not Started |  |  |  | Manual staging/prod workflows and approval. |
@@ -1088,7 +1088,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- bdc5869
 
 Completed date:
 
@@ -1153,9 +1153,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending post-commit review.
-- Fix commits: pending post-commit review.
+- Pushed commit: bdc5869
+- Top findings: Phase progress used temporary commit placeholders because the final commit hash was unavailable before the commit existed.
+- Fix commits: Follow-up documentation commit records the pushed Phase 14 hash and post-commit review result.
 
 Next phase:
 
