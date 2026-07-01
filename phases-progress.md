@@ -39,7 +39,7 @@ Phase 19: OpenTelemetry tracing
 | 15 | Helm chart | Completed | main | 8e94c21 | 2026-06-30 | Helm chart with dev/staging/prod values, API/web templates, ingress, ConfigMaps, service accounts, secret references, and optional HPAs. |
 | 16 | Continuous deployment to dev | Completed | main | f0ca113 | 2026-06-30 | Guarded dev CD workflow builds SHA-tagged images, pushes to ECR, deploys Helm to dev, checks rollouts, and smoke-tests API/web. |
 | 17 | Staging and production release workflows | Completed | main | 720dde9 | 2026-06-30 | Manual staging workflow, approved production workflow, release notes summaries, namespace-scoped deploy access, and promotion docs. |
-| 18 | Rollback workflow | Completed | main | pending | 2026-06-30 | Manual Helm rollback workflow with selected revision, environment approval, rollout checks, smoke tests, and runbook recovery steps. |
+| 18 | Rollback workflow | Completed | main | fc7ab52 | 2026-06-30 | Manual Helm rollback workflow with selected revision, environment approval, rollout checks, smoke tests, and runbook recovery steps. |
 | 19 | OpenTelemetry tracing | In Progress |  |  |  | Request traces and correlation IDs. |
 | 20 | Prometheus metrics | Not Started |  |  |  | Metrics endpoint and scrape config. |
 | 21 | Grafana dashboards | Not Started |  |  |  | Overview, reliability, and cost dashboards. |
@@ -1447,7 +1447,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- fc7ab52
 
 Completed date:
 
@@ -1507,9 +1507,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending post-commit review.
-- Fix commits: pending post-commit review.
+- Pushed commit: fc7ab52
+- Top findings: Phase progress used temporary commit placeholders because the final commit hash was unavailable before the commit existed.
+- Fix commits: Follow-up documentation commit records the pushed Phase 18 hash and post-commit review result.
 
 Next phase:
 
