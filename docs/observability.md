@@ -32,7 +32,21 @@ Local verification:
 curl http://localhost:8000/metrics
 ```
 
-Prometheus deployment, alert rules, Grafana dashboards, and screenshot-ready panels are handled in later observability phases.
+Prometheus deployment and alert rules are handled in later observability phases.
+
+## Grafana dashboards
+
+Phase 21 adds provisionable Grafana dashboard JSON for:
+
+- Production AI Platform Overview
+- Production AI Platform Reliability
+- Production AI Platform Cost
+
+Dashboard files live in `infra/monitoring/grafana/dashboards`, with provisioning config in `infra/monitoring/grafana/provisioning/dashboards`.
+
+The dashboards map directly to the Phase 20 metrics and use a Prometheus datasource variable named `datasource`. See `infra/monitoring/grafana/README.md` for provisioning paths and `docs/dashboard-screenshots.md` for the screenshot capture checklist.
+
+This phase does not deploy Grafana, Prometheus, or alert rules.
 
 ## OpenTelemetry tracing
 

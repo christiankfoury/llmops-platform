@@ -183,6 +183,8 @@ Phase 19 adds OpenTelemetry tracing inside the API. The request middleware creat
 
 Phase 20 adds Prometheus metrics through the API `/metrics` endpoint. Metrics cover HTTP volume and latency, gateway request/error counts, gateway latency, estimated LLM cost, token usage, API key auth failures, and rate-limit rejections. Labels stay bounded to method, route, status, provider, model, environment, gateway status, token type, and error category.
 
+Phase 21 adds Grafana dashboard JSON and provisioning configuration for overview, reliability, and cost dashboards. Panels map to the Prometheus metrics emitted by the API; Grafana and Prometheus deployment remain later operational packaging work.
+
 ### Observability
 
 - Prometheus for metrics

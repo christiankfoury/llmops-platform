@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 21: Grafana dashboards
+Phase 22: Loki structured logging
 
 ## Phase table
 
@@ -42,8 +42,8 @@ Phase 21: Grafana dashboards
 | 18 | Rollback workflow | Completed | main | fc7ab52 | 2026-06-30 | Manual Helm rollback workflow with selected revision, environment approval, rollout checks, smoke tests, and runbook recovery steps. |
 | 19 | OpenTelemetry tracing | Completed | main | cdf5597 | 2026-07-01 | OpenTelemetry API setup, request ID propagation, trace-correlated logs, gateway lifecycle spans, and collector docs. |
 | 20 | Prometheus metrics | Completed | main | c6c63cf | 2026-07-01 | API `/metrics`, HTTP/gateway counters and histograms, low-cardinality labels, and Prometheus scrape annotations. |
-| 21 | Grafana dashboards | In Progress |  |  |  | Overview, reliability, and cost dashboards. |
-| 22 | Loki structured logging | Not Started |  |  |  | JSON logs and request/trace correlation. |
+| 21 | Grafana dashboards | Completed | main | pending | 2026-07-01 | Provisionable overview, reliability, and cost dashboard JSON with screenshot placeholder docs. |
+| 22 | Loki structured logging | In Progress |  |  |  | JSON logs and request/trace correlation. |
 | 23 | Alerts and incident response | Not Started |  |  |  | Alert rules, runbook, incident docs. |
 | 24 | Secrets management | Not Started |  |  |  | External Secrets + AWS Secrets Manager. |
 | 25 | Security hardening | Not Started |  |  |  | NetworkPolicies, least privilege, rate limiting. |
@@ -1701,6 +1701,80 @@ Post-commit review:
 Next phase:
 
 - Phase 21: Grafana dashboards
+
+### Phase 21: Grafana dashboards
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-01
+
+Implementation notes:
+
+- Added provisionable Grafana dashboard JSON for Production AI Platform Overview, Reliability, and Cost dashboards.
+- Added dashboard panels for request volume, gateway error rate, p95 latency, estimated cost, token usage, model distribution, HTTP status rates, gateway errors by category, auth failures, rate-limit rejections, and cost efficiency.
+- Mapped panels directly to the Phase 20 Prometheus metrics emitted by the API.
+- Added a Grafana dashboard provisioning config that loads dashboards from `/var/lib/grafana/dashboards/production-ai-platform`.
+- Added Grafana operator documentation with mount paths, datasource expectations, and metric coverage.
+- Added screenshot placeholder documentation and a checklist for safe recruiter-facing screenshots after a live Grafana deployment exists.
+- Updated observability, architecture, and README docs to make dashboard definitions discoverable while keeping Grafana deployment out of Phase 21 scope.
+
+Validation:
+
+- Command: `Get-ChildItem infra/monitoring/grafana/dashboards/*.json | ForEach-Object { Get-Content $_.FullName -Raw | ConvertFrom-Json | Out-Null; $_.Name }`
+  Result: Passed; all three Grafana dashboard JSON files parsed successfully.
+- Command: Python YAML parse for `infra/monitoring/grafana/provisioning/dashboards/*.yaml`
+  Result: Passed; provisioning config parsed successfully.
+- Command: `rg -n "llm_gateway_|http_requests_total|http_request_duration_seconds|datasource|Production AI Platform" infra/monitoring/grafana docs/observability.md docs/dashboard-screenshots.md`
+  Result: Passed; dashboard docs and panels reference the expected Prometheus metrics and datasource variable.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: refined secret value scan for provider keys, AWS keys, private keys, committed access-key fields, and secret env assignments
+  Result: No matches.
+
+Security notes:
+
+- No secrets, provider keys, AWS credentials, account IDs, datasource credentials, API keys, or Kubernetes Secret values were committed.
+- Dashboard queries avoid request IDs, trace IDs, API key IDs, prompt content, project IDs, and other sensitive or high-cardinality labels.
+- Screenshot docs warn against exposing real hostnames, account IDs, API keys, user data, or provider credentials.
+- No cloud infrastructure was modified and no Grafana or Prometheus deployment was run.
+
+Reliability notes:
+
+- Reliability dashboard includes HTTP 5xx rate, HTTP p95 latency, gateway error rate, gateway errors by category, gateway p95 latency by model, auth failures, and rate-limit rejections.
+- Dashboards are file-provisionable and can be mounted into a future Grafana deployment without manual recreation.
+- Phase 21 does not add alerting, on-call routing, Prometheus installation, or deployment automation.
+
+Observability notes:
+
+- Overview dashboard supports the portfolio demo with request volume, error rate, p95 latency, cost, token throughput, model distribution, and model cost panels.
+- Cost dashboard supports estimated spend tracking with 24-hour cost, token usage, average cost per request, cost by model, and cost per token panels.
+- Dashboard expressions are tied to existing Phase 20 Prometheus metrics.
+- Loki logs, alert rules, live screenshots, and monitoring stack deployment remain scoped to later phases.
+
+Scope notes:
+
+- Completed Phase 21 Grafana dashboard definitions and provisioning docs only.
+- Deferred Grafana/Prometheus deployment, dashboard screenshots, alert rules, Loki log shipping, and final README image embedding to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-push review.
+- Fix commits: pending post-push review.
+
+Next phase:
+
+- Phase 22: Loki structured logging
 
 ## Update template
 
