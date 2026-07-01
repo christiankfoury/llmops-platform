@@ -48,7 +48,7 @@ Phase 28: Cost controls and analysis
 | 24 | Secrets management | Completed | main | 5fefce4 | 2026-07-01 | External Secrets manifests, AWS Secrets Manager docs, IRSA role, naming, local fallback, and rotation guidance. |
 | 25 | Security hardening | Completed | main | fbb3314 | 2026-07-01 | Rate limiting, NetworkPolicies, workload hardening, private EKS defaults, KMS secret encryption, audit review docs, and blocking supply-chain scans. |
 | 26 | Autoscaling and resilience | Completed | main | a22e905 | 2026-07-01 | HPA/PDB manifests, graceful termination, provider retry settings, resource tuning notes, and smoke load script. |
-| 27 | Backup and restore | Completed | main | pending | 2026-07-01 | Database backup strategy, restore runbook, Terraform state recovery notes, Redis persistence decision, DR assumptions, and RTO/RPO targets. |
+| 27 | Backup and restore | Completed | main | cd91577 | 2026-07-01 | Database backup strategy, restore runbook, Terraform state recovery notes, Redis persistence decision, DR assumptions, and RTO/RPO targets. |
 | 28 | Cost controls and analysis | In Progress |  |  |  | Cloud and LLM cost controls. |
 | 29 | GitOps with Argo CD | Not Started |  |  |  | Optional GitOps deployment path. |
 | 30 | Final documentation and portfolio polish | Not Started |  |  |  | README, diagrams, screenshots, demo script. |
@@ -2222,7 +2222,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- cd91577
 
 Completed date:
 
@@ -2270,9 +2270,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending
-- Fix commits: pending
+- Pushed commit: cd91577
+- Top findings: Redis snapshot retention was documented as 3 days for staging and 7 days for prod, but Terraform defaults are 7 days for staging and 14 days for prod.
+- Fix commits: 46242dd aligns the recovery and Terraform docs with the Terraform Redis retention defaults.
 
 Next phase:
 
