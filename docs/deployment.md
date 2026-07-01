@@ -421,3 +421,18 @@ helm history ai-platform-prod --namespace ai-platform-prod
 Replace the release and namespace for dev or staging. Select a known-good revision and confirm there are no incompatible database or secret changes before rollback.
 
 See `docs/runbook.md` and `docs/incident-response.md`.
+
+## Tracing
+
+Phase 19 adds OpenTelemetry tracing to the API.
+
+Tracing is controlled by environment variables:
+
+- `OTEL_TRACING_ENABLED`
+- `OTEL_SERVICE_NAME`
+- `OTEL_TRACES_EXPORTER`
+- `OTEL_EXPORTER_OTLP_ENDPOINT`
+
+The Helm chart and raw Kubernetes manifests include tracing configuration defaults. Tracing remains disabled until `OTEL_TRACING_ENABLED=true` is set for an environment.
+
+See `docs/observability.md` for span coverage, request ID propagation, and collector integration notes.

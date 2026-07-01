@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 19: OpenTelemetry tracing
+Phase 20: Prometheus metrics
 
 ## Phase table
 
@@ -40,8 +40,8 @@ Phase 19: OpenTelemetry tracing
 | 16 | Continuous deployment to dev | Completed | main | f0ca113 | 2026-06-30 | Guarded dev CD workflow builds SHA-tagged images, pushes to ECR, deploys Helm to dev, checks rollouts, and smoke-tests API/web. |
 | 17 | Staging and production release workflows | Completed | main | 720dde9 | 2026-06-30 | Manual staging workflow, approved production workflow, release notes summaries, namespace-scoped deploy access, and promotion docs. |
 | 18 | Rollback workflow | Completed | main | fc7ab52 | 2026-06-30 | Manual Helm rollback workflow with selected revision, environment approval, rollout checks, smoke tests, and runbook recovery steps. |
-| 19 | OpenTelemetry tracing | In Progress |  |  |  | Request traces and correlation IDs. |
-| 20 | Prometheus metrics | Not Started |  |  |  | Metrics endpoint and scrape config. |
+| 19 | OpenTelemetry tracing | Completed | main | pending | 2026-07-01 | OpenTelemetry API setup, request ID propagation, trace-correlated logs, gateway lifecycle spans, and collector docs. |
+| 20 | Prometheus metrics | In Progress |  |  |  | Metrics endpoint and scrape config. |
 | 21 | Grafana dashboards | Not Started |  |  |  | Overview, reliability, and cost dashboards. |
 | 22 | Loki structured logging | Not Started |  |  |  | JSON logs and request/trace correlation. |
 | 23 | Alerts and incident response | Not Started |  |  |  | Alert rules, runbook, incident docs. |
@@ -1514,6 +1514,98 @@ Post-commit review:
 Next phase:
 
 - Phase 19: OpenTelemetry tracing
+
+### Phase 19: OpenTelemetry tracing
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-01
+
+Implementation notes:
+
+- Added OpenTelemetry tracing configuration to the API with environment-controlled enablement, service naming, console export, and OTLP HTTP export support.
+- Added request correlation middleware that propagates `X-Request-ID`, returns it on responses, and writes JSON request logs with request and trace correlation fields.
+- Added gateway lifecycle spans for request handling, API-key authentication, prompt lookup, model routing, provider execution, database writes, and response serialization.
+- Added span attributes for project, application, prompt, selected model route, token usage, cost estimate, gateway status, latency, and provider error category.
+- Added API observability helpers for correlation context, JSON log formatting, and tracer setup.
+- Added tracing environment defaults to root/API env examples, Helm values/templates, and raw Kustomize overlays.
+- Added observability documentation covering local console tracing, OTLP collector wiring, emitted spans, log correlation, and validation steps.
+- Added tests for request ID propagation, default tracing configuration, and JSON log correlation fields.
+
+Validation:
+
+- Command: `.venv\Scripts\python -m pip install -r apps/api/requirements.txt`
+  Result: Passed; installed the OpenTelemetry runtime dependencies used by the API.
+- Command: `.venv\Scripts\python -m ruff format apps/api`
+  Result: Passed; no files changed after the final patch.
+- Command: `.venv\Scripts\python -m compileall apps\api\app apps\api\tests`
+  Result: Passed.
+- Command: `.venv\Scripts\python -m ruff check apps/api`
+  Result: Passed.
+- Command: `.venv\Scripts\python -m pytest`
+  Result: Passed, 14 tests; pytest still reports the existing cache write warning for `.pytest_cache`.
+- Command: `kubectl kustomize infra/k8s/overlays/dev | Measure-Object -Line`
+  Result: Passed; rendered 288 lines.
+- Command: `kubectl kustomize infra/k8s/overlays/staging | Measure-Object -Line`
+  Result: Passed; rendered 289 lines.
+- Command: `kubectl kustomize infra/k8s/overlays/prod | Measure-Object -Line`
+  Result: Passed; rendered 289 lines.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace alpine/helm:3.15.4 lint infra/helm/ai-platform`
+  Result: Passed; Helm reported only the optional icon recommendation.
+- Command: Helm template render for dev, staging, and prod values through `alpine/helm:3.15.4`
+  Result: Passed; rendered 355, 412, and 412 lines respectively.
+- Command: `docker build -q -f "S:\github-repos\production-ai-platform\apps\api\Dockerfile" -t production-ai-platform-api:phase19 "S:\github-repos\production-ai-platform\apps\api"`
+  Result: Passed.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: refined secret value scan for provider keys, AWS keys, private keys, committed access-key fields, and secret env assignments
+  Result: No matches.
+
+Security notes:
+
+- No secrets, provider keys, AWS credentials, account IDs, kubeconfigs, database URLs, Redis URLs, or Kubernetes Secret values were committed.
+- Tracing is disabled by default and requires explicit environment configuration.
+- OTLP endpoints are configuration placeholders and do not include credentials.
+- No cloud infrastructure was modified and no production deployment was run.
+
+Reliability notes:
+
+- Request ID propagation gives operators a stable correlation handle even when tracing is disabled.
+- Provider failures and timeouts continue to record failed gateway requests and now annotate gateway spans with the error category.
+- Tracing is optional, so local and deployed API behavior does not depend on collector availability unless explicitly enabled.
+- Phase 19 did not change rollout, rollback, probe, or scaling behavior.
+
+Observability notes:
+
+- API request logs are JSON-formatted and include `request_id` plus `trace_id` when a valid span context exists.
+- Gateway spans cover the request lifecycle from middleware through auth, configuration lookup, provider execution, persistence, and serialization.
+- Helm and raw Kubernetes configs expose tracing knobs for dev/staging/prod.
+- Full Prometheus metrics, Grafana dashboards, Loki aggregation, and alerting remain scoped to later observability phases.
+
+Scope notes:
+
+- Completed Phase 19 OpenTelemetry tracing only.
+- Deferred Prometheus metrics, ServiceMonitor resources, Grafana dashboards, Loki deployment/log shipping, alerting rules, and External Secrets to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-push review.
+- Fix commits: pending post-push review.
+
+Next phase:
+
+- Phase 20: Prometheus metrics
 
 ## Update template
 

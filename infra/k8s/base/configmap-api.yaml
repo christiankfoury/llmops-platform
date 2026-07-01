@@ -10,3 +10,6 @@ metadata:
 data:
   ENVIRONMENT: dev
   API_CORS_ORIGINS: https://ai-platform.example.com
+  OTEL_TRACING_ENABLED: "false"
+  OTEL_SERVICE_NAME: production-ai-platform-api
+  OTEL_TRACES_EXPORTER: console

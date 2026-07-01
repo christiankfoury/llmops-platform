@@ -46,6 +46,9 @@ patches:
       - op: replace
         path: /data/API_CORS_ORIGINS
         value: https://dev.ai-platform.example.com
+      - op: replace
+        path: /data/OTEL_SERVICE_NAME
+        value: production-ai-platform-api-dev
   - target:
       kind: ConfigMap
       name: ai-platform-web-config

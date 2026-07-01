@@ -120,6 +120,8 @@ GitHub Actions CI runs the same backend/frontend quality checks, production imag
 
 The dev CD workflow builds API and web images, pushes immutable commit-SHA tags to ECR, deploys the Helm release to the dev EKS namespace, checks rollout status, and smoke-tests the API and dashboard. Automatic main-branch deployment is guarded by explicit repository variables so the workflow can be reviewed before it mutates a real AWS environment. Staging and production releases are manual promotion workflows; production binds to a protected GitHub Environment approval gate. Rollback is a manual Helm workflow with selected revision, rollout checks, smoke tests, and production approval.
 
+OpenTelemetry tracing is available in the API and disabled by default. When enabled, the gateway emits spans for request handling, authentication, prompt lookup, model routing, provider calls, database writes, and response serialization, with request IDs and trace IDs in structured request logs.
+
 Configuration is documented in `.env.example`, `apps/api/.env.example`, and `apps/web/.env.example`. These examples use local-only placeholder values and do not contain real credentials.
 
 ## Infrastructure Roadmap
@@ -218,10 +220,11 @@ See `phases-progress.md`.
 - `docs/terraform.md`
 - `docs/runbook.md`
 - `docs/incident-response.md`
+- `docs/observability.md`
 - `docs/cost-analysis.md`
 - `docs/security-baseline.md`
 - `docs/portfolio-demo-plan.md`
 
 ## Status
 
-Phases 1-17 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, managed data services, base Kubernetes manifests, Helm chart, guarded dev deployment workflow, and manual staging/approved production release workflows. Phase 18 adds Helm rollback automation.
+Phases 1-18 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, managed data services, base Kubernetes manifests, Helm chart, guarded dev deployment workflow, manual staging/approved production release workflows, and Helm rollback automation. Phase 19 adds OpenTelemetry tracing.

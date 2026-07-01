@@ -29,6 +29,10 @@ api:
   config:
     environment: dev
     corsOrigins: https://ai-platform.example.com
+    tracingEnabled: "false"
+    otelServiceName: production-ai-platform-api
+    otelTracesExporter: console
+    otelExporterOtlpEndpoint: ""
   service:
     type: ClusterIP
     port: 8000

@@ -179,6 +179,8 @@ Phase 14 adds raw Kustomize-compatible Kubernetes manifests for namespace, servi
 
 Phase 15 packages the same workload shape as a Helm chart with dev, staging, and prod values. Helm becomes the release abstraction used by later continuous deployment, promotion, and rollback phases.
 
+Phase 19 adds OpenTelemetry tracing inside the API. The request middleware creates an `api.request` span, propagates `X-Request-ID`, and emits correlated request logs. The gateway service creates child spans for authentication, prompt lookup, model routing, provider execution, database writes, and response serialization. Tracing is disabled by default and can export to console or an OTLP HTTP collector when enabled.
+
 ### Observability
 
 - Prometheus for metrics

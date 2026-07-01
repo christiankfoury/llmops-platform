@@ -9,3 +9,9 @@ metadata:
 data:
   ENVIRONMENT: {{ .Values.api.config.environment | quote }}
   API_CORS_ORIGINS: {{ .Values.api.config.corsOrigins | quote }}
+  OTEL_TRACING_ENABLED: {{ .Values.api.config.tracingEnabled | quote }}
+  OTEL_SERVICE_NAME: {{ .Values.api.config.otelServiceName | quote }}
+  OTEL_TRACES_EXPORTER: {{ .Values.api.config.otelTracesExporter | quote }}
+  {{- if .Values.api.config.otelExporterOtlpEndpoint }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.api.config.otelExporterOtlpEndpoint | quote }}
+  {{- end }}

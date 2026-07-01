@@ -46,6 +46,15 @@ patches:
       - op: replace
         path: /data/API_CORS_ORIGINS
         value: https://staging.ai-platform.example.com
+      - op: replace
+        path: /data/OTEL_SERVICE_NAME
+        value: production-ai-platform-api-staging
+      - op: replace
+        path: /data/OTEL_TRACES_EXPORTER
+        value: otlp
+      - op: add
+        path: /data/OTEL_EXPORTER_OTLP_ENDPOINT
+        value: http://otel-collector.observability.svc.cluster.local:4318/v1/traces
   - target:
       kind: ConfigMap
       name: ai-platform-web-config

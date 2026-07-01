@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import ApiKey, Application, CostRecord, GatewayRequest, ModelRoute, PromptVersion
+from app.observability.tracing import get_tracer, set_span_attributes
 from app.schemas.gateway import CompletionRequest, CompletionResponse
 from app.services.auth import hash_api_key
 from app.services.mock_provider import (
@@ -14,6 +15,8 @@ from app.services.mock_provider import (
     complete_with_mock_provider,
 )
 from app.services.pricing import calculate_estimated_cost
+
+tracer = get_tracer()
 
 
 class GatewayAuthError(Exception):
@@ -101,75 +104,166 @@ def process_completion(
     payload: CompletionRequest,
 ) -> CompletionResponse:
     started_at = perf_counter()
-    api_key = _resolve_api_key(db, api_key_value)
-    application = _resolve_application(db, api_key)
-    prompt = _resolve_prompt(db, application, payload.prompt_name)
-    route = _resolve_route(db, application, payload.environment)
+    with tracer.start_as_current_span("gateway.request") as request_span:
+        request_span.set_attribute("gateway.environment", payload.environment)
 
-    try:
-        provider_result = complete_with_mock_provider(prompt, route, payload.input)
-    except MockProviderTimeout as exc:
-        _record_failed_request(
+        with tracer.start_as_current_span("gateway.auth") as span:
+            api_key = _resolve_api_key(db, api_key_value)
+            application = _resolve_application(db, api_key)
+            set_span_attributes(
+                span,
+                {
+                    "project.id": str(application.project_id),
+                    "application.id": str(application.id),
+                    "application.slug": application.slug,
+                },
+            )
+            set_span_attributes(
+                request_span,
+                {
+                    "project.id": str(application.project_id),
+                    "application.id": str(application.id),
+                    "application.slug": application.slug,
+                },
+            )
+
+        with tracer.start_as_current_span("gateway.prompt_lookup") as span:
+            prompt = _resolve_prompt(db, application, payload.prompt_name)
+            set_span_attributes(
+                span,
+                {
+                    "prompt.name": prompt.name,
+                    "prompt.version": prompt.version,
+                    "prompt.id": str(prompt.id),
+                },
+            )
+            set_span_attributes(
+                request_span,
+                {
+                    "prompt.name": prompt.name,
+                    "prompt.version": prompt.version,
+                },
+            )
+
+        with tracer.start_as_current_span("gateway.model_routing") as span:
+            route = _resolve_route(db, application, payload.environment)
+            route_attributes = {
+                "model.provider": route.provider,
+                "model.name": route.model_name,
+                "model_route.id": str(route.id),
+                "model_route.priority": route.priority,
+                "model_route.is_default": route.is_default,
+            }
+            set_span_attributes(span, route_attributes)
+            set_span_attributes(request_span, route_attributes)
+
+        try:
+            with tracer.start_as_current_span("gateway.provider_call") as span:
+                set_span_attributes(
+                    span,
+                    {
+                        "model.provider": route.provider,
+                        "model.name": route.model_name,
+                    },
+                )
+                provider_result = complete_with_mock_provider(prompt, route, payload.input)
+                set_span_attributes(
+                    span,
+                    {
+                        "token.input": provider_result.input_tokens,
+                        "token.output": provider_result.output_tokens,
+                    },
+                )
+        except MockProviderTimeout as exc:
+            gateway_request = _record_failed_request(
+                db=db,
+                application=application,
+                api_key=api_key,
+                prompt=prompt,
+                route=route,
+                latency_ms=_elapsed_ms(started_at),
+                error_category="provider_timeout",
+            )
+            set_span_attributes(
+                request_span,
+                {
+                    "gateway.request_id": gateway_request.request_id,
+                    "gateway.status": gateway_request.status,
+                    "error.category": gateway_request.error_category,
+                },
+            )
+            raise GatewayProviderError(
+                "Provider timeout",
+                status_code=504,
+                error_category="provider_timeout",
+            ) from exc
+        except MockProviderError as exc:
+            gateway_request = _record_failed_request(
+                db=db,
+                application=application,
+                api_key=api_key,
+                prompt=prompt,
+                route=route,
+                latency_ms=_elapsed_ms(started_at),
+                error_category="provider_error",
+            )
+            set_span_attributes(
+                request_span,
+                {
+                    "gateway.request_id": gateway_request.request_id,
+                    "gateway.status": gateway_request.status,
+                    "error.category": gateway_request.error_category,
+                },
+            )
+            raise GatewayProviderError(
+                "Provider failure",
+                status_code=502,
+                error_category="provider_error",
+            ) from exc
+
+        latency_ms = _elapsed_ms(started_at)
+        estimated_cost = calculate_estimated_cost(
+            route.provider,
+            route.model_name,
+            provider_result.input_tokens,
+            provider_result.output_tokens,
+        )
+        gateway_request = _record_successful_request(
             db=db,
             application=application,
             api_key=api_key,
             prompt=prompt,
             route=route,
-            latency_ms=_elapsed_ms(started_at),
-            error_category="provider_timeout",
+            latency_ms=latency_ms,
+            input_tokens=provider_result.input_tokens,
+            output_tokens=provider_result.output_tokens,
+            estimated_cost=estimated_cost,
         )
-        raise GatewayProviderError(
-            "Provider timeout",
-            status_code=504,
-            error_category="provider_timeout",
-        ) from exc
-    except MockProviderError as exc:
-        _record_failed_request(
-            db=db,
-            application=application,
-            api_key=api_key,
-            prompt=prompt,
-            route=route,
-            latency_ms=_elapsed_ms(started_at),
-            error_category="provider_error",
+        set_span_attributes(
+            request_span,
+            {
+                "gateway.request_id": gateway_request.request_id,
+                "gateway.status": gateway_request.status,
+                "gateway.latency_ms": latency_ms,
+                "token.input": provider_result.input_tokens,
+                "token.output": provider_result.output_tokens,
+                "cost.estimated_usd": float(estimated_cost),
+            },
         )
-        raise GatewayProviderError(
-            "Provider failure",
-            status_code=502,
-            error_category="provider_error",
-        ) from exc
 
-    latency_ms = _elapsed_ms(started_at)
-    estimated_cost = calculate_estimated_cost(
-        route.provider,
-        route.model_name,
-        provider_result.input_tokens,
-        provider_result.output_tokens,
-    )
-    gateway_request = _record_successful_request(
-        db=db,
-        application=application,
-        api_key=api_key,
-        prompt=prompt,
-        route=route,
-        latency_ms=latency_ms,
-        input_tokens=provider_result.input_tokens,
-        output_tokens=provider_result.output_tokens,
-        estimated_cost=estimated_cost,
-    )
-
-    return CompletionResponse(
-        request_id=gateway_request.request_id,
-        status=gateway_request.status,
-        provider=route.provider,
-        model=route.model_name,
-        output=provider_result.output,
-        prompt_version=prompt.version,
-        latency_ms=latency_ms,
-        input_tokens=provider_result.input_tokens,
-        output_tokens=provider_result.output_tokens,
-        estimated_cost_usd=estimated_cost,
-    )
+        with tracer.start_as_current_span("gateway.response_serialization"):
+            return CompletionResponse(
+                request_id=gateway_request.request_id,
+                status=gateway_request.status,
+                provider=route.provider,
+                model=route.model_name,
+                output=provider_result.output,
+                prompt_version=prompt.version,
+                latency_ms=latency_ms,
+                input_tokens=provider_result.input_tokens,
+                output_tokens=provider_result.output_tokens,
+                estimated_cost_usd=estimated_cost,
+            )
 
 
 def _record_successful_request(
@@ -183,38 +277,46 @@ def _record_successful_request(
     output_tokens: int,
     estimated_cost: Decimal,
 ) -> GatewayRequest:
-    gateway_request = GatewayRequest(
-        request_id=f"req_{uuid.uuid4().hex}",
-        project_id=application.project_id,
-        application_id=application.id,
-        api_key_id=api_key.id,
-        prompt_version_id=prompt.id,
-        model_route_id=route.id,
-        provider=route.provider,
-        model_name=route.model_name,
-        status="succeeded",
-        latency_ms=latency_ms,
-        estimated_input_tokens=input_tokens,
-        estimated_output_tokens=output_tokens,
-        estimated_cost_usd=estimated_cost,
-    )
-    db.add(gateway_request)
-    db.flush()
-    db.add(
-        CostRecord(
-            gateway_request_id=gateway_request.id,
+    with tracer.start_as_current_span("gateway.database_write") as span:
+        gateway_request = GatewayRequest(
+            request_id=f"req_{uuid.uuid4().hex}",
             project_id=application.project_id,
             application_id=application.id,
+            api_key_id=api_key.id,
+            prompt_version_id=prompt.id,
+            model_route_id=route.id,
             provider=route.provider,
             model_name=route.model_name,
-            input_tokens=input_tokens,
-            output_tokens=output_tokens,
+            status="succeeded",
+            latency_ms=latency_ms,
+            estimated_input_tokens=input_tokens,
+            estimated_output_tokens=output_tokens,
             estimated_cost_usd=estimated_cost,
-            currency="USD",
         )
-    )
-    db.commit()
-    return gateway_request
+        db.add(gateway_request)
+        db.flush()
+        db.add(
+            CostRecord(
+                gateway_request_id=gateway_request.id,
+                project_id=application.project_id,
+                application_id=application.id,
+                provider=route.provider,
+                model_name=route.model_name,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+                estimated_cost_usd=estimated_cost,
+                currency="USD",
+            )
+        )
+        db.commit()
+        set_span_attributes(
+            span,
+            {
+                "gateway.request_id": gateway_request.request_id,
+                "gateway.status": gateway_request.status,
+            },
+        )
+        return gateway_request
 
 
 def _record_failed_request(
@@ -226,19 +328,28 @@ def _record_failed_request(
     latency_ms: int,
     error_category: str,
 ) -> GatewayRequest:
-    gateway_request = GatewayRequest(
-        request_id=f"req_{uuid.uuid4().hex}",
-        project_id=application.project_id,
-        application_id=application.id,
-        api_key_id=api_key.id,
-        prompt_version_id=prompt.id,
-        model_route_id=route.id,
-        provider=route.provider,
-        model_name=route.model_name,
-        status="failed",
-        latency_ms=latency_ms,
-        error_category=error_category,
-    )
-    db.add(gateway_request)
-    db.commit()
-    return gateway_request
+    with tracer.start_as_current_span("gateway.database_write") as span:
+        gateway_request = GatewayRequest(
+            request_id=f"req_{uuid.uuid4().hex}",
+            project_id=application.project_id,
+            application_id=application.id,
+            api_key_id=api_key.id,
+            prompt_version_id=prompt.id,
+            model_route_id=route.id,
+            provider=route.provider,
+            model_name=route.model_name,
+            status="failed",
+            latency_ms=latency_ms,
+            error_category=error_category,
+        )
+        db.add(gateway_request)
+        db.commit()
+        set_span_attributes(
+            span,
+            {
+                "gateway.request_id": gateway_request.request_id,
+                "gateway.status": gateway_request.status,
+                "error.category": error_category,
+            },
+        )
+        return gateway_request

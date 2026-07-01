@@ -10,6 +10,10 @@ api:
   config:
     environment: dev
     corsOrigins: https://dev.ai-platform.example.com
+    tracingEnabled: "false"
+    otelServiceName: production-ai-platform-api-dev
+    otelTracesExporter: console
+    otelExporterOtlpEndpoint: ""
   autoscaling:
     enabled: false
 

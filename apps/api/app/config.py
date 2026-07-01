@@ -15,6 +15,12 @@ class Settings(BaseSettings):
         default="http://localhost:3000,http://127.0.0.1:3000",
         alias="API_CORS_ORIGINS",
     )
+    otel_tracing_enabled: bool = Field(default=False, alias="OTEL_TRACING_ENABLED")
+    otel_service_name: str = Field(default="production-ai-platform-api", alias="OTEL_SERVICE_NAME")
+    otel_traces_exporter: str = Field(default="console", alias="OTEL_TRACES_EXPORTER")
+    otel_exporter_otlp_endpoint: str | None = Field(
+        default=None, alias="OTEL_EXPORTER_OTLP_ENDPOINT"
+    )
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
