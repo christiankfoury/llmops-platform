@@ -37,6 +37,25 @@ Check:
 - recent deploys
 - rate limit events
 
+Alert:
+
+- `AIGatewayHighErrorRate`
+- `AIGatewayElevated5xxRate`
+
+Triage:
+
+1. Open the Production AI Platform Reliability dashboard.
+2. Check whether errors are HTTP 5xx, provider errors, auth failures, or config errors.
+3. Search Loki for recent 5xx logs:
+
+   ```logql
+   {component="api"} | json | status_code >= 500
+   ```
+
+4. Pick a representative request ID and inspect correlated logs and traces.
+5. Check recent deploys and model route changes.
+6. Roll back if the error started after a release and the previous revision is known-good.
+
 ### High latency
 
 Check:
@@ -47,6 +66,23 @@ Check:
 - pod count and HPA
 - network issues
 
+Alert:
+
+- `AIGatewayHighP95Latency`
+
+Triage:
+
+1. Open the Reliability dashboard and compare HTTP p95 with gateway p95.
+2. Check whether latency is isolated to one provider/model.
+3. Review pod CPU and memory saturation.
+4. Search logs for slow requests by latency:
+
+   ```logql
+   {component="api"} | json | latency_ms > 2000
+   ```
+
+5. Mitigate by scaling, routing to a safer model route, or rolling back a problematic deploy.
+
 ### Cost spike
 
 Check:
@@ -56,6 +92,54 @@ Check:
 - token usage
 - recent route changes
 - abusive API key usage
+
+Alert:
+
+- `AIGatewayCostSpike`
+
+Triage:
+
+1. Open the Cost dashboard.
+2. Identify the provider/model driving the spike.
+3. Compare token usage with request volume.
+4. Check recent prompt or model route changes.
+5. Disable or rotate an abusive key only with approval if it affects real users.
+6. Roll back only if the spike was caused by a recent deploy or config change.
+
+### Database connectivity failure
+
+Check:
+
+- RDS health and connectivity.
+- Security groups and subnet routing.
+- Database credentials and External Secrets sync.
+- Application pod logs and readiness.
+- Recent Terraform, secret, or deployment changes.
+
+Alert:
+
+- `AIPlatformDatabaseUnavailable`
+
+Triage:
+
+1. Confirm `pg_up` from the PostgreSQL exporter is `0`.
+2. Check API readiness and recent API 5xx logs.
+3. Inspect RDS status, maintenance events, and security group changes.
+4. Verify the runtime database secret exists in the affected namespace.
+5. Escalate to infrastructure owner before making cloud changes.
+
+### Pod restarts
+
+Alert:
+
+- `AIPlatformPodRestarts`
+
+Triage:
+
+1. Inspect the restarted pod logs.
+2. Check `kubectl describe pod` events.
+3. Confirm whether restarts follow a deploy, secret change, or resource limit.
+4. Roll back if the restart loop started after a release and smoke tests fail.
 
 ## Rollback decision
 

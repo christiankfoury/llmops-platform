@@ -187,6 +187,8 @@ Phase 21 adds Grafana dashboard JSON and provisioning configuration for overview
 
 Phase 22 adds Loki/Promtail integration assets for structured JSON logs. Logs remain searchable by request ID and trace ID through JSON parsing instead of high-cardinality Loki labels, and a Grafana logs dashboard provides error-rate, 5xx, latency, and recent-error panels.
 
+Phase 23 adds Prometheus alert rules and an Alertmanager placeholder for high gateway errors, high p95 latency, elevated 5xx responses, pod restarts, PostgreSQL connectivity failure, and estimated LLM cost spikes. Runbook and incident response docs map these alerts to triage and rollback decisions.
+
 ### Observability
 
 - Prometheus for metrics

@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 23: Alerts and incident response
+Phase 24: Secrets management
 
 ## Phase table
 
@@ -44,8 +44,8 @@ Phase 23: Alerts and incident response
 | 20 | Prometheus metrics | Completed | main | c6c63cf | 2026-07-01 | API `/metrics`, HTTP/gateway counters and histograms, low-cardinality labels, and Prometheus scrape annotations. |
 | 21 | Grafana dashboards | Completed | main | 5080da1 | 2026-07-01 | Provisionable overview, reliability, and cost dashboard JSON with screenshot placeholder docs. |
 | 22 | Loki structured logging | Completed | main | 037ffff | 2026-07-01 | Loki datasource, Promtail config, logs dashboard, LogQL examples, and request/trace search docs. |
-| 23 | Alerts and incident response | In Progress |  |  |  | Alert rules, runbook, incident docs. |
-| 24 | Secrets management | Not Started |  |  |  | External Secrets + AWS Secrets Manager. |
+| 23 | Alerts and incident response | Completed | main | pending | 2026-07-01 | Prometheus alert rules, Alertmanager placeholder, runbook triage, severity mapping, and demo incident flow. |
+| 24 | Secrets management | In Progress |  |  |  | External Secrets + AWS Secrets Manager. |
 | 25 | Security hardening | Not Started |  |  |  | NetworkPolicies, least privilege, rate limiting. |
 | 26 | Autoscaling and resilience | Not Started |  |  |  | HPA, PDB, graceful shutdown, retry policies. |
 | 27 | Backup and restore | Not Started |  |  |  | Backup/restore and DR runbooks. |
@@ -1850,6 +1850,81 @@ Post-commit review:
 Next phase:
 
 - Phase 23: Alerts and incident response
+
+### Phase 23: Alerts and incident response
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-01
+
+Implementation notes:
+
+- Added Prometheus alert rules for high gateway error rate, high gateway p95 latency, elevated HTTP 5xx rate, pod restarts, PostgreSQL connectivity failure, and estimated LLM cost spikes.
+- Added an Alertmanager placeholder config with grouping, inhibition, and a `.invalid` webhook receiver that must be replaced before live use.
+- Documented alert metric coverage, including app metrics from Phase 20 and expected kube-state-metrics/postgres-exporter metrics.
+- Expanded the runbook with alert-specific triage for high errors, high latency, cost spikes, database connectivity failures, and pod restarts.
+- Expanded incident response docs with alert-to-severity mapping and a concrete demo incident scenario from alert through rollback and post-incident update.
+- Updated observability, architecture, and README docs with alerting scope and current phase status.
+
+Validation:
+
+- Command: Python YAML parse for `infra/monitoring/prometheus/**/*.yaml` and `infra/monitoring/alertmanager/*.yaml`
+  Result: Passed; alert rules and Alertmanager config parsed successfully.
+- Command: `docker run --rm --entrypoint promtool -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace prom/prometheus:v2.54.1 check rules infra/monitoring/prometheus/rules/ai-platform-alerts.yaml`
+  Result: Passed; `promtool` found 6 valid rules.
+- Command: `docker run --rm --entrypoint amtool -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace prom/alertmanager:v0.27.0 check-config infra/monitoring/alertmanager/alertmanager.yaml`
+  Result: Passed; `amtool` validated the placeholder Alertmanager config.
+- Command: `rg -n "AIGateway|AIPlatform|pg_up|kube_pod_container_status_restarts_total|llm_gateway_|http_requests_total|severity|SEV|rollback|LogQL" infra/monitoring/prometheus infra/monitoring/alertmanager docs/runbook.md docs/incident-response.md docs/observability.md README.md`
+  Result: Passed; docs and rules reference expected alerts, metrics, severity levels, and triage flow.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: refined secret value scan for provider keys, AWS keys, private keys, committed access-key fields, and secret env assignments
+  Result: No matches.
+
+Security notes:
+
+- No secrets, provider keys, AWS credentials, webhook tokens, datasource credentials, account IDs, or Kubernetes Secret values were committed.
+- Alertmanager receiver uses an `.invalid` placeholder URL by design.
+- Docs warn not to commit notification tokens or routing secrets.
+- No cloud infrastructure, production deployment, or live alert routing was modified.
+
+Reliability notes:
+
+- Alerts cover high error rate, elevated 5xx, high latency, pod restarts, database connectivity, and cost spikes.
+- Runbook maps alerts to specific triage steps and rollback decision points.
+- Incident response docs map alerts to SEV1/SEV2/SEV3 handling and include a demo rollback incident.
+- Phase 23 does not deploy Prometheus, Alertmanager, or notification receivers.
+
+Observability notes:
+
+- Alert rules are tied to existing API metrics plus standard kube-state-metrics and PostgreSQL exporter metrics expected in the monitoring stack.
+- Alert annotations link back to runbook anchors.
+- Alerting now builds on Phase 19 traces, Phase 20 metrics, Phase 21 dashboards, and Phase 22 logs.
+
+Scope notes:
+
+- Completed Phase 23 alert rules and incident response documentation only.
+- Deferred live Prometheus/Alertmanager deployment, receiver secrets, notification routing, and monitoring stack packaging to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-push review.
+- Fix commits: pending post-push review.
+
+Next phase:
+
+- Phase 24: Secrets management
 
 ## Update template
 

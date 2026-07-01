@@ -228,4 +228,4 @@ See `phases-progress.md`.
 
 ## Status
 
-Phases 1-21 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, managed data services, base Kubernetes manifests, Helm chart, guarded dev deployment workflow, manual staging/approved production release workflows, Helm rollback automation, OpenTelemetry tracing, Prometheus metrics, and Grafana dashboard definitions. Phase 22 adds Loki structured logging integration.
+Phases 1-22 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, managed data services, base Kubernetes manifests, Helm chart, guarded dev deployment workflow, manual staging/approved production release workflows, Helm rollback automation, OpenTelemetry tracing, Prometheus metrics, Grafana dashboard definitions, and Loki structured logging integration. Phase 23 adds alert rules and incident response updates.

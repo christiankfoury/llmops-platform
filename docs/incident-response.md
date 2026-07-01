@@ -13,6 +13,11 @@ Examples:
 - database unavailable
 - secrets exposed
 
+Typical alerts:
+
+- `AIGatewayElevated5xxRate`
+- `AIPlatformDatabaseUnavailable`
+
 ### SEV2
 
 Major degradation.
@@ -24,6 +29,12 @@ Examples:
 - failed deploy with partial impact
 - cost spike
 
+Typical alerts:
+
+- `AIGatewayHighErrorRate`
+- `AIGatewayHighP95Latency`
+- `AIGatewayCostSpike`
+
 ### SEV3
 
 Minor issue.
@@ -33,6 +44,10 @@ Examples:
 - dashboard panel broken
 - non-critical alert
 - dev/staging issue
+
+Typical alerts:
+
+- `AIPlatformPodRestarts` in dev or staging
 
 ## Incident process
 
@@ -65,13 +80,16 @@ A deployment introduces a gateway error that causes 5xx responses.
 
 Expected response:
 
-1. Alert fires for high 5xx rate.
-2. Operator checks Grafana dashboard.
-3. Operator searches Loki logs by request ID.
-4. Operator confirms issue started after latest deploy.
-5. Operator triggers rollback workflow.
-6. Smoke test passes.
-7. Incident doc is updated.
+1. `AIGatewayElevated5xxRate` fires.
+2. Operator declares SEV1 if production users are broadly affected, otherwise SEV2.
+3. Operator checks the Reliability dashboard for 5xx rate and gateway error category.
+4. Operator searches Loki logs for 5xx records and opens a representative request ID.
+5. Operator uses the request log trace ID to inspect the matching trace.
+6. Operator confirms the issue started after the latest deploy.
+7. Operator checks rollback safety in `docs/runbook.md`.
+8. Operator triggers `.github/workflows/rollback.yml`.
+9. Smoke tests pass and the alert resolves.
+10. Incident doc is updated with timeline, root cause, mitigation, and follow-up.
 
 Rollback record:
 

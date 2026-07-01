@@ -32,7 +32,7 @@ Local verification:
 curl http://localhost:8000/metrics
 ```
 
-Prometheus deployment and alert rules are handled in later observability phases.
+Prometheus deployment is handled in a later observability phase. Alert rules are defined in Phase 23.
 
 ## Grafana dashboards
 
@@ -77,6 +77,26 @@ Useful LogQL examples:
 ```
 
 See `infra/monitoring/loki/README.md` for more queries and label guidance.
+
+## Alerts
+
+Phase 23 adds Prometheus alert rules and an Alertmanager placeholder config.
+
+Alert files live in:
+
+- `infra/monitoring/prometheus/rules/ai-platform-alerts.yaml`
+- `infra/monitoring/alertmanager/alertmanager.yaml`
+
+Rules cover:
+
+- high gateway error rate
+- high gateway p95 latency
+- elevated HTTP 5xx rate
+- pod restarts
+- PostgreSQL connectivity failure through `pg_up`
+- estimated LLM cost spike
+
+The Alertmanager config uses a `.invalid` webhook placeholder and must be replaced with an approved receiver before any live deployment.
 
 ## OpenTelemetry tracing
 
