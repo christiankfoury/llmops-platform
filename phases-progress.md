@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 27: Backup and restore
+Phase 28: Cost controls and analysis
 
 ## Phase table
 
@@ -48,8 +48,8 @@ Phase 27: Backup and restore
 | 24 | Secrets management | Completed | main | 5fefce4 | 2026-07-01 | External Secrets manifests, AWS Secrets Manager docs, IRSA role, naming, local fallback, and rotation guidance. |
 | 25 | Security hardening | Completed | main | fbb3314 | 2026-07-01 | Rate limiting, NetworkPolicies, workload hardening, private EKS defaults, KMS secret encryption, audit review docs, and blocking supply-chain scans. |
 | 26 | Autoscaling and resilience | Completed | main | a22e905 | 2026-07-01 | HPA/PDB manifests, graceful termination, provider retry settings, resource tuning notes, and smoke load script. |
-| 27 | Backup and restore | In Progress |  |  |  | Backup/restore and DR runbooks. |
-| 28 | Cost controls and analysis | Not Started |  |  |  | Cloud and LLM cost controls. |
+| 27 | Backup and restore | Completed | main | pending | 2026-07-01 | Database backup strategy, restore runbook, Terraform state recovery notes, Redis persistence decision, DR assumptions, and RTO/RPO targets. |
+| 28 | Cost controls and analysis | In Progress |  |  |  | Cloud and LLM cost controls. |
 | 29 | GitOps with Argo CD | Not Started |  |  |  | Optional GitOps deployment path. |
 | 30 | Final documentation and portfolio polish | Not Started |  |  |  | README, diagrams, screenshots, demo script. |
 
@@ -2211,6 +2211,72 @@ Post-commit review:
 Next phase:
 
 - Phase 27: Backup and restore
+
+### Phase 27: Backup and restore
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-01
+
+Implementation notes:
+
+- Added `docs/backup-restore.md` covering RDS backup strategy, restore steps, Terraform state recovery, Redis persistence decisions, DR assumptions, and RTO/RPO targets.
+- Documented non-dev RDS retention expectations: 7 days for staging and 14 days for prod, with deletion protection and final snapshots enabled by Terraform defaults.
+- Documented local PostgreSQL restore rehearsal steps that avoid live AWS changes.
+- Linked restore guidance from the runbook, incident response, Terraform, deployment, architecture, and README docs.
+
+Validation:
+
+- Command: `git diff --check`
+  Result: Passed with line-ending warnings only.
+- Command: `rg -n "RTO|RPO|restore|backup|Terraform state|Redis" docs README.md phases-progress.md`
+  Result: Passed; required backup, restore, Terraform state, Redis, RTO, and RPO coverage is present.
+- Command: refined secret value scan for provider keys, AWS keys, private keys, committed access-key fields, and non-placeholder database/Redis URLs
+  Result: Passed with no matches.
+
+Security notes:
+
+- No real secrets, provider keys, AWS credentials, account IDs, database URLs, Redis URLs, kubeconfigs, or Kubernetes Secret values were committed.
+- Restore guidance explicitly keeps RDS restore, production secret updates, endpoint changes, and traffic shifts approval-gated.
+- Terraform state recovery guidance warns against committing state, generated backend configs, populated `.tfvars`, and secret material.
+
+Reliability notes:
+
+- RTO/RPO targets are explicit per environment.
+- Database restore steps favor restoring into a new RDS instance before cutover.
+- Staging and prod backup/final-snapshot expectations are documented from existing Terraform defaults.
+- Redis is documented as reconstructable operational state rather than durable source-of-truth data.
+
+Observability notes:
+
+- Restore validation includes API readiness, gateway smoke tests, dashboard usage loading, request-log writes, error rate, database availability, and latency monitoring.
+- Incident timeline expectations include recovery point, restored source, validation result, and residual data-loss window.
+
+Scope notes:
+
+- Completed Phase 27 backup, restore, Terraform state recovery, Redis persistence, and DR documentation only.
+- Did not run `terraform apply`, restore real RDS instances, mutate AWS, change DNS/TLS, rotate secrets, or redirect production traffic.
+- Deferred cost controls, GitOps, and final portfolio polish to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending
+- Fix commits: pending
+
+Next phase:
+
+- Phase 28: Cost controls and analysis
 
 ## Update template
 

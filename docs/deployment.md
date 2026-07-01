@@ -471,6 +471,8 @@ Replace the release and namespace for dev or staging. Select a known-good revisi
 
 See `docs/runbook.md` and `docs/incident-response.md`.
 
+Database rollback is a separate restore operation. If a release damages durable data or requires point-in-time recovery, follow `docs/backup-restore.md` before selecting an application rollback or production cutover path.
+
 ## Metrics
 
 Phase 20 adds a Prometheus-compatible `/metrics` endpoint to the API.

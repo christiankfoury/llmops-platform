@@ -11,6 +11,7 @@ Examples:
 - gateway unavailable
 - widespread 5xx
 - database unavailable
+- confirmed data loss or corruption
 - secrets exposed
 
 Typical alerts:
@@ -27,6 +28,7 @@ Examples:
 - high latency
 - elevated error rate
 - failed deploy with partial impact
+- failed migration requiring restore assessment
 - cost spike
 
 Typical alerts:
@@ -71,6 +73,7 @@ Typical alerts:
 - Is one project/app causing the issue?
 - Is one model route causing the issue?
 - Is rollback safe?
+- Is database restore required instead of rollback?
 
 ## Example demo incident
 
@@ -90,6 +93,8 @@ Expected response:
 8. Operator triggers `.github/workflows/rollback.yml`.
 9. Smoke tests pass and the alert resolves.
 10. Incident doc is updated with timeline, root cause, mitigation, and follow-up.
+
+If the incident includes durable data corruption, accidental deletion, or a failed destructive migration, stop the rollback-only flow and use `docs/backup-restore.md` for the database restore decision. Restoring RDS, changing production secrets, or redirecting production traffic requires explicit approval.
 
 Rollback record:
 

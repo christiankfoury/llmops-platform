@@ -142,6 +142,26 @@ Triage:
 4. Verify the runtime database secret exists in the affected namespace.
 5. Escalate to infrastructure owner before making cloud changes.
 
+### Database restore
+
+Use `docs/backup-restore.md` when data corruption, accidental deletion, a failed migration, or RDS infrastructure failure requires recovery.
+
+Restore decision checks:
+
+- Is rollback enough, or is durable data recovery required?
+- What is the last known-good recovery point?
+- Is the incident in dev, staging, or prod?
+- Has risky write traffic been frozen?
+- Will the restored database require secret or endpoint changes?
+- Are destructive migrations involved?
+
+Restore guardrails:
+
+- Restore into a new RDS instance first.
+- Keep the source database and snapshots until validation is complete.
+- Do not print database URLs, passwords, dumps, or secret values in logs.
+- Treat production secret updates, endpoint changes, and traffic shifts as explicit approval gates.
+
 ### Pod restarts
 
 Alert:
@@ -220,6 +240,7 @@ Rollback risks:
 - A rollback may not be safe after destructive database migrations.
 - A rollback may fail if required image tags were deleted from ECR.
 - A rollback may not fix incidents caused by secrets, infrastructure, data services, DNS, TLS, or external provider outages.
+- A rollback is not a database restore. Use `docs/backup-restore.md` if durable data corruption or data loss is part of the incident.
 
 ## Post-incident
 

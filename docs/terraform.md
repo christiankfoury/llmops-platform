@@ -64,6 +64,8 @@ docker run --rm -v "$PWD:/workspace" -w /workspace/infra/terraform/environments/
 
 Repeat `init -backend=false` and `validate` for staging and prod.
 
+Terraform state recovery is documented in `docs/backup-restore.md`. In short: stop Terraform writes, restore the last known-good versioned state object from the approved remote backend, run `terraform plan` to assess drift, and use `terraform import` only after review. Do not commit generated state files or populated backend config.
+
 ## EKS Cluster
 
 Phase 12 wires the EKS module into every environment.
@@ -153,7 +155,9 @@ RDS PostgreSQL defaults:
 - AWS-managed master password
 - autoscaled storage ceiling per environment
 - automated backups
+- environment-specific backup retention of 1 day in dev, 7 days in staging, and 14 days in prod
 - deletion protection enabled for staging and prod
+- final snapshots enabled for staging and prod
 - Multi-AZ enabled for staging and prod
 - ingress restricted to the EKS cluster security group
 
@@ -162,6 +166,7 @@ ElastiCache Redis defaults:
 - private subnets only
 - encrypted at rest and in transit
 - snapshot retention per environment
+- snapshot retention of 1 day in dev, 3 days in staging, and 7 days in prod
 - automatic failover and Multi-AZ enabled for staging and prod
 - ingress restricted to the EKS cluster security group
 
@@ -173,3 +178,5 @@ Dev remains deliberately smaller:
 - deletion protection disabled for easier approved teardown
 
 Applying these modules creates paid resources and remains an explicit approval gate.
+
+See `docs/backup-restore.md` for RTO/RPO targets, database restore steps, Redis persistence decisions, and DR assumptions.

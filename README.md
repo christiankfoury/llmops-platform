@@ -29,6 +29,7 @@ A future integration could make Proofbase a client application of this platform,
 - Kubernetes NetworkPolicies and non-root workload hardening
 - API gateway rate limiting
 - Autoscaling, disruption budgets, graceful shutdown, and provider retry controls
+- Database backup/restore strategy and disaster recovery assumptions
 - Prometheus metrics
 - Grafana dashboards
 - Loki centralized logs
@@ -153,7 +154,7 @@ The infrastructure roadmap is the center of the project:
 - Kubernetes deployment through raw manifests first, then a reusable Helm chart
 - GitHub Actions CI/CD with staged dev, staging, production, and rollback workflows
 - Observability through OpenTelemetry traces, Prometheus metrics, Grafana dashboards, Loki logs, and alerting runbooks
-- Security and reliability hardening through External Secrets, workload identity, NetworkPolicies, probes, resource limits, HPA, PDB, backups, and incident response docs
+- Security and reliability hardening through External Secrets, workload identity, NetworkPolicies, probes, resource limits, HPA, PDB, backups, restore runbooks, and incident response docs
 
 ## Scope boundary
 
