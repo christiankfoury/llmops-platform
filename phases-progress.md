@@ -37,7 +37,7 @@ Phase 17: Staging and production release workflows
 | 13 | Terraform managed data services | Completed | main | e8e1836 | 2026-06-30 | RDS PostgreSQL and ElastiCache Redis modules, private subnets, EKS-scoped security groups, encryption, backups, and environment sizing defaults. |
 | 14 | Base Kubernetes manifests | Completed | main | bdc5869 | 2026-06-30 | Raw Kustomize-compatible namespace, service accounts, ConfigMaps, API/web Deployments, Services, Ingress, probes, resources, security contexts, and environment overlays. |
 | 15 | Helm chart | Completed | main | 8e94c21 | 2026-06-30 | Helm chart with dev/staging/prod values, API/web templates, ingress, ConfigMaps, service accounts, secret references, and optional HPAs. |
-| 16 | Continuous deployment to dev | Completed | main | pending | 2026-06-30 | Guarded dev CD workflow builds SHA-tagged images, pushes to ECR, deploys Helm to dev, checks rollouts, and smoke-tests API/web. |
+| 16 | Continuous deployment to dev | Completed | main | f0ca113 | 2026-06-30 | Guarded dev CD workflow builds SHA-tagged images, pushes to ECR, deploys Helm to dev, checks rollouts, and smoke-tests API/web. |
 | 17 | Staging and production release workflows | In Progress |  |  |  | Manual staging/prod workflows and approval. |
 | 18 | Rollback workflow | Not Started |  |  |  | Helm rollback workflow and docs. |
 | 19 | OpenTelemetry tracing | Not Started |  |  |  | Request traces and correlation IDs. |
@@ -1246,7 +1246,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- f0ca113
 
 Completed date:
 
@@ -1328,9 +1328,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending post-commit review.
-- Fix commits: pending post-commit review.
+- Pushed commit: f0ca113
+- Top findings: Phase progress used temporary commit placeholders because the final commit hash was unavailable before the commit existed.
+- Fix commits: Follow-up documentation commit records the pushed Phase 16 hash and post-commit review result.
 
 Next phase:
 
