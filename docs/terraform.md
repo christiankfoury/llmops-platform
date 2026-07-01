@@ -137,7 +137,7 @@ When enabled, the role is restricted to:
 
 The only wildcard permission is `ecr:GetAuthorizationToken`, which AWS requires to use resource `"*"`.
 
-Phase 16 wires the optional dev role into the dev EKS cluster with an EKS access entry scoped to the `ai-platform-dev` namespace using the AWS-managed `AmazonEKSEditPolicy`. The deployment workflow therefore expects the namespace and runtime secrets to be bootstrapped before automatic deploys are enabled.
+Phase 16 wires the optional dev role into the dev EKS cluster with an EKS access entry scoped to the `ai-platform-dev` namespace using the AWS-managed `AmazonEKSEditPolicy`. Phase 17 applies the same namespace-scoped pattern to staging and prod deploy roles. The deployment workflows therefore expect namespaces and runtime secrets to be bootstrapped before deploys are enabled.
 
 ## Managed Data Services
 

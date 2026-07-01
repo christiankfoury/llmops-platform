@@ -95,6 +95,15 @@ Phase 16 dev deployment controls:
 - Automatic dev deploys require explicit repository variables before a push to `main` can mutate the dev cluster.
 - Runtime database and Redis connection strings remain Kubernetes secret references and are not committed or printed by the workflow.
 
+Phase 17 release controls:
+
+- Staging and production deployment workflows are manual only.
+- Production uses the protected GitHub `prod` Environment as the approval gate.
+- Production also requires an explicit `deploy-prod` confirmation input.
+- Staging and production deploy roles use OIDC and namespace-scoped EKS access entries.
+- Release notes are captured in the GitHub Actions job summary.
+- No static cloud credentials, kubeconfigs, or runtime secret values are committed.
+
 ## Logging policy
 
 Do log:

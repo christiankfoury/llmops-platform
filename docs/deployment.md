@@ -281,27 +281,113 @@ The Helm chart is the release artifact for deployment workflows. Phase 16 overri
 
 ## Staging deployment
 
-Staging should be manually triggered.
+Phase 17 adds `.github/workflows/deploy-staging.yml` for manual staging promotion.
 
-Expected flow:
+Staging workflow:
 
-1. Select image tag or commit SHA.
-2. Deploy with staging values.
-3. Run smoke test.
-4. Validate dashboards and logs.
+1. Operator starts `Deploy Staging` with an optional immutable image tag and release notes.
+2. Workflow assumes `AWS_STAGING_DEPLOY_ROLE_ARN` through GitHub OIDC.
+3. API and web images are built from the selected ref and pushed to staging ECR using the commit SHA or supplied immutable tag.
+4. Helm upgrades the `ai-platform-staging` release with `values-staging.yaml`.
+5. API and web rollouts are checked.
+6. API readiness and web dashboard smoke tests run.
+7. A release summary is written to the GitHub Actions job summary.
+
+Required staging repository variables:
+
+| Variable | Purpose |
+|---|---|
+| `AWS_ACCOUNT_ID` | AWS account that owns staging ECR and EKS. |
+| `AWS_REGION` | AWS region for staging ECR and EKS. |
+| `AWS_STAGING_DEPLOY_ROLE_ARN` | OIDC role assumed by GitHub Actions for staging deploys. |
+| `STAGING_EKS_CLUSTER_NAME` | Staging EKS cluster name. |
+| `STAGING_API_HOST` | Ingress host for the staging API. |
+| `STAGING_WEB_HOST` | Ingress host for the staging web dashboard. |
+| `STAGING_API_BASE_URL` | Public base URL used for API smoke tests and web runtime config. |
+| `STAGING_WEB_BASE_URL` | Public base URL used for web smoke tests and API CORS config. |
+
+Optional staging repository variables:
+
+| Variable | Default |
+|---|---|
+| `STAGING_NAMESPACE` | `ai-platform-staging` |
+| `STAGING_API_ECR_REPOSITORY` | `production-ai-platform-staging/api` |
+| `STAGING_WEB_ECR_REPOSITORY` | `production-ai-platform-staging/web` |
 
 ## Production deployment
 
-Production requires approval.
+Phase 17 adds `.github/workflows/deploy-prod.yml` for approved production releases.
 
-Expected flow:
+Production workflow:
 
-1. Confirm release notes.
-2. Confirm staging validation.
-3. Approve production workflow.
-4. Deploy with production values.
-5. Run smoke test.
-6. Monitor dashboards.
+1. Operator starts `Deploy Prod` manually.
+2. Operator supplies release notes and types `deploy-prod` in the confirmation input.
+3. GitHub waits for the protected `prod` Environment approval before running deployment steps.
+4. Workflow assumes `AWS_PROD_DEPLOY_ROLE_ARN` through GitHub OIDC.
+5. API and web images are built from the selected ref and pushed to prod ECR using the commit SHA or supplied immutable tag.
+6. Helm upgrades the `ai-platform-prod` release with `values-prod.yaml`.
+7. API and web rollouts are checked with longer production timeouts.
+8. API readiness and web dashboard smoke tests run.
+9. A production release summary is written to the GitHub Actions job summary.
+
+Required production repository variables:
+
+| Variable | Purpose |
+|---|---|
+| `AWS_ACCOUNT_ID` | AWS account that owns prod ECR and EKS. |
+| `AWS_REGION` | AWS region for prod ECR and EKS. |
+| `AWS_PROD_DEPLOY_ROLE_ARN` | OIDC role assumed by GitHub Actions for prod deploys. |
+| `PROD_EKS_CLUSTER_NAME` | Production EKS cluster name. |
+| `PROD_API_HOST` | Ingress host for the production API. |
+| `PROD_WEB_HOST` | Ingress host for the production web dashboard. |
+| `PROD_API_BASE_URL` | Public base URL used for API smoke tests and web runtime config. |
+| `PROD_WEB_BASE_URL` | Public base URL used for web smoke tests and API CORS config. |
+
+Optional production repository variables:
+
+| Variable | Default |
+|---|---|
+| `PROD_NAMESPACE` | `ai-platform-prod` |
+| `PROD_API_ECR_REPOSITORY` | `production-ai-platform-prod/api` |
+| `PROD_WEB_ECR_REPOSITORY` | `production-ai-platform-prod/web` |
+
+Production GitHub Environment requirements:
+
+- Create a GitHub Environment named `prod`.
+- Add required reviewers for approval.
+- Keep production variables scoped to the repository or environment according to the team's access model.
+- Do not store static AWS keys; use the OIDC role only.
+
+Promotion release notes template:
+
+```text
+Summary:
+- What changed:
+- Why it is safe:
+
+Validation:
+- CI run:
+- Staging smoke test:
+- Dashboard/log check:
+
+Risk:
+- Known risk:
+- Rollback plan:
+```
+
+Staging and production bootstrap prerequisites:
+
+- Terraform for the target environment has been applied through an approved human gate.
+- The optional GitHub Actions role is enabled with `create_github_actions_role = true`.
+- The target namespace exists before deploy:
+  - staging: `ai-platform-staging`
+  - prod: `ai-platform-prod`
+- The runtime secret reference expected by the chart exists in the namespace:
+  - Secret name: `ai-platform-runtime-secrets`
+  - Keys: `database-url`, `redis-url`
+- DNS/ingress routes resolve for the target API and web hosts.
+
+The staging and production workflows override `namespace.create=false` during Helm deploys so deploy roles can be namespace-scoped. Namespace creation, runtime secret wiring, DNS/TLS, and infrastructure changes remain explicit approved operations outside these workflows.
 
 ## Rollback
 

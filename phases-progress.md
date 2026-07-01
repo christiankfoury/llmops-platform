@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 17: Staging and production release workflows
+Phase 18: Rollback workflow
 
 ## Phase table
 
@@ -38,8 +38,8 @@ Phase 17: Staging and production release workflows
 | 14 | Base Kubernetes manifests | Completed | main | bdc5869 | 2026-06-30 | Raw Kustomize-compatible namespace, service accounts, ConfigMaps, API/web Deployments, Services, Ingress, probes, resources, security contexts, and environment overlays. |
 | 15 | Helm chart | Completed | main | 8e94c21 | 2026-06-30 | Helm chart with dev/staging/prod values, API/web templates, ingress, ConfigMaps, service accounts, secret references, and optional HPAs. |
 | 16 | Continuous deployment to dev | Completed | main | f0ca113 | 2026-06-30 | Guarded dev CD workflow builds SHA-tagged images, pushes to ECR, deploys Helm to dev, checks rollouts, and smoke-tests API/web. |
-| 17 | Staging and production release workflows | In Progress |  |  |  | Manual staging/prod workflows and approval. |
-| 18 | Rollback workflow | Not Started |  |  |  | Helm rollback workflow and docs. |
+| 17 | Staging and production release workflows | Completed | main | pending | 2026-06-30 | Manual staging workflow, approved production workflow, release notes summaries, namespace-scoped deploy access, and promotion docs. |
+| 18 | Rollback workflow | In Progress |  |  |  | Helm rollback workflow and docs. |
 | 19 | OpenTelemetry tracing | Not Started |  |  |  | Request traces and correlation IDs. |
 | 20 | Prometheus metrics | Not Started |  |  |  | Metrics endpoint and scrape config. |
 | 21 | Grafana dashboards | Not Started |  |  |  | Overview, reliability, and cost dashboards. |
@@ -1335,6 +1335,107 @@ Post-commit review:
 Next phase:
 
 - Phase 17: Staging and production release workflows
+
+### Phase 17: Staging and production release workflows
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added `.github/workflows/deploy-staging.yml`.
+- Added `.github/workflows/deploy-prod.yml`.
+- Kept staging and production workflows manual-only through `workflow_dispatch`.
+- Added release notes inputs and GitHub Actions job summaries for promotion records.
+- Added production confirmation input requiring `deploy-prod`.
+- Bound production deploys to the protected GitHub `prod` Environment for approval.
+- Built and pushed API and web production images to environment-specific ECR repositories with immutable commit-SHA-compatible tags.
+- Added Helm `upgrade --install` deploys for `ai-platform-staging` and `ai-platform-prod`.
+- Added rollout status checks and smoke tests for staging and production.
+- Wired optional staging and production GitHub Actions roles into EKS namespace-scoped edit access.
+- Added EKS describe permission for staging and production deploy roles through the existing IAM module variable.
+- Updated deployment, Terraform, security, and README docs with promotion variables, release notes template, approval requirements, and bootstrap prerequisites.
+
+Validation:
+
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace hashicorp/terraform:1.10.5 fmt -recursive infra/terraform`
+  Result: Passed and formatted staging/prod Terraform roots.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/dev hashicorp/terraform:1.10.5 init -backend=false -upgrade`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/dev hashicorp/terraform:1.10.5 validate`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/staging hashicorp/terraform:1.10.5 init -backend=false -upgrade`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/staging hashicorp/terraform:1.10.5 validate`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/prod hashicorp/terraform:1.10.5 init -backend=false -upgrade`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/prod hashicorp/terraform:1.10.5 validate`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace hashicorp/terraform:1.10.5 fmt -check -recursive infra/terraform`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/repo" -w /repo rhysd/actionlint:1.7.7 .github/workflows/deploy-staging.yml .github/workflows/deploy-prod.yml`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace alpine/helm:3.15.4 lint infra/helm/ai-platform`
+  Result: Passed; Helm reported only the optional icon recommendation.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace alpine/helm:3.15.4 template ai-platform-staging infra/helm/ai-platform -f infra/helm/ai-platform/values-staging.yaml --namespace ai-platform-staging` with workflow-style image, host, namespace, and URL overrides.
+  Result: Passed; rendered staging release with HPA resources, SHA-tagged ECR image references, and existing runtime Secret references.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace alpine/helm:3.15.4 template ai-platform-prod infra/helm/ai-platform -f infra/helm/ai-platform/values-prod.yaml --namespace ai-platform-prod` with workflow-style image, host, namespace, and URL overrides.
+  Result: Passed; rendered production release with conservative replica/HPA settings, SHA-tagged ECR image references, and existing runtime Secret references.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: refined secret value scan for provider keys, AWS keys, private keys, committed access-key fields, and secret env assignments
+  Result: No matches.
+
+Security notes:
+
+- No `terraform apply`, cloud mutation, live Kubernetes deployment, or production deployment was run.
+- No AWS credentials, account IDs, kubeconfigs, database URLs, Redis URLs, provider keys, or Kubernetes Secret values were committed.
+- Staging and production workflows use GitHub OIDC instead of static cloud credentials.
+- Production deploys are manual-only and bound to the protected GitHub `prod` Environment approval gate.
+- Production deploys also require an explicit `deploy-prod` confirmation input.
+- Staging and production Kubernetes permissions are scoped to their environment namespaces through EKS access entries using `AmazonEKSEditPolicy`.
+- Namespace and runtime secret bootstrap remain explicit approved setup steps outside the workflows.
+
+Reliability notes:
+
+- Staging and production Helm deploys use `--atomic`, `--wait`, and environment-appropriate timeouts.
+- API and web rollouts are checked with `kubectl rollout status`.
+- Smoke tests fail the workflow if API readiness or the web dashboard URL fails.
+- Separate concurrency groups prevent overlapping staging or production releases.
+- Production values remain more conservative than dev/staging, with higher replicas and HPA limits.
+
+Observability notes:
+
+- Phase 17 does not add runtime metrics, traces, logs, or dashboards.
+- Deployment outcomes and release notes are captured in GitHub Actions logs and job summaries.
+- Prometheus, Grafana, Loki, and OpenTelemetry remain later observability phases.
+
+Scope notes:
+
+- Completed Phase 17 staging and production release workflow scope only.
+- Deferred rollback workflow, External Secrets, NetworkPolicies, PDBs, and observability resources to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-commit review.
+- Fix commits: pending post-commit review.
+
+Next phase:
+
+- Phase 18: Rollback workflow
 
 ## Update template
 
