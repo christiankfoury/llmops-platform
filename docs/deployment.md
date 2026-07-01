@@ -391,6 +391,33 @@ The staging and production workflows override `namespace.create=false` during He
 
 ## Rollback
 
-Rollback is handled through Helm release history and a dedicated GitHub Actions rollback workflow.
+Phase 18 adds `.github/workflows/rollback.yml`.
+
+Rollback workflow:
+
+1. Operator starts `Rollback` manually.
+2. Operator selects `dev`, `staging`, or `prod`.
+3. Operator enters the Helm revision number to restore.
+4. Operator enters a rollback reason.
+5. Operator confirms with:
+   - `rollback` for dev or staging
+   - `rollback-prod` for prod
+6. For prod, GitHub waits for the protected `prod` Environment approval.
+7. Workflow assumes the matching environment deploy role through OIDC.
+8. Workflow captures recent Helm history.
+9. Workflow runs `helm rollback`.
+10. Workflow waits for API and web rollouts.
+11. Workflow smoke-tests API readiness and web dashboard health.
+12. Workflow writes a rollback summary to the GitHub Actions job summary.
+
+Required variables are the same environment role, cluster, namespace, API URL, and web URL variables used by the deploy workflows.
+
+Before rolling back, inspect release history:
+
+```bash
+helm history ai-platform-prod --namespace ai-platform-prod
+```
+
+Replace the release and namespace for dev or staging. Select a known-good revision and confirm there are no incompatible database or secret changes before rollback.
 
 See `docs/runbook.md` and `docs/incident-response.md`.

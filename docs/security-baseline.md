@@ -104,6 +104,14 @@ Phase 17 release controls:
 - Release notes are captured in the GitHub Actions job summary.
 - No static cloud credentials, kubeconfigs, or runtime secret values are committed.
 
+Phase 18 rollback controls:
+
+- Rollbacks are manual-only and require a selected Helm revision.
+- Production rollback uses the protected GitHub `prod` Environment approval gate.
+- Production rollback also requires an explicit `rollback-prod` confirmation input.
+- Rollback uses existing OIDC deploy roles and namespace-scoped Kubernetes access.
+- Rollback workflow output records release, namespace, revision, reason, and follow-up steps without printing secret values.
+
 ## Logging policy
 
 Do log:

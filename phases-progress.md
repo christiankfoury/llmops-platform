@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 18: Rollback workflow
+Phase 19: OpenTelemetry tracing
 
 ## Phase table
 
@@ -39,8 +39,8 @@ Phase 18: Rollback workflow
 | 15 | Helm chart | Completed | main | 8e94c21 | 2026-06-30 | Helm chart with dev/staging/prod values, API/web templates, ingress, ConfigMaps, service accounts, secret references, and optional HPAs. |
 | 16 | Continuous deployment to dev | Completed | main | f0ca113 | 2026-06-30 | Guarded dev CD workflow builds SHA-tagged images, pushes to ECR, deploys Helm to dev, checks rollouts, and smoke-tests API/web. |
 | 17 | Staging and production release workflows | Completed | main | 720dde9 | 2026-06-30 | Manual staging workflow, approved production workflow, release notes summaries, namespace-scoped deploy access, and promotion docs. |
-| 18 | Rollback workflow | In Progress |  |  |  | Helm rollback workflow and docs. |
-| 19 | OpenTelemetry tracing | Not Started |  |  |  | Request traces and correlation IDs. |
+| 18 | Rollback workflow | Completed | main | pending | 2026-06-30 | Manual Helm rollback workflow with selected revision, environment approval, rollout checks, smoke tests, and runbook recovery steps. |
+| 19 | OpenTelemetry tracing | In Progress |  |  |  | Request traces and correlation IDs. |
 | 20 | Prometheus metrics | Not Started |  |  |  | Metrics endpoint and scrape config. |
 | 21 | Grafana dashboards | Not Started |  |  |  | Overview, reliability, and cost dashboards. |
 | 22 | Loki structured logging | Not Started |  |  |  | JSON logs and request/trace correlation. |
@@ -1436,6 +1436,84 @@ Post-commit review:
 Next phase:
 
 - Phase 18: Rollback workflow
+
+### Phase 18: Rollback workflow
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added `.github/workflows/rollback.yml`.
+- Added manual rollback inputs for environment, Helm revision, reason, and confirmation.
+- Added environment-aware rollback mapping for dev, staging, and prod.
+- Bound production rollback to the protected GitHub `prod` Environment through the selected environment input.
+- Required `rollback` confirmation for dev/staging and `rollback-prod` for production.
+- Configured rollback to use existing GitHub OIDC deploy roles and Kubernetes namespace access.
+- Added Helm history capture before rollback.
+- Added Helm rollback to the selected numeric revision with `--wait` and environment-specific timeout.
+- Added API and web rollout status checks after rollback.
+- Added API readiness and web dashboard smoke tests after rollback.
+- Added rollback job summary with environment, release, namespace, target revision, reason, and follow-up steps.
+- Updated deployment docs, runbook, incident response, security baseline, and README with rollback usage, verification, and risks.
+
+Validation:
+
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/repo" -w /repo rhysd/actionlint:1.7.7 .github/workflows/rollback.yml`
+  Result: Passed.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: refined secret value scan for provider keys, AWS keys, private keys, committed access-key fields, and secret env assignments
+  Result: No matches.
+
+Security notes:
+
+- No live rollback, cloud mutation, production deployment, or Kubernetes mutation was run.
+- No AWS credentials, account IDs, kubeconfigs, database URLs, Redis URLs, provider keys, or Kubernetes Secret values were committed.
+- Rollbacks are manual-only and require an explicit target revision.
+- Production rollback uses the protected GitHub `prod` Environment approval gate.
+- Production rollback also requires an explicit `rollback-prod` confirmation input.
+- Rollback uses existing OIDC deploy roles instead of static credentials.
+
+Reliability notes:
+
+- Workflow captures Helm history before rollback.
+- Helm rollback uses `--wait` with environment-specific timeouts.
+- API and web rollouts are checked after rollback.
+- Smoke tests fail the workflow if API readiness or web health fails.
+- Runbook documents rollback risks, including database migration incompatibility and missing image tags.
+
+Observability notes:
+
+- Phase 18 does not add runtime metrics, traces, logs, or dashboards.
+- Rollback outcome is observable through GitHub Actions logs and job summaries.
+- Incident response docs now include rollback record fields.
+
+Scope notes:
+
+- Completed Phase 18 rollback workflow and documentation only.
+- Deferred OpenTelemetry tracing, metrics, dashboards, External Secrets, NetworkPolicies, and deeper resilience resources to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-commit review.
+- Fix commits: pending post-commit review.
+
+Next phase:
+
+- Phase 19: OpenTelemetry tracing
 
 ## Update template
 

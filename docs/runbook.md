@@ -73,6 +73,56 @@ Hotfix instead when:
 - rollback would cause data/schema incompatibility
 - feature flag/config change can safely mitigate
 
+## Rollback workflow
+
+Use `.github/workflows/rollback.yml` when a Helm release rollback is the safest mitigation.
+
+Inputs:
+
+- environment: `dev`, `staging`, or `prod`
+- revision: Helm release revision to restore
+- reason: incident or release reason
+- confirmation:
+  - `rollback` for dev or staging
+  - `rollback-prod` for prod
+
+Before triggering rollback:
+
+1. Confirm the current incident symptom.
+2. Inspect recent deployment or configuration changes.
+3. Check Helm history for the target environment.
+4. Select a known-good revision.
+5. Confirm rollback will not conflict with database migrations, secret changes, or external dependency changes.
+
+After triggering rollback:
+
+1. Confirm workflow approval if production.
+2. Watch Helm rollback output.
+3. Confirm API and web rollout checks pass.
+4. Confirm API readiness smoke test passes.
+5. Confirm web dashboard smoke test passes.
+6. Check recent error rate and latency.
+7. Update the incident timeline with the rollback revision and result.
+
+Manual equivalent:
+
+```bash
+aws eks update-kubeconfig --region us-east-1 --name production-ai-platform-prod-eks
+helm history ai-platform-prod --namespace ai-platform-prod
+helm rollback ai-platform-prod <revision> --namespace ai-platform-prod --wait --timeout 20m
+kubectl rollout status deployment/ai-platform-prod-api --namespace ai-platform-prod --timeout=20m
+kubectl rollout status deployment/ai-platform-prod-web --namespace ai-platform-prod --timeout=20m
+curl --fail https://api.ai-platform.example.com/health/ready
+curl --fail https://ai-platform.example.com
+```
+
+Rollback risks:
+
+- A rollback can reintroduce an older application bug.
+- A rollback may not be safe after destructive database migrations.
+- A rollback may fail if required image tags were deleted from ECR.
+- A rollback may not fix incidents caused by secrets, infrastructure, data services, DNS, TLS, or external provider outages.
+
 ## Post-incident
 
 1. Record timeline.

@@ -72,3 +72,13 @@ Expected response:
 5. Operator triggers rollback workflow.
 6. Smoke test passes.
 7. Incident doc is updated.
+
+Rollback record:
+
+- environment
+- Helm release
+- previous revision
+- rollback target revision
+- reason
+- smoke test result
+- follow-up owner
