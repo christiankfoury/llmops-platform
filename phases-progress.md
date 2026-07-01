@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 14: Base Kubernetes manifests
+Phase 15: Helm chart
 
 ## Phase table
 
@@ -35,8 +35,8 @@ Phase 14: Base Kubernetes manifests
 | 11 | Terraform AWS foundation | Completed | main | 53fe58d | 2026-06-30 | Terraform dev/staging/prod roots, VPC module, ECR module, Secrets Manager placeholders, optional GitHub OIDC IAM, state docs, and validation docs. |
 | 12 | Terraform EKS cluster | Completed | main | 60a6661 | 2026-06-30 | EKS module, managed node groups, cluster/node IAM roles, workload identity OIDC provider, Kubernetes provider wiring, and access docs. |
 | 13 | Terraform managed data services | Completed | main | e8e1836 | 2026-06-30 | RDS PostgreSQL and ElastiCache Redis modules, private subnets, EKS-scoped security groups, encryption, backups, and environment sizing defaults. |
-| 14 | Base Kubernetes manifests | In Progress |  |  |  | Deployments, services, ingress, probes, resources. |
-| 15 | Helm chart | Not Started |  |  |  | Chart and values for dev/staging/prod. |
+| 14 | Base Kubernetes manifests | Completed | main | pending | 2026-06-30 | Raw Kustomize-compatible namespace, service accounts, ConfigMaps, API/web Deployments, Services, Ingress, probes, resources, security contexts, and environment overlays. |
+| 15 | Helm chart | In Progress |  |  |  | Chart and values for dev/staging/prod. |
 | 16 | Continuous deployment to dev | Not Started |  |  |  | Auto deploy main to dev. |
 | 17 | Staging and production release workflows | Not Started |  |  |  | Manual staging/prod workflows and approval. |
 | 18 | Rollback workflow | Not Started |  |  |  | Helm rollback workflow and docs. |
@@ -1077,6 +1077,89 @@ Post-commit review:
 Next phase:
 
 - Phase 14: Base Kubernetes manifests
+
+### Phase 14: Base Kubernetes manifests
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added raw Kustomize-compatible Kubernetes manifests under `infra/k8s/base`.
+- Added base namespace, API service account, web service account, API ConfigMap, web ConfigMap, API Deployment, web Deployment, API Service, web Service, and Ingress.
+- Added dev, staging, and prod overlays with environment namespaces, image placeholders, CORS/API URL config, replica counts, and ingress hosts.
+- Added readiness and liveness probes for API and web.
+- Added CPU/memory requests and limits for API and web containers.
+- Added rolling update strategy and revision history limits.
+- Added non-root pod security contexts, runtime default seccomp, dropped capabilities, disabled privilege escalation, and read-only root filesystems.
+- Referenced `ai-platform-runtime-secrets` for `DATABASE_URL` and `REDIS_URL` without committing Kubernetes Secret values.
+- Updated deployment, architecture, security, and README docs for the raw Kubernetes layer.
+
+Validation:
+
+- Command: `kubectl kustomize infra/k8s/base`
+  Result: Passed; rendered 285 lines.
+- Command: `kubectl kustomize infra/k8s/overlays/dev`
+  Result: Passed; rendered 285 lines.
+- Command: `kubectl kustomize infra/k8s/overlays/staging`
+  Result: Passed; rendered 285 lines.
+- Command: `kubectl kustomize infra/k8s/overlays/prod`
+  Result: Passed; rendered 285 lines.
+- Command: `kubectl apply --dry-run=client --validate=false -k infra/k8s/overlays/dev`
+  Result: Could not complete without a live Kubernetes API server because local `kubectl` attempted discovery against `localhost:8080`; pure Kustomize rendering was used for offline structural validation.
+- Command: rendered dev overlay check for `ai-platform-runtime-secrets`, `database-url`, `redis-url`, `runAsNonRoot`, and `readOnlyRootFilesystem`
+  Result: Passed; expected references and security settings are present.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: broad placeholder-oriented secret scan
+  Result: Only placeholder secret names such as `redis-auth-token` were found, not secret values.
+- Command: refined secret value scan for provider keys, AWS keys, private keys, committed access-key fields, and account IDs
+  Result: No matches.
+
+Security notes:
+
+- No Kubernetes Secret values, database URLs, Redis URLs, provider keys, cloud credentials, or account IDs were committed.
+- Runtime secret values are referenced through `ai-platform-runtime-secrets` only.
+- Service account token automounting is disabled for API and web.
+- API and web containers run as non-root, drop Linux capabilities, disable privilege escalation, use read-only root filesystems, and use runtime default seccomp.
+- External Secrets, NetworkPolicies, workload IAM annotations, HPA, and PDB remain later hardening phases.
+
+Reliability notes:
+
+- API and web deployments include readiness and liveness probes.
+- Deployments use rolling update strategy with zero max unavailable and revision history.
+- Resource requests and limits are defined for both workloads.
+
+Observability notes:
+
+- No metrics, tracing, or log aggregation resources were added in Phase 14.
+- Labels are consistent across resources so later ServiceMonitor, logging, and dashboard resources can select workloads cleanly.
+
+Scope notes:
+
+- Completed Phase 14 raw Kubernetes manifests only.
+- Deferred Helm chart conversion, External Secrets, NetworkPolicies, HPA, PDB, ingress TLS/DNS specifics, and deployment workflows to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-commit review.
+- Fix commits: pending post-commit review.
+
+Next phase:
+
+- Phase 15: Helm chart
 
 ## Update template
 

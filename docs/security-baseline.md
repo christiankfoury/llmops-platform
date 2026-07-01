@@ -47,6 +47,17 @@ Target controls:
 - restricted ingress
 - least-privilege workload identity
 
+Phase 14 baseline controls:
+
+- API and web workloads run with dedicated service accounts.
+- Service account token automounting is disabled for both workloads.
+- Pods require non-root containers and use the runtime default seccomp profile.
+- Containers drop all Linux capabilities and disable privilege escalation.
+- Deployments include CPU/memory requests and limits.
+- Runtime database and Redis connection strings are referenced from a Kubernetes Secret and are not committed.
+
+NetworkPolicies, External Secrets, workload IAM annotations, HPA, and PDB are later hardening phases.
+
 ## Terraform security
 
 Target controls:

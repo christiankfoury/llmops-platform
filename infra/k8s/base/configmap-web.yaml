@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-platform-web-config
+  namespace: ai-platform
+  labels:
+    app.kubernetes.io/name: ai-platform-web
+    app.kubernetes.io/component: web
+    app.kubernetes.io/part-of: production-ai-platform
+data:
+  API_BASE_URL: https://api.ai-platform.example.com

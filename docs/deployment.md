@@ -158,6 +158,41 @@ Phase 12 adds EKS Terraform code and Kubernetes provider wiring. It remains code
 
 Phase 13 adds managed PostgreSQL and Redis Terraform code. These resources are private, encrypted, and backed up by default, but they are still not created until an approved `terraform apply`.
 
+## Kubernetes manifests
+
+Phase 14 adds raw Kubernetes manifests under `infra/k8s`.
+
+Render the base manifests:
+
+```bash
+kubectl kustomize infra/k8s/base
+```
+
+Render environment overlays:
+
+```bash
+kubectl kustomize infra/k8s/overlays/dev
+kubectl kustomize infra/k8s/overlays/staging
+kubectl kustomize infra/k8s/overlays/prod
+```
+
+The manifests include:
+
+- namespace per environment
+- API and web service accounts
+- API and web ConfigMaps
+- API and web Deployments
+- API and web ClusterIP Services
+- ALB-oriented Ingress
+- liveness and readiness probes
+- resource requests and limits
+- non-root pod and container security contexts
+- secret references for `DATABASE_URL` and `REDIS_URL`
+
+The referenced `ai-platform-runtime-secrets` Secret is intentionally not committed. Later External Secrets work will bind AWS Secrets Manager values into Kubernetes without plaintext manifests.
+
+These manifests are raw Kubernetes foundations. Helm packaging, release values, External Secrets, HPA, PDB, and NetworkPolicies are later phases.
+
 ## Staging deployment
 
 Staging should be manually triggered.

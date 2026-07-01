@@ -175,6 +175,8 @@ Workloads:
 
 Raw manifests are planned first so the Kubernetes shape is visible before it is abstracted into Helm. The Helm chart will then become the release artifact for dev, staging, and production.
 
+Phase 14 adds raw Kustomize-compatible Kubernetes manifests for namespace, service accounts, ConfigMaps, API/web Deployments, Services, and Ingress. The manifests reference runtime secrets by name only and include probes, resource requests/limits, rolling update strategy, and non-root security contexts.
+
 ### Observability
 
 - Prometheus for metrics

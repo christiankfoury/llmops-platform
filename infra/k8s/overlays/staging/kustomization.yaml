@@ -1,0 +1,65 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ai-platform-staging
+
+resources:
+  - ../../base
+
+images:
+  - name: replace-with-ecr/production-ai-platform/api
+    newName: replace-with-staging-ecr/production-ai-platform/api
+    newTag: staging
+  - name: replace-with-ecr/production-ai-platform/web
+    newName: replace-with-staging-ecr/production-ai-platform/web
+    newTag: staging
+
+patches:
+  - target:
+      kind: Namespace
+      name: ai-platform
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: ai-platform-staging
+  - target:
+      kind: Deployment
+      name: ai-platform-api
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+  - target:
+      kind: Deployment
+      name: ai-platform-web
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+  - target:
+      kind: ConfigMap
+      name: ai-platform-api-config
+    patch: |-
+      - op: replace
+        path: /data/ENVIRONMENT
+        value: staging
+      - op: replace
+        path: /data/API_CORS_ORIGINS
+        value: https://staging.ai-platform.example.com
+  - target:
+      kind: ConfigMap
+      name: ai-platform-web-config
+    patch: |-
+      - op: replace
+        path: /data/API_BASE_URL
+        value: https://api.staging.ai-platform.example.com
+  - target:
+      kind: Ingress
+      name: ai-platform
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging.ai-platform.example.com
+      - op: replace
+        path: /spec/rules/1/host
+        value: api.staging.ai-platform.example.com

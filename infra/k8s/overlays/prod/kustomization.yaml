@@ -1,0 +1,65 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ai-platform-prod
+
+resources:
+  - ../../base
+
+images:
+  - name: replace-with-ecr/production-ai-platform/api
+    newName: replace-with-prod-ecr/production-ai-platform/api
+    newTag: prod
+  - name: replace-with-ecr/production-ai-platform/web
+    newName: replace-with-prod-ecr/production-ai-platform/web
+    newTag: prod
+
+patches:
+  - target:
+      kind: Namespace
+      name: ai-platform
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: ai-platform-prod
+  - target:
+      kind: Deployment
+      name: ai-platform-api
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 3
+  - target:
+      kind: Deployment
+      name: ai-platform-web
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 3
+  - target:
+      kind: ConfigMap
+      name: ai-platform-api-config
+    patch: |-
+      - op: replace
+        path: /data/ENVIRONMENT
+        value: prod
+      - op: replace
+        path: /data/API_CORS_ORIGINS
+        value: https://ai-platform.example.com
+  - target:
+      kind: ConfigMap
+      name: ai-platform-web-config
+    patch: |-
+      - op: replace
+        path: /data/API_BASE_URL
+        value: https://api.ai-platform.example.com
+  - target:
+      kind: Ingress
+      name: ai-platform
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: ai-platform.example.com
+      - op: replace
+        path: /spec/rules/1/host
+        value: api.ai-platform.example.com
