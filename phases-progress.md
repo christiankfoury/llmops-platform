@@ -42,7 +42,7 @@ Phase 22: Loki structured logging
 | 18 | Rollback workflow | Completed | main | fc7ab52 | 2026-06-30 | Manual Helm rollback workflow with selected revision, environment approval, rollout checks, smoke tests, and runbook recovery steps. |
 | 19 | OpenTelemetry tracing | Completed | main | cdf5597 | 2026-07-01 | OpenTelemetry API setup, request ID propagation, trace-correlated logs, gateway lifecycle spans, and collector docs. |
 | 20 | Prometheus metrics | Completed | main | c6c63cf | 2026-07-01 | API `/metrics`, HTTP/gateway counters and histograms, low-cardinality labels, and Prometheus scrape annotations. |
-| 21 | Grafana dashboards | Completed | main | pending | 2026-07-01 | Provisionable overview, reliability, and cost dashboard JSON with screenshot placeholder docs. |
+| 21 | Grafana dashboards | Completed | main | 5080da1 | 2026-07-01 | Provisionable overview, reliability, and cost dashboard JSON with screenshot placeholder docs. |
 | 22 | Loki structured logging | In Progress |  |  |  | JSON logs and request/trace correlation. |
 | 23 | Alerts and incident response | Not Started |  |  |  | Alert rules, runbook, incident docs. |
 | 24 | Secrets management | Not Started |  |  |  | External Secrets + AWS Secrets Manager. |
@@ -1712,7 +1712,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- 5080da1
 
 Completed date:
 
@@ -1768,9 +1768,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending post-push review.
-- Fix commits: pending post-push review.
+- Pushed commit: 5080da1
+- Top findings: Phase progress used temporary commit placeholders because the final commit hash was unavailable before the commit existed.
+- Fix commits: Follow-up documentation commit records the pushed Phase 21 hash and post-commit review result.
 
 Next phase:
 
