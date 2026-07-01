@@ -189,6 +189,8 @@ Phase 22 adds Loki/Promtail integration assets for structured JSON logs. Logs re
 
 Phase 23 adds Prometheus alert rules and an Alertmanager placeholder for high gateway errors, high p95 latency, elevated 5xx responses, pod restarts, PostgreSQL connectivity failure, and estimated LLM cost spikes. Runbook and incident response docs map these alerts to triage and rollback decisions.
 
+Phase 24 adds External Secrets integration. AWS Secrets Manager stores runtime values outside Terraform state, External Secrets Operator syncs them into `ai-platform-runtime-secrets`, and the API Deployment continues to consume that Kubernetes Secret without plaintext manifests.
+
 ### Observability
 
 - Prometheus for metrics

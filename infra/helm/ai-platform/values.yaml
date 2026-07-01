@@ -15,6 +15,22 @@ runtimeSecret:
   databaseUrlKey: database-url
   redisUrlKey: redis-url
 
+externalSecrets:
+  enabled: true
+  refreshInterval: 1h
+  secretStore:
+    create: true
+    name: ai-platform-secrets-manager
+    kind: ClusterSecretStore
+    region: us-east-1
+    service: SecretsManager
+    controllerServiceAccountName: external-secrets
+    controllerServiceAccountNamespace: external-secrets
+  runtime:
+    remoteKey: production-ai-platform-dev/runtime
+    databaseUrlProperty: database-url
+    redisUrlProperty: redis-url
+
 api:
   replicaCount: 2
   image:

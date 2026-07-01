@@ -2,6 +2,10 @@ namespace:
   create: true
   name: ai-platform-dev
 
+externalSecrets:
+  runtime:
+    remoteKey: production-ai-platform-dev/runtime
+
 api:
   replicaCount: 1
   image:

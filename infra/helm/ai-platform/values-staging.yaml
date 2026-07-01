@@ -2,6 +2,10 @@ namespace:
   create: true
   name: ai-platform-staging
 
+externalSecrets:
+  runtime:
+    remoteKey: production-ai-platform-staging/runtime
+
 api:
   replicaCount: 2
   image:

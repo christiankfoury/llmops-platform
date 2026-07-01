@@ -56,6 +56,16 @@ patches:
         path: /data/OTEL_EXPORTER_OTLP_ENDPOINT
         value: http://otel-collector.observability.svc.cluster.local:4318/v1/traces
   - target:
+      kind: ExternalSecret
+      name: ai-platform-runtime
+    patch: |-
+      - op: replace
+        path: /spec/data/0/remoteRef/key
+        value: production-ai-platform-prod/runtime
+      - op: replace
+        path: /spec/data/1/remoteRef/key
+        value: production-ai-platform-prod/runtime
+  - target:
       kind: ConfigMap
       name: ai-platform-web-config
     patch: |-

@@ -204,6 +204,7 @@ variable "secret_names" {
   description = "Placeholder secrets to create without secret values."
   type        = list(string)
   default = [
+    "runtime",
     "database-password",
     "redis-auth-token",
     "openai-api-key",

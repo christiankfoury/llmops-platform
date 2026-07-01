@@ -5,6 +5,8 @@ resources:
   - namespace.yaml
   - serviceaccount-api.yaml
   - serviceaccount-web.yaml
+  - clustersecretstore.yaml
+  - externalsecret-runtime.yaml
   - configmap-api.yaml
   - configmap-web.yaml
   - deployment-api.yaml

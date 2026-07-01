@@ -236,9 +236,9 @@ The manifests include:
 - non-root pod and container security contexts
 - secret references for `DATABASE_URL` and `REDIS_URL`
 
-The referenced `ai-platform-runtime-secrets` Secret is intentionally not committed. Later External Secrets work will bind AWS Secrets Manager values into Kubernetes without plaintext manifests.
+The referenced `ai-platform-runtime-secrets` Secret is intentionally not committed. Phase 24 adds External Secrets resources that bind AWS Secrets Manager values into Kubernetes without plaintext manifests.
 
-These manifests are raw Kubernetes foundations. Helm packaging, release values, External Secrets, HPA, PDB, and NetworkPolicies are later phases.
+These manifests are raw Kubernetes foundations. Helm packaging, release values, HPA, PDB, and NetworkPolicies are later phases.
 
 ## Helm chart
 

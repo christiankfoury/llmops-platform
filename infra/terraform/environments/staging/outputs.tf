@@ -59,6 +59,11 @@ output "secret_names" {
   value       = module.secrets.secret_names
 }
 
+output "external_secrets_role_arn" {
+  description = "Staging External Secrets Operator IAM role ARN."
+  value       = module.secrets.external_secrets_role_arn
+}
+
 output "github_actions_role_arn" {
   description = "Optional staging GitHub Actions role ARN."
   value       = module.iam.github_actions_role_arn

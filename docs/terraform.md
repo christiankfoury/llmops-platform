@@ -121,6 +121,8 @@ The secrets module creates only secret containers/placeholders in AWS Secrets Ma
 
 Secret values must be written through an approved secure process outside this repository.
 
+Phase 24 extends the secrets module with an optional External Secrets Operator IAM role. The role trusts the EKS OIDC provider and the `external-secrets/external-secrets` service account, and its read policy is scoped to the environment's Secrets Manager ARNs.
+
 The database module uses RDS `manage_master_user_password`, so AWS manages the generated master password in Secrets Manager. Terraform outputs the managed secret ARN as sensitive and does not accept or store a plaintext database password.
 
 ## IAM

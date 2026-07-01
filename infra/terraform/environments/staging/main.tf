@@ -100,10 +100,13 @@ module "registry" {
 module "secrets" {
   source = "../../modules/secrets"
 
-  name_prefix             = local.name_prefix
-  secret_names            = var.secret_names
-  recovery_window_in_days = var.secret_recovery_window_in_days
-  tags                    = local.common_tags
+  name_prefix                  = local.name_prefix
+  secret_names                 = var.secret_names
+  recovery_window_in_days      = var.secret_recovery_window_in_days
+  enable_external_secrets_irsa = true
+  eks_oidc_provider_arn        = module.cluster.oidc_provider_arn
+  eks_oidc_issuer_url          = module.cluster.oidc_issuer_url
+  tags                         = local.common_tags
 }
 
 module "iam" {

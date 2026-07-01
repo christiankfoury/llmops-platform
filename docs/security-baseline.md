@@ -56,9 +56,16 @@ Phase 14 baseline controls:
 - Deployments include CPU/memory requests and limits.
 - Runtime database and Redis connection strings are referenced from a Kubernetes Secret and are not committed.
 
-NetworkPolicies, External Secrets, workload IAM annotations, HPA, and PDB are later hardening phases.
+NetworkPolicies, HPA, and PDB are later hardening phases.
 
 Phase 15 keeps the same secret-reference and non-root workload posture in Helm templates. The chart does not render Kubernetes Secret values.
+
+Phase 24 adds External Secrets integration:
+
+- Runtime Kubernetes Secrets are generated from AWS Secrets Manager.
+- External Secrets Operator uses an IRSA role scoped to the environment's Secrets Manager ARNs.
+- Terraform creates secret containers and IAM policy only; it does not write secret values to state.
+- Secret names and properties are documented in `docs/secrets-management.md`.
 
 ## Terraform security
 
