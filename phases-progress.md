@@ -50,7 +50,7 @@ Phase 30: Final documentation and portfolio polish
 | 26 | Autoscaling and resilience | Completed | main | a22e905 | 2026-07-01 | HPA/PDB manifests, graceful termination, provider retry settings, resource tuning notes, and smoke load script. |
 | 27 | Backup and restore | Completed | main | cd91577 | 2026-07-01 | Database backup strategy, restore runbook, Terraform state recovery notes, Redis persistence decision, DR assumptions, and RTO/RPO targets. |
 | 28 | Cost controls and analysis | Completed | main | d433c06 | 2026-07-01 | Cloud cost estimates, optional AWS Budget Terraform module, LLM cost tracking explanation, right-sizing notes, and dev teardown guidance. |
-| 29 | GitOps with Argo CD | Completed | main | pending | 2026-07-01 | Optional Argo CD AppProject and Application manifests, Helm-based GitOps docs, sync strategy, and promotion guidance. |
+| 29 | GitOps with Argo CD | Completed | main | 1143de2 | 2026-07-01 | Optional Argo CD AppProject and Application manifests, Helm-based GitOps docs, sync strategy, and promotion guidance. |
 | 30 | Final documentation and portfolio polish | In Progress |  |  |  | README, diagrams, screenshots, demo script. |
 
 ## Phase execution log
@@ -2357,7 +2357,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- 1143de2
 
 Completed date:
 
@@ -2408,9 +2408,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending
-- Fix commits: pending
+- Pushed commit: 1143de2
+- Top findings: The Argo CD AppProject used wildcard namespaced resource permissions, which was broader than the Helm chart's actual resource needs.
+- Fix commits: df43750 narrows the AppProject namespace resource whitelist to the chart resource kinds and documents the permission boundary.
 
 Next phase:
 
