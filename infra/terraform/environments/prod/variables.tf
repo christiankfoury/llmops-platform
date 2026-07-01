@@ -80,6 +80,108 @@ variable "eks_node_groups" {
   }
 }
 
+variable "database_name" {
+  description = "Initial PostgreSQL database name."
+  type        = string
+  default     = "ai_platform"
+}
+
+variable "database_master_username" {
+  description = "RDS master username. Password is managed by AWS."
+  type        = string
+  default     = "ai_platform"
+}
+
+variable "database_engine_version" {
+  description = "Optional PostgreSQL engine version. Null lets AWS choose the default."
+  type        = string
+  default     = null
+}
+
+variable "database_instance_class" {
+  description = "Prod RDS instance class."
+  type        = string
+  default     = "db.t4g.medium"
+}
+
+variable "database_allocated_storage_gb" {
+  description = "Initial prod RDS storage in GiB."
+  type        = number
+  default     = 100
+}
+
+variable "database_max_allocated_storage_gb" {
+  description = "Maximum prod RDS autoscaled storage in GiB."
+  type        = number
+  default     = 250
+}
+
+variable "database_backup_retention_days" {
+  description = "Prod RDS backup retention in days."
+  type        = number
+  default     = 14
+}
+
+variable "database_multi_az" {
+  description = "Whether prod RDS uses Multi-AZ."
+  type        = bool
+  default     = true
+}
+
+variable "database_deletion_protection" {
+  description = "Whether prod RDS deletion protection is enabled."
+  type        = bool
+  default     = true
+}
+
+variable "database_skip_final_snapshot" {
+  description = "Whether prod skips final snapshot on deletion."
+  type        = bool
+  default     = false
+}
+
+variable "redis_engine_version" {
+  description = "Optional Redis engine version. Null lets AWS choose the default."
+  type        = string
+  default     = null
+}
+
+variable "redis_node_type" {
+  description = "Prod Redis node type."
+  type        = string
+  default     = "cache.t4g.medium"
+}
+
+variable "redis_num_cache_clusters" {
+  description = "Number of prod Redis cache clusters."
+  type        = number
+  default     = 2
+}
+
+variable "redis_automatic_failover_enabled" {
+  description = "Whether prod Redis automatic failover is enabled."
+  type        = bool
+  default     = true
+}
+
+variable "redis_multi_az_enabled" {
+  description = "Whether prod Redis Multi-AZ is enabled."
+  type        = bool
+  default     = true
+}
+
+variable "redis_snapshot_retention_days" {
+  description = "Prod Redis snapshot retention in days."
+  type        = number
+  default     = 14
+}
+
+variable "redis_apply_immediately" {
+  description = "Whether prod Redis changes apply immediately."
+  type        = bool
+  default     = false
+}
+
 variable "ecr_repository_names" {
   description = "Application image repositories."
   type        = list(string)

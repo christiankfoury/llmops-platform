@@ -11,6 +11,8 @@ Current modules:
 - `modules/secrets`: AWS Secrets Manager placeholder secrets without secret values
 - `modules/iam`: optional GitHub Actions OIDC role for future ECR publishing
 - `modules/cluster`: EKS cluster, managed node groups, cluster/node IAM roles, and OIDC provider for workload identity
+- `modules/database`: private RDS PostgreSQL with encrypted storage, AWS-managed master password, backups, and security group ingress from EKS
+- `modules/redis`: private ElastiCache Redis replication group with encryption, snapshots, and security group ingress from EKS
 
 Current environments:
 
@@ -18,7 +20,7 @@ Current environments:
 - `environments/staging`
 - `environments/prod`
 
-Later phases add RDS PostgreSQL, ElastiCache Redis, Kubernetes workload manifests, Helm, deployment workflows, and stronger security controls.
+Later phases add Kubernetes workload manifests, Helm, deployment workflows, and stronger security controls.
 
 ## Credentials
 
@@ -119,6 +121,8 @@ The secrets module creates only secret containers/placeholders in AWS Secrets Ma
 
 Secret values must be written through an approved secure process outside this repository.
 
+The database module uses RDS `manage_master_user_password`, so AWS manages the generated master password in Secrets Manager. Terraform outputs the managed secret ARN as sensitive and does not accept or store a plaintext database password.
+
 ## IAM
 
 The IAM module can create a GitHub Actions OIDC provider and ECR publish role, but it is disabled by default in every environment.
@@ -131,3 +135,36 @@ When enabled, the role is restricted to:
 - ECR publishing permissions for the platform repositories
 
 The only wildcard permission is `ecr:GetAuthorizationToken`, which AWS requires to use resource `"*"`.
+
+## Managed Data Services
+
+Phase 13 wires private managed data services into every environment.
+
+RDS PostgreSQL defaults:
+
+- private subnets only
+- no public accessibility
+- encrypted gp3 storage
+- AWS-managed master password
+- autoscaled storage ceiling per environment
+- automated backups
+- deletion protection enabled for staging and prod
+- Multi-AZ enabled for staging and prod
+- ingress restricted to the EKS cluster security group
+
+ElastiCache Redis defaults:
+
+- private subnets only
+- encrypted at rest and in transit
+- snapshot retention per environment
+- automatic failover and Multi-AZ enabled for staging and prod
+- ingress restricted to the EKS cluster security group
+
+Dev remains deliberately smaller:
+
+- single-AZ database
+- single Redis cache cluster
+- shorter backup and snapshot retention
+- deletion protection disabled for easier approved teardown
+
+Applying these modules creates paid resources and remains an explicit approval gate.

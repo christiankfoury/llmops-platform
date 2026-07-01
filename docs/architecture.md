@@ -155,6 +155,8 @@ Reusable modules will live under `infra/terraform/modules` and should avoid hard
 
 Phase 11 adds the AWS foundation modules for network, ECR, IAM, and Secrets Manager placeholders. Phase 12 adds the EKS cluster module with managed node groups, cluster/node IAM roles, workload identity OIDC provider, and Kubernetes provider wiring.
 
+Phase 13 adds private RDS PostgreSQL and ElastiCache Redis modules with security group ingress scoped to the EKS cluster security group, encryption, backups/snapshots, and staging/prod high-availability defaults.
+
 ### Kubernetes
 
 Workloads:

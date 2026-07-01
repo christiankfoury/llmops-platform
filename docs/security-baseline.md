@@ -69,6 +69,9 @@ Phase 11 foundation controls:
 - The optional GitHub Actions OIDC role is disabled by default and scoped to repository, branch/environment, and ECR repository ARNs when enabled.
 - `ecr:GetAuthorizationToken` uses resource `"*"` because AWS requires it; ECR publish actions are scoped to repository ARNs.
 - EKS workload identity is prepared through an environment-specific OIDC provider so later Kubernetes service accounts can use scoped IAM roles instead of node-wide credentials.
+- RDS and Redis security groups accept traffic only from the EKS cluster security group.
+- RDS storage is encrypted and the master password is generated and managed by AWS rather than committed or stored in Terraform variables.
+- Redis is encrypted at rest and in transit.
 
 ## Logging policy
 

@@ -80,6 +80,108 @@ variable "eks_node_groups" {
   }
 }
 
+variable "database_name" {
+  description = "Initial PostgreSQL database name."
+  type        = string
+  default     = "ai_platform"
+}
+
+variable "database_master_username" {
+  description = "RDS master username. Password is managed by AWS."
+  type        = string
+  default     = "ai_platform"
+}
+
+variable "database_engine_version" {
+  description = "Optional PostgreSQL engine version. Null lets AWS choose the default."
+  type        = string
+  default     = null
+}
+
+variable "database_instance_class" {
+  description = "Dev RDS instance class."
+  type        = string
+  default     = "db.t4g.micro"
+}
+
+variable "database_allocated_storage_gb" {
+  description = "Initial dev RDS storage in GiB."
+  type        = number
+  default     = 20
+}
+
+variable "database_max_allocated_storage_gb" {
+  description = "Maximum dev RDS autoscaled storage in GiB."
+  type        = number
+  default     = 50
+}
+
+variable "database_backup_retention_days" {
+  description = "Dev RDS backup retention in days."
+  type        = number
+  default     = 1
+}
+
+variable "database_multi_az" {
+  description = "Whether dev RDS uses Multi-AZ."
+  type        = bool
+  default     = false
+}
+
+variable "database_deletion_protection" {
+  description = "Whether dev RDS deletion protection is enabled."
+  type        = bool
+  default     = false
+}
+
+variable "database_skip_final_snapshot" {
+  description = "Whether dev skips final snapshot on deletion."
+  type        = bool
+  default     = true
+}
+
+variable "redis_engine_version" {
+  description = "Optional Redis engine version. Null lets AWS choose the default."
+  type        = string
+  default     = null
+}
+
+variable "redis_node_type" {
+  description = "Dev Redis node type."
+  type        = string
+  default     = "cache.t4g.micro"
+}
+
+variable "redis_num_cache_clusters" {
+  description = "Number of dev Redis cache clusters."
+  type        = number
+  default     = 1
+}
+
+variable "redis_automatic_failover_enabled" {
+  description = "Whether dev Redis automatic failover is enabled."
+  type        = bool
+  default     = false
+}
+
+variable "redis_multi_az_enabled" {
+  description = "Whether dev Redis Multi-AZ is enabled."
+  type        = bool
+  default     = false
+}
+
+variable "redis_snapshot_retention_days" {
+  description = "Dev Redis snapshot retention in days."
+  type        = number
+  default     = 1
+}
+
+variable "redis_apply_immediately" {
+  description = "Whether dev Redis changes apply immediately."
+  type        = bool
+  default     = true
+}
+
 variable "ecr_repository_names" {
   description = "Application image repositories."
   type        = list(string)

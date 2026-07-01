@@ -80,6 +80,108 @@ variable "eks_node_groups" {
   }
 }
 
+variable "database_name" {
+  description = "Initial PostgreSQL database name."
+  type        = string
+  default     = "ai_platform"
+}
+
+variable "database_master_username" {
+  description = "RDS master username. Password is managed by AWS."
+  type        = string
+  default     = "ai_platform"
+}
+
+variable "database_engine_version" {
+  description = "Optional PostgreSQL engine version. Null lets AWS choose the default."
+  type        = string
+  default     = null
+}
+
+variable "database_instance_class" {
+  description = "Staging RDS instance class."
+  type        = string
+  default     = "db.t4g.small"
+}
+
+variable "database_allocated_storage_gb" {
+  description = "Initial staging RDS storage in GiB."
+  type        = number
+  default     = 50
+}
+
+variable "database_max_allocated_storage_gb" {
+  description = "Maximum staging RDS autoscaled storage in GiB."
+  type        = number
+  default     = 100
+}
+
+variable "database_backup_retention_days" {
+  description = "Staging RDS backup retention in days."
+  type        = number
+  default     = 7
+}
+
+variable "database_multi_az" {
+  description = "Whether staging RDS uses Multi-AZ."
+  type        = bool
+  default     = true
+}
+
+variable "database_deletion_protection" {
+  description = "Whether staging RDS deletion protection is enabled."
+  type        = bool
+  default     = true
+}
+
+variable "database_skip_final_snapshot" {
+  description = "Whether staging skips final snapshot on deletion."
+  type        = bool
+  default     = false
+}
+
+variable "redis_engine_version" {
+  description = "Optional Redis engine version. Null lets AWS choose the default."
+  type        = string
+  default     = null
+}
+
+variable "redis_node_type" {
+  description = "Staging Redis node type."
+  type        = string
+  default     = "cache.t4g.small"
+}
+
+variable "redis_num_cache_clusters" {
+  description = "Number of staging Redis cache clusters."
+  type        = number
+  default     = 2
+}
+
+variable "redis_automatic_failover_enabled" {
+  description = "Whether staging Redis automatic failover is enabled."
+  type        = bool
+  default     = true
+}
+
+variable "redis_multi_az_enabled" {
+  description = "Whether staging Redis Multi-AZ is enabled."
+  type        = bool
+  default     = true
+}
+
+variable "redis_snapshot_retention_days" {
+  description = "Staging Redis snapshot retention in days."
+  type        = number
+  default     = 7
+}
+
+variable "redis_apply_immediately" {
+  description = "Whether staging Redis changes apply immediately."
+  type        = bool
+  default     = false
+}
+
 variable "ecr_repository_names" {
   description = "Application image repositories."
   type        = list(string)

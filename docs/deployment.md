@@ -156,6 +156,8 @@ See `docs/terraform.md` for backend configuration, AWS credential expectations, 
 
 Phase 12 adds EKS Terraform code and Kubernetes provider wiring. It remains code-only until an explicit approval gate allows AWS resource creation.
 
+Phase 13 adds managed PostgreSQL and Redis Terraform code. These resources are private, encrypted, and backed up by default, but they are still not created until an approved `terraform apply`.
+
 ## Staging deployment
 
 Staging should be manually triggered.

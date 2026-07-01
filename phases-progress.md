@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 13: Terraform managed data services
+Phase 14: Base Kubernetes manifests
 
 ## Phase table
 
@@ -34,8 +34,8 @@ Phase 13: Terraform managed data services
 | 10 | CI pipeline | Completed | main | eb1616a | 2026-06-30 | GitHub Actions CI with backend checks, frontend checks, production image builds, dependency audit, image scans, and Terraform/Helm placeholders. |
 | 11 | Terraform AWS foundation | Completed | main | 53fe58d | 2026-06-30 | Terraform dev/staging/prod roots, VPC module, ECR module, Secrets Manager placeholders, optional GitHub OIDC IAM, state docs, and validation docs. |
 | 12 | Terraform EKS cluster | Completed | main | 60a6661 | 2026-06-30 | EKS module, managed node groups, cluster/node IAM roles, workload identity OIDC provider, Kubernetes provider wiring, and access docs. |
-| 13 | Terraform managed data services | In Progress |  |  |  | RDS PostgreSQL, Redis, backups, security groups. |
-| 14 | Base Kubernetes manifests | Not Started |  |  |  | Deployments, services, ingress, probes, resources. |
+| 13 | Terraform managed data services | Completed | main | pending | 2026-06-30 | RDS PostgreSQL and ElastiCache Redis modules, private subnets, EKS-scoped security groups, encryption, backups, and environment sizing defaults. |
+| 14 | Base Kubernetes manifests | In Progress |  |  |  | Deployments, services, ingress, probes, resources. |
 | 15 | Helm chart | Not Started |  |  |  | Chart and values for dev/staging/prod. |
 | 16 | Continuous deployment to dev | Not Started |  |  |  | Auto deploy main to dev. |
 | 17 | Staging and production release workflows | Not Started |  |  |  | Manual staging/prod workflows and approval. |
@@ -996,6 +996,87 @@ Post-commit review:
 Next phase:
 
 - Phase 13: Terraform managed data services
+
+### Phase 13: Terraform managed data services
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added a reusable RDS PostgreSQL Terraform module.
+- Added a reusable ElastiCache Redis Terraform module.
+- Wired database and Redis modules into dev, staging, and prod Terraform roots.
+- Placed RDS and Redis in private subnet groups.
+- Scoped RDS and Redis ingress to the EKS cluster security group.
+- Enabled encrypted RDS gp3 storage and Redis encryption at rest and in transit.
+- Used RDS `manage_master_user_password` so AWS manages the master password outside Terraform variables.
+- Added automated RDS backup retention and Redis snapshot retention per environment.
+- Added staging/prod Multi-AZ and deletion protection defaults, with smaller dev settings for cost-conscious approved teardown.
+- Updated Terraform, architecture, deployment, security, and README docs with managed data service behavior.
+
+Validation:
+
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace hashicorp/terraform:1.10.5 fmt -recursive infra/terraform`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/dev hashicorp/terraform:1.10.5 init -backend=false -upgrade && terraform validate`
+  Result: Passed for dev.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/staging hashicorp/terraform:1.10.5 init -backend=false -upgrade && terraform validate`
+  Result: Passed for staging.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/prod hashicorp/terraform:1.10.5 init -backend=false -upgrade && terraform validate`
+  Result: Passed for prod.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace hashicorp/terraform:1.10.5 fmt -check -recursive infra/terraform`
+  Result: Passed.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: `rg -n "sk-|AKIA|BEGIN .*PRIVATE|OPENAI_API_KEY=|AWS_SECRET_ACCESS_KEY=|aws_access_key_id|aws_secret_access_key|[0-9]{12}" . -g '!phases-progress.md' -g '!apps/web/package-lock.json' -g '!node_modules' -g '!.venv' -g '!.npm-cache' -g '!.terraform'`
+  Result: No matches.
+
+Security notes:
+
+- No `terraform apply`, `terraform destroy`, cloud resource creation, database creation, Redis creation, or AWS mutation commands were run.
+- No AWS credentials, account IDs, provider keys, database passwords, Redis auth tokens, or secret values were committed.
+- RDS master password is generated and managed by AWS, with only the sensitive secret ARN exposed as Terraform output.
+- RDS and Redis security groups accept ingress only from the EKS cluster security group.
+- RDS storage is encrypted and Redis is encrypted at rest and in transit.
+
+Reliability notes:
+
+- RDS automated backups are configured per environment.
+- Redis snapshot retention is configured per environment.
+- Staging and prod default to Multi-AZ for RDS and Redis.
+- Staging and prod default to RDS deletion protection and final snapshots.
+
+Observability notes:
+
+- No Prometheus, Grafana, Loki, or OpenTelemetry resources were added in Phase 13.
+- RDS Performance Insights is enabled by module default for future database observability.
+
+Scope notes:
+
+- Completed Phase 13 managed data service Terraform only.
+- Deferred Kubernetes workload manifests, Helm charting, External Secrets wiring, backup/restore runbooks, and live resource creation to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-commit review.
+- Fix commits: pending post-commit review.
+
+Next phase:
+
+- Phase 14: Base Kubernetes manifests
 
 ## Update template
 

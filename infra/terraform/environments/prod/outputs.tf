@@ -38,6 +38,22 @@ output "eks_node_role_arn" {
   value       = module.cluster.node_role_arn
 }
 
+output "database_endpoint" {
+  description = "Prod RDS PostgreSQL endpoint."
+  value       = module.database.instance_endpoint
+}
+
+output "database_master_user_secret_arn" {
+  description = "Prod AWS-managed RDS master user secret ARN."
+  value       = module.database.master_user_secret_arn
+  sensitive   = true
+}
+
+output "redis_primary_endpoint" {
+  description = "Prod Redis primary endpoint address."
+  value       = module.redis.primary_endpoint_address
+}
+
 output "secret_names" {
   description = "Prod Secrets Manager placeholder names."
   value       = module.secrets.secret_names

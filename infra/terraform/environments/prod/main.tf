@@ -36,6 +36,43 @@ module "cluster" {
   tags                      = local.common_tags
 }
 
+module "database" {
+  source = "../../modules/database"
+
+  name_prefix                = local.name_prefix
+  vpc_id                     = module.network.vpc_id
+  private_subnet_ids         = module.network.private_subnet_ids
+  allowed_security_group_ids = [module.cluster.cluster_security_group_id]
+  database_name              = var.database_name
+  master_username            = var.database_master_username
+  engine_version             = var.database_engine_version
+  instance_class             = var.database_instance_class
+  allocated_storage_gb       = var.database_allocated_storage_gb
+  max_allocated_storage_gb   = var.database_max_allocated_storage_gb
+  backup_retention_days      = var.database_backup_retention_days
+  multi_az                   = var.database_multi_az
+  deletion_protection        = var.database_deletion_protection
+  skip_final_snapshot        = var.database_skip_final_snapshot
+  tags                       = local.common_tags
+}
+
+module "redis" {
+  source = "../../modules/redis"
+
+  name_prefix                = local.name_prefix
+  vpc_id                     = module.network.vpc_id
+  private_subnet_ids         = module.network.private_subnet_ids
+  allowed_security_group_ids = [module.cluster.cluster_security_group_id]
+  engine_version             = var.redis_engine_version
+  node_type                  = var.redis_node_type
+  num_cache_clusters         = var.redis_num_cache_clusters
+  automatic_failover_enabled = var.redis_automatic_failover_enabled
+  multi_az_enabled           = var.redis_multi_az_enabled
+  snapshot_retention_days    = var.redis_snapshot_retention_days
+  apply_immediately          = var.redis_apply_immediately
+  tags                       = local.common_tags
+}
+
 module "registry" {
   source = "../../modules/registry"
 
