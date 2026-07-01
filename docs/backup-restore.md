@@ -11,8 +11,8 @@ All cloud restore actions are approval-gated. This repository may document and v
 | Environment | RDS backup retention | Redis snapshot retention | RTO target | RPO target | Notes |
 |---|---:|---:|---:|---:|---|
 | dev | 1 day | 1 day | 1 business day | 24 hours | Cost-minimized and rebuildable. Data loss is acceptable for local/dev validation. |
-| staging | 7 days | 3 days | 4 hours | 24 hours | Used for restore rehearsal and release validation. |
-| prod | 14 days | 7 days | 2 hours | 1 hour or better when RDS PITR is available | Portfolio target, subject to an approved live recovery exercise before real production claims. |
+| staging | 7 days | 7 days | 4 hours | 24 hours | Used for restore rehearsal and release validation. |
+| prod | 14 days | 14 days | 2 hours | 1 hour or better when RDS PITR is available | Portfolio target, subject to an approved live recovery exercise before real production claims. |
 
 The Terraform defaults are encoded in:
 

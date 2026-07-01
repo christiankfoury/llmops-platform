@@ -166,7 +166,7 @@ ElastiCache Redis defaults:
 - private subnets only
 - encrypted at rest and in transit
 - snapshot retention per environment
-- snapshot retention of 1 day in dev, 3 days in staging, and 7 days in prod
+- snapshot retention of 1 day in dev, 7 days in staging, and 14 days in prod
 - automatic failover and Multi-AZ enabled for staging and prod
 - ingress restricted to the EKS cluster security group
 
