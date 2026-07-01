@@ -9,7 +9,7 @@ Current modules:
 - `modules/network`: VPC, public subnets, private subnets, route tables, optional NAT gateway
 - `modules/registry`: ECR repositories for API and web images with immutable tags and scan-on-push
 - `modules/secrets`: AWS Secrets Manager placeholder secrets without secret values
-- `modules/iam`: optional GitHub Actions OIDC role for future ECR publishing
+- `modules/iam`: optional GitHub Actions OIDC role for ECR publishing and dev EKS kubeconfig access
 - `modules/cluster`: EKS cluster, managed node groups, cluster/node IAM roles, and OIDC provider for workload identity
 - `modules/database`: private RDS PostgreSQL with encrypted storage, AWS-managed master password, backups, and security group ingress from EKS
 - `modules/redis`: private ElastiCache Redis replication group with encryption, snapshots, and security group ingress from EKS
@@ -125,7 +125,7 @@ The database module uses RDS `manage_master_user_password`, so AWS manages the g
 
 ## IAM
 
-The IAM module can create a GitHub Actions OIDC provider and ECR publish role, but it is disabled by default in every environment.
+The IAM module can create a GitHub Actions OIDC provider and CI/CD role, but it is disabled by default in every environment.
 
 When enabled, the role is restricted to:
 
@@ -133,8 +133,11 @@ When enabled, the role is restricted to:
 - the `main` branch
 - the matching GitHub environment name
 - ECR publishing permissions for the platform repositories
+- optional `eks:DescribeCluster` permission for kubeconfig generation
 
 The only wildcard permission is `ecr:GetAuthorizationToken`, which AWS requires to use resource `"*"`.
+
+Phase 16 wires the optional dev role into the dev EKS cluster with an EKS access entry scoped to the `ai-platform-dev` namespace using the AWS-managed `AmazonEKSEditPolicy`. The deployment workflow therefore expects the namespace and runtime secrets to be bootstrapped before automatic deploys are enabled.
 
 ## Managed Data Services
 

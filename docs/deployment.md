@@ -140,15 +140,62 @@ These files use placeholder development values only. Real provider keys, cloud a
 
 ## Dev deployment
 
-Dev should deploy automatically from the main branch.
+Phase 16 adds `.github/workflows/deploy-dev.yml` for the dev release path.
 
-Expected flow:
+The workflow can run in two ways:
 
-1. CI validates code.
-2. Images are built.
-3. Images are pushed to ECR.
-4. Helm upgrades dev release.
-5. Smoke test runs.
+- automatically on pushes to `main` when both repository variables are set to `true`:
+  - `ENABLE_DEV_AUTO_DEPLOY`
+  - `DEV_DEPLOY_APPROVED`
+- manually through `workflow_dispatch`, with an optional immutable image tag override
+
+The enablement variables intentionally default to absent/false. This lets the workflow be committed safely without mutating a real AWS account until the dev environment has been approved and bootstrapped.
+
+Dev workflow steps:
+
+1. Resolve required repository variables and fail fast if any are missing.
+2. Assume the dev GitHub Actions IAM role through OIDC.
+3. Build API and web production images.
+4. Push images to ECR with the commit SHA as the immutable image tag.
+5. Update kubeconfig for the dev EKS cluster.
+6. Run `helm upgrade --install` for the `ai-platform-dev` release.
+7. Wait for API and web deployment rollouts.
+8. Run smoke tests against API readiness and the web dashboard URL.
+
+Required GitHub repository variables:
+
+| Variable | Purpose |
+|---|---|
+| `AWS_ACCOUNT_ID` | AWS account that owns the dev ECR repositories. |
+| `AWS_REGION` | AWS region for ECR and EKS. |
+| `AWS_DEV_DEPLOY_ROLE_ARN` | OIDC role assumed by GitHub Actions for dev deploys. |
+| `DEV_EKS_CLUSTER_NAME` | Dev EKS cluster name, such as `production-ai-platform-dev-eks`. |
+| `DEV_API_HOST` | Ingress host for the dev API. |
+| `DEV_WEB_HOST` | Ingress host for the dev web dashboard. |
+| `DEV_API_BASE_URL` | Public base URL used for API smoke tests and web runtime config. |
+| `DEV_WEB_BASE_URL` | Public base URL used for web smoke tests and API CORS config. |
+
+Optional GitHub repository variables:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `DEV_NAMESPACE` | `ai-platform-dev` | Kubernetes namespace for the dev release. |
+| `DEV_API_ECR_REPOSITORY` | `production-ai-platform-dev/api` | Dev API ECR repository name. |
+| `DEV_WEB_ECR_REPOSITORY` | `production-ai-platform-dev/web` | Dev web ECR repository name. |
+
+Dev bootstrap prerequisites before enabling automatic deploys:
+
+- Terraform dev infrastructure has been applied through an approved human gate.
+- The optional dev GitHub Actions role is enabled with `create_github_actions_role = true`.
+- The `ai-platform-dev` namespace exists in the dev cluster.
+- The runtime secret reference expected by the chart exists in the namespace:
+  - Secret name: `ai-platform-runtime-secrets`
+  - Keys: `database-url`, `redis-url`
+- DNS/ingress routes resolve for `DEV_API_HOST` and `DEV_WEB_HOST`.
+
+The Phase 16 workflow overrides `namespace.create=false` during Helm deploys so the GitHub deploy role can be scoped to edit the dev namespace rather than administer the whole cluster. Namespace and secret bootstrap remain explicit setup steps because they can affect real infrastructure and secrets.
+
+No AWS keys, kubeconfigs, database URLs, Redis URLs, or provider credentials are committed. The workflow uses GitHub OIDC and repository/environment variables only.
 
 Terraform foundation code for dev, staging, and prod lives under `infra/terraform/environments`. Phase 11 supports safe local `fmt`, `init -backend=false`, and `validate` checks only. Creating AWS resources with `terraform apply` is an explicit approval gate.
 
@@ -230,7 +277,7 @@ The chart packages:
 - optional API and web HPAs
 - runtime Secret references for database and Redis connection strings
 
-The Helm chart is the release artifact for later deployment workflows. It still references placeholder image repositories and example hostnames until the ECR and DNS deployment phases provide real values.
+The Helm chart is the release artifact for deployment workflows. Phase 16 overrides dev image repositories, image tags, ingress hosts, CORS origins, and web API base URL at deploy time from GitHub repository variables.
 
 ## Staging deployment
 

@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 16: Continuous deployment to dev
+Phase 17: Staging and production release workflows
 
 ## Phase table
 
@@ -37,8 +37,8 @@ Phase 16: Continuous deployment to dev
 | 13 | Terraform managed data services | Completed | main | e8e1836 | 2026-06-30 | RDS PostgreSQL and ElastiCache Redis modules, private subnets, EKS-scoped security groups, encryption, backups, and environment sizing defaults. |
 | 14 | Base Kubernetes manifests | Completed | main | bdc5869 | 2026-06-30 | Raw Kustomize-compatible namespace, service accounts, ConfigMaps, API/web Deployments, Services, Ingress, probes, resources, security contexts, and environment overlays. |
 | 15 | Helm chart | Completed | main | 8e94c21 | 2026-06-30 | Helm chart with dev/staging/prod values, API/web templates, ingress, ConfigMaps, service accounts, secret references, and optional HPAs. |
-| 16 | Continuous deployment to dev | In Progress |  |  |  | Auto deploy main to dev. |
-| 17 | Staging and production release workflows | Not Started |  |  |  | Manual staging/prod workflows and approval. |
+| 16 | Continuous deployment to dev | Completed | main | pending | 2026-06-30 | Guarded dev CD workflow builds SHA-tagged images, pushes to ECR, deploys Helm to dev, checks rollouts, and smoke-tests API/web. |
+| 17 | Staging and production release workflows | In Progress |  |  |  | Manual staging/prod workflows and approval. |
 | 18 | Rollback workflow | Not Started |  |  |  | Helm rollback workflow and docs. |
 | 19 | OpenTelemetry tracing | Not Started |  |  |  | Request traces and correlation IDs. |
 | 20 | Prometheus metrics | Not Started |  |  |  | Metrics endpoint and scrape config. |
@@ -1235,6 +1235,106 @@ Post-commit review:
 Next phase:
 
 - Phase 16: Continuous deployment to dev
+
+### Phase 16: Continuous deployment to dev
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-06-30
+
+Implementation notes:
+
+- Added `.github/workflows/deploy-dev.yml`.
+- Added a guarded push trigger for main-branch dev deploys requiring `ENABLE_DEV_AUTO_DEPLOY=true` and `DEV_DEPLOY_APPROVED=true`.
+- Added manual `workflow_dispatch` support with an optional immutable image tag override.
+- Configured GitHub OIDC role assumption for dev deploys without committed AWS keys.
+- Built and pushed API and web production images to ECR using the commit SHA as the image tag.
+- Added kubeconfig setup for the dev EKS cluster.
+- Added Helm `upgrade --install` deployment for the `ai-platform-dev` release with runtime image, host, CORS, and API URL overrides.
+- Added deployment rollout status checks for API and web Deployments.
+- Added smoke tests for API readiness and the web dashboard URL.
+- Extended Terraform IAM to allow the optional GitHub Actions role to describe the dev EKS cluster for kubeconfig generation.
+- Extended the EKS module with optional access entries and wired the dev GitHub Actions role to namespace-scoped edit access for `ai-platform-dev`.
+- Updated deployment, Terraform, security, and README docs with dev CD setup and safety requirements.
+
+Validation:
+
+- Command: `gh variable get ENABLE_DEV_AUTO_DEPLOY; gh variable get DEV_DEPLOY_APPROVED`
+  Result: Both variables were absent, so the pushed workflow will not auto-deploy on `main` until explicitly enabled.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace hashicorp/terraform:1.10.5 fmt -recursive infra/terraform`
+  Result: Passed and formatted the dev Terraform root.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/dev hashicorp/terraform:1.10.5 init -backend=false -upgrade`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/dev hashicorp/terraform:1.10.5 validate`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/staging hashicorp/terraform:1.10.5 init -backend=false -upgrade`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/staging hashicorp/terraform:1.10.5 validate`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/prod hashicorp/terraform:1.10.5 init -backend=false -upgrade`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace/infra/terraform/environments/prod hashicorp/terraform:1.10.5 validate`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace hashicorp/terraform:1.10.5 fmt -check -recursive infra/terraform`
+  Result: Passed.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace alpine/helm:3.15.4 lint infra/helm/ai-platform`
+  Result: Passed; Helm reported only the optional icon recommendation.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/workspace" -w /workspace alpine/helm:3.15.4 template ai-platform-dev infra/helm/ai-platform -f infra/helm/ai-platform/values-dev.yaml --namespace ai-platform-dev` with the same image, host, namespace, and URL overrides used by the workflow.
+  Result: Passed; rendered the dev release with SHA-tagged ECR image references and existing runtime Secret references.
+- Command: `docker run --rm -v "S:\github-repos\production-ai-platform:/repo" -w /repo rhysd/actionlint:1.7.7 .github/workflows/deploy-dev.yml`
+  Result: Passed after grouping `$GITHUB_ENV` writes.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+- Command: refined secret value scan for provider keys, AWS keys, private keys, committed access-key fields, and secret env assignments
+  Result: No matches.
+
+Security notes:
+
+- No `terraform apply`, cloud mutation, live Kubernetes deployment, or production deployment was run.
+- No AWS credentials, account IDs, kubeconfigs, database URLs, Redis URLs, provider keys, or Kubernetes Secret values were committed.
+- The workflow uses GitHub OIDC instead of static cloud credentials.
+- Automatic dev deployment is disabled unless explicit repository variables are set.
+- ECR image tags are immutable commit SHAs rather than mutable `dev` tags.
+- Dev Kubernetes permissions are scoped to the `ai-platform-dev` namespace through an EKS access entry using `AmazonEKSEditPolicy`.
+- Namespace and runtime secret bootstrap remain explicit approved setup steps outside the workflow.
+
+Reliability notes:
+
+- Helm deploy uses `--atomic`, `--wait`, and a 10-minute timeout.
+- API and web rollouts are checked with `kubectl rollout status`.
+- Smoke tests fail the workflow if API readiness or the web dashboard URL fails.
+- The workflow uses concurrency group `deploy-dev` to avoid overlapping dev releases.
+
+Observability notes:
+
+- Phase 16 does not add runtime metrics, traces, logs, or dashboards.
+- Deployment outcome is observable through GitHub Actions logs, rollout status, and smoke test results.
+- Prometheus, Grafana, Loki, and OpenTelemetry remain later observability phases.
+
+Scope notes:
+
+- Completed Phase 16 dev CD workflow and supporting deploy access only.
+- Deferred staging/prod release workflows, rollback workflow, External Secrets, NetworkPolicies, PDBs, and observability resources to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-commit review.
+- Fix commits: pending post-commit review.
+
+Next phase:
+
+- Phase 17: Staging and production release workflows
 
 ## Update template
 

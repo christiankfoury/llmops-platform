@@ -32,6 +32,12 @@ variable "ecr_repository_arns" {
   default     = []
 }
 
+variable "eks_cluster_name" {
+  description = "Optional EKS cluster name the GitHub Actions role can describe for kubeconfig generation."
+  type        = string
+  default     = ""
+}
+
 variable "tags" {
   description = "Common tags applied to all resources."
   type        = map(string)

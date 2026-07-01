@@ -58,6 +58,23 @@ variable "node_groups" {
   }))
 }
 
+variable "access_entries" {
+  description = "Optional EKS access entries for CI/CD or operators."
+  type = map(object({
+    principal_arn     = string
+    kubernetes_groups = optional(list(string), [])
+    type              = optional(string, "STANDARD")
+    policy_associations = optional(map(object({
+      policy_arn = string
+      access_scope = object({
+        type       = string
+        namespaces = optional(list(string), [])
+      })
+    })), {})
+  }))
+  default = {}
+}
+
 variable "tags" {
   description = "Common tags applied to all resources."
   type        = map(string)

@@ -86,6 +86,15 @@ Phase 11 foundation controls:
 - RDS storage is encrypted and the master password is generated and managed by AWS rather than committed or stored in Terraform variables.
 - Redis is encrypted at rest and in transit.
 
+Phase 16 dev deployment controls:
+
+- GitHub Actions uses OIDC role assumption instead of committed AWS keys.
+- Dev image publishing is scoped to the Terraform-created ECR repositories.
+- The deploy role can describe the dev EKS cluster for kubeconfig generation.
+- Kubernetes release permissions are scoped to `ai-platform-dev` through an EKS access entry using `AmazonEKSEditPolicy`.
+- Automatic dev deploys require explicit repository variables before a push to `main` can mutate the dev cluster.
+- Runtime database and Redis connection strings remain Kubernetes secret references and are not committed or printed by the workflow.
+
 ## Logging policy
 
 Do log:

@@ -33,7 +33,21 @@ module "cluster" {
   public_access_cidrs       = var.eks_public_access_cidrs
   enabled_cluster_log_types = var.eks_enabled_cluster_log_types
   node_groups               = var.eks_node_groups
-  tags                      = local.common_tags
+  access_entries = var.create_github_actions_role ? {
+    github_actions_dev_deployer = {
+      principal_arn = module.iam.github_actions_role_arn
+      policy_associations = {
+        dev_namespace_edit = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
+          access_scope = {
+            type       = "namespace"
+            namespaces = ["ai-platform-dev"]
+          }
+        }
+      }
+    }
+  } : {}
+  tags = local.common_tags
 }
 
 module "database" {
@@ -100,5 +114,6 @@ module "iam" {
   create_github_actions_role = var.create_github_actions_role
   github_repository          = var.github_repository
   ecr_repository_arns        = values(module.registry.repository_arns)
+  eks_cluster_name           = "${local.name_prefix}-eks"
   tags                       = local.common_tags
 }

@@ -118,6 +118,8 @@ make docker-build-prod
 
 GitHub Actions CI runs the same backend/frontend quality checks, production image builds, dependency audit gates, image scans, and infrastructure placeholders on pushes to `main`.
 
+The dev CD workflow builds API and web images, pushes immutable commit-SHA tags to ECR, deploys the Helm release to the dev EKS namespace, checks rollout status, and smoke-tests the API and dashboard. Automatic main-branch deployment is guarded by explicit repository variables so the workflow can be reviewed before it mutates a real AWS environment.
+
 Configuration is documented in `.env.example`, `apps/api/.env.example`, and `apps/web/.env.example`. These examples use local-only placeholder values and do not contain real credentials.
 
 ## Infrastructure Roadmap
@@ -222,4 +224,4 @@ See `phases-progress.md`.
 
 ## Status
 
-Phases 1-14 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, managed data services, and base Kubernetes manifests. Phase 15 adds the Helm chart.
+Phases 1-15 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, managed data services, base Kubernetes manifests, and Helm chart. Phase 16 adds the guarded dev deployment workflow.

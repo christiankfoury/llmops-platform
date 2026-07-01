@@ -132,3 +132,45 @@ resource "aws_eks_node_group" "managed" {
 
   depends_on = [aws_iam_role_policy_attachment.node]
 }
+
+locals {
+  access_policy_associations = flatten([
+    for entry_name, entry in var.access_entries : [
+      for policy_name, association in entry.policy_associations : {
+        key           = "${entry_name}.${policy_name}"
+        entry_name    = entry_name
+        principal_arn = entry.principal_arn
+        policy_arn    = association.policy_arn
+        access_scope  = association.access_scope
+      }
+    ]
+  ])
+}
+
+resource "aws_eks_access_entry" "this" {
+  for_each = var.access_entries
+
+  cluster_name      = aws_eks_cluster.this.name
+  principal_arn     = each.value.principal_arn
+  kubernetes_groups = each.value.kubernetes_groups
+  type              = each.value.type
+
+  depends_on = [aws_eks_node_group.managed]
+}
+
+resource "aws_eks_access_policy_association" "this" {
+  for_each = {
+    for association in local.access_policy_associations : association.key => association
+  }
+
+  cluster_name  = aws_eks_cluster.this.name
+  principal_arn = each.value.principal_arn
+  policy_arn    = each.value.policy_arn
+
+  access_scope {
+    type       = each.value.access_scope.type
+    namespaces = each.value.access_scope.namespaces
+  }
+
+  depends_on = [aws_eks_access_entry.this]
+}
