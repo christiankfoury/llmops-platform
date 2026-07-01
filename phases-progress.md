@@ -36,7 +36,7 @@ Phase 16: Continuous deployment to dev
 | 12 | Terraform EKS cluster | Completed | main | 60a6661 | 2026-06-30 | EKS module, managed node groups, cluster/node IAM roles, workload identity OIDC provider, Kubernetes provider wiring, and access docs. |
 | 13 | Terraform managed data services | Completed | main | e8e1836 | 2026-06-30 | RDS PostgreSQL and ElastiCache Redis modules, private subnets, EKS-scoped security groups, encryption, backups, and environment sizing defaults. |
 | 14 | Base Kubernetes manifests | Completed | main | bdc5869 | 2026-06-30 | Raw Kustomize-compatible namespace, service accounts, ConfigMaps, API/web Deployments, Services, Ingress, probes, resources, security contexts, and environment overlays. |
-| 15 | Helm chart | Completed | main | pending | 2026-06-30 | Helm chart with dev/staging/prod values, API/web templates, ingress, ConfigMaps, service accounts, secret references, and optional HPAs. |
+| 15 | Helm chart | Completed | main | 8e94c21 | 2026-06-30 | Helm chart with dev/staging/prod values, API/web templates, ingress, ConfigMaps, service accounts, secret references, and optional HPAs. |
 | 16 | Continuous deployment to dev | In Progress |  |  |  | Auto deploy main to dev. |
 | 17 | Staging and production release workflows | Not Started |  |  |  | Manual staging/prod workflows and approval. |
 | 18 | Rollback workflow | Not Started |  |  |  | Helm rollback workflow and docs. |
@@ -1171,7 +1171,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- 8e94c21
 
 Completed date:
 
@@ -1228,9 +1228,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending post-commit review.
-- Fix commits: pending post-commit review.
+- Pushed commit: 8e94c21
+- Top findings: Phase progress used temporary commit placeholders because the final commit hash was unavailable before the commit existed.
+- Fix commits: Follow-up documentation commit records the pushed Phase 15 hash and post-commit review result.
 
 Next phase:
 
