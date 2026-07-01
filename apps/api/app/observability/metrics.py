@@ -82,6 +82,10 @@ def record_gateway_config_error(environment: str) -> None:
     GATEWAY_ERRORS.labels("unknown", "unknown", environment, "config_error").inc()
 
 
+def record_gateway_rate_limit_rejection() -> None:
+    GATEWAY_RATE_LIMIT_REJECTIONS.inc()
+
+
 def record_gateway_request(
     provider: str,
     model: str,

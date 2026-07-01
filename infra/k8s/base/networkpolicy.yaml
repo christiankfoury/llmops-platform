@@ -1,0 +1,64 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ai-platform-default-deny-ingress
+  namespace: ai-platform
+  labels:
+    app.kubernetes.io/name: ai-platform
+    app.kubernetes.io/part-of: production-ai-platform
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ai-platform-api-ingress
+  namespace: ai-platform
+  labels:
+    app.kubernetes.io/name: ai-platform-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: production-ai-platform
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: ai-platform-api
+      app.kubernetes.io/component: api
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ai-platform-web
+              app.kubernetes.io/component: web
+        - ipBlock:
+            cidr: 10.0.0.0/8
+      ports:
+        - protocol: TCP
+          port: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ai-platform-web-ingress
+  namespace: ai-platform
+  labels:
+    app.kubernetes.io/name: ai-platform-web
+    app.kubernetes.io/component: web
+    app.kubernetes.io/part-of: production-ai-platform
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: ai-platform-web
+      app.kubernetes.io/component: web
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - ipBlock:
+            cidr: 10.0.0.0/8
+      ports:
+        - protocol: TCP
+          port: 3000

@@ -14,6 +14,7 @@ resources:
   - service-api.yaml
   - service-web.yaml
   - ingress.yaml
+  - networkpolicy.yaml
 
 images:
   - name: production-ai-platform-api

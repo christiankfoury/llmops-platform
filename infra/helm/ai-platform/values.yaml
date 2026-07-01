@@ -31,6 +31,11 @@ externalSecrets:
     databaseUrlProperty: database-url
     redisUrlProperty: redis-url
 
+networkPolicy:
+  enabled: true
+  ingressCidrs:
+    - 10.0.0.0/8
+
 api:
   replicaCount: 2
   image:
@@ -49,6 +54,9 @@ api:
     otelServiceName: production-ai-platform-api
     otelTracesExporter: console
     otelExporterOtlpEndpoint: ""
+    rateLimitEnabled: "true"
+    rateLimitRequestsPerMinute: "60"
+    rateLimitWindowSeconds: "60"
   service:
     type: ClusterIP
     port: 8000

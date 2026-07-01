@@ -56,7 +56,8 @@ The workflow runs:
 - frontend lint, typecheck, Vitest, and high/critical npm audit gate
 - production API and web Docker image builds
 - Trivy high/critical image scans
-- advisory Python dependency scanning with `pip-audit`
+- blocking Python dependency scanning with `pip-audit --strict`
+- repository-level Trivy filesystem scan for high/critical vulnerability, config, and secret findings
 - Terraform and Helm static-check placeholders until those phases add real files
 
-The Python dependency scan is advisory while the dependency policy is still forming. The blocking supply-chain gates in Phase 10 are the frontend high/critical npm audit and high/critical container image scans.
+Phase 25 makes the Python dependency scan blocking. The blocking supply-chain gates are frontend high/critical npm audit, Python production dependency audit, high/critical container image scans, and repository-level Trivy filesystem scanning.

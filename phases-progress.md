@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 25: Security hardening
+Phase 26: Autoscaling and resilience
 
 ## Phase table
 
@@ -46,8 +46,8 @@ Phase 25: Security hardening
 | 22 | Loki structured logging | Completed | main | 037ffff | 2026-07-01 | Loki datasource, Promtail config, logs dashboard, LogQL examples, and request/trace search docs. |
 | 23 | Alerts and incident response | Completed | main | 62ff2c6 | 2026-07-01 | Prometheus alert rules, Alertmanager placeholder, runbook triage, severity mapping, and demo incident flow. |
 | 24 | Secrets management | Completed | main | 5fefce4 | 2026-07-01 | External Secrets manifests, AWS Secrets Manager docs, IRSA role, naming, local fallback, and rotation guidance. |
-| 25 | Security hardening | In Progress |  |  |  | NetworkPolicies, least privilege, rate limiting. |
-| 26 | Autoscaling and resilience | Not Started |  |  |  | HPA, PDB, graceful shutdown, retry policies. |
+| 25 | Security hardening | Completed | main | pending | 2026-07-01 | Rate limiting, NetworkPolicies, workload hardening, private EKS defaults, KMS secret encryption, audit review docs, and blocking supply-chain scans. |
+| 26 | Autoscaling and resilience | In Progress |  |  |  | HPA, PDB, graceful shutdown, retry policies. |
 | 27 | Backup and restore | Not Started |  |  |  | Backup/restore and DR runbooks. |
 | 28 | Cost controls and analysis | Not Started |  |  |  | Cloud and LLM cost controls. |
 | 29 | GitOps with Argo CD | Not Started |  |  |  | Optional GitOps deployment path. |
@@ -2013,6 +2013,106 @@ Post-commit review:
 Next phase:
 
 - Phase 25: Security hardening
+
+### Phase 25: Security hardening
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-01
+
+Implementation notes:
+
+- Added a bounded in-memory API rate limiter for gateway completion requests, keyed by the hashed API key, with environment-configurable enablement, request limit, and window settings.
+- Recorded Prometheus rate-limit rejection metrics when gateway requests are rejected with HTTP 429.
+- Added raw Kubernetes NetworkPolicies for default-deny ingress plus explicit API and web ingress allowances.
+- Added Helm NetworkPolicy templates and values so chart deployments get the same ingress restrictions.
+- Hardened dev Dockerfiles to run API and web workloads as non-root users.
+- Hardened the production web runtime image by removing npm/npx after build-time dependency patching and by stripping build-only Next.js metadata from the served runtime layer.
+- Added EKS KMS envelope encryption for Kubernetes Secrets in Terraform and changed EKS endpoint defaults to private access.
+- Removed default open egress from RDS and Redis security groups.
+- Upgraded FastAPI dependencies to clear high/critical Python dependency findings.
+- Strengthened CI supply-chain gates with blocking pip-audit and repository-level Trivy scanning.
+- Added audit log review documentation and expanded security baseline, deployment, observability, Terraform, testing, architecture, and README documentation.
+
+Validation:
+
+- Command: `.venv\Scripts\python -m compileall apps\api\app apps\api\tests apps\api\scripts`
+  Result: Passed.
+- Command: `.venv\Scripts\python -m ruff check apps/api`
+  Result: Passed.
+- Command: `.venv\Scripts\python -m ruff format --check apps/api`
+  Result: Passed.
+- Command: `.venv\Scripts\python -m pytest`
+  Result: Passed, 17 tests.
+- Command: Dockerized `pip-audit` for `apps/api/requirements.txt`
+  Result: Passed; no known vulnerabilities found.
+- Command: `kubectl kustomize` for dev, staging, and prod overlays
+  Result: Passed.
+- Command: `helm lint` and `helm template` for dev, staging, and prod values
+  Result: Passed.
+- Command: Dockerized `terraform fmt -check -recursive infra/terraform`
+  Result: Passed.
+- Command: Terraform `init -backend=false` and `validate` for dev, staging, and prod roots
+  Result: Passed.
+- Command: `actionlint` for GitHub Actions workflows
+  Result: Passed.
+- Command: Docker builds for production API/web and dev API/web images
+  Result: Passed.
+- Command: Web production image smoke test against `/` and `/api/runtime-config`
+  Result: Passed, HTTP 200 for both endpoints.
+- Command: Trivy filesystem scan with vulnerabilities, misconfigurations, and secrets at high/critical severity
+  Result: Passed; Trivy emitted policy parser warnings but exited successfully with no blocking findings.
+- Command: Trivy image scans for production API and web image tarballs at high/critical severity
+  Result: Passed; both images reported zero high/critical findings.
+- Command: `git diff --check`
+  Result: Passed; Git reported expected CRLF conversion warnings for modified text files.
+
+Security notes:
+
+- No real secrets, provider keys, AWS credentials, account IDs, database URLs, Redis URLs, kubeconfigs, or Kubernetes Secret values were committed.
+- Gateway rate limiting uses the API key hash as the limiter identifier and does not log plaintext API keys.
+- Kubernetes ingress is restricted through default-deny NetworkPolicies plus explicit API/web ingress allowances.
+- Terraform defaults now encrypt EKS Secrets with KMS and keep EKS API endpoints private by default.
+- RDS and Redis security groups no longer include default open egress.
+- CI now blocks common high/critical dependency, image, repository, misconfiguration, and secret findings.
+
+Reliability notes:
+
+- Rate limiting rejects excess gateway traffic with HTTP 429 before provider processing and records a dedicated metric.
+- Existing readiness, liveness, resource limits, and non-root runtime posture remain intact.
+- NetworkPolicies are scoped to ingress restrictions; pod egress policy is deferred to later hardening once dependency and provider destinations are explicit.
+- Phase 25 does not deploy or mutate live cloud infrastructure.
+
+Observability notes:
+
+- Rate-limit rejections increment `llm_gateway_rate_limit_rejections_total`.
+- Existing structured logs, Prometheus metrics, Grafana dashboards, Loki docs, traces, and alerting docs remain aligned with the new rate-limit behavior.
+- Audit log review is documented with local SQL examples and production review guidance.
+
+Scope notes:
+
+- Completed Phase 25 security hardening only.
+- Deferred HPA, PDB, graceful shutdown tuning, provider retry policy, backup/restore, final cost controls, GitOps, and portfolio polish to later phases.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: Pending review after the pushed commit hash exists.
+- Fix commits: Pending.
+
+Next phase:
+
+- Phase 26: Autoscaling and resilience
 
 ## Update template
 

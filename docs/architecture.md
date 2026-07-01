@@ -191,6 +191,8 @@ Phase 23 adds Prometheus alert rules and an Alertmanager placeholder for high ga
 
 Phase 24 adds External Secrets integration. AWS Secrets Manager stores runtime values outside Terraform state, External Secrets Operator syncs them into `ai-platform-runtime-secrets`, and the API Deployment continues to consume that Kubernetes Secret without plaintext manifests.
 
+Phase 25 adds security hardening. The gateway applies a bounded in-memory fixed-window rate limit keyed by API key hash. Raw Kubernetes manifests and the Helm chart render default-deny ingress NetworkPolicies plus explicit API and web ingress allowances. Workloads continue to use dedicated service accounts with token automounting disabled, non-root pod security contexts, dropped Linux capabilities, no privilege escalation, and read-only root filesystems. CI now treats Python dependency audit findings as blocking and adds a repository-level Trivy filesystem scan for high/critical vulnerability, config, and secret findings.
+
 ### Observability
 
 - Prometheus for metrics

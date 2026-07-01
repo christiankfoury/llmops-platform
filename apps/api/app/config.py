@@ -21,6 +21,12 @@ class Settings(BaseSettings):
     otel_exporter_otlp_endpoint: str | None = Field(
         default=None, alias="OTEL_EXPORTER_OTLP_ENDPOINT"
     )
+    rate_limit_enabled: bool = Field(default=True, alias="RATE_LIMIT_ENABLED")
+    rate_limit_requests_per_minute: int = Field(
+        default=60,
+        alias="RATE_LIMIT_REQUESTS_PER_MINUTE",
+    )
+    rate_limit_window_seconds: int = Field(default=60, alias="RATE_LIMIT_WINDOW_SECONDS")
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

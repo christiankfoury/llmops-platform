@@ -2,6 +2,7 @@ resource "aws_security_group" "this" {
   name        = "${var.name_prefix}-postgres"
   description = "PostgreSQL access for ${var.name_prefix}"
   vpc_id      = var.vpc_id
+  egress      = []
 
   tags = merge(var.tags, {
     Name = "${var.name_prefix}-postgres"
@@ -18,16 +19,6 @@ resource "aws_security_group_rule" "ingress" {
   security_group_id        = aws_security_group.this.id
   source_security_group_id = each.value
   description              = "Allow PostgreSQL from approved platform workloads."
-}
-
-resource "aws_security_group_rule" "egress" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  security_group_id = aws_security_group.this.id
-  cidr_blocks       = ["0.0.0.0/0"]
-  description       = "Allow database response traffic."
 }
 
 resource "aws_db_subnet_group" "this" {

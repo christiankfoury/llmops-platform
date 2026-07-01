@@ -79,7 +79,7 @@ The cluster module creates:
 
 Environment defaults:
 
-- dev: two availability zones, one small on-demand node group, public and private endpoint access
+- dev: two availability zones, one small on-demand node group, private endpoint access by default
 - staging: two availability zones, one on-demand node group, full control plane logging
 - prod: three availability zones, larger on-demand node group, private endpoint access by default
 

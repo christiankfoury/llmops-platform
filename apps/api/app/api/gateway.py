@@ -1,15 +1,22 @@
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.db.session import get_db
-from app.observability.metrics import record_gateway_auth_failure, record_gateway_config_error
+from app.observability.metrics import (
+    record_gateway_auth_failure,
+    record_gateway_config_error,
+    record_gateway_rate_limit_rejection,
+)
 from app.schemas.gateway import CompletionRequest, CompletionResponse
+from app.services.auth import hash_api_key
 from app.services.gateway import (
     GatewayAuthError,
     GatewayConfigError,
     GatewayProviderError,
     process_completion,
 )
+from app.services.rate_limit import check_rate_limit
 
 router = APIRouter(prefix="/v1/gateway", tags=["gateway"])
 
@@ -25,6 +32,18 @@ def create_completion(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing API key",
+        )
+
+    settings = get_settings()
+    if settings.rate_limit_enabled and not check_rate_limit(
+        identifier=hash_api_key(x_api_key),
+        limit=settings.rate_limit_requests_per_minute,
+        window_seconds=settings.rate_limit_window_seconds,
+    ):
+        record_gateway_rate_limit_rejection()
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Rate limit exceeded",
         )
 
     try:

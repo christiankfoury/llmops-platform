@@ -141,7 +141,6 @@ jobs:
   dependency-scan:
     name: Python dependency scan
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -156,6 +155,24 @@ jobs:
 
       - name: Audit production Python dependencies
         run: python -m pip_audit -r apps/api/requirements.prod.txt --strict
+
+  repository-scan:
+    name: Repository vulnerability scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Scan repository dependencies and config
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,config,secret
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
 
   infrastructure-placeholders:
     name: Infrastructure static checks

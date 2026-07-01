@@ -26,6 +26,8 @@ A future integration could make Proofbase a client application of this platform,
 - Production Docker images
 - Managed PostgreSQL and Redis
 - Secret management with AWS Secrets Manager and External Secrets
+- Kubernetes NetworkPolicies and non-root workload hardening
+- API gateway rate limiting
 - Prometheus metrics
 - Grafana dashboards
 - Loki centralized logs
@@ -85,6 +87,14 @@ curl -X POST http://localhost:8000/v1/gateway/completions \
 The placeholder key is for local seeded data only and is stored in PostgreSQL as a hash.
 
 Successful gateway responses include a request ID, selected provider/model, latency, estimated token usage, and estimated cost. Local failure handling can be smoke-tested with `"[simulate_failure]"` for a provider error or `"[simulate_timeout]"` for a provider timeout.
+
+Gateway requests are rate limited by API key hash. Local defaults allow 60 requests per minute and can be adjusted with:
+
+```bash
+RATE_LIMIT_ENABLED=true
+RATE_LIMIT_REQUESTS_PER_MINUTE=60
+RATE_LIMIT_WINDOW_SECONDS=60
+```
 
 Usage summary:
 
@@ -223,10 +233,11 @@ See `phases-progress.md`.
 - `docs/observability.md`
 - `docs/dashboard-screenshots.md`
 - `docs/secrets-management.md`
+- `docs/security-audit.md`
 - `docs/cost-analysis.md`
 - `docs/security-baseline.md`
 - `docs/portfolio-demo-plan.md`
 
 ## Status
 
-Phases 1-23 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, managed data services, base Kubernetes manifests, Helm chart, guarded dev deployment workflow, manual staging/approved production release workflows, Helm rollback automation, OpenTelemetry tracing, Prometheus metrics, Grafana dashboard definitions, Loki structured logging integration, and alert/incident response updates. Phase 24 adds External Secrets integration.
+Phases 1-24 are complete, covering the local app, database foundation, gateway path, dashboard, quality baseline, production Docker images, CI pipeline, Terraform AWS foundation, EKS cluster layer, managed data services, base Kubernetes manifests, Helm chart, guarded dev deployment workflow, manual staging/approved production release workflows, Helm rollback automation, OpenTelemetry tracing, Prometheus metrics, Grafana dashboard definitions, Loki structured logging integration, alert/incident response updates, and External Secrets integration. Phase 25 adds security hardening with rate limiting, NetworkPolicies, workload security posture documentation, and stricter supply-chain scanning.

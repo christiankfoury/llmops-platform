@@ -28,13 +28,13 @@ variable "endpoint_private_access" {
 variable "endpoint_public_access" {
   description = "Whether the EKS API endpoint is reachable publicly."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "public_access_cidrs" {
   description = "CIDR ranges allowed to reach the public EKS API endpoint."
   type        = list(string)
-  default     = ["0.0.0.0/0"]
+  default     = []
 }
 
 variable "enabled_cluster_log_types" {

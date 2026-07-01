@@ -32,6 +32,8 @@ Local verification:
 curl http://localhost:8000/metrics
 ```
 
+`llm_gateway_rate_limit_rejections_total` increments when the gateway rejects a request with HTTP 429 after the configured API-key-hash rate limit is exceeded.
+
 Prometheus deployment is handled in a later observability phase. Alert rules are defined in Phase 23.
 
 ## Grafana dashboards

@@ -23,9 +23,18 @@ Required controls:
 - no raw provider credentials in logs
 - request IDs for traceability
 
+Phase 25 API controls:
+
+- Gateway requests pass through a fixed-window rate limiter before database authentication.
+- The limiter is keyed by the SHA-256 hash of the supplied API key so plaintext API keys are not stored in rate-limit state.
+- Local and Kubernetes defaults allow 60 requests per 60-second window.
+- The in-process limiter is bounded to 10,000 identifiers to avoid unbounded memory growth from unique-key spray.
+- Rejections return HTTP 429 and increment `llm_gateway_rate_limit_rejections_total`.
+- This is a single-process portfolio baseline; Redis-backed distributed rate limiting is the production extension path when multiple replicas need a shared counter.
+
 ## Container security
 
-Target controls:
+Implemented controls:
 
 - non-root user
 - minimal runtime image
@@ -34,6 +43,9 @@ Target controls:
 - no package manager cache in final image
 - no secrets baked into image
 - explicit health checks
+- read-only root filesystem in Kubernetes
+- dropped Linux capabilities in Kubernetes
+- no privilege escalation in Kubernetes
 
 ## Kubernetes security
 
@@ -66,6 +78,34 @@ Phase 24 adds External Secrets integration:
 - External Secrets Operator uses an IRSA role scoped to the environment's Secrets Manager ARNs.
 - Terraform creates secret containers and IAM policy only; it does not write secret values to state.
 - Secret names and properties are documented in `docs/secrets-management.md`.
+
+Phase 25 adds NetworkPolicies and confirms least-privilege service-account behavior:
+
+- API and web pods are covered by a namespace default-deny ingress policy.
+- API pods allow port `8000` only from web pods and configured private ingress CIDRs.
+- Web pods allow port `3000` only from configured private ingress CIDRs.
+- Pod egress remains open in Phase 25 because DNS, RDS, Redis, OpenTelemetry, and provider egress paths are environment-specific.
+- API and web service accounts still have `automountServiceAccountToken: false`.
+- No workload RBAC permissions are granted because the app does not call the Kubernetes API.
+- Helm exposes the private ingress CIDR list through `networkPolicy.ingressCidrs`.
+- Terraform EKS clusters use KMS envelope encryption for Kubernetes Secrets.
+- Dev, staging, and prod EKS API endpoints default to private-only access.
+- RDS PostgreSQL and ElastiCache Redis security groups allow inbound traffic only from approved platform security groups and do not declare public egress.
+
+## Supply-chain security
+
+Phase 25 blocking CI gates:
+
+- Python production dependencies are audited with `pip-audit --strict` and no longer run with `continue-on-error`.
+- API and web images are built and scanned with Trivy for high/critical findings.
+- A repository-level Trivy filesystem scan checks dependencies, IaC/config, and secret patterns for high/critical findings.
+- Frontend dependencies continue to use `npm audit --audit-level=high`.
+
+Any CI finding that requires accepting risk should be documented in this file or a linked security exception before the gate is relaxed.
+
+## Audit log review
+
+See `docs/security-audit.md` for safe audit log review queries, redaction guidance, and escalation criteria.
 
 ## Terraform security
 

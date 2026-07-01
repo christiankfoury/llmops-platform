@@ -10,6 +10,8 @@ data "aws_iam_policy_document" "cluster_assume" {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_iam_role" "cluster" {
   name               = "${var.name_prefix}-eks-cluster"
   assume_role_policy = data.aws_iam_policy_document.cluster_assume.json
@@ -28,12 +30,72 @@ resource "aws_iam_role_policy_attachment" "cluster" {
   policy_arn = each.value
 }
 
+data "aws_iam_policy_document" "cluster_secrets_kms" {
+  statement {
+    sid     = "EnableAccountKeyAdministration"
+    actions = ["kms:*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+
+    resources = ["*"]
+  }
+
+  statement {
+    sid = "AllowEksClusterSecretsEncryption"
+    actions = [
+      "kms:CreateGrant",
+      "kms:Decrypt",
+      "kms:DescribeKey",
+      "kms:Encrypt",
+      "kms:GenerateDataKey",
+      "kms:ListGrants",
+      "kms:ReEncryptFrom",
+      "kms:ReEncryptTo",
+      "kms:RevokeGrant"
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.cluster.arn]
+    }
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_kms_key" "cluster_secrets" {
+  description             = "EKS Kubernetes secret envelope encryption for ${var.name_prefix}"
+  deletion_window_in_days = 30
+  enable_key_rotation     = true
+  policy                  = data.aws_iam_policy_document.cluster_secrets_kms.json
+
+  tags = merge(var.tags, {
+    Name = "${var.name_prefix}-eks-secrets"
+  })
+}
+
+resource "aws_kms_alias" "cluster_secrets" {
+  name          = "alias/${var.name_prefix}-eks-secrets"
+  target_key_id = aws_kms_key.cluster_secrets.key_id
+}
+
 resource "aws_eks_cluster" "this" {
   name     = "${var.name_prefix}-eks"
   role_arn = aws_iam_role.cluster.arn
   version  = var.kubernetes_version
 
   enabled_cluster_log_types = var.enabled_cluster_log_types
+
+  encryption_config {
+    resources = ["secrets"]
+
+    provider {
+      key_arn = aws_kms_key.cluster_secrets.arn
+    }
+  }
 
   vpc_config {
     subnet_ids              = var.private_subnet_ids

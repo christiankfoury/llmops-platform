@@ -12,6 +12,9 @@ data:
   OTEL_TRACING_ENABLED: {{ .Values.api.config.tracingEnabled | quote }}
   OTEL_SERVICE_NAME: {{ .Values.api.config.otelServiceName | quote }}
   OTEL_TRACES_EXPORTER: {{ .Values.api.config.otelTracesExporter | quote }}
+  RATE_LIMIT_ENABLED: {{ .Values.api.config.rateLimitEnabled | quote }}
+  RATE_LIMIT_REQUESTS_PER_MINUTE: {{ .Values.api.config.rateLimitRequestsPerMinute | quote }}
+  RATE_LIMIT_WINDOW_SECONDS: {{ .Values.api.config.rateLimitWindowSeconds | quote }}
   {{- if .Values.api.config.otelExporterOtlpEndpoint }}
   OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.api.config.otelExporterOtlpEndpoint | quote }}
   {{- end }}

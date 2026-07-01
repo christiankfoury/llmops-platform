@@ -234,11 +234,20 @@ The manifests include:
 - liveness and readiness probes
 - resource requests and limits
 - non-root pod and container security contexts
+- default-deny ingress NetworkPolicy with API/web allow rules
 - secret references for `DATABASE_URL` and `REDIS_URL`
 
 The referenced `ai-platform-runtime-secrets` Secret is intentionally not committed. Phase 24 adds External Secrets resources that bind AWS Secrets Manager values into Kubernetes without plaintext manifests.
 
-These manifests are raw Kubernetes foundations. Helm packaging, release values, HPA, PDB, and NetworkPolicies are later phases.
+These manifests are raw Kubernetes foundations. Helm packaging and release values are implemented in the Helm phase. HPA and PDB are later resilience controls.
+
+The Phase 25 NetworkPolicies restrict inbound pod traffic:
+
+- API pods accept port `8000` from web pods and the configured private VPC CIDR placeholder.
+- Web pods accept port `3000` from the configured private VPC CIDR placeholder.
+- Other pod ingress is denied by default.
+
+The raw base uses `10.0.0.0/8` as a private CIDR placeholder. Replace this with the environment VPC or ingress-controller source ranges before applying to a real cluster.
 
 ## Helm chart
 
@@ -432,7 +441,8 @@ The API Service includes scrape annotations in both the Helm chart and raw Kuber
 - `prometheus.io/path: /metrics`
 - `prometheus.io/port: "8000"`
 
-The metrics cover HTTP request volume/latency, gateway request volume, gateway errors, gateway latency, estimated cost, token usage, API key auth failures, and a placeholder rate-limit rejection counter for the later rate-limiting phase.
+The metrics cover HTTP request volume/latency, gateway request volume, gateway errors, gateway latency, estimated cost, token usage, API key auth failures, and rate-limit rejections.
+The rate-limit rejection counter increments when the gateway returns HTTP 429.
 
 See `docs/observability.md` for metric names, label guidance, and local verification.
 
