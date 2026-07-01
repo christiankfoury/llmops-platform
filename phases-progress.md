@@ -49,7 +49,7 @@ Phase 29: GitOps with Argo CD
 | 25 | Security hardening | Completed | main | fbb3314 | 2026-07-01 | Rate limiting, NetworkPolicies, workload hardening, private EKS defaults, KMS secret encryption, audit review docs, and blocking supply-chain scans. |
 | 26 | Autoscaling and resilience | Completed | main | a22e905 | 2026-07-01 | HPA/PDB manifests, graceful termination, provider retry settings, resource tuning notes, and smoke load script. |
 | 27 | Backup and restore | Completed | main | cd91577 | 2026-07-01 | Database backup strategy, restore runbook, Terraform state recovery notes, Redis persistence decision, DR assumptions, and RTO/RPO targets. |
-| 28 | Cost controls and analysis | Completed | main | pending | 2026-07-01 | Cloud cost estimates, optional AWS Budget Terraform module, LLM cost tracking explanation, right-sizing notes, and dev teardown guidance. |
+| 28 | Cost controls and analysis | Completed | main | d433c06 | 2026-07-01 | Cloud cost estimates, optional AWS Budget Terraform module, LLM cost tracking explanation, right-sizing notes, and dev teardown guidance. |
 | 29 | GitOps with Argo CD | In Progress |  |  |  | Optional GitOps deployment path. |
 | 30 | Final documentation and portfolio polish | Not Started |  |  |  | README, diagrams, screenshots, demo script. |
 
@@ -2288,7 +2288,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- d433c06
 
 Completed date:
 
@@ -2339,9 +2339,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending
-- Fix commits: pending
+- Pushed commit: d433c06
+- Top findings: The budget module silently created no budget if `budget_alert_enabled = true` but no subscriber email was supplied, which could hide a misconfigured cost guardrail.
+- Fix commits: 99b8edf makes `budget_alert_enabled` control resource creation directly and documents that missing subscribers should fail reviewed plan/apply instead of becoming a no-op.
 
 Next phase:
 
