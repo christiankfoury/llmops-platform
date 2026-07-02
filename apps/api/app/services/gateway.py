@@ -1,3 +1,12 @@
+"""Gateway service orchestration.
+
+The service turns a client request into a fully attributed LLM gateway event:
+authenticate the API key, resolve project/application context, choose prompt
+and model route, call the provider adapter, then persist request and cost data.
+The provider is mocked today, but the rest of the workflow is intentionally
+shaped like a production gateway so a real provider adapter can be added later.
+"""
+
 import uuid
 from decimal import Decimal
 from time import perf_counter, sleep
@@ -23,14 +32,20 @@ tracer = get_tracer()
 
 
 class GatewayAuthError(Exception):
+    """Raised when the caller cannot be mapped to an active application."""
+
     pass
 
 
 class GatewayConfigError(Exception):
+    """Raised when required prompt or routing configuration is missing."""
+
     pass
 
 
 class GatewayProviderError(Exception):
+    """Raised after the provider adapter fails and the failure is recorded."""
+
     def __init__(self, message: str, status_code: int, error_category: str) -> None:
         super().__init__(message)
         self.status_code = status_code
@@ -42,6 +57,11 @@ def _elapsed_ms(started_at: float) -> int:
 
 
 def _resolve_api_key(db: Session, api_key_value: str) -> ApiKey:
+    """Find an active API key by hash.
+
+    Raw API keys are never persisted. Incoming keys are hashed and compared
+    against stored hashes, with inactive or revoked keys rejected.
+    """
     api_key = db.scalar(
         select(ApiKey).where(
             ApiKey.key_hash == hash_api_key(api_key_value),
@@ -55,6 +75,7 @@ def _resolve_api_key(db: Session, api_key_value: str) -> ApiKey:
 
 
 def _resolve_application(db: Session, api_key: ApiKey) -> Application:
+    """Load the active application that owns the API key."""
     application = db.get(Application, api_key.application_id)
     if application is None or not application.is_active:
         raise GatewayAuthError("API key is not attached to an active application")
@@ -66,6 +87,7 @@ def _resolve_prompt(
     application: Application,
     prompt_name: str,
 ) -> PromptVersion:
+    """Choose the latest active prompt version for the caller's app scope."""
     prompt = db.scalar(
         select(PromptVersion)
         .where(
@@ -86,6 +108,11 @@ def _resolve_route(
     application: Application,
     environment: str,
 ) -> ModelRoute:
+    """Choose the active model route for the caller's app and environment.
+
+    Default routes win first, then lower priority values win. This lets an
+    operator change provider/model decisions without changing client code.
+    """
     route = db.scalar(
         select(ModelRoute)
         .where(
@@ -106,6 +133,12 @@ def process_completion(
     api_key_value: str,
     payload: CompletionRequest,
 ) -> CompletionResponse:
+    """Run the full gateway lifecycle for one completion request.
+
+    The order matters: authentication establishes project/application context,
+    prompt lookup and model routing determine the provider call, and the final
+    persistence step gives the dashboard and metrics reliable request data.
+    """
     started_at = perf_counter()
     with tracer.start_as_current_span("gateway.request") as request_span:
         request_span.set_attribute("gateway.environment", payload.environment)
@@ -296,6 +329,11 @@ def _call_provider_with_retry(
     retry_backoff_ms: int,
     timeout_seconds: int,
 ) -> MockProviderResult:
+    """Call the provider adapter with bounded retry behavior.
+
+    The current adapter is the mock provider. Keeping retry behavior here makes
+    it reusable when `provider=openai` is introduced through a real adapter.
+    """
     attempts = max(1, max_attempts)
     last_error: MockProviderError | MockProviderTimeout | None = None
 
@@ -348,6 +386,7 @@ def _record_successful_request(
     output_tokens: int,
     estimated_cost: Decimal,
 ) -> GatewayRequest:
+    """Persist a successful gateway request and its cost attribution."""
     with tracer.start_as_current_span("gateway.database_write") as span:
         gateway_request = GatewayRequest(
             request_id=f"req_{uuid.uuid4().hex}",
@@ -399,6 +438,7 @@ def _record_failed_request(
     latency_ms: int,
     error_category: str,
 ) -> GatewayRequest:
+    """Persist a failed gateway request so failures remain observable."""
     with tracer.start_as_current_span("gateway.database_write") as span:
         gateway_request = GatewayRequest(
             request_id=f"req_{uuid.uuid4().hex}",

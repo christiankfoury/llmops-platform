@@ -4,12 +4,16 @@ from pydantic import BaseModel, Field
 
 
 class CompletionRequest(BaseModel):
+    """Client payload for the gateway completion endpoint."""
+
     input: str = Field(min_length=1, max_length=8000)
     prompt_name: str = Field(default="default-chat", min_length=1, max_length=160)
     environment: str = Field(default="local", min_length=1, max_length=40)
 
 
 class CompletionResponse(BaseModel):
+    """Gateway response returned after provider execution and request logging."""
+
     request_id: str
     status: str
     provider: str

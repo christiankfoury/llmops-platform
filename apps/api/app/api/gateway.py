@@ -1,3 +1,11 @@
+"""HTTP entrypoints for the LLM gateway.
+
+This module keeps request/response concerns at the API boundary: headers,
+rate-limit rejection, and conversion of service exceptions into HTTP errors.
+The gateway service owns the actual project/app, prompt, routing, provider,
+and persistence workflow.
+"""
+
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -27,6 +35,12 @@ def create_completion(
     x_api_key: str | None = Header(default=None, alias="X-API-Key"),
     db: Session = Depends(get_db),
 ) -> CompletionResponse:
+    """Handle a completion request from a client application.
+
+    The client authenticates with `X-API-Key`. The key is rate-limited before
+    the deeper gateway flow runs so obviously excessive traffic is rejected
+    before database lookups and provider work.
+    """
     if not x_api_key:
         record_gateway_auth_failure(payload.environment)
         raise HTTPException(

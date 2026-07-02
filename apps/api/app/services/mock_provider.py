@@ -1,3 +1,10 @@
+"""Local provider adapter used before real paid provider integration.
+
+The mock adapter lets the gateway exercise routing, retries, persistence,
+metrics, and dashboard behavior without needing OpenAI credentials or spending
+money. It also provides deterministic failure triggers for tests and demos.
+"""
+
 from dataclasses import dataclass
 
 from app.models import ModelRoute, PromptVersion
@@ -6,16 +13,22 @@ from app.services.pricing import estimate_tokens
 
 @dataclass(frozen=True)
 class MockProviderResult:
+    """Provider-shaped response returned by the local mock adapter."""
+
     output: str
     input_tokens: int
     output_tokens: int
 
 
 class MockProviderError(Exception):
+    """Raised when the mock provider simulates a provider-side failure."""
+
     pass
 
 
 class MockProviderTimeout(Exception):
+    """Raised when the mock provider simulates a timeout."""
+
     pass
 
 
@@ -25,6 +38,12 @@ def complete_with_mock_provider(
     user_input: str,
     attempt: int = 1,
 ) -> MockProviderResult:
+    """Return a deterministic mock completion for the selected prompt and route.
+
+    Special marker strings in `user_input` intentionally simulate provider
+    failures. Tests use these markers to verify that gateway failures are
+    recorded and surfaced correctly.
+    """
     if "[simulate_timeout]" in user_input:
         raise MockProviderTimeout("Mock provider timed out")
     if "[simulate_transient_failure]" in user_input and attempt == 1:
