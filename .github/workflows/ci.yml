@@ -192,10 +192,17 @@ jobs:
             echo "No Terraform files yet; Phase 11 introduces Terraform."
           fi
 
-      - name: Set up Helm
-        uses: azure/setup-helm@v5
-        with:
-          version: v3.18.4
+      - name: Install Helm
+        env:
+          HELM_VERSION: v3.18.4
+        run: |
+          set -euo pipefail
+          curl --fail --location --silent --show-error \
+            "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" \
+            --output helm.tar.gz
+          tar --extract --gzip --file helm.tar.gz
+          sudo install -m 0755 linux-amd64/helm /usr/local/bin/helm
+          helm version --short
 
       - name: Helm lint placeholder
         run: |
