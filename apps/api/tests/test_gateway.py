@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import pytest
 from app.db.session import SessionLocal
 from app.main import app
@@ -8,6 +10,18 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 client = TestClient(app)
+
+
+def _demo_scope() -> tuple[dict, dict]:
+    scopes_response = client.get("/v1/usage/scopes")
+    assert scopes_response.status_code == 200
+    project = next(project for project in scopes_response.json() if project["slug"] == "demo-project")
+    application = next(
+        application
+        for application in project["applications"]
+        if application["slug"] == "demo-app"
+    )
+    return project, application
 
 
 def _database_available() -> bool:
@@ -155,6 +169,49 @@ def test_usage_summary_returns_request_count_and_cost() -> None:
 
 
 @requires_database
+def test_usage_summary_respects_scope_status_model_and_date_filters() -> None:
+    seed_dev_data()
+    client.post(
+        "/v1/gateway/completions",
+        headers={"X-API-Key": PLACEHOLDER_API_KEY},
+        json={"input": "usage filter success"},
+    )
+    client.post(
+        "/v1/gateway/completions",
+        headers={"X-API-Key": PLACEHOLDER_API_KEY},
+        json={"input": "[simulate_failure]"},
+    )
+
+    project, application = _demo_scope()
+
+    success_response = client.get(
+        "/v1/usage/summary",
+        params={
+            "project_id": project["id"],
+            "application_id": application["id"],
+            "status": "succeeded",
+            "provider": "mock",
+            "model_name": "mock-llm-small",
+        },
+    )
+    future_response = client.get(
+        "/v1/usage/summary",
+        params={"created_from": "2999-01-01T00:00:00Z", "model_name": "mock-llm-small"},
+    )
+
+    assert success_response.status_code == 200
+    success_payload = success_response.json()
+    assert success_payload["request_count"] >= 1
+    assert success_payload["error_count"] == 0
+    assert Decimal(success_payload["estimated_cost_usd"]) > Decimal("0")
+
+    assert future_response.status_code == 200
+    future_payload = future_response.json()
+    assert future_payload["request_count"] == 0
+    assert future_payload["estimated_cost_usd"] == "0.000000"
+
+
+@requires_database
 def test_usage_request_lists_return_recent_records() -> None:
     seed_dev_data()
     client.post(
@@ -175,3 +232,66 @@ def test_usage_request_lists_return_recent_records() -> None:
     assert errors_response.status_code == 200
     assert len(requests_response.json()) >= 1
     assert any(record["status"] == "failed" for record in errors_response.json())
+
+
+@requires_database
+def test_usage_request_filters_include_scope_labels_and_cap_limit() -> None:
+    seed_dev_data()
+    client.post(
+        "/v1/gateway/completions",
+        headers={"X-API-Key": PLACEHOLDER_API_KEY},
+        json={"input": "[simulate_failure]"},
+    )
+
+    project, application = _demo_scope()
+
+    requests_response = client.get(
+        "/v1/usage/requests",
+        params={
+            "project_id": project["id"],
+            "application_id": application["id"],
+            "status": "failed",
+            "error_category": "provider_error",
+            "limit": 500,
+        },
+    )
+    errors_response = client.get(
+        "/v1/usage/errors",
+        params={
+            "project_id": project["id"],
+            "application_id": application["id"],
+            "error_category": "provider_error",
+            "limit": 500,
+        },
+    )
+
+    assert requests_response.status_code == 200
+    assert errors_response.status_code == 200
+    request_records = requests_response.json()
+    error_records = errors_response.json()
+    assert 1 <= len(request_records) <= 100
+    assert 1 <= len(error_records) <= 100
+    assert all(record["status"] == "failed" for record in request_records)
+    latest = request_records[0]
+    assert latest["project_id"] == project["id"]
+    assert latest["project_name"] == "Demo Project"
+    assert latest["application_id"] == application["id"]
+    assert latest["application_environment"] == "local"
+    assert latest["prompt_version_id"] is not None
+    assert latest["model_route_id"] is not None
+
+
+@requires_database
+def test_usage_scopes_returns_seeded_project_and_application() -> None:
+    seed_dev_data()
+
+    response = client.get("/v1/usage/scopes")
+
+    assert response.status_code == 200
+    scopes = response.json()
+    demo_project = next(project for project in scopes if project["slug"] == "demo-project")
+    assert demo_project["name"] == "Demo Project"
+    assert any(
+        application["slug"] == "demo-app" and application["environment"] == "local"
+        for application in demo_project["applications"]
+    )

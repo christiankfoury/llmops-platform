@@ -12,9 +12,32 @@ class UsageSummary(BaseModel):
     estimated_cost_usd: Decimal
 
 
+class ApplicationScope(BaseModel):
+    id: UUID
+    name: str
+    slug: str
+    environment: str
+
+
+class ProjectScope(BaseModel):
+    id: UUID
+    name: str
+    slug: str
+    applications: list[ApplicationScope]
+
+
 class GatewayRequestRecord(BaseModel):
     id: UUID
     request_id: str
+    project_id: UUID
+    project_name: str | None
+    project_slug: str | None
+    application_id: UUID
+    application_name: str | None
+    application_slug: str | None
+    application_environment: str | None
+    prompt_version_id: UUID | None
+    model_route_id: UUID | None
     status: str
     provider: str | None
     model_name: str | None
