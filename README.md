@@ -80,6 +80,7 @@ flowchart LR
 ```
 
 See [docs/architecture-diagrams.md](docs/architecture-diagrams.md) for the deployment diagram and request lifecycle.
+See [docs/gateway-flow.md](docs/gateway-flow.md) for a developer-focused walkthrough of the API key, project/app, prompt, routing, provider, logging, and cost-tracking flow.
 
 ## Local Demo
 
@@ -227,6 +228,7 @@ Recommended flow:
 - [phases-progress.md](phases-progress.md): implementation log
 - [docs/architecture.md](docs/architecture.md): architecture details
 - [docs/architecture-diagrams.md](docs/architecture-diagrams.md): Mermaid diagrams
+- [docs/gateway-flow.md](docs/gateway-flow.md): gateway request flow and code walkthrough
 - [docs/deployment.md](docs/deployment.md): local, Kubernetes, Helm, CI/CD, rollback, GitOps
 - [docs/testing.md](docs/testing.md): validation commands
 - [docs/terraform.md](docs/terraform.md): Terraform modules and state guidance

@@ -72,6 +72,8 @@ Phase 6 adds operator-facing API controls for prompt versions and model routes. 
 
 This flow intentionally avoids advanced RAG behavior. Retrieval, citations, document ingestion, and benchmark-driven answer quality stay in Proofbase.
 
+For a developer-focused walkthrough of the gateway code path, see [gateway-flow.md](gateway-flow.md).
+
 ## Application components
 
 ### API
