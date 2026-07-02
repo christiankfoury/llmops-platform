@@ -15,11 +15,11 @@ client = TestClient(app)
 def _demo_scope() -> tuple[dict, dict]:
     scopes_response = client.get("/v1/usage/scopes")
     assert scopes_response.status_code == 200
-    project = next(project for project in scopes_response.json() if project["slug"] == "demo-project")
+    project = next(
+        project for project in scopes_response.json() if project["slug"] == "demo-project"
+    )
     application = next(
-        application
-        for application in project["applications"]
-        if application["slug"] == "demo-app"
+        application for application in project["applications"] if application["slug"] == "demo-app"
     )
     return project, application
 

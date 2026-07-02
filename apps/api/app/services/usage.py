@@ -121,9 +121,7 @@ def list_recent_errors(
 
 def list_usage_scopes(db: Session) -> list[ProjectScope]:
     projects = list(
-        db.scalars(
-            select(Project).where(Project.is_active.is_(True)).order_by(Project.name.asc())
-        )
+        db.scalars(select(Project).where(Project.is_active.is_(True)).order_by(Project.name.asc()))
     )
     if not projects:
         return []
