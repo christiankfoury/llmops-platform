@@ -1,5 +1,7 @@
 name: CI
 
+# Run the same validation on pushes to main and on pull requests targeting main.
+# This keeps direct commits and proposed changes under the same quality gate.
 on:
   push:
     branches:
@@ -12,10 +14,14 @@ permissions:
   contents: read
 
 jobs:
+  # Backend validation proves the FastAPI service can lint, format-check,
+  # migrate a fresh PostgreSQL database, and pass its test suite.
   backend:
     name: Backend lint and tests
     runs-on: ubuntu-latest
     services:
+      # GitHub Actions service container used only for this job.
+      # The app connects through localhost:55432 from the runner.
       postgres:
         image: postgres:16-alpine
         env:
@@ -30,6 +36,8 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
+      # Match the local/default app config, but point PostgreSQL at the CI
+      # service container instead of the Docker Compose service name.
       DATABASE_URL: postgresql+psycopg://ai_platform:local_dev_password@localhost:55432/ai_platform
       REDIS_URL: redis://localhost:6379/0
       API_CORS_ORIGINS: http://localhost:3000
@@ -53,6 +61,8 @@ jobs:
       - name: Ruff format check
         run: python -m ruff format --check apps/api
 
+      # Running migrations before tests catches schema drift that unit tests
+      # might miss when they rely on already-created local databases.
       - name: Run migrations
         working-directory: apps/api
         run: alembic upgrade head
@@ -60,6 +70,8 @@ jobs:
       - name: Run backend tests
         run: python -m pytest
 
+  # Frontend validation checks the Next.js dashboard the same way a developer
+  # would before shipping: lint, TypeScript, tests, then dependency audit.
   frontend:
     name: Frontend lint, typecheck, tests, and audit
     runs-on: ubuntu-latest
@@ -89,9 +101,12 @@ jobs:
       - name: Frontend tests
         run: npm run test
 
+      # Block known high/critical npm vulnerabilities in the dashboard supply chain.
       - name: Frontend dependency audit
         run: npm audit --audit-level=high
 
+  # Build production Docker images, not the dev images used by Docker Compose.
+  # This catches Dockerfile/runtime issues before Kubernetes or Helm ever see them.
   docker:
     name: Production image build and scan
     runs-on: ubuntu-latest
@@ -120,6 +135,7 @@ jobs:
           push: false
           tags: production-ai-platform-web:ci
 
+      # Trivy fails the job on high/critical vulnerabilities in the built image.
       - name: Scan API image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -129,6 +145,7 @@ jobs:
           ignore-unfixed: true
           severity: HIGH,CRITICAL
 
+      # Scan the web image separately so backend and frontend image risk is visible.
       - name: Scan web image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -138,6 +155,8 @@ jobs:
           ignore-unfixed: true
           severity: HIGH,CRITICAL
 
+  # Python dependency audit focuses on the production requirements file.
+  # This is intentionally separate from tests so dependency risk is explicit.
   dependency-scan:
     name: Python dependency scan
     runs-on: ubuntu-latest
@@ -153,9 +172,12 @@ jobs:
       - name: Install pip-audit
         run: python -m pip install pip-audit==2.9.0
 
+      # --strict treats audit tool problems as failures instead of silently passing.
       - name: Audit production Python dependencies
         run: python -m pip_audit -r apps/api/requirements.prod.txt --strict
 
+  # Repository-level scan looks beyond package manifests: IaC config, secrets,
+  # and filesystem vulnerabilities can fail this job.
   repository-scan:
     name: Repository vulnerability scan
     runs-on: ubuntu-latest
@@ -174,6 +196,8 @@ jobs:
           ignore-unfixed: true
           severity: HIGH,CRITICAL
 
+  # Static infrastructure checks run without creating cloud resources.
+  # This job is safe for CI because it formats/lints code only; it never applies Terraform.
   infrastructure-placeholders:
     name: Infrastructure static checks
     runs-on: ubuntu-latest
@@ -184,6 +208,7 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v4
 
+      # Keep Terraform formatting enforced as modules evolve.
       - name: Terraform format placeholder
         run: |
           if find infra/terraform -name '*.tf' | grep -q .; then
@@ -204,6 +229,7 @@ jobs:
           sudo install -m 0755 linux-amd64/helm /usr/local/bin/helm
           helm version --short
 
+      # Helm lint validates the chart shape without deploying to a cluster.
       - name: Helm lint placeholder
         run: |
           if [ -f infra/helm/ai-platform/Chart.yaml ]; then
