@@ -15,7 +15,7 @@ git push / pull request
   -> CI passes or fails before deployment workflows should be trusted
 ```
 
-CI runs on GitHub-hosted machines, not on the local developer machine. Local Docker Compose is for running the application locally; GitHub Actions is for proving that committed code builds, tests, and scans cleanly in a fresh environment.
+CI runs on **GitHub-hosted machines**, not on the local developer machine. **Local Docker Compose** is for running the application locally; **GitHub Actions** is for proving that committed code builds, tests, and scans cleanly in a fresh environment.
 
 ## Useful Links
 
@@ -56,7 +56,7 @@ Local development:
 docker compose up --build
 ```
 
-This starts the API, web app, PostgreSQL, and Redis on the developer machine.
+This starts the **API**, **web app**, **PostgreSQL**, and **Redis** on the developer machine.
 
 CI:
 
@@ -64,7 +64,7 @@ CI:
 GitHub Actions runner
 ```
 
-This checks out the repository into a clean temporary machine and runs validation commands. It does not use the local Docker Compose stack and does not use local files that were not committed.
+This checks out the repository into a **clean temporary machine** and runs validation commands. It does not use the local Docker Compose stack and does not use local files that were not committed.
 
 That difference is important:
 
@@ -92,7 +92,7 @@ That means CI runs when:
 - code is pushed to `main`
 - a pull request targets `main`
 
-This keeps the main branch and proposed changes under the same quality gate.
+This keeps the **main branch** and proposed changes under the same quality gate.
 
 ## Permissions
 
@@ -103,13 +103,13 @@ permissions:
   contents: read
 ```
 
-That gives the workflow read access to repository contents. The CI workflow does not need write access because it does not publish releases, push images, create pull requests, or mutate infrastructure.
+That gives the workflow **read access** to repository contents. The CI workflow does not need write access because it does not publish releases, push images, create pull requests, or mutate infrastructure.
 
-Deployment workflows need broader cloud permissions through GitHub OIDC, but CI intentionally stays read-only.
+Deployment workflows need broader cloud permissions through **GitHub OIDC**, but CI intentionally stays **read-only**.
 
 ## Backend Job
 
-The backend job validates the FastAPI application:
+The backend job validates the **FastAPI application**:
 
 ```text
 Backend lint and tests
@@ -121,11 +121,11 @@ It runs on:
 runs-on: ubuntu-latest
 ```
 
-That tells GitHub to start a temporary Ubuntu runner.
+That tells GitHub to start a **temporary Ubuntu runner**.
 
 ### PostgreSQL Service
 
-The backend job starts a temporary PostgreSQL container:
+The backend job starts a temporary **PostgreSQL service container**:
 
 ```yaml
 services:
@@ -133,7 +133,7 @@ services:
     image: postgres:16-alpine
 ```
 
-This database exists only for the job. It is not the local database and not a cloud database.
+This database exists **only for the job**. It is not the local database and not a cloud database.
 
 The service maps:
 
@@ -165,11 +165,11 @@ env:
   API_CORS_ORIGINS: http://localhost:3000
 ```
 
-These variables configure the FastAPI application during CI.
+These variables configure the **FastAPI application** during CI.
 
-The important one is `DATABASE_URL`: it points the app and Alembic migrations at the temporary PostgreSQL service container.
+The important one is **`DATABASE_URL`**: it points the app and Alembic migrations at the temporary PostgreSQL service container.
 
-`REDIS_URL` is present because the app config expects Redis configuration. The current CI backend tests do not require a live Redis service for the normal gateway test path. If future tests need Redis-backed behavior, add a Redis service container and point `REDIS_URL` at it.
+**`REDIS_URL`** is present because the app config expects Redis configuration. The current CI backend tests do not require a live Redis service for the normal gateway test path. If future tests need Redis-backed behavior, add a Redis service container and point `REDIS_URL` at it.
 
 ### Backend Steps
 
@@ -185,7 +185,7 @@ run Alembic migrations
 run pytest
 ```
 
-The migration step matters because it catches schema drift:
+The migration step matters because it catches **schema drift**:
 
 ```text
 SQLAlchemy models changed, but migration did not
@@ -197,11 +197,11 @@ or:
 migration is invalid against a fresh database
 ```
 
-That kind of failure is easier to catch in CI than after deployment.
+That kind of failure is easier to catch in **CI** than after deployment.
 
 ## Frontend Job
 
-The frontend job validates the Next.js dashboard:
+The frontend job validates the **Next.js dashboard**:
 
 ```text
 Frontend lint, typecheck, tests, and audit
@@ -225,7 +225,7 @@ npm run test
 npm audit --audit-level=high
 ```
 
-`npm ci` is used instead of `npm install` because CI should install exactly what is in `package-lock.json`.
+**`npm ci`** is used instead of `npm install` because CI should install exactly what is in `package-lock.json`.
 
 The frontend checks answer:
 
@@ -238,13 +238,13 @@ Do high/critical npm audit findings block the build?
 
 ## Production Image Build And Scan Job
 
-The Docker job validates production container images:
+The Docker job validates **production container images**:
 
 ```text
 Production image build and scan
 ```
 
-This job is not using `Dockerfile.dev`. It builds production images:
+This job is **not** using `Dockerfile.dev`. It builds **production images**:
 
 ```text
 apps/api/Dockerfile
@@ -304,7 +304,7 @@ production-ai-platform-api:ci
 production-ai-platform-web:ci
 ```
 
-Then Trivy scans those images:
+Then **Trivy** scans those images:
 
 ```yaml
 severity: HIGH,CRITICAL
@@ -312,7 +312,7 @@ exit-code: "1"
 ignore-unfixed: true
 ```
 
-That means high or critical findings fail the job, while unfixed findings without available patches are ignored.
+That means **high** or **critical** findings fail the job, while unfixed findings without available patches are ignored.
 
 This job answers:
 
@@ -323,7 +323,7 @@ Do the production images have blocking high/critical known vulnerabilities?
 
 ## Python Dependency Scan Job
 
-The Python dependency scan uses:
+The **Python dependency scan** uses:
 
 ```text
 pip-audit
@@ -335,7 +335,7 @@ It audits:
 apps/api/requirements.prod.txt
 ```
 
-That is intentionally the production dependency file, not the development dependency file.
+That is intentionally the **production dependency file**, not the development dependency file.
 
 The command is:
 
@@ -343,7 +343,7 @@ The command is:
 python -m pip_audit -r apps/api/requirements.prod.txt --strict
 ```
 
-`--strict` means audit errors are treated as failures. This prevents the scan from silently passing when the audit itself cannot complete correctly.
+**`--strict`** means audit errors are treated as failures. This prevents the scan from silently passing when the audit itself cannot complete correctly.
 
 This job answers:
 
@@ -353,7 +353,7 @@ Do production Python dependencies contain blocking known vulnerabilities?
 
 ## Repository Vulnerability Scan Job
 
-The repository scan uses Trivy in filesystem mode:
+The **repository scan** uses Trivy in filesystem mode:
 
 ```yaml
 scan-type: fs
@@ -369,7 +369,7 @@ infrastructure/config issues
 secret patterns
 ```
 
-This is useful for a cloud portfolio project because risk can appear in Terraform, Kubernetes, Helm, Dockerfiles, or accidentally committed secrets.
+This is useful for a **cloud portfolio project** because risk can appear in **Terraform**, **Kubernetes**, **Helm**, Dockerfiles, or accidentally committed secrets.
 
 This job answers:
 
@@ -379,13 +379,13 @@ Does the repository contain high/critical dependency, config, or secret findings
 
 ## Infrastructure Static Checks Job
 
-The infrastructure job runs checks only:
+The infrastructure job runs **checks only**:
 
 ```text
 Infrastructure static checks
 ```
 
-It does not create AWS resources.
+It **does not create AWS resources**.
 
 It runs Terraform formatting:
 
@@ -399,7 +399,7 @@ and Helm lint:
 helm lint infra/helm/ai-platform
 ```
 
-These are safe checks. They validate code and chart shape, but they do not run:
+These are **safe checks**. They validate code and chart shape, but they do not run:
 
 ```text
 terraform apply
@@ -407,7 +407,7 @@ helm upgrade
 kubectl apply
 ```
 
-That distinction matters because applying infrastructure can create real cloud cost or mutate environments. This repository keeps those actions in approved deployment workflows or explicit human-gated operations.
+That distinction matters because applying infrastructure can create **real cloud cost** or mutate environments. This repository keeps those actions in approved deployment workflows or explicit human-gated operations.
 
 ## Why There Are Separate Jobs
 
@@ -425,11 +425,11 @@ is different from:
 Production image scan failed
 ```
 
-Separate jobs also let GitHub run checks in parallel, so the total CI time is shorter.
+Separate jobs also let GitHub run checks **in parallel**, so the total CI time is shorter.
 
 ## What CI Does Not Do
 
-The main CI workflow does not:
+The main CI workflow **does not**:
 
 - deploy to AWS
 - create EKS clusters
@@ -439,13 +439,13 @@ The main CI workflow does not:
 - run production migrations
 - change DNS or TLS
 
-Those actions are intentionally separated because they can create cost, downtime, or production impact.
+Those actions are intentionally separated because they can create **cost**, **downtime**, or **production impact**.
 
 ## How This Fits The Project
 
-The application proves the gateway and dashboard work.
+The application proves the **gateway** and **dashboard** work.
 
-CI proves the project is shippable:
+CI proves the project is **shippable**:
 
 ```text
 backend quality
