@@ -230,6 +230,7 @@ Recommended flow:
 - [docs/architecture-diagrams.md](docs/architecture-diagrams.md): Mermaid diagrams
 - [docs/gateway-flow.md](docs/gateway-flow.md): gateway request flow and code walkthrough
 - [docs/deployment.md](docs/deployment.md): local, Kubernetes, Helm, CI/CD, rollback, GitOps
+- [docs/ci-cd.md](docs/ci-cd.md): GitHub Actions CI jobs, actions, scanners, and deployment boundaries
 - [docs/testing.md](docs/testing.md): validation commands
 - [docs/terraform.md](docs/terraform.md): Terraform modules and state guidance
 - [docs/observability.md](docs/observability.md): metrics, logs, traces, dashboards

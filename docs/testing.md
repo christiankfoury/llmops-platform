@@ -62,6 +62,8 @@ The workflow runs:
 
 Phase 25 makes the Python dependency scan blocking. The blocking supply-chain gates are frontend high/critical npm audit, Python production dependency audit, high/critical container image scans, and repository-level Trivy filesystem scanning.
 
+See [ci-cd.md](ci-cd.md) for a fuller explanation of the GitHub Actions jobs, the actions used by the workflow, and how CI differs from local Docker Compose.
+
 ## Smoke Load
 
 Phase 26 adds a small gateway smoke load script. After local migrations and seed data are available, run:

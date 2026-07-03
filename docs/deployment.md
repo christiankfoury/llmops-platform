@@ -201,6 +201,8 @@ Terraform foundation code for dev, staging, and prod lives under `infra/terrafor
 
 See `docs/terraform.md` for backend configuration, AWS credential expectations, and validation commands.
 
+See `docs/ci-cd.md` for the main CI workflow, production image build checks, scanner links, and the boundary between static CI checks and deployment workflows.
+
 Phase 12 adds EKS Terraform code and Kubernetes provider wiring. It remains code-only until an explicit approval gate allows AWS resource creation.
 
 Phase 13 adds managed PostgreSQL and Redis Terraform code. These resources are private, encrypted, and backed up by default, but they are still not created until an approved `terraform apply`.
