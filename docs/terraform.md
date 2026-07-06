@@ -1,6 +1,6 @@
 # Terraform
 
-Phase 11 introduces the AWS foundation as Terraform code only. Do not run `terraform apply` or create cloud resources without explicit human approval.
+This repository includes AWS foundation Terraform as code only. Do not run `terraform apply` or create cloud resources without explicit human approval.
 
 ## Scope
 
@@ -21,7 +21,7 @@ Current environments:
 - `environments/staging`
 - `environments/prod`
 
-Later phases add Kubernetes workload manifests, Helm, deployment workflows, and stronger security controls.
+Kubernetes workload manifests, Helm packaging, deployment workflows, and security controls are implemented elsewhere in the repository and are wired to the same dev/staging/prod environment model.
 
 ## Credentials
 

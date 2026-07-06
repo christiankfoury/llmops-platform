@@ -64,11 +64,9 @@ The intended gateway flow is:
 6. Logs, metrics, and traces are emitted with request and trace identifiers.
 7. The web dashboard reads summary and request data from API endpoints.
 
-Phase 4 implements the first vertical slice of this flow with API key authentication, active prompt lookup, active model route lookup, a mock provider adapter, and persisted gateway request status.
+The implemented gateway flow includes API key authentication, active prompt lookup, active model route lookup, a mock provider adapter, persisted gateway request status, latency measurement, token estimates, static mock-provider cost calculation, provider failure/timeout categorization, cost records, and usage endpoints.
 
-Phase 5 adds latency measurement, token estimates, static mock-provider cost calculation, provider failure/timeout categorization, cost records, and a usage summary endpoint.
-
-Phase 6 adds operator-facing API controls for prompt versions and model routes. Config changes write audit log records with actor metadata. Production-grade admin authorization is intentionally deferred to the later security hardening phase.
+Operator-facing API controls manage prompt versions and model routes. Config changes write audit log records with actor metadata. Production-grade admin authorization is intentionally out of scope for this baseline.
 
 This flow intentionally avoids advanced RAG behavior. Retrieval, citations, document ingestion, and benchmark-driven answer quality stay in Proofbase.
 
@@ -104,7 +102,7 @@ Responsibilities:
 - prompt versions
 - model routes
 
-Phase 7 implements the first dashboard screen against real API endpoints.
+The dashboard reads real API endpoints for usage, costs, latency, failures, prompt versions, and model routes.
 
 ### PostgreSQL
 
@@ -119,7 +117,7 @@ Stores:
 - cost records
 - audit logs
 
-Phase 3 defines these tables through SQLAlchemy models and Alembic migrations. Later phases attach API behavior to the schema.
+These tables are defined through SQLAlchemy models and Alembic migrations, and the gateway, admin, usage, audit, and dashboard flows use them.
 
 ### Redis
 
@@ -129,13 +127,13 @@ Used for:
 - lightweight caching
 - optional worker queue support
 
-Redis is not required for Phase 1, but it is part of the target production architecture because rate limiting and short-lived operational state are realistic LLM gateway concerns.
+Redis is part of the target production architecture because distributed rate limiting and short-lived operational state are realistic LLM gateway concerns. The current baseline uses in-process rate limiting locally.
 
 ## Infrastructure architecture
 
 ### AWS
 
-Planned services:
+AWS services represented in Terraform:
 
 - EKS
 - ECR
@@ -147,17 +145,15 @@ Planned services:
 - S3/DynamoDB for Terraform state locking if configured
 - Optional Route 53/ACM
 
-Terraform environments will stay explicit:
+Terraform environments are explicit:
 
 - `infra/terraform/environments/dev`
 - `infra/terraform/environments/staging`
 - `infra/terraform/environments/prod`
 
-Reusable modules will live under `infra/terraform/modules` and should avoid hardcoded account IDs, secrets, or environment-specific assumptions.
+Reusable modules live under `infra/terraform/modules` and avoid hardcoded account IDs, secrets, or environment-specific assumptions.
 
-Phase 11 adds the AWS foundation modules for network, ECR, IAM, and Secrets Manager placeholders. Phase 12 adds the EKS cluster module with managed node groups, cluster/node IAM roles, workload identity OIDC provider, and Kubernetes provider wiring.
-
-Phase 13 adds private RDS PostgreSQL and ElastiCache Redis modules with security group ingress scoped to the EKS cluster security group, encryption, backups/snapshots, and staging/prod high-availability defaults. Phase 27 documents restore paths, Terraform state recovery, Redis persistence tradeoffs, and honest single-region DR assumptions.
+Terraform includes AWS foundation modules for network, ECR, IAM, Secrets Manager placeholders, EKS, RDS PostgreSQL, ElastiCache Redis, and optional budgets. Data services use private networking, encryption, backup/snapshot defaults, EKS-scoped security group ingress, and staging/prod high-availability settings. Restore paths, Terraform state recovery, Redis persistence tradeoffs, and single-region DR assumptions are documented.
 
 ### Kubernetes
 
@@ -175,17 +171,15 @@ Workloads:
 - PodDisruptionBudget
 - NetworkPolicies
 
-Raw manifests are planned first so the Kubernetes shape is visible before it is abstracted into Helm. The Helm chart will then become the release artifact for dev, staging, and production.
+Raw manifests keep the Kubernetes shape visible, while the Helm chart is the primary release artifact for dev, staging, and production.
 
-Phase 14 adds raw Kustomize-compatible Kubernetes manifests for namespace, service accounts, ConfigMaps, API/web Deployments, Services, and Ingress. The manifests reference runtime secrets by name only and include probes, resource requests/limits, rolling update strategy, and non-root security contexts.
-
-Phase 15 packages the same workload shape as a Helm chart with dev, staging, and prod values. Helm becomes the release abstraction used by later continuous deployment, promotion, and rollback phases.
+The repository includes raw Kustomize-compatible Kubernetes manifests for namespace, service accounts, ConfigMaps, API/web Deployments, Services, Ingress, External Secrets, HPAs, PDBs, and NetworkPolicies. The Helm chart packages the same workload shape with dev, staging, and prod values for continuous deployment, promotion, and rollback workflows.
 
 Phase 19 adds OpenTelemetry tracing inside the API. The request middleware creates an `api.request` span, propagates `X-Request-ID`, and emits correlated request logs. The gateway service creates child spans for authentication, prompt lookup, model routing, provider execution, database writes, and response serialization. Tracing is disabled by default and can export to console or an OTLP HTTP collector when enabled.
 
 Phase 20 adds Prometheus metrics through the API `/metrics` endpoint. Metrics cover HTTP volume and latency, gateway request/error counts, gateway latency, estimated LLM cost, token usage, API key auth failures, and rate-limit rejections. Labels stay bounded to method, route, status, provider, model, environment, gateway status, token type, and error category.
 
-Phase 21 adds Grafana dashboard JSON and provisioning configuration for overview, reliability, and cost dashboards. Panels map to the Prometheus metrics emitted by the API; Grafana and Prometheus deployment remain later operational packaging work.
+Grafana dashboard JSON and provisioning configuration cover overview, reliability, cost, and logs dashboards. Panels map to the Prometheus metrics and structured logs emitted by the API; live Grafana and Prometheus installation remains environment-specific.
 
 Phase 22 adds Loki/Promtail integration assets for structured JSON logs. Logs remain searchable by request ID and trace ID through JSON parsing instead of high-cardinality Loki labels, and a Grafana logs dashboard provides error-rate, 5xx, latency, and recent-error panels.
 
@@ -203,9 +197,9 @@ Phase 26 adds autoscaling and resilience controls. Raw manifests and Helm render
 - Grafana for dashboards
 - Loki for logs
 - OpenTelemetry for traces
-- Alertmanager or equivalent alert routing placeholder
+-- Alertmanager or equivalent alert routing configuration
 
-Every gateway request should eventually be traceable across:
+Every gateway request is designed to be traceable across:
 
 - API request handling
 - authentication
@@ -227,7 +221,7 @@ Logs should avoid secrets and sensitive prompt content by default.
 - mock LLM provider
 - no cloud dependency
 
-Phase 2 implements the local skeleton with API and web health checks plus PostgreSQL and Redis containers. Database schema, migrations, gateway persistence, and Redis-backed behavior begin in later phases.
+Local development uses Docker Compose with API and web health checks plus PostgreSQL and Redis containers. Database schema, migrations, gateway persistence, and dashboard reads are available locally after migrations and seed data.
 
 ### Dev
 
@@ -277,21 +271,9 @@ infra/
 docs/                          architecture, deployment, operations, security, cost, demo plan
 ```
 
-## Phase boundaries
+## Scope Boundary
 
-Phase 1 defines documentation and repository shape only.
-
-Later phases add:
-
-- application skeleton and Docker Compose
-- database models and migrations
-- gateway API behavior
-- dashboards
-- Docker images
-- CI/CD
-- Terraform modules
-- Kubernetes and Helm deployment
-- observability, security, reliability, and cost controls
+The repository intentionally focuses on the platform and operations layer: gateway, dashboard, CI/CD, Terraform, Kubernetes, Helm, observability, security, reliability, and cost controls. Advanced RAG features such as document ingestion, vector retrieval, citations, permission-aware retrieval, and benchmark-driven answer quality belong in Proofbase rather than this repository.
 
 ## Design principles
 

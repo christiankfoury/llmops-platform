@@ -34,7 +34,7 @@ curl http://localhost:8000/metrics
 
 `llm_gateway_rate_limit_rejections_total` increments when the gateway rejects a request with HTTP 429 after the configured API-key-hash rate limit is exceeded.
 
-Prometheus deployment is handled in a later observability phase. Alert rules are defined in Phase 23.
+Prometheus server deployment is not installed by this repository, but scrape annotations and alert rule files are included for an approved monitoring stack to consume.
 
 ## Grafana dashboards
 
@@ -49,7 +49,7 @@ Dashboard files live in `infra/monitoring/grafana/dashboards`, with provisioning
 
 The dashboards map directly to the Phase 20 metrics and use a Prometheus datasource variable named `datasource`. See `infra/monitoring/grafana/README.md` for provisioning paths and `docs/dashboard-screenshots.md` for the screenshot capture checklist.
 
-This phase does not deploy Grafana, Prometheus, Loki, or alert rules.
+The repository provides dashboard, datasource, Promtail, and alert-rule assets. It does not install a live Grafana, Prometheus, Loki, or Alertmanager stack by default.
 
 ## Loki structured logging
 
@@ -148,7 +148,7 @@ The API propagates `X-Request-ID` from incoming requests or creates one when the
 
 ## Collector integration
 
-The repository does not create a collector in Phase 19. Later observability phases add Grafana, Loki, alerting, and collector manifests or Helm integration.
+The repository does not create an OpenTelemetry Collector by default. Grafana, Loki, and alerting assets are included, while live collector installation remains an environment-specific deployment decision.
 
 Expected collector shape:
 

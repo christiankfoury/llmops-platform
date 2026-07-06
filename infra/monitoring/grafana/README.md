@@ -29,7 +29,7 @@ infra/monitoring/grafana/provisioning/datasources -> /etc/grafana/provisioning/d
 infra/monitoring/grafana/dashboards -> /var/lib/grafana/dashboards/production-ai-platform
 ```
 
-This phase does not deploy Grafana or Prometheus. Later phases can package those pieces through Helm or a monitoring stack.
+This repository does not deploy Grafana or Prometheus by default. These files are provisionable assets for an approved monitoring stack.
 
 ## Metric Coverage
 

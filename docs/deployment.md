@@ -97,7 +97,7 @@ docker run --rm -p 18000:8000 production-ai-platform-api:prod
 docker run --rm -p 13000:3000 -e API_BASE_URL=http://host.docker.internal:8000 production-ai-platform-web:prod
 ```
 
-Those commands start containers locally only. Cloud registry publishing and Kubernetes deployment are later-phase work.
+Those commands start containers locally only. Cloud registry publishing and Kubernetes deployment are handled by the deployment workflows after the AWS/EKS environment is explicitly approved and bootstrapped.
 
 Smoke-test the local gateway with the seeded placeholder key:
 
@@ -128,7 +128,7 @@ curl http://localhost:8000/v1/admin/prompt-versions
 curl http://localhost:8000/v1/admin/model-routes
 ```
 
-Admin create/update calls accept `X-Actor-ID` and write audit logs. These endpoints are intentionally not production-hardened yet; admin authentication and stronger access controls are later-phase work.
+Admin create/update calls accept `X-Actor-ID` and write audit logs. These endpoints are operator foundations, not a complete production admin authorization system; stronger admin auth remains out of scope for this baseline.
 
 Local environment examples live in:
 

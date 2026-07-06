@@ -58,7 +58,7 @@ The workflow runs:
 - Trivy high/critical image scans
 - blocking Python dependency scanning with `pip-audit --strict`
 - repository-level Trivy filesystem scan for high/critical vulnerability, config, and secret findings
-- Terraform and Helm static-check placeholders until those phases add real files
+- Terraform formatting and Helm lint checks for the implemented infrastructure/chart files
 
 Phase 25 makes the Python dependency scan blocking. The blocking supply-chain gates are frontend high/critical npm audit, Python production dependency audit, high/critical container image scans, and repository-level Trivy filesystem scanning.
 

@@ -10,7 +10,7 @@ class Settings(BaseSettings):
         default="postgresql+psycopg://ai_platform:local_dev_password@localhost:55432/ai_platform",
         alias="DATABASE_URL",
     )
-    redis_url: str = Field(default="redis://localhost:6379/0", alias="REDIS_URL")
+    redis_url: str = Field(default="redis://localhost:56379/0", alias="REDIS_URL")
     cors_origins: str = Field(
         default="http://localhost:3000,http://127.0.0.1:3000",
         alias="API_CORS_ORIGINS",

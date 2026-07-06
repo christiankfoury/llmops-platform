@@ -2,7 +2,7 @@
 
 Phase 22 adds Loki and Promtail integration assets for the API's structured JSON logs.
 
-This phase does not deploy Loki. It provides the config shape needed by a later monitoring stack phase.
+This repository does not deploy Loki by default. It provides the config shape needed by an approved monitoring stack.
 
 ## Files
 
