@@ -6,6 +6,8 @@ import { Dashboard } from "./dashboard";
 
 const projectId = "001d4b51-5b43-4c44-aec1-d7373b6bfb48";
 const applicationId = "441af473-7f36-47c9-9ad3-b04ab715bf9f";
+const proofbaseProjectId = "12e4dc71-a556-45f8-a506-b7d2cae10002";
+const proofbaseApplicationId = "13003f0d-42fd-4543-bf17-399e06ef0002";
 const promptVersionId = "5ef38aac-e4b3-4d82-a129-853eaa6e9a27";
 const modelRouteId = "750ff1c1-6fc6-4097-9740-36d1509da311";
 
@@ -29,6 +31,10 @@ const successfulRequest = {
   estimated_output_tokens: 12,
   estimated_cost_usd: "0.000003",
   error_category: null,
+  source_app: null,
+  operation_type: null,
+  external_event_id: null,
+  external_request_id: null,
   created_at: "2026-06-30T00:00:00Z"
 };
 
@@ -52,7 +58,38 @@ const failedRequest = {
   estimated_output_tokens: null,
   estimated_cost_usd: null,
   error_category: "provider_error",
+  source_app: null,
+  operation_type: null,
+  external_event_id: null,
+  external_request_id: null,
   created_at: "2026-06-30T00:01:00Z"
+};
+
+const proofbaseTelemetryRequest = {
+  id: "20ec6db2-7b46-4980-839f-a37fdd7f5db2",
+  request_id: "ext_proofbase1",
+  project_id: proofbaseProjectId,
+  project_name: "Proofbase",
+  project_slug: "proofbase",
+  application_id: proofbaseApplicationId,
+  application_name: "Enterprise Knowledge Agent",
+  application_slug: "enterprise-knowledge-agent",
+  application_environment: "local",
+  prompt_version_id: null,
+  model_route_id: null,
+  status: "succeeded",
+  provider: "openai",
+  model_name: "gpt-4.1-mini",
+  latency_ms: 1830,
+  estimated_input_tokens: 1200,
+  estimated_output_tokens: 340,
+  estimated_cost_usd: "0.000812",
+  error_category: null,
+  source_app: "proofbase",
+  operation_type: "rag_query",
+  external_event_id: "evt_proofbase_001",
+  external_request_id: "proofbase_req_001",
+  created_at: "2026-07-06T00:00:00Z"
 };
 
 let requestedPaths: string[] = [];
@@ -96,6 +133,8 @@ test("renders scopes, filters, and dashboard data from API responses", async () 
   screen.getByText("$0.012345");
   screen.getByText("http://api.test");
   screen.getAllByText("mock-llm-small");
+  screen.getAllByText("proofbase");
+  screen.getAllByText("Rag Query");
   screen.getAllByText("provider_error");
   screen.getByText("default-chat");
 });
@@ -121,6 +160,49 @@ test("changing filters calls backend usage URLs with selected query params", asy
           path.startsWith("/v1/usage/requests?") &&
           path.includes(`project_id=${projectId}`) &&
           path.includes(`application_id=${applicationId}`)
+      )
+    ).toBe(true)
+  );
+});
+
+test("source app filter requests Proofbase telemetry and renders event details", async () => {
+  render(<Dashboard />);
+
+  await screen.findByText("42");
+  fireEvent.change(screen.getByLabelText("Source app"), { target: { value: "proofbase" } });
+
+  await waitFor(() =>
+    expect(
+      requestedPaths.some(
+        (path) =>
+          path.startsWith("/v1/usage/requests?") && path.includes("source_app=proofbase")
+      )
+    ).toBe(true)
+  );
+
+  await screen.findAllByText("Proofbase");
+  fireEvent.click(screen.getByRole("button", { name: "ext_proofbas" }));
+
+  const detailPanel = screen.getByLabelText("Request details");
+  within(detailPanel).getByText("Telemetry reported by proofbase.", { exact: false });
+  within(detailPanel).getByText("Rag Query");
+  within(detailPanel).getAllByText("evt_proofbase_001");
+  within(detailPanel).getAllByText("proofbase_req_001");
+  within(detailPanel).getByText("1200 in / 340 out");
+  within(detailPanel).getByText("$0.000812");
+});
+
+test("operation filter is included in backend usage URLs", async () => {
+  render(<Dashboard />);
+
+  await screen.findByText("42");
+  fireEvent.change(screen.getByLabelText("Operation"), { target: { value: "rag_query" } });
+
+  await waitFor(() =>
+    expect(
+      requestedPaths.some(
+        (path) =>
+          path.startsWith("/v1/usage/summary?") && path.includes("operation_type=rag_query")
       )
     ).toBe(true)
   );
@@ -156,6 +238,14 @@ function responseFor(path: string): unknown {
   }
 
   if (path.startsWith("/v1/usage/summary")) {
+    if (path.includes("source_app=proofbase") || path.includes("operation_type=rag_query")) {
+      return {
+        request_count: 1,
+        error_count: 0,
+        average_latency_ms: 1830,
+        estimated_cost_usd: "0.000812"
+      };
+    }
     if (path.includes("status=failed")) {
       return {
         request_count: 1,
@@ -173,7 +263,13 @@ function responseFor(path: string): unknown {
   }
 
   if (path.startsWith("/v1/usage/requests")) {
-    return path.includes("status=failed") ? [] : [successfulRequest];
+    if (path.includes("status=failed")) {
+      return [];
+    }
+    if (path.includes("source_app=proofbase") || path.includes("operation_type=rag_query")) {
+      return [proofbaseTelemetryRequest];
+    }
+    return [successfulRequest, proofbaseTelemetryRequest];
   }
 
   if (path.startsWith("/v1/usage/errors")) {
@@ -194,6 +290,19 @@ function responseFor(path: string): unknown {
             environment: "local"
           }
         ]
+      },
+      {
+        id: proofbaseProjectId,
+        name: "Proofbase",
+        slug: "proofbase",
+        applications: [
+          {
+            id: proofbaseApplicationId,
+            name: "Enterprise Knowledge Agent",
+            slug: "enterprise-knowledge-agent",
+            environment: "local"
+          }
+        ]
       }
     ];
   }
@@ -205,6 +314,16 @@ function responseFor(path: string): unknown {
         project_id: projectId,
         application_id: applicationId,
         name: "default-chat",
+        version: 1,
+        content: "Prompt",
+        is_active: true
+      }
+    ,
+      {
+        id: "4ea688a8-a9f1-4f57-a407-9a46cb617e6b",
+        project_id: proofbaseProjectId,
+        application_id: proofbaseApplicationId,
+        name: "proofbase-external-telemetry",
         version: 1,
         content: "Prompt",
         is_active: true
@@ -221,6 +340,18 @@ function responseFor(path: string): unknown {
         environment: "local",
         provider: "mock",
         model_name: "mock-llm-small",
+        priority: 100,
+        is_default: true,
+        is_active: true
+      }
+    ,
+      {
+        id: "6c2fdf6c-79c0-4e1c-9418-a775805873eb",
+        project_id: proofbaseProjectId,
+        application_id: proofbaseApplicationId,
+        environment: "local",
+        provider: "external",
+        model_name: "reported-by-proofbase",
         priority: 100,
         is_default: true,
         is_active: true

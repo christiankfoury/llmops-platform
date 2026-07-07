@@ -191,7 +191,7 @@
 
 .table {
   width: 100%;
-  min-width: 620px;
+  min-width: 820px;
   border-collapse: collapse;
   font-size: 0.9rem;
 }
@@ -319,6 +319,17 @@
   overflow-wrap: anywhere;
   font-size: 1.1rem;
   line-height: 1.35;
+}
+
+.detailNote {
+  margin: 16px 0 4px;
+  padding: 12px;
+  background: #eef7f5;
+  border: 1px solid #b9ddd5;
+  border-radius: 8px;
+  color: #27574f;
+  font-size: 0.86rem;
+  line-height: 1.45;
 }
 
 .closeButton {

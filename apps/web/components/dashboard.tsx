@@ -31,6 +31,10 @@ type GatewayRequest = {
   estimated_output_tokens: number | null;
   estimated_cost_usd: string | null;
   error_category: string | null;
+  source_app: string | null;
+  operation_type: string | null;
+  external_event_id: string | null;
+  external_request_id: string | null;
   created_at: string;
 };
 
@@ -90,6 +94,8 @@ type DashboardFilters = {
   status: string;
   provider: string;
   modelName: string;
+  sourceApp: string;
+  operationType: string;
   errorCategory: string;
   datePreset: DatePreset;
   createdFrom: string;
@@ -102,6 +108,8 @@ const defaultFilters: DashboardFilters = {
   status: "",
   provider: "",
   modelName: "",
+  sourceApp: "",
+  operationType: "",
   errorCategory: "",
   datePreset: "all",
   createdFrom: "",
@@ -234,6 +242,22 @@ export function Dashboard() {
       ]),
     [data]
   );
+  const sourceAppOptions = useMemo(
+    () =>
+      uniqueSorted([
+        ...(data?.requests.map((request) => request.source_app ?? "") ?? []),
+        ...(data?.errors.map((request) => request.source_app ?? "") ?? [])
+      ]),
+    [data]
+  );
+  const operationOptions = useMemo(
+    () =>
+      uniqueSorted([
+        ...(data?.requests.map((request) => request.operation_type ?? "") ?? []),
+        ...(data?.errors.map((request) => request.operation_type ?? "") ?? [])
+      ]),
+    [data]
+  );
 
   const visiblePrompts = useMemo(
     () => filterConfigRows(data?.prompts ?? [], filters),
@@ -273,6 +297,8 @@ export function Dashboard() {
           applications={selectableApplications}
           providers={providerOptions}
           models={modelOptions}
+          sourceApps={sourceAppOptions}
+          operationTypes={operationOptions}
           errorCategories={errorOptions}
           isRefreshing={loadState === "loading"}
           activeFilterCount={activeFilterCount}
@@ -367,6 +393,8 @@ function FilterToolbar({
   applications,
   providers,
   models,
+  sourceApps,
+  operationTypes,
   errorCategories,
   isRefreshing,
   activeFilterCount,
@@ -378,6 +406,8 @@ function FilterToolbar({
   applications: ApplicationScope[];
   providers: string[];
   models: string[];
+  sourceApps: string[];
+  operationTypes: string[];
   errorCategories: string[];
   isRefreshing: boolean;
   activeFilterCount: number;
@@ -473,6 +503,30 @@ function FilterToolbar({
         </label>
 
         <label className={styles.field}>
+          <span>Source app</span>
+          <select value={filters.sourceApp} onChange={handleChange("sourceApp")}>
+            <option value="">All sources</option>
+            {sourceApps.map((sourceApp) => (
+              <option key={sourceApp} value={sourceApp}>
+                {sourceApp}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className={styles.field}>
+          <span>Operation</span>
+          <select value={filters.operationType} onChange={handleChange("operationType")}>
+            <option value="">All operations</option>
+            {operationTypes.map((operationType) => (
+              <option key={operationType} value={operationType}>
+                {formatOperation(operationType)}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className={styles.field}>
           <span>Failure category</span>
           <select value={filters.errorCategory} onChange={handleChange("errorCategory")}>
             <option value="">All categories</option>
@@ -552,8 +606,8 @@ function RequestTable({
         title={hasFilters ? `No matching ${kind}` : `No ${kind} recorded`}
         description={
           hasFilters
-            ? "Reset filters or widen the date range to inspect more gateway traffic."
-            : "Send a local gateway request to populate this operational view."
+            ? "Reset filters or widen the date range to inspect more gateway or telemetry traffic."
+            : "Send a local gateway request or external telemetry event to populate this operational view."
         }
       />
     );
@@ -567,6 +621,8 @@ function RequestTable({
             <th>Request</th>
             <th>Status</th>
             <th>Scope</th>
+            <th>Source</th>
+            <th>Operation</th>
             <th>Model</th>
             <th>Latency</th>
             <th>Cost</th>
@@ -587,6 +643,8 @@ function RequestTable({
                 </span>
               </td>
               <td>{formatScope(row)}</td>
+              <td>{row.source_app ?? "gateway"}</td>
+              <td>{row.operation_type == null ? "completion" : formatOperation(row.operation_type)}</td>
               <td>{row.model_name ?? "n/a"}</td>
               <td>{row.latency_ms == null ? "n/a" : `${row.latency_ms} ms`}</td>
               <td>{formatCost(row.estimated_cost_usd)}</td>
@@ -646,10 +704,22 @@ function RequestDetail({
         </button>
       </div>
 
+      {request.source_app ? (
+        <p className={styles.detailNote}>
+          Telemetry reported by {request.source_app}. This platform records usage, latency,
+          tokens, cost, and errors; the source app owns product behavior.
+        </p>
+      ) : null}
+
       <div className={styles.detailGrid}>
         <DetailRow label="Timestamp" value={formatDateTime(request.created_at)} />
         <DetailRow label="Project" value={request.project_name ?? request.project_id} />
         <DetailRow label="Application" value={formatApplication(request)} />
+        <DetailRow label="Source app" value={request.source_app ?? "gateway"} />
+        <DetailRow
+          label="Operation"
+          value={request.operation_type == null ? "completion" : formatOperation(request.operation_type)}
+        />
         <DetailRow label="Status" value={request.error_category ?? request.status} />
         <DetailRow label="Provider" value={request.provider ?? "n/a"} />
         <DetailRow label="Model" value={request.model_name ?? "n/a"} />
@@ -664,6 +734,8 @@ function RequestDetail({
         />
         <DetailRow label="Cost" value={formatCost(request.estimated_cost_usd)} />
         <CopyableId label="Request ID" value={request.request_id} />
+        <CopyableId label="External Event ID" value={request.external_event_id ?? "n/a"} />
+        <CopyableId label="External Request ID" value={request.external_request_id ?? "n/a"} />
         <CopyableId label="Project ID" value={request.project_id} />
         <CopyableId label="Application ID" value={request.application_id} />
         <CopyableId label="Prompt Version ID" value={request.prompt_version_id ?? "n/a"} />
@@ -721,6 +793,8 @@ function buildFilterQuery(filters: DashboardFilters) {
   appendParam(params, "status", filters.status);
   appendParam(params, "provider", filters.provider);
   appendParam(params, "model_name", filters.modelName);
+  appendParam(params, "source_app", filters.sourceApp);
+  appendParam(params, "operation_type", filters.operationType);
   appendParam(params, "error_category", filters.errorCategory);
 
   const dateRange = resolveDateRange(filters);
@@ -785,6 +859,8 @@ function countActiveFilters(filters: DashboardFilters) {
     filters.status,
     filters.provider,
     filters.modelName,
+    filters.sourceApp,
+    filters.operationType,
     filters.errorCategory,
     filters.datePreset === "all" ? "" : filters.datePreset,
     filters.createdFrom,
@@ -826,6 +902,13 @@ function formatApplication(row: GatewayRequest) {
 
 function formatCost(value: string | null) {
   return value == null ? "n/a" : `$${Number(value).toFixed(6)}`;
+}
+
+function formatOperation(value: string) {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 function formatTime(value: string) {

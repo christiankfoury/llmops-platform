@@ -151,6 +151,8 @@ def get_usage_summary(
     status: str | None = None,
     provider: str | None = None,
     model_name: str | None = None,
+    source_app: str | None = None,
+    operation_type: str | None = None,
     error_category: str | None = None,
     created_from: datetime | None = None,
     created_to: datetime | None = None,
@@ -161,6 +163,8 @@ def get_usage_summary(
         status=status,
         provider=provider,
         model_name=model_name,
+        source_app=source_app,
+        operation_type=operation_type,
         error_category=error_category,
         created_from=created_from,
         created_to=created_to,
@@ -201,6 +205,8 @@ def list_recent_requests(
     status: str | None = None,
     provider: str | None = None,
     model_name: str | None = None,
+    source_app: str | None = None,
+    operation_type: str | None = None,
     error_category: str | None = None,
     created_from: datetime | None = None,
     created_to: datetime | None = None,
@@ -212,6 +218,8 @@ def list_recent_requests(
             status=status,
             provider=provider,
             model_name=model_name,
+            source_app=source_app,
+            operation_type=operation_type,
             error_category=error_category,
             created_from=created_from,
             created_to=created_to,
@@ -231,6 +239,8 @@ def list_recent_errors(
     status: str | None = None,
     provider: str | None = None,
     model_name: str | None = None,
+    source_app: str | None = None,
+    operation_type: str | None = None,
     error_category: str | None = None,
     created_from: datetime | None = None,
     created_to: datetime | None = None,
@@ -242,6 +252,8 @@ def list_recent_errors(
             status=status,
             provider=provider,
             model_name=model_name,
+            source_app=source_app,
+            operation_type=operation_type,
             error_category=error_category,
             created_from=created_from,
             created_to=created_to,
@@ -299,6 +311,8 @@ def _request_record_statement(
     status: str | None = None,
     provider: str | None = None,
     model_name: str | None = None,
+    source_app: str | None = None,
+    operation_type: str | None = None,
     error_category: str | None = None,
     created_from: datetime | None = None,
     created_to: datetime | None = None,
@@ -315,6 +329,8 @@ def _request_record_statement(
                 status=status,
                 provider=provider,
                 model_name=model_name,
+                source_app=source_app,
+                operation_type=operation_type,
                 error_category=error_category,
                 created_from=created_from,
                 created_to=created_to,
@@ -331,6 +347,8 @@ def _request_filters(
     status: str | None = None,
     provider: str | None = None,
     model_name: str | None = None,
+    source_app: str | None = None,
+    operation_type: str | None = None,
     error_category: str | None = None,
     created_from: datetime | None = None,
     created_to: datetime | None = None,
@@ -349,6 +367,10 @@ def _request_filters(
         filters.append(GatewayRequest.provider == provider)
     if model_name:
         filters.append(GatewayRequest.model_name == model_name)
+    if source_app:
+        filters.append(GatewayRequest.source_app == source_app)
+    if operation_type:
+        filters.append(GatewayRequest.operation_type == operation_type)
     if error_category:
         filters.append(GatewayRequest.error_category == error_category)
     if created_from is not None:

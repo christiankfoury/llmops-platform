@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 34: Dashboard source-app filtering and event detail
+Phase 35: Proofbase telemetry client and safe failure behavior
 
 ## Phase table
 
@@ -55,8 +55,8 @@ Phase 34: Dashboard source-app filtering and event detail
 | 31 | Proofbase integration contract and event schema | Completed | main | a647d5b | 2026-07-06 | Defined telemetry-first contract, event schema, sensitive-data rules, operation taxonomy, idempotency, retry behavior, and Proofbase-first integration boundaries. |
 | 32 | External telemetry ingestion API | Completed | main | d912eb0 | 2026-07-06 | Added external LLM event ingestion endpoint, schemas, auth/app resolution, persistence, metrics, duplicate handling, and tests. |
 | 33 | Proofbase application registration and configuration | Completed | main | 42b4749 | 2026-07-06 | Registered Proofbase seed data, placeholder telemetry env contract, local setup docs, and idempotency checks. |
-| 34 | Dashboard source-app filtering and event detail | In Progress |  |  |  | Make Proofbase telemetry filterable and inspectable in the Production AI Platform dashboard. |
-| 35 | Proofbase telemetry client and safe failure behavior | Not Started |  |  |  | Add best-effort Proofbase telemetry client with redaction, timeout, disabled mode, and failure isolation. |
+| 34 | Dashboard source-app filtering and event detail | Completed | main | pending | 2026-07-06 | Added source-app and operation filters, external event detail fields, telemetry-aware empty states, and frontend tests. |
+| 35 | Proofbase telemetry client and safe failure behavior | In Progress |  |  |  | Add best-effort Proofbase telemetry client with redaction, timeout, disabled mode, and failure isolation. |
 | 36 | Proofbase query and streaming telemetry | Not Started |  |  |  | Emit central events from Proofbase `/query` and `/query/stream` without changing RAG behavior. |
 | 37 | Proofbase auxiliary AI telemetry | Not Started |  |  |  | Extend coverage to AI Markdown cleanup, query decomposition, and embeddings where usage/cost can be represented honestly. |
 | 38 | Cross-repository automated validation | Not Started |  |  |  | Add mocked and local validation proving the telemetry path works without real OpenAI or AWS resources. |
@@ -2698,6 +2698,78 @@ Post-commit review:
 Next phase:
 
 - Phase 34: Dashboard source-app filtering and event detail
+
+### Phase 34: Dashboard source-app filtering and event detail
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-06
+
+Implementation notes:
+
+- Added `source_app` and `operation_type` filters to the usage summary, requests, and errors API endpoints.
+- Added dashboard source-app and operation filter controls.
+- Added request table source and operation columns so Proofbase telemetry can be distinguished from normal gateway requests.
+- Added external event detail fields for source app, operation, external event ID, and external request ID.
+- Added a detail-panel note clarifying that external telemetry is reported by the source app and that Production AI Platform records operational usage signals only.
+- Updated empty states to handle gateway and telemetry traffic.
+- Expanded frontend tests for Proofbase source filtering, operation filtering, and event detail rendering.
+
+Validation:
+
+- Command: `Set-Location 'S:\github-repos\production-ai-platform\apps\web'; npm run test`
+  Result: Passed, 6 tests.
+- Command: `Set-Location 'S:\github-repos\production-ai-platform\apps\web'; npm run typecheck`
+  Result: Passed.
+- Command: `Set-Location 'S:\github-repos\production-ai-platform\apps\web'; npm run lint`
+  Result: Passed.
+- Command: `.\\.venv\\Scripts\\python -m ruff check apps/api`
+  Result: Passed.
+- Command: `.\\.venv\\Scripts\\python -m ruff format --check apps/api`
+  Result: Passed.
+- Command: `git diff --check`
+  Result: Passed with expected CRLF warnings only.
+- Command: focused secret-pattern scan for provider keys, AWS keys, private keys, OpenAI key assignments, AWS secret assignments, and Slack tokens
+  Result: Passed with no matches.
+
+Security notes:
+
+- No secrets, credentials, provider keys, or sensitive telemetry payload fields were added.
+- Dashboard detail copy avoids claiming the platform performed Proofbase retrieval, citation validation, permission filtering, or answer-quality work.
+
+Reliability notes:
+
+- Existing dashboard behavior for normal gateway requests remains covered by frontend tests.
+- Empty states handle telemetry-only and filtered views.
+
+Observability notes:
+
+- Proofbase telemetry can now be filtered and inspected by source app, operation type, external event ID, external request ID, model, tokens, cost, latency, status, and error category.
+
+Scope notes:
+
+- Completed Phase 34 dashboard/API filtering work only.
+- Did not implement the Proofbase telemetry client, Proofbase event emission, browser validation, cloud resources, or deployments.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending
+- Fix commits: pending
+
+Next phase:
+
+- Phase 35: Proofbase telemetry client and safe failure behavior
 
 ## Update template
 
