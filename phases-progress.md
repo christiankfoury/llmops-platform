@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 39: Browser end-to-end Proofbase telemetry demo
+Phase 40: Proofbase integration documentation and AgentOps handoff
 
 ## Phase table
 
@@ -60,8 +60,8 @@ Phase 39: Browser end-to-end Proofbase telemetry demo
 | 36 | Proofbase query and streaming telemetry | Completed | main | 7fdf5b3 | 2026-07-06 | Emitted best-effort central telemetry for Proofbase `/query` and `/query/stream`, including safe failure events and tests. |
 | 37 | Proofbase auxiliary AI telemetry | Completed | main | 4140bd3 | 2026-07-06 | Added safe auxiliary telemetry for Markdown cleanup, query decomposition, and unpriced embedding usage/counts with tests and docs. |
 | 38 | Cross-repository automated validation | Completed | main | 4c45a30 | 2026-07-06 | Added platform schema fixtures, Proofbase mocked receiver tests, validation script, Compose config checks, and testing docs. |
-| 39 | Browser end-to-end Proofbase telemetry demo | In Progress |  |  |  | Verify locally in browser that a Proofbase interaction appears in the Production AI Platform dashboard. |
-| 40 | Proofbase integration documentation and AgentOps handoff | Not Started |  |  |  | Finalize docs, runbooks, demo story, security/reliability notes, and prepare the AgentOps integration sequence. |
+| 39 | Browser end-to-end Proofbase telemetry demo | Completed | main | pending | 2026-07-07 | Added local browser demo guide, safe Proofbase event sender, screenshot rules, troubleshooting notes, and browser validation evidence. |
+| 40 | Proofbase integration documentation and AgentOps handoff | In Progress |  |  |  | Finalize docs, runbooks, demo story, security/reliability notes, and prepare the AgentOps integration sequence. |
 
 ## Phase execution log
 
@@ -3089,6 +3089,85 @@ Post-commit review:
 Next phase:
 
 - Phase 39: Browser end-to-end Proofbase telemetry demo
+
+### Phase 39: Browser end-to-end Proofbase telemetry demo
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-07
+
+Implementation notes:
+
+- Added `scripts/send_proofbase_browser_demo_event.py` to send a safe, local-only Proofbase-shaped `rag_query` telemetry event to the platform API.
+- Added `docs/proofbase-browser-telemetry-demo.md` with local platform run instructions, Proofbase port guidance, browser checklist, screenshot redaction rules, and troubleshooting notes.
+- Updated the README, demo script, testing docs, and screenshot guide to include the Proofbase browser validation path.
+- Fixed the Phase 35 Alembic revision id from `0002_add_external_telemetry_fields` to `0002_external_telemetry` after local Postgres validation showed the original id exceeded Alembic's default `version_num` length.
+- Browser-validated `http://localhost:3000` with the **Source App** filter set to `proofbase`; the dashboard showed Proofbase / Enterprise Knowledge Agent requests with source `proofbase`, operation `Rag Query`, model `gpt-4.1-mini`, latency, cost, and no matching failures.
+- Documented that the full Proofbase browser query path can call OpenAI when Proofbase credentials are configured, so automated validation used the safe local telemetry sender instead.
+
+Validation:
+
+- Command: `.\.venv\Scripts\python -m ruff check apps/api scripts/send_proofbase_browser_demo_event.py`
+  Result: Passed.
+- Command: `.\.venv\Scripts\python -m ruff format --check apps/api scripts/send_proofbase_browser_demo_event.py`
+  Result: Passed.
+- Command: `.\.venv\Scripts\python -m pytest apps/api/tests/test_proofbase_telemetry_contract.py -vv`
+  Result: Passed, 7 tests; pytest emitted existing sandbox cache-write warnings.
+- Command: `.\.venv\Scripts\python scripts\validate_proofbase_telemetry_contract.py`
+  Result: Passed; validated 5 Proofbase telemetry event fixtures.
+- Command: `.\.venv\Scripts\python scripts\send_proofbase_browser_demo_event.py`
+  Result: Passed; API accepted a local Proofbase demo event and returned an `ext_` platform request id.
+- Command: `docker compose -f S:\github-repos\production-ai-platform\docker-compose.yml --project-directory S:\github-repos\production-ai-platform exec -T api alembic upgrade head`
+  Result: Passed against the local Postgres container.
+- Command: `docker compose -f S:\github-repos\production-ai-platform\docker-compose.yml --project-directory S:\github-repos\production-ai-platform config`
+  Result: Passed.
+- Command: in-app browser validation against `http://localhost:3000`
+  Result: Passed; filtering Source App to `proofbase` showed Proofbase / Enterprise Knowledge Agent request rows and summary cards.
+- Command: `git diff --check`
+  Result: Passed with expected CRLF warnings only.
+
+Security notes:
+
+- No OpenAI key, AWS credential, provider credential, database URL, API secret, full question, prompt, retrieved chunk, citation text, document text, Markdown body, or provider payload was committed.
+- The demo sender uses only placeholder local telemetry data and a placeholder seeded API key.
+- Real Proofbase browser query testing is documented as optional because it can spend provider quota when Proofbase has an OpenAI key configured.
+
+Reliability notes:
+
+- The demo sender returns non-zero on HTTP or connection failures and prints the platform API response for troubleshooting.
+- Local run docs include port conflict, API availability, migration, key, and Next.js localhost troubleshooting.
+- The Alembic revision id fix removes a local migration failure that blocked repeatable stack startup.
+
+Observability notes:
+
+- Browser validation proves Proofbase telemetry is visible in the central usage dashboard with source-app filtering.
+- Screenshot guidance limits evidence to operational metadata such as counts, short ids, source, operation, latency, model, and cost.
+
+Scope notes:
+
+- Completed Phase 39 browser demo and local validation only.
+- Did not run Terraform, create AWS resources, deploy, start production services, force-push, or send real Proofbase prompts to OpenAI.
+- Did not implement Phase 40 closeout docs or AgentOps integration changes early.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-commit review.
+- Fix commits: pending.
+
+Next phase:
+
+- Phase 40: Proofbase integration documentation and AgentOps handoff
 
 ## Update template
 

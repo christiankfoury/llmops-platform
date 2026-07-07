@@ -113,6 +113,14 @@ curl -X POST http://localhost:8000/v1/gateway/completions \
 
 The seed key is intentionally non-secret demo data and is stored only as a hash.
 
+Send a safe Proofbase-shaped telemetry event and inspect it in the dashboard:
+
+```bash
+python scripts/send_proofbase_browser_demo_event.py
+```
+
+Open `http://localhost:3000`, filter **Source App** to `proofbase`, and confirm the request appears under `Proofbase / Enterprise Knowledge Agent`. See [docs/proofbase-browser-telemetry-demo.md](docs/proofbase-browser-telemetry-demo.md) for the full browser checklist and redaction rules.
+
 Useful commands:
 
 ```bash
@@ -230,6 +238,7 @@ Recommended flow:
 - [docs/architecture-diagrams.md](docs/architecture-diagrams.md): Mermaid diagrams
 - [docs/gateway-flow.md](docs/gateway-flow.md): gateway request flow and code walkthrough
 - [docs/external-telemetry-contract.md](docs/external-telemetry-contract.md): Proofbase-first external LLM telemetry contract
+- [docs/proofbase-browser-telemetry-demo.md](docs/proofbase-browser-telemetry-demo.md): local browser demo for Proofbase telemetry
 - [docs/deployment.md](docs/deployment.md): local, Kubernetes, Helm, CI/CD, rollback, GitOps
 - [docs/ci-cd.md](docs/ci-cd.md): GitHub Actions CI jobs, actions, scanners, and deployment boundaries
 - [docs/testing.md](docs/testing.md): validation commands

@@ -27,40 +27,46 @@ I built a lightweight LLM gateway and dashboard, then wrapped it in the kind of 
    - Show usage totals, errors, average latency, estimated cost, recent requests, prompt versions, and model routes.
    - Mention that this is real API-backed data, not static marketing UI.
 
-5. Backend depth
+5. Proofbase telemetry demo
+   - Run `python scripts/send_proofbase_browser_demo_event.py`.
+   - Open the dashboard, filter **Source App** to `proofbase`, and show the `Proofbase / Enterprise Knowledge Agent` request.
+   - Explain that Proofbase remains the RAG product layer while this platform centralizes usage, cost, latency, and failure visibility.
+   - Use [proofbase-browser-telemetry-demo.md](proofbase-browser-telemetry-demo.md) for the browser checklist and screenshot rules.
+
+6. Backend depth
    - Show SQLAlchemy models, Alembic migration, gateway service, pricing service, rate limiter, metrics, and tracing.
 
-6. Infrastructure
+7. Infrastructure
    - Show Terraform environment roots and reusable modules.
    - Show EKS, ECR, RDS, Redis, Secrets Manager, IAM, and optional budget modules.
    - Emphasize that applying Terraform is intentionally approval-gated.
 
-7. Kubernetes and Helm
+8. Kubernetes and Helm
    - Show raw manifests.
    - Show the Helm chart and dev/staging/prod values.
    - Explain probes, resources, security contexts, NetworkPolicies, HPA, and PDB.
 
-8. CI/CD
+9. CI/CD
    - Show `.github/workflows/ci.yml`.
    - Show deploy-dev, deploy-staging, deploy-prod, and rollback workflows.
    - Explain immutable image tags, scans, environment approvals, and smoke tests.
 
-9. Observability
+10. Observability
    - Show `docs/observability.md`.
    - Show Grafana dashboard JSON and Prometheus alert rules.
    - Explain request IDs, trace IDs, metrics, logs, and dashboard panels.
 
-10. Reliability and incident response
+11. Reliability and incident response
     - Show `docs/runbook.md`.
     - Walk through `docs/incident-simulation.md`.
     - Show rollback workflow and backup/restore docs.
 
-11. Cost and security
+12. Cost and security
     - Show `docs/cost-analysis.md`.
     - Show `docs/security-baseline.md`.
     - Explain rate limits, hashed API keys, External Secrets, private data services, and optional AWS Budget alerts.
 
-12. GitOps
+13. GitOps
     - Show Argo CD Application manifests.
     - Explain that GitHub Actions remains default, while Argo CD is an optional deployment control plane.
 

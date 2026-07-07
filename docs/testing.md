@@ -103,3 +103,18 @@ What these checks prove:
 - Proofbase telemetry submission can be tested against a mocked receiver with no network call.
 - Receiver failures return `False` and do not raise into user-facing workflows.
 - Docker Compose files parse locally without starting containers.
+
+## Proofbase Browser Telemetry Demo
+
+Phase 39 adds a local browser validation path for the Proofbase dashboard connection. Start the platform stack, migrate, seed, send one safe Proofbase-shaped event, and inspect it in the web dashboard:
+
+```powershell
+docker compose up -d postgres redis api web
+docker compose exec api alembic upgrade head
+docker compose exec api python -m scripts.seed_dev_data
+.\.venv\Scripts\python scripts\send_proofbase_browser_demo_event.py
+```
+
+Then open `http://localhost:3000`, filter **Source App** to `proofbase`, and confirm the dashboard shows the `Proofbase / Enterprise Knowledge Agent` request.
+
+See [proofbase-browser-telemetry-demo.md](proofbase-browser-telemetry-demo.md) for the full browser checklist, Proofbase port guidance, screenshot rules, and troubleshooting notes.

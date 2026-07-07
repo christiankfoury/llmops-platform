@@ -1,6 +1,6 @@
 """add external telemetry fields
 
-Revision ID: 0002_add_external_telemetry_fields
+Revision ID: 0002_external_telemetry
 Revises: 0001_create_llmops_schema
 Create Date: 2026-07-06
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision: str = "0002_add_external_telemetry_fields"
+revision: str = "0002_external_telemetry"
 down_revision: str | None = "0001_create_llmops_schema"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None

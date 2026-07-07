@@ -17,6 +17,7 @@ Application dashboard:
 - Next.js dashboard overview
 - usage summary cards
 - recent gateway requests
+- Proofbase-filtered telemetry view
 - recent gateway failures
 - prompt versions
 - model routes
@@ -55,7 +56,15 @@ Operational views:
    ```
 
 5. Confirm dashboards have meaningful time ranges and non-empty panels.
-6. Redact or avoid:
+6. For the Proofbase telemetry screenshot, run:
+
+   ```bash
+   python scripts/send_proofbase_browser_demo_event.py
+   ```
+
+   Then filter the dashboard **Source App** control to `proofbase`.
+
+7. Redact or avoid:
    - account IDs
    - API keys
    - provider credentials
@@ -63,18 +72,23 @@ Operational views:
    - Redis URLs
    - customer data
    - sensitive prompts
-7. Store approved screenshots under:
+   - full questions
+   - retrieved chunks
+   - citation text
+   - document text
+8. Store approved screenshots under:
 
    ```text
    docs/assets/screenshots/
    ```
 
-8. Update README image links only after approved screenshots exist.
+9. Update README image links only after approved screenshots exist.
 
 ## Current Evidence Without Screenshots
 
 - Web dashboard code: `apps/web/components/dashboard.tsx`
 - Web dashboard test: `apps/web/components/dashboard.test.tsx`
+- Proofbase browser demo guide: `docs/proofbase-browser-telemetry-demo.md`
 - Grafana dashboards: `infra/monitoring/grafana/dashboards/`
 - Grafana provisioning: `infra/monitoring/grafana/provisioning/`
 - Observability docs: `docs/observability.md`
