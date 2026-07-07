@@ -38,13 +38,22 @@ Prometheus server deployment is not installed by this repository, but scrape ann
 
 ## External app telemetry
 
-Phases 31-40 define the next planned observability expansion: Proofbase sends normalized LLM usage events into this platform before any provider calls are routed through the gateway.
+Phases 31-40 define the next observability expansion: external client applications send normalized LLM usage events into this platform before any provider calls are routed through the gateway.
 
-Planned external events should include bounded operational fields such as source application, operation type, external request ID, model, prompt version, token counts, estimated cost, latency, status, and error category. They should not include API keys, provider credentials, full prompts, full questions, retrieved chunks, citations, document text, or uploaded file contents by default.
+Phase 32 adds `POST /v1/usage/llm-events` for external telemetry ingestion. Accepted events are authenticated with application API keys, persisted as gateway request records with external event fields, optionally written to cost records, and included in the existing usage summary and request-list endpoints.
+
+External events should include bounded operational fields such as source application, operation type, external request ID, model, prompt version, token counts, estimated cost, latency, status, and error category. They should not include API keys, provider credentials, full prompts, full questions, retrieved chunks, citations, document text, or uploaded file contents by default.
 
 The external telemetry path must be best-effort for client apps. A telemetry outage should create local diagnostic logs, not break Proofbase user workflows.
 
 The Phase 31 contract lives in [external-telemetry-contract.md](external-telemetry-contract.md). It defines the Proofbase operation taxonomy, required and optional fields, sensitive-data exclusions, idempotency strategy, and retry semantics that the Phase 32 ingestion API should implement.
+
+Phase 32 ingestion metrics include:
+
+- `llm_external_telemetry_events_total`
+- `llm_external_telemetry_errors_total`
+- `llm_external_telemetry_estimated_cost_usd_total`
+- `llm_external_telemetry_tokens_total`
 
 ## Grafana dashboards
 

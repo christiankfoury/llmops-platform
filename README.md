@@ -260,4 +260,4 @@ Recommended flow:
 
 ## Status
 
-The original 30 infrastructure/platform phases are implemented in code and documentation. Phases 31-40 now define the next Proofbase telemetry integration sequence, starting with a safe event contract before any cross-repo runtime changes. CI was kept green during the original phase loop, and the repository is packaged as a portfolio-grade production AI platform rather than a toy LLM app.
+The original 30 infrastructure/platform phases are implemented in code and documentation. Phases 31-40 now define the Proofbase telemetry integration sequence. Phase 31 defines the safe event contract, and Phase 32 adds the central external LLM telemetry ingestion API. Proofbase runtime emission is intentionally deferred to later phases. CI was kept green during the original phase loop, and the repository is packaged as a portfolio-grade production AI platform rather than a toy LLM app.

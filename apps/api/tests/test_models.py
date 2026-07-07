@@ -23,3 +23,13 @@ def test_api_keys_store_hash_not_plaintext_value() -> None:
     assert "key_hash" in api_key_columns
     assert "key_prefix" in api_key_columns
     assert "key_value" not in api_key_columns
+
+
+def test_gateway_requests_include_external_telemetry_fields() -> None:
+    gateway_request_columns = Base.metadata.tables["gateway_requests"].columns
+
+    assert "source_app" in gateway_request_columns
+    assert "operation_type" in gateway_request_columns
+    assert "external_event_id" in gateway_request_columns
+    assert "external_request_id" in gateway_request_columns
+    assert "external_metadata_json" in gateway_request_columns

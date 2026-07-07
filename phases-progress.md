@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 32: External telemetry ingestion API
+Phase 33: Proofbase application registration and configuration
 
 ## Phase table
 
@@ -53,8 +53,8 @@ Phase 32: External telemetry ingestion API
 | 29 | GitOps with Argo CD | Completed | main | 1143de2 | 2026-07-01 | Optional Argo CD AppProject and Application manifests, Helm-based GitOps docs, sync strategy, and promotion guidance. |
 | 30 | Final documentation and portfolio polish | Completed | main | 68a98fb | 2026-07-01 | Final README, diagrams, demo script, incident simulation, portfolio summaries, screenshot guidance, known limitations, and final status. |
 | 31 | Proofbase integration contract and event schema | Completed | main | a647d5b | 2026-07-06 | Defined telemetry-first contract, event schema, sensitive-data rules, operation taxonomy, idempotency, retry behavior, and Proofbase-first integration boundaries. |
-| 32 | External telemetry ingestion API | In Progress |  |  |  | Add central ingestion endpoint for external LLM usage events, persistence, metrics, validation, and tests. |
-| 33 | Proofbase application registration and configuration | Not Started |  |  |  | Register Proofbase as a client app with placeholder local API key, seed/setup docs, env examples, and idempotent checks. |
+| 32 | External telemetry ingestion API | Completed | main | pending | 2026-07-06 | Added external LLM event ingestion endpoint, schemas, auth/app resolution, persistence, metrics, duplicate handling, and tests. |
+| 33 | Proofbase application registration and configuration | In Progress |  |  |  | Register Proofbase as a client app with placeholder local API key, seed/setup docs, env examples, and idempotent checks. |
 | 34 | Dashboard source-app filtering and event detail | Not Started |  |  |  | Make Proofbase telemetry filterable and inspectable in the Production AI Platform dashboard. |
 | 35 | Proofbase telemetry client and safe failure behavior | Not Started |  |  |  | Add best-effort Proofbase telemetry client with redaction, timeout, disabled mode, and failure isolation. |
 | 36 | Proofbase query and streaming telemetry | Not Started |  |  |  | Emit central events from Proofbase `/query` and `/query/stream` without changing RAG behavior. |
@@ -2552,6 +2552,78 @@ Post-commit review:
 Next phase:
 
 - Phase 32: External telemetry ingestion API
+
+### Phase 32: External telemetry ingestion API
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-06
+
+Implementation notes:
+
+- Added `POST /v1/usage/llm-events` for external LLM telemetry ingestion.
+- Added Pydantic schemas for normalized external events and ingestion responses.
+- Added shared API-key and application resolution helpers used by gateway and external telemetry ingestion.
+- Added external telemetry fields to `gateway_requests` with an Alembic migration.
+- Persisted accepted external events as gateway request rows and optional cost records so existing usage summaries and request listings include external events.
+- Added duplicate handling by application plus external event ID, including duplicate conflict rejection.
+- Added Prometheus metrics for accepted, rejected, duplicate, token, cost, and ingestion-error telemetry signals.
+- Added backend tests for schema metadata, successful ingestion, auth rejection, sensitive metadata rejection, duplicate handling, duplicate conflict, and cost visibility.
+
+Validation:
+
+- Command: `.\\.venv\\Scripts\\python -m ruff check apps/api`
+  Result: Passed.
+- Command: `.\\.venv\\Scripts\\python -m ruff format --check apps/api`
+  Result: Passed; Ruff could not write its cache due local cache permissions, but formatting passed.
+- Command: `.\\.venv\\Scripts\\python -m pytest apps/api/tests/test_models.py -vv`
+  Result: Passed, 3 tests; pytest cache writes were denied by local cache permissions.
+- Command: `$env:DATABASE_URL='postgresql+psycopg://ai_platform:local_dev_password@localhost:55432/ai_platform?connect_timeout=1'; .\\.venv\\Scripts\\python -m pytest apps/api/tests/test_external_telemetry.py -vv`
+  Result: Collected 5 DB-backed ingestion tests and skipped them because local PostgreSQL was unavailable.
+- Command: `..\\..\\.venv\\Scripts\\python -m alembic heads`
+  Result: Passed; migration head is `0002_add_external_telemetry_fields`.
+
+Security notes:
+
+- Ingestion authenticates with hashed application API keys and rejects unknown or inactive application scopes.
+- Metadata is allowlisted and rejects sensitive keys such as prompts, Markdown, document text, credentials, provider payloads, and secret-like fields.
+- Rejected events do not create request or cost rows.
+
+Reliability notes:
+
+- Duplicate external event IDs return a duplicate response without creating a second cost record.
+- Conflicting duplicate event payloads return HTTP 409 and do not mutate usage totals.
+- Event and cost persistence happen in one database transaction.
+
+Observability notes:
+
+- Accepted external events are visible through existing usage summary and request-list endpoints.
+- Metrics include external ingestion volume, rejected events, duplicates, error categories, token totals, and estimated cost totals.
+
+Scope notes:
+
+- Completed Phase 32 ingestion API work only.
+- Did not register a dedicated Proofbase application, update dashboard filters, change Proofbase runtime code, run browser validation, create cloud resources, or deploy anything.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending
+- Fix commits: pending
+
+Next phase:
+
+- Phase 33: Proofbase application registration and configuration
 
 ## Update template
 

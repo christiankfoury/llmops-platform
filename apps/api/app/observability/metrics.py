@@ -49,12 +49,35 @@ GATEWAY_RATE_LIMIT_REJECTIONS = Counter(
     "llm_gateway_rate_limit_rejections_total",
     "Gateway requests rejected by rate limits.",
 )
+EXTERNAL_TELEMETRY_EVENTS = Counter(
+    "llm_external_telemetry_events_total",
+    "External LLM telemetry ingestion events by result.",
+    ["source_app", "operation_type", "result"],
+)
+EXTERNAL_TELEMETRY_ERRORS = Counter(
+    "llm_external_telemetry_errors_total",
+    "External LLM telemetry ingestion errors by category.",
+    ["source_app", "operation_type", "error_category"],
+)
+EXTERNAL_TELEMETRY_COST = Counter(
+    "llm_external_telemetry_estimated_cost_usd_total",
+    "Estimated external LLM telemetry cost in USD.",
+    ["source_app", "operation_type"],
+)
+EXTERNAL_TELEMETRY_TOKENS = Counter(
+    "llm_external_telemetry_tokens_total",
+    "External LLM telemetry token usage.",
+    ["source_app", "operation_type", "token_type"],
+)
 
 
 def initialize_metrics(environment: str) -> None:
     GATEWAY_AUTH_FAILURES.labels(environment).inc(0)
     GATEWAY_REQUESTS.labels("unknown", "unknown", environment, "failed", "auth_failed").inc(0)
     GATEWAY_RATE_LIMIT_REJECTIONS.inc(0)
+    EXTERNAL_TELEMETRY_EVENTS.labels("unknown", "unknown", "accepted").inc(0)
+    EXTERNAL_TELEMETRY_EVENTS.labels("unknown", "unknown", "rejected").inc(0)
+    EXTERNAL_TELEMETRY_EVENTS.labels("unknown", "unknown", "duplicate").inc(0)
 
 
 def metrics_response() -> Response:
@@ -112,3 +135,28 @@ def record_gateway_request(
 
     if output_tokens is not None:
         GATEWAY_TOKENS.labels(provider, model, environment, "output").inc(output_tokens)
+
+
+def record_external_telemetry_event(
+    *,
+    source_app: str,
+    operation_type: str,
+    result: str,
+    input_tokens: int | None = None,
+    output_tokens: int | None = None,
+    estimated_cost: Decimal | None = None,
+    error_category: str | None = None,
+) -> None:
+    EXTERNAL_TELEMETRY_EVENTS.labels(source_app, operation_type, result).inc()
+
+    if error_category is not None:
+        EXTERNAL_TELEMETRY_ERRORS.labels(source_app, operation_type, error_category).inc()
+
+    if estimated_cost is not None:
+        EXTERNAL_TELEMETRY_COST.labels(source_app, operation_type).inc(float(estimated_cost))
+
+    if input_tokens is not None:
+        EXTERNAL_TELEMETRY_TOKENS.labels(source_app, operation_type, "input").inc(input_tokens)
+
+    if output_tokens is not None:
+        EXTERNAL_TELEMETRY_TOKENS.labels(source_app, operation_type, "output").inc(output_tokens)

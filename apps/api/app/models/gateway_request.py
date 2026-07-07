@@ -1,8 +1,8 @@
 import uuid
 from decimal import Decimal
 
-from sqlalchemy import ForeignKey, Integer, Numeric, String
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import ForeignKey, Integer, Numeric, String, UniqueConstraint
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -11,6 +11,13 @@ from app.models.common import TimestampMixin, UuidPrimaryKeyMixin
 
 class GatewayRequest(UuidPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "gateway_requests"
+    __table_args__ = (
+        UniqueConstraint(
+            "application_id",
+            "external_event_id",
+            name="uq_gateway_requests_application_external_event",
+        ),
+    )
 
     request_id: Mapped[str] = mapped_column(String(80), nullable=False, unique=True, index=True)
     project_id: Mapped[uuid.UUID] = mapped_column(
@@ -48,3 +55,8 @@ class GatewayRequest(UuidPrimaryKeyMixin, TimestampMixin, Base):
     estimated_output_tokens: Mapped[int | None] = mapped_column(Integer)
     estimated_cost_usd: Mapped[Decimal | None] = mapped_column(Numeric(12, 6))
     error_category: Mapped[str | None] = mapped_column(String(80), index=True)
+    source_app: Mapped[str | None] = mapped_column(String(80), index=True)
+    operation_type: Mapped[str | None] = mapped_column(String(80), index=True)
+    external_event_id: Mapped[str | None] = mapped_column(String(80), index=True)
+    external_request_id: Mapped[str | None] = mapped_column(String(120), index=True)
+    external_metadata_json: Mapped[dict[str, object] | None] = mapped_column(JSONB)

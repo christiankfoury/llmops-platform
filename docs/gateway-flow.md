@@ -245,7 +245,7 @@ The gateway wraps the provider call with bounded retry behavior. A transient fai
 
 This is the main future integration point. To connect the platform to OpenAI, add a real provider adapter and route `provider = openai` through that adapter.
 
-External apps that already call providers directly should not be forced through this provider-call path immediately. Proofbase uses a telemetry-first integration defined in [external-telemetry-contract.md](external-telemetry-contract.md): it keeps its own RAG provider calls and sends sanitized usage events to the platform for centralized visibility.
+External apps that already call providers directly should not be forced through this provider-call path immediately. The telemetry-first integration defined in [external-telemetry-contract.md](external-telemetry-contract.md) lets apps keep their own provider calls and send sanitized usage events to the platform for centralized visibility.
 
 ## Step 7: Cost And Token Calculation
 
@@ -374,6 +374,8 @@ project/application filters
 provider/model filters
 request detail drilldowns
 ```
+
+Phase 32 external telemetry ingestion also writes accepted external events into the same request and cost tables, with external event fields that identify source app, operation type, external event ID, and external request ID. This means external app traffic can appear in usage summaries before those apps route provider calls through the gateway.
 
 ## Local Example
 

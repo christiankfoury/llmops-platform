@@ -19,7 +19,7 @@ from app.models import ApiKey, Application, CostRecord, GatewayRequest, ModelRou
 from app.observability.metrics import record_gateway_request
 from app.observability.tracing import get_tracer, set_span_attributes
 from app.schemas.gateway import CompletionRequest, CompletionResponse
-from app.services.auth import hash_api_key
+from app.services.auth import resolve_active_api_key, resolve_active_application
 from app.services.mock_provider import (
     MockProviderError,
     MockProviderResult,
@@ -62,13 +62,7 @@ def _resolve_api_key(db: Session, api_key_value: str) -> ApiKey:
     Raw API keys are never persisted. Incoming keys are hashed and compared
     against stored hashes, with inactive or revoked keys rejected.
     """
-    api_key = db.scalar(
-        select(ApiKey).where(
-            ApiKey.key_hash == hash_api_key(api_key_value),
-            ApiKey.is_active.is_(True),
-            ApiKey.revoked_at.is_(None),
-        )
-    )
+    api_key = resolve_active_api_key(db, api_key_value)
     if api_key is None:
         raise GatewayAuthError("Invalid API key")
     return api_key
@@ -76,8 +70,8 @@ def _resolve_api_key(db: Session, api_key_value: str) -> ApiKey:
 
 def _resolve_application(db: Session, api_key: ApiKey) -> Application:
     """Load the active application that owns the API key."""
-    application = db.get(Application, api_key.application_id)
-    if application is None or not application.is_active:
+    application = resolve_active_application(db, api_key)
+    if application is None:
         raise GatewayAuthError("API key is not attached to an active application")
     return application
 

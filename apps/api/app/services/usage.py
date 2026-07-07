@@ -1,3 +1,6 @@
+import hashlib
+import json
+import uuid
 from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
@@ -6,7 +9,138 @@ from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
 
 from app.models import Application, CostRecord, GatewayRequest, Project
-from app.schemas.usage import ApplicationScope, GatewayRequestRecord, ProjectScope, UsageSummary
+from app.observability.metrics import record_external_telemetry_event
+from app.schemas.usage import (
+    ApplicationScope,
+    ExternalLlmEventRequest,
+    ExternalLlmEventResponse,
+    GatewayRequestRecord,
+    ProjectScope,
+    UsageSummary,
+)
+from app.services.auth import resolve_active_api_key, resolve_active_application
+
+
+class ExternalTelemetryAuthError(Exception):
+    """Raised when external telemetry cannot be attributed to an active application."""
+
+    pass
+
+
+class ExternalTelemetryDuplicateConflictError(Exception):
+    """Raised when a duplicate event ID is reused for a different payload."""
+
+    pass
+
+
+def ingest_external_llm_event(
+    db: Session,
+    *,
+    api_key_value: str,
+    payload: ExternalLlmEventRequest,
+) -> ExternalLlmEventResponse:
+    api_key = resolve_active_api_key(db, api_key_value)
+    if api_key is None:
+        record_external_telemetry_event(
+            source_app=payload.source_app,
+            operation_type=payload.operation_type,
+            result="rejected",
+            error_category="auth_failed",
+        )
+        raise ExternalTelemetryAuthError("Invalid API key")
+
+    application = resolve_active_application(db, api_key)
+    if application is None:
+        record_external_telemetry_event(
+            source_app=payload.source_app,
+            operation_type=payload.operation_type,
+            result="rejected",
+            error_category="inactive_application",
+        )
+        raise ExternalTelemetryAuthError("API key is not attached to an active application")
+
+    existing = db.scalar(
+        select(GatewayRequest).where(
+            GatewayRequest.application_id == application.id,
+            GatewayRequest.external_event_id == payload.event_id,
+        )
+    )
+    payload_fingerprint = _payload_fingerprint(payload)
+    if existing is not None:
+        metadata = existing.external_metadata_json or {}
+        existing_fingerprint = metadata.get("payload_fingerprint")
+        if existing_fingerprint and existing_fingerprint != payload_fingerprint:
+            record_external_telemetry_event(
+                source_app=payload.source_app,
+                operation_type=payload.operation_type,
+                result="rejected",
+                error_category="duplicate_conflict",
+            )
+            raise ExternalTelemetryDuplicateConflictError(
+                "Duplicate external event ID has conflicting payload"
+            )
+
+        record_external_telemetry_event(
+            source_app=payload.source_app,
+            operation_type=payload.operation_type,
+            result="duplicate",
+        )
+        return _external_event_response(existing, duplicate=True)
+
+    estimated_cost = _six_decimal_cost(payload.estimated_cost_usd)
+    gateway_request = GatewayRequest(
+        request_id=f"ext_{uuid.uuid4().hex}",
+        project_id=application.project_id,
+        application_id=application.id,
+        api_key_id=api_key.id,
+        provider=payload.provider,
+        model_name=payload.model_name,
+        status=payload.status,
+        latency_ms=payload.latency_ms,
+        estimated_input_tokens=payload.input_tokens,
+        estimated_output_tokens=payload.output_tokens,
+        estimated_cost_usd=estimated_cost,
+        error_category=payload.error_category,
+        source_app=payload.source_app,
+        operation_type=payload.operation_type,
+        external_event_id=payload.event_id,
+        external_request_id=payload.external_request_id,
+        external_metadata_json=_external_metadata(payload, payload_fingerprint),
+        created_at=payload.occurred_at,
+        updated_at=payload.occurred_at,
+    )
+    db.add(gateway_request)
+    db.flush()
+
+    if estimated_cost is not None:
+        db.add(
+            CostRecord(
+                gateway_request_id=gateway_request.id,
+                project_id=application.project_id,
+                application_id=application.id,
+                provider=payload.provider,
+                model_name=payload.model_name,
+                input_tokens=payload.input_tokens or 0,
+                output_tokens=payload.output_tokens or 0,
+                estimated_cost_usd=estimated_cost,
+                currency=payload.currency,
+                created_at=payload.occurred_at,
+                updated_at=payload.occurred_at,
+            )
+        )
+
+    db.commit()
+    db.refresh(gateway_request)
+    record_external_telemetry_event(
+        source_app=payload.source_app,
+        operation_type=payload.operation_type,
+        result="accepted",
+        input_tokens=payload.input_tokens,
+        output_tokens=payload.output_tokens,
+        estimated_cost=estimated_cost,
+        error_category=payload.error_category if payload.status == "failed" else None,
+    )
+    return _external_event_response(gateway_request, duplicate=False)
 
 
 def get_usage_summary(
@@ -251,5 +385,65 @@ def _to_record(
         estimated_output_tokens=request.estimated_output_tokens,
         estimated_cost_usd=request.estimated_cost_usd,
         error_category=request.error_category,
+        source_app=request.source_app,
+        operation_type=request.operation_type,
+        external_event_id=request.external_event_id,
+        external_request_id=request.external_request_id,
         created_at=request.created_at,
+    )
+
+
+def _payload_fingerprint(payload: ExternalLlmEventRequest) -> str:
+    serialized = json.dumps(
+        payload.model_dump(mode="json", by_alias=True),
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+
+
+def _six_decimal_cost(value: Decimal | None) -> Decimal | None:
+    if value is None:
+        return None
+    return value.quantize(Decimal("0.000001"))
+
+
+def _external_metadata(
+    payload: ExternalLlmEventRequest,
+    payload_fingerprint: str,
+) -> dict[str, object]:
+    metadata: dict[str, object] = {
+        "source_app": payload.source_app,
+        "operation_type": payload.operation_type,
+        "external_request_id": payload.external_request_id,
+        "occurred_at": payload.occurred_at.isoformat(),
+        "pricing_status": payload.pricing_status,
+        "prompt_name": payload.prompt_name,
+        "prompt_version": payload.prompt_version,
+        "total_tokens": payload.total_tokens,
+        "retrieval_latency_ms": payload.retrieval_latency_ms,
+        "generation_latency_ms": payload.generation_latency_ms,
+        "error_message_redacted": payload.error_message_redacted,
+        "project_external_id": payload.project_external_id,
+        "department_external_id": payload.department_external_id,
+        "payload_fingerprint": payload_fingerprint,
+    }
+    metadata.update({f"metadata.{key}": value for key, value in payload.metadata.items()})
+    return {key: value for key, value in metadata.items() if value is not None}
+
+
+def _external_event_response(
+    gateway_request: GatewayRequest,
+    *,
+    duplicate: bool,
+) -> ExternalLlmEventResponse:
+    return ExternalLlmEventResponse(
+        accepted=True,
+        duplicate=duplicate,
+        request_id=gateway_request.request_id,
+        external_event_id=gateway_request.external_event_id or gateway_request.request_id,
+        external_request_id=gateway_request.external_request_id or gateway_request.request_id,
+        project_id=gateway_request.project_id,
+        application_id=gateway_request.application_id,
+        status=gateway_request.status,
     )

@@ -18,7 +18,7 @@ This phase does not route Proofbase provider calls through the gateway. Gateway-
 
 ## Endpoint Shape
 
-Phase 32 should implement an ingestion endpoint with this logical shape:
+Phase 32 implements an ingestion endpoint with this logical shape:
 
 ```text
 POST /v1/usage/llm-events
@@ -27,6 +27,8 @@ Idempotency-Key: <optional stable event key>
 ```
 
 The API key identifies the calling Production AI Platform application record. The request body identifies the external operation and usage facts.
+
+Accepted events are persisted as gateway request records with external telemetry fields and, when cost is present, matching cost records. This makes external events visible in the existing usage summary and request-list endpoints without claiming that the gateway performed the provider call.
 
 ## Event Schema
 
@@ -213,7 +215,7 @@ Proofbase's local observability log may keep app-local diagnostics such as trunc
 
 ## Phase Notes
 
-Phase 32 should implement the Production AI Platform ingestion API from this contract.
+Phase 32 implements the Production AI Platform ingestion API from this contract.
 
 Phases 33-39 should connect Proofbase one operation group at a time:
 
