@@ -73,3 +73,33 @@ python scripts/smoke_load.py --base-url http://localhost:8000 --requests 20 --co
 ```
 
 This is a resilience smoke check, not a benchmark. Use it to verify that the gateway handles modest concurrent traffic, emits request metrics, and keeps failures visible during local demos.
+
+## Proofbase Telemetry Validation
+
+Phase 38 adds cross-repository validation for the Proofbase telemetry integration. These checks do not call OpenAI, create AWS resources, run Terraform, or deploy either application.
+
+From `S:\github-repos\production-ai-platform`:
+
+```powershell
+.\.venv\Scripts\python scripts\validate_proofbase_telemetry_contract.py
+.\.venv\Scripts\python -m pytest apps/api/tests/test_proofbase_telemetry_contract.py -vv
+docker compose config
+```
+
+From `S:\github-repos\enterprise-knowledge-agent`:
+
+```powershell
+.\.venv\Scripts\python scripts\test_platform_telemetry_client.py
+.\.venv\Scripts\python scripts\test_phase36_query_telemetry.py
+.\.venv\Scripts\python scripts\test_phase37_auxiliary_telemetry.py
+.\.venv\Scripts\python scripts\test_phase38_mocked_platform_receiver.py
+docker compose config
+```
+
+What these checks prove:
+
+- Proofbase-shaped telemetry events validate against the platform schema for `rag_query`, `rag_query_stream`, `markdown_cleanup`, `query_decomposition`, and `embedding_generation`.
+- Sensitive metadata such as full questions is rejected by the platform schema.
+- Proofbase telemetry submission can be tested against a mocked receiver with no network call.
+- Receiver failures return `False` and do not raise into user-facing workflows.
+- Docker Compose files parse locally without starting containers.

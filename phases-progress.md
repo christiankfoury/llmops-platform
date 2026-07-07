@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 38: Cross-repository automated validation
+Phase 39: Browser end-to-end Proofbase telemetry demo
 
 ## Phase table
 
@@ -59,8 +59,8 @@ Phase 38: Cross-repository automated validation
 | 35 | Proofbase telemetry client and safe failure behavior | Completed | main | 2735c93 | 2026-07-06 | Added best-effort Proofbase telemetry client with redaction, timeout, disabled mode, failure isolation, smoke script, and tests. |
 | 36 | Proofbase query and streaming telemetry | Completed | main | 7fdf5b3 | 2026-07-06 | Emitted best-effort central telemetry for Proofbase `/query` and `/query/stream`, including safe failure events and tests. |
 | 37 | Proofbase auxiliary AI telemetry | Completed | main | 4140bd3 | 2026-07-06 | Added safe auxiliary telemetry for Markdown cleanup, query decomposition, and unpriced embedding usage/counts with tests and docs. |
-| 38 | Cross-repository automated validation | In Progress |  |  |  | Add mocked and local validation proving the telemetry path works without real OpenAI or AWS resources. |
-| 39 | Browser end-to-end Proofbase telemetry demo | Not Started |  |  |  | Verify locally in browser that a Proofbase interaction appears in the Production AI Platform dashboard. |
+| 38 | Cross-repository automated validation | Completed | main | pending | 2026-07-06 | Added platform schema fixtures, Proofbase mocked receiver tests, validation script, Compose config checks, and testing docs. |
+| 39 | Browser end-to-end Proofbase telemetry demo | In Progress |  |  |  | Verify locally in browser that a Proofbase interaction appears in the Production AI Platform dashboard. |
 | 40 | Proofbase integration documentation and AgentOps handoff | Not Started |  |  |  | Finalize docs, runbooks, demo story, security/reliability notes, and prepare the AgentOps integration sequence. |
 
 ## Phase execution log
@@ -3005,6 +3005,90 @@ Post-commit review:
 Next phase:
 
 - Phase 38: Cross-repository automated validation
+
+### Phase 38: Cross-repository automated validation
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-06
+
+Implementation notes:
+
+- Added platform schema contract tests for Proofbase-shaped `rag_query`, `rag_query_stream`, `markdown_cleanup`, `query_decomposition`, and `embedding_generation` events without requiring a database.
+- Added a platform validation script that checks Proofbase telemetry fixtures against the external telemetry schema without OpenAI, AWS, Terraform, or deployments.
+- Added Proofbase mocked platform receiver tests that verify query telemetry and auxiliary telemetry submit to an injected sender without network calls.
+- Verified mocked receiver failures return `False` rather than raising into user-facing workflows.
+- Documented the cross-repository local validation sequence for developers new to cloud/devops.
+- Ran `docker compose config` in both repositories to parse local Compose files without starting services.
+- Pushed companion Proofbase commit `99c81ba`.
+
+Validation:
+
+- Command: `.\.venv\Scripts\python scripts\validate_proofbase_telemetry_contract.py`
+  Result: Passed; validated 5 Proofbase telemetry event fixtures.
+- Command: `.\.venv\Scripts\python -m pytest apps/api/tests/test_proofbase_telemetry_contract.py -vv`
+  Result: Passed, 7 tests; pytest emitted cache-write warnings due local sandbox cache permissions.
+- Command: `S:\github-repos\enterprise-knowledge-agent\.venv\Scripts\python scripts\test_phase38_mocked_platform_receiver.py`
+  Result: Passed, 3 tests; expected redacted timeout warning was emitted by the mocked failure test.
+- Command: `S:\github-repos\enterprise-knowledge-agent\.venv\Scripts\python scripts\test_phase37_auxiliary_telemetry.py`
+  Result: Passed, 4 tests.
+- Command: `S:\github-repos\enterprise-knowledge-agent\.venv\Scripts\python scripts\test_phase36_query_telemetry.py`
+  Result: Passed, 3 tests.
+- Command: `S:\github-repos\enterprise-knowledge-agent\.venv\Scripts\python scripts\test_platform_telemetry_client.py`
+  Result: Passed, 5 tests.
+- Command: `docker compose config` in both repositories
+  Result: Passed for both Compose files; Docker emitted user config access warnings but exited 0 and printed resolved config.
+- Command: `.\.venv\Scripts\python -m ruff check` and `ruff format --check` for touched platform and Proofbase files
+  Result: Passed.
+- Command: Python compile checks for touched platform and Proofbase files
+  Result: Passed.
+- Command: `git diff --check` in both repositories
+  Result: Passed with expected CRLF warnings only.
+- Command: focused secret-pattern scans for modified platform and Proofbase files
+  Result: Passed with no matches.
+
+Security notes:
+
+- No real API keys, OpenAI keys, AWS credentials, provider credentials, customer data, prompts, full questions, retrieved chunks, citation text, document text, Markdown, or provider payloads were committed.
+- Validation uses placeholder-only API keys, mocked sender callbacks, local schema parsing, and Docker Compose config rendering only.
+- No Terraform, AWS, OpenAI, deployments, or running platform services are required.
+
+Reliability notes:
+
+- Mocked receiver tests prove telemetry submission failures are isolated and return `False`.
+- Schema tests protect all Proofbase operation types from contract drift.
+- Compose config checks catch local stack syntax/configuration errors without starting containers.
+
+Observability notes:
+
+- Fixture tests cover the central event fields needed for dashboard visibility across all Proofbase operation types.
+- Testing docs explain which checks prove schema compatibility, mocked delivery, failure isolation, and local Compose validity.
+
+Scope notes:
+
+- Completed Phase 38 automated validation only.
+- Did not run browser validation, start local app stacks, call OpenAI, create cloud resources, run Terraform, or deploy anything.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Companion Proofbase commit: 99c81ba
+- Top findings: pending post-commit review.
+- Fix commits: pending.
+
+Next phase:
+
+- Phase 39: Browser end-to-end Proofbase telemetry demo
 
 ## Update template
 
