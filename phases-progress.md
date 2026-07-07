@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 33: Proofbase application registration and configuration
+Phase 34: Dashboard source-app filtering and event detail
 
 ## Phase table
 
@@ -54,8 +54,8 @@ Phase 33: Proofbase application registration and configuration
 | 30 | Final documentation and portfolio polish | Completed | main | 68a98fb | 2026-07-01 | Final README, diagrams, demo script, incident simulation, portfolio summaries, screenshot guidance, known limitations, and final status. |
 | 31 | Proofbase integration contract and event schema | Completed | main | a647d5b | 2026-07-06 | Defined telemetry-first contract, event schema, sensitive-data rules, operation taxonomy, idempotency, retry behavior, and Proofbase-first integration boundaries. |
 | 32 | External telemetry ingestion API | Completed | main | d912eb0 | 2026-07-06 | Added external LLM event ingestion endpoint, schemas, auth/app resolution, persistence, metrics, duplicate handling, and tests. |
-| 33 | Proofbase application registration and configuration | In Progress |  |  |  | Register Proofbase as a client app with placeholder local API key, seed/setup docs, env examples, and idempotent checks. |
-| 34 | Dashboard source-app filtering and event detail | Not Started |  |  |  | Make Proofbase telemetry filterable and inspectable in the Production AI Platform dashboard. |
+| 33 | Proofbase application registration and configuration | Completed | main | pending | 2026-07-06 | Registered Proofbase seed data, placeholder telemetry env contract, local setup docs, and idempotency checks. |
+| 34 | Dashboard source-app filtering and event detail | In Progress |  |  |  | Make Proofbase telemetry filterable and inspectable in the Production AI Platform dashboard. |
 | 35 | Proofbase telemetry client and safe failure behavior | Not Started |  |  |  | Add best-effort Proofbase telemetry client with redaction, timeout, disabled mode, and failure isolation. |
 | 36 | Proofbase query and streaming telemetry | Not Started |  |  |  | Emit central events from Proofbase `/query` and `/query/stream` without changing RAG behavior. |
 | 37 | Proofbase auxiliary AI telemetry | Not Started |  |  |  | Extend coverage to AI Markdown cleanup, query decomposition, and embeddings where usage/cost can be represented honestly. |
@@ -2624,6 +2624,78 @@ Post-commit review:
 Next phase:
 
 - Phase 33: Proofbase application registration and configuration
+
+### Phase 33: Proofbase application registration and configuration
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-06
+
+Implementation notes:
+
+- Added idempotent platform seed data for a distinct Proofbase project/application scope: `proofbase` / `enterprise-knowledge-agent`.
+- Added a hashed placeholder Proofbase telemetry API key: `proofbase-local-placeholder-key-not-a-secret`.
+- Added a placeholder Proofbase prompt record and local model route marker so Proofbase traffic is distinguishable from demo app traffic.
+- Added platform `.env.example` and `apps/api/.env.example` placeholder variables for telemetry endpoint, API key, enabled flag, timeout, and redaction behavior.
+- Added Proofbase-side placeholder telemetry settings to `S:\github-repos\enterprise-knowledge-agent\.env.example` and `S:\github-repos\enterprise-knowledge-agent\apps\api\app\core\config.py`.
+- Documented local two-app setup, synthetic telemetry smoke testing, and local secret-handling rules.
+- Added DB-backed idempotency tests for the Proofbase seed scope.
+
+Validation:
+
+- Command: `.\\.venv\\Scripts\\python -m ruff check apps/api`
+  Result: Passed.
+- Command: `.\\.venv\\Scripts\\python -m ruff format --check apps/api`
+  Result: Passed.
+- Command: `$env:DATABASE_URL='postgresql+psycopg://ai_platform:local_dev_password@localhost:55432/ai_platform?connect_timeout=1'; .\\.venv\\Scripts\\python -m pytest apps/api/tests/test_seed_dev_data.py -vv`
+  Result: Collected 2 DB-backed seed tests and skipped them because local PostgreSQL was unavailable.
+- Command: no-write Python `compile(...)` check for Proofbase `apps/api/app/core/config.py`
+  Result: Passed.
+- Command: `git diff --check` in both repositories
+  Result: Passed with expected CRLF warnings only.
+- Command: focused secret-pattern scans for modified platform and Proofbase files
+  Result: Passed with no matches.
+
+Security notes:
+
+- Only placeholder API keys were added; the platform stores the Proofbase placeholder key as a hash in seed data.
+- Proofbase telemetry remains disabled by default.
+- No provider keys, AWS credentials, real API keys, customer data, or secret values were added.
+
+Reliability notes:
+
+- Seed data is idempotent and can be rerun during local setup.
+- Proofbase remains fully functional with telemetry disabled.
+
+Observability notes:
+
+- Proofbase has a separate project/application identity for dashboard source filtering in Phase 34.
+- Placeholder prompt and route records make the application scope visible in admin and usage scope endpoints.
+
+Scope notes:
+
+- Completed Phase 33 registration and configuration only.
+- Did not implement dashboard filters, Proofbase telemetry client behavior, Proofbase event emission, browser validation, cloud resources, or deployments.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending
+- Fix commits: pending
+
+Next phase:
+
+- Phase 34: Dashboard source-app filtering and event detail
 
 ## Update template
 

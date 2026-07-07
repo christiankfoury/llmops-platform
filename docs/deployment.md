@@ -56,6 +56,11 @@ make api-migrate
 make api-seed
 ```
 
+The local seed creates two application scopes:
+
+- `demo-project` / `demo-app` for gateway smoke tests.
+- `proofbase` / `enterprise-knowledge-agent` for external telemetry integration.
+
 ## Production image builds
 
 Phase 9 adds production Dockerfiles for the API and web dashboard while keeping the development Dockerfiles used by Docker Compose.
@@ -110,6 +115,37 @@ curl -X POST http://localhost:8000/v1/gateway/completions \
 
 The local seed key is intentionally non-secret placeholder data and is stored as a hash.
 
+Smoke-test the Proofbase external telemetry placeholder path:
+
+```bash
+curl -X POST http://localhost:8000/v1/usage/llm-events \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: proofbase-local-placeholder-key-not-a-secret" \
+  -d '{
+    "event_id":"evt_local_proofbase_demo_001",
+    "external_request_id":"proofbase_req_local_demo_001",
+    "source_app":"proofbase",
+    "operation_type":"rag_query",
+    "environment":"local",
+    "occurred_at":"2026-07-06T00:00:00Z",
+    "status":"succeeded",
+    "provider":"openai",
+    "model":"gpt-4.1-mini",
+    "prompt_name":"answer_generation",
+    "prompt_version":"v5",
+    "input_tokens":1200,
+    "output_tokens":340,
+    "total_tokens":1540,
+    "estimated_cost_usd":"0.000812",
+    "currency":"USD",
+    "pricing_status":"estimated",
+    "latency_ms":1830,
+    "metadata":{"streaming":false,"citation_count":4}
+  }'
+```
+
+This submits only synthetic telemetry. It does not call OpenAI, AWS, or Proofbase.
+
 The mock provider supports local failure-path checks:
 
 - `"[simulate_failure]"` returns HTTP 502 and records `provider_error`.
@@ -134,6 +170,18 @@ Local environment examples live in:
 
 - `.env.example`
 - `apps/api/.env.example`
+
+For Proofbase local telemetry phases, use these placeholder settings in the Proofbase local environment:
+
+```bash
+PROOFBASE_TELEMETRY_ENABLED=false
+PROOFBASE_TELEMETRY_ENDPOINT=http://localhost:8000/v1/usage/llm-events
+PROOFBASE_TELEMETRY_API_KEY=proofbase-local-placeholder-key-not-a-secret
+PROOFBASE_TELEMETRY_TIMEOUT_SECONDS=2
+PROOFBASE_TELEMETRY_REDACT_CONTENT=true
+```
+
+Telemetry remains disabled by default until the Proofbase client phase turns it on locally.
 - `apps/web/.env.example`
 
 These files use placeholder development values only. Real provider keys, cloud account IDs, and production secrets must not be committed.

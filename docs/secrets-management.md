@@ -82,6 +82,18 @@ Use environment-specific secret IDs and approved credentials. Do not paste real 
 
 Local Docker Compose and local API runs continue to use `.env.example` patterns and developer-provided local environment variables. Do not create or commit a real `.env`.
 
+Phase 33 adds placeholder-only Proofbase telemetry values to `.env.example` and `apps/api/.env.example`:
+
+```bash
+PROOFBASE_TELEMETRY_ENABLED=false
+PROOFBASE_TELEMETRY_ENDPOINT=http://localhost:8000/v1/usage/llm-events
+PROOFBASE_TELEMETRY_API_KEY=proofbase-local-placeholder-key-not-a-secret
+PROOFBASE_TELEMETRY_TIMEOUT_SECONDS=2
+PROOFBASE_TELEMETRY_REDACT_CONTENT=true
+```
+
+The placeholder key is intentionally non-secret local data and is seeded into the platform as a hash for local integration checks. Replace it through the normal secret-management path before any non-local or shared environment uses Proofbase telemetry.
+
 ## Rotation Guidance
 
 1. Write the new value to AWS Secrets Manager.

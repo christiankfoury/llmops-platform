@@ -392,6 +392,16 @@ make api-migrate
 make api-seed
 ```
 
+The seed data includes a distinct Proofbase scope:
+
+```text
+project slug = proofbase
+application slug = enterprise-knowledge-agent
+placeholder API key = proofbase-local-placeholder-key-not-a-secret
+```
+
+That key is stored as a hash and is intended only for local telemetry validation.
+
 Send a successful request:
 
 ```bash
@@ -417,6 +427,17 @@ http://localhost:3000
 ```
 
 The successful request should appear in recent requests. The simulated failure should appear in recent failures.
+
+Send a synthetic Proofbase telemetry event:
+
+```bash
+curl -X POST http://localhost:8000/v1/usage/llm-events \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: proofbase-local-placeholder-key-not-a-secret" \
+  -d '{"event_id":"evt_local_proofbase_demo_002","external_request_id":"proofbase_req_local_demo_002","source_app":"proofbase","operation_type":"rag_query","environment":"local","occurred_at":"2026-07-06T00:00:00Z","status":"succeeded","provider":"openai","model":"gpt-4.1-mini","input_tokens":10,"output_tokens":5,"total_tokens":15,"estimated_cost_usd":"0.000010","currency":"USD","latency_ms":100,"metadata":{"streaming":false}}'
+```
+
+The event should appear in usage requests under the Proofbase application scope after Phase 34 exposes source-app filtering in the dashboard.
 
 ## Current Limitation
 
