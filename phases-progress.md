@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 35: Proofbase telemetry client and safe failure behavior
+Phase 36: Proofbase query and streaming telemetry
 
 ## Phase table
 
@@ -56,8 +56,8 @@ Phase 35: Proofbase telemetry client and safe failure behavior
 | 32 | External telemetry ingestion API | Completed | main | d912eb0 | 2026-07-06 | Added external LLM event ingestion endpoint, schemas, auth/app resolution, persistence, metrics, duplicate handling, and tests. |
 | 33 | Proofbase application registration and configuration | Completed | main | 42b4749 | 2026-07-06 | Registered Proofbase seed data, placeholder telemetry env contract, local setup docs, and idempotency checks. |
 | 34 | Dashboard source-app filtering and event detail | Completed | main | ff71c3d | 2026-07-06 | Added source-app and operation filters, external event detail fields, telemetry-aware empty states, and frontend tests. |
-| 35 | Proofbase telemetry client and safe failure behavior | In Progress |  |  |  | Add best-effort Proofbase telemetry client with redaction, timeout, disabled mode, and failure isolation. |
-| 36 | Proofbase query and streaming telemetry | Not Started |  |  |  | Emit central events from Proofbase `/query` and `/query/stream` without changing RAG behavior. |
+| 35 | Proofbase telemetry client and safe failure behavior | Completed | main | pending | 2026-07-06 | Added best-effort Proofbase telemetry client with redaction, timeout, disabled mode, failure isolation, smoke script, and tests. |
+| 36 | Proofbase query and streaming telemetry | In Progress |  |  |  | Emit central events from Proofbase `/query` and `/query/stream` without changing RAG behavior. |
 | 37 | Proofbase auxiliary AI telemetry | Not Started |  |  |  | Extend coverage to AI Markdown cleanup, query decomposition, and embeddings where usage/cost can be represented honestly. |
 | 38 | Cross-repository automated validation | Not Started |  |  |  | Add mocked and local validation proving the telemetry path works without real OpenAI or AWS resources. |
 | 39 | Browser end-to-end Proofbase telemetry demo | Not Started |  |  |  | Verify locally in browser that a Proofbase interaction appears in the Production AI Platform dashboard. |
@@ -2770,6 +2770,82 @@ Post-commit review:
 Next phase:
 
 - Phase 35: Proofbase telemetry client and safe failure behavior
+
+### Phase 35: Proofbase telemetry client and safe failure behavior
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-06
+
+Implementation notes:
+
+- Added a Proofbase telemetry client module that sends normalized events to Production AI Platform using the Phase 31/32 external telemetry contract.
+- Added Proofbase config for enabled/disabled mode, endpoint URL, API key, timeout, maximum metadata bytes, and redaction behavior.
+- Kept telemetry disabled by default and documented the placeholder local setup in Proofbase and platform env examples.
+- Added best-effort failure handling so telemetry submission returns `False` instead of raising when the platform endpoint is missing, down, slow, or returns an error.
+- Added allowlist-based payload sanitization that excludes full prompts, full user questions, rewritten questions, retrieved chunks, citations, document text, Markdown, provider payloads, API keys, secrets, and raw customer data.
+- Added a synthetic Proofbase telemetry smoke script for local development.
+- Added stdlib-only Proofbase tests for disabled mode, successful submission, timeout/failure isolation, redaction, metadata bounds, and no-secret logging.
+
+Validation:
+
+- Command: `S:\github-repos\enterprise-knowledge-agent\.venv\Scripts\python scripts\test_platform_telemetry_client.py`
+  Result: Passed, 5 tests.
+- Command: no-write Python `compile(...)` check for touched Proofbase config, observability, smoke, and test files
+  Result: Passed.
+- Command: `.\.venv\Scripts\python -m ruff check` against touched Proofbase telemetry files from the platform toolchain
+  Result: Passed.
+- Command: `.\.venv\Scripts\python -m ruff format --check` against touched Proofbase telemetry files from the platform toolchain
+  Result: Passed.
+- Command: `.\.venv\Scripts\python -m ruff check apps/api`
+  Result: Passed for the platform API.
+- Command: `git diff --check` in both repositories
+  Result: Passed with expected CRLF warnings only.
+- Command: focused secret-pattern scans for modified platform and Proofbase files
+  Result: Passed with no matches.
+
+Security notes:
+
+- No real platform API key, OpenAI key, AWS credential, provider credential, customer data, prompt text, question text, retrieved chunk, citation, document text, Markdown body, or provider payload was committed.
+- The client sends the platform API key only in the outbound `X-API-Key` header and never includes it in payloads or failure logs.
+- Payload and metadata sanitization are allowlist based, with sensitive-key filtering and a metadata byte budget.
+
+Reliability notes:
+
+- Telemetry is disabled by default.
+- Submission failures are isolated from user-facing Proofbase behavior and return `False` instead of raising.
+- The client enforces a short configurable timeout and logs a local warning with bounded identifiers for triage.
+
+Observability notes:
+
+- Failure logs include error category, source app, operation type, event ID, and external request ID without secrets or raw content.
+- The synthetic smoke script can emit a safe `rag_query` event once local platform credentials are configured.
+
+Scope notes:
+
+- Completed Phase 35 Proofbase telemetry client and safe failure behavior only.
+- Did not wire `/query`, `/query/stream`, Markdown cleanup, query decomposition, embeddings, browser validation, cloud resources, or deployments.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Companion Proofbase commit: 56dce6d
+- Top findings: pending post-commit review.
+- Fix commits: pending.
+
+Next phase:
+
+- Phase 36: Proofbase query and streaming telemetry
 
 ## Update template
 
