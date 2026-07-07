@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 37: Proofbase auxiliary AI telemetry
+Phase 38: Cross-repository automated validation
 
 ## Phase table
 
@@ -58,8 +58,8 @@ Phase 37: Proofbase auxiliary AI telemetry
 | 34 | Dashboard source-app filtering and event detail | Completed | main | ff71c3d | 2026-07-06 | Added source-app and operation filters, external event detail fields, telemetry-aware empty states, and frontend tests. |
 | 35 | Proofbase telemetry client and safe failure behavior | Completed | main | 2735c93 | 2026-07-06 | Added best-effort Proofbase telemetry client with redaction, timeout, disabled mode, failure isolation, smoke script, and tests. |
 | 36 | Proofbase query and streaming telemetry | Completed | main | 7fdf5b3 | 2026-07-06 | Emitted best-effort central telemetry for Proofbase `/query` and `/query/stream`, including safe failure events and tests. |
-| 37 | Proofbase auxiliary AI telemetry | In Progress |  |  |  | Extend coverage to AI Markdown cleanup, query decomposition, and embeddings where usage/cost can be represented honestly. |
-| 38 | Cross-repository automated validation | Not Started |  |  |  | Add mocked and local validation proving the telemetry path works without real OpenAI or AWS resources. |
+| 37 | Proofbase auxiliary AI telemetry | Completed | main | pending | 2026-07-06 | Added safe auxiliary telemetry for Markdown cleanup, query decomposition, and unpriced embedding usage/counts with tests and docs. |
+| 38 | Cross-repository automated validation | In Progress |  |  |  | Add mocked and local validation proving the telemetry path works without real OpenAI or AWS resources. |
 | 39 | Browser end-to-end Proofbase telemetry demo | Not Started |  |  |  | Verify locally in browser that a Proofbase interaction appears in the Production AI Platform dashboard. |
 | 40 | Proofbase integration documentation and AgentOps handoff | Not Started |  |  |  | Finalize docs, runbooks, demo story, security/reliability notes, and prepare the AgentOps integration sequence. |
 
@@ -2924,6 +2924,87 @@ Post-commit review:
 Next phase:
 
 - Phase 37: Proofbase auxiliary AI telemetry
+
+### Phase 37: Proofbase auxiliary AI telemetry
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-06
+
+Implementation notes:
+
+- Added Proofbase auxiliary telemetry mapping for operation types beyond chat generation.
+- Emitted `markdown_cleanup` telemetry after successful AI Markdown cleanup with model, chat token counts, estimated chat cost, latency, document/project/department IDs, and bounded metadata.
+- Emitted `query_decomposition` telemetry when the OpenAI fallback decomposer runs, including success and safe failure events with token/cost data when the provider returns usage.
+- Emitted `embedding_generation` telemetry for uncached embedding provider calls with token usage and embedding counts when available.
+- Marked embedding telemetry as `unpriced` rather than estimating cost because Proofbase does not configure embedding model prices yet.
+- Normalized Proofbase local pricing statuses such as `missing_model_price` and `missing_token_usage` to the platform contract values `unpriced` and `unknown`.
+- Added focused stdlib tests for Markdown cleanup, query decomposition, embedding telemetry, and pricing-status normalization.
+- Updated Proofbase README and cost-tracking docs, plus platform cost analysis, to explain auxiliary telemetry and billing-grade limits.
+- Pushed companion Proofbase commit `18f1c97`.
+
+Validation:
+
+- Command: `S:\github-repos\enterprise-knowledge-agent\.venv\Scripts\python scripts\test_phase37_auxiliary_telemetry.py`
+  Result: Passed, 4 tests.
+- Command: `S:\github-repos\enterprise-knowledge-agent\.venv\Scripts\python scripts\test_phase36_query_telemetry.py`
+  Result: Passed, 3 tests.
+- Command: `S:\github-repos\enterprise-knowledge-agent\.venv\Scripts\python scripts\test_platform_telemetry_client.py`
+  Result: Passed, 5 tests.
+- Command: `S:\github-repos\enterprise-knowledge-agent\.venv\Scripts\python scripts\test_phase43_markdown_cleanup.py`
+  Result: Passed; emitted an existing Starlette/httpx deprecation warning from the test client.
+- Command: no-write Python `compile(...)` check for touched Proofbase files
+  Result: Passed.
+- Command: `.\.venv\Scripts\python -m ruff check` against touched Proofbase files from the platform toolchain
+  Result: Passed.
+- Command: `.\.venv\Scripts\python -m ruff format --check` against new Proofbase telemetry files from the platform toolchain
+  Result: Passed.
+- Command: `git diff --check` in both repositories
+  Result: Passed with expected CRLF warnings only.
+- Command: focused secret-pattern scans for modified Proofbase and platform files
+  Result: Passed with no matches.
+
+Security notes:
+
+- No real API keys, OpenAI keys, AWS credentials, provider credentials, customer data, extracted Markdown, cleaned Markdown, full questions, retrieved chunks, citation text, document text, prompts, or provider payloads were committed or sent in telemetry.
+- Auxiliary telemetry uses bounded metadata, document IDs, question hashes, token counts, cost estimates, and redacted failure categories/messages only.
+
+Reliability notes:
+
+- Auxiliary telemetry uses the Phase 35 best-effort client, so platform outages do not break cleanup, decomposition, or embedding workflows.
+- Existing Markdown cleanup and embedding behavior remains covered by focused tests.
+- Embedding telemetry is emitted only for uncached provider calls to avoid pretending cache hits are provider usage.
+
+Observability notes:
+
+- Central telemetry now covers RAG query generation, streaming generation, Markdown cleanup, query decomposition, and embedding provider calls.
+- Cost labels distinguish estimated chat costs from unpriced embedding usage/count telemetry.
+
+Scope notes:
+
+- Completed Phase 37 auxiliary Proofbase telemetry only.
+- Did not add cross-repository smoke scripts, browser validation, live OpenAI calls, cloud resources, or deployments.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Companion Proofbase commit: 18f1c97
+- Top findings: pending post-commit review.
+- Fix commits: pending.
+
+Next phase:
+
+- Phase 38: Cross-repository automated validation
 
 ## Update template
 

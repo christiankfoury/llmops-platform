@@ -98,6 +98,7 @@ Current limitation:
 
 - The first provider is a mock provider with static pricing.
 - Real provider pricing must be refreshed from provider billing documentation before enabling paid provider calls.
+- External Proofbase telemetry may include estimated chat costs for RAG queries, streaming queries, Markdown cleanup, and query decomposition when Proofbase reports token usage. Proofbase embedding telemetry is accepted as usage/count telemetry but should be labeled unpriced until embedding pricing is configured.
 - Estimated costs are for operational visibility, not billing-grade accounting.
 
 ## Scaling Cost Assumptions
