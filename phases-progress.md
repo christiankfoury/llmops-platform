@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-All phases completed
+Phase 32: External telemetry ingestion API
 
 ## Phase table
 
@@ -52,6 +52,16 @@ All phases completed
 | 28 | Cost controls and analysis | Completed | main | d433c06 | 2026-07-01 | Cloud cost estimates, optional AWS Budget Terraform module, LLM cost tracking explanation, right-sizing notes, and dev teardown guidance. |
 | 29 | GitOps with Argo CD | Completed | main | 1143de2 | 2026-07-01 | Optional Argo CD AppProject and Application manifests, Helm-based GitOps docs, sync strategy, and promotion guidance. |
 | 30 | Final documentation and portfolio polish | Completed | main | 68a98fb | 2026-07-01 | Final README, diagrams, demo script, incident simulation, portfolio summaries, screenshot guidance, known limitations, and final status. |
+| 31 | Proofbase integration contract and event schema | Completed | main | pending | 2026-07-06 | Defined telemetry-first contract, event schema, sensitive-data rules, operation taxonomy, idempotency, retry behavior, and Proofbase-first integration boundaries. |
+| 32 | External telemetry ingestion API | In Progress |  |  |  | Add central ingestion endpoint for external LLM usage events, persistence, metrics, validation, and tests. |
+| 33 | Proofbase application registration and configuration | Not Started |  |  |  | Register Proofbase as a client app with placeholder local API key, seed/setup docs, env examples, and idempotent checks. |
+| 34 | Dashboard source-app filtering and event detail | Not Started |  |  |  | Make Proofbase telemetry filterable and inspectable in the Production AI Platform dashboard. |
+| 35 | Proofbase telemetry client and safe failure behavior | Not Started |  |  |  | Add best-effort Proofbase telemetry client with redaction, timeout, disabled mode, and failure isolation. |
+| 36 | Proofbase query and streaming telemetry | Not Started |  |  |  | Emit central events from Proofbase `/query` and `/query/stream` without changing RAG behavior. |
+| 37 | Proofbase auxiliary AI telemetry | Not Started |  |  |  | Extend coverage to AI Markdown cleanup, query decomposition, and embeddings where usage/cost can be represented honestly. |
+| 38 | Cross-repository automated validation | Not Started |  |  |  | Add mocked and local validation proving the telemetry path works without real OpenAI or AWS resources. |
+| 39 | Browser end-to-end Proofbase telemetry demo | Not Started |  |  |  | Verify locally in browser that a Proofbase interaction appears in the Production AI Platform dashboard. |
+| 40 | Proofbase integration documentation and AgentOps handoff | Not Started |  |  |  | Finalize docs, runbooks, demo story, security/reliability notes, and prepare the AgentOps integration sequence. |
 
 ## Phase execution log
 
@@ -2481,6 +2491,67 @@ Post-commit review:
 Next phase:
 
 - None; all phases completed.
+
+### Phase 31: Proofbase integration contract and event schema
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-06
+
+Implementation notes:
+
+- Added `docs/external-telemetry-contract.md` as the source of truth for external client-app LLM telemetry.
+- Defined the Proofbase-first operation taxonomy: `rag_query`, `rag_query_stream`, `markdown_cleanup`, `query_decomposition`, and `embedding_generation`.
+- Specified required fields, optional usage/cost/latency fields, bounded metadata, idempotency, duplicate handling, retry behavior, and Proofbase field mapping.
+- Updated architecture, observability, security, gateway flow, README, and project spec docs to point at the telemetry-first contract.
+- Kept AgentOps as the second integration target after Proofbase phases are completed.
+
+Validation:
+
+- Command: `git diff --check`
+  Result: Passed with expected CRLF line-ending warnings only.
+- Command: contract coverage search for `event_id`, `external_request_id`, operation taxonomy, sensitive data rules, idempotency, retry semantics, and AgentOps handoff terms
+  Result: Passed; required Phase 31 contract concepts are present in the new contract doc and linked docs.
+- Command: focused secret-pattern scan for provider keys, AWS access keys, private keys, OpenAI key assignments, AWS secret assignments, and Slack tokens
+  Result: Passed with no matches.
+
+Security notes:
+
+- The contract explicitly excludes API keys, provider credentials, full prompts, full questions, rewritten questions, retrieved chunks, citation text, uploaded document text, extracted Markdown, cleaned Markdown, provider payloads, and raw customer data by default.
+- Duplicate event handling is required so retries do not inflate request or cost totals.
+
+Reliability notes:
+
+- The contract requires best-effort client submission, short timeouts, bounded retries, and no user-facing Proofbase failures when telemetry ingestion is unavailable.
+
+Observability notes:
+
+- The contract standardizes source app, operation type, external request ID, model, prompt version, token counts, estimated cost, latency, status, error category, and bounded metadata for future dashboards and metrics.
+
+Scope notes:
+
+- Completed Phase 31 documentation and schema-contract work only.
+- Did not add the ingestion API, database migrations, dashboard filters, Proofbase telemetry client, browser tests, cloud resources, or deployments.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending
+- Fix commits: pending
+
+Next phase:
+
+- Phase 32: External telemetry ingestion API
 
 ## Update template
 

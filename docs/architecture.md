@@ -72,6 +72,19 @@ This flow intentionally avoids advanced RAG behavior. Retrieval, citations, docu
 
 For a developer-focused walkthrough of the gateway code path, see [gateway-flow.md](gateway-flow.md).
 
+## External telemetry integration
+
+The next planned integration sequence connects Proofbase through normalized telemetry before routing provider calls through the gateway. The event schema and privacy rules are defined in [external-telemetry-contract.md](external-telemetry-contract.md).
+
+In that model:
+
+1. Proofbase continues to call its own AI provider paths for RAG chat, streaming chat, Markdown cleanup, query decomposition, and embeddings.
+2. Proofbase sends a bounded LLM usage event to Production AI Platform after each safe AI operation.
+3. Production AI Platform authenticates the client application, validates the event, persists usage and cost data, emits metrics, and shows the traffic in the dashboard.
+4. If Production AI Platform is unavailable, Proofbase continues serving users and records the telemetry failure locally.
+
+This preserves the project boundary: Proofbase owns the AI product layer, while this repository owns centralized operations visibility.
+
 ## Application components
 
 ### API

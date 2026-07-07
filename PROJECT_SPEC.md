@@ -35,7 +35,7 @@ The clean portfolio story is:
 1. Proofbase shows I can build a serious enterprise AI application.
 2. Production AI Platform shows I can productionize and operate AI workloads.
 
-Future integration path: Proofbase can become a client app that sends provider calls through this platform's gateway, gaining centralized model routing, cost controls, traces, and request logs without changing Proofbase's RAG domain logic.
+Future integration path: Proofbase should connect to this platform in two steps. First, Proofbase sends normalized LLM usage telemetry into Production AI Platform while continuing to own RAG, retrieval, citations, permission filtering, memory behavior, and answer-quality evaluation. This gives centralized cost, latency, token, error, request, and dashboard visibility without risking Proofbase's product correctness. Later, after the gateway supports the richer provider contract Proofbase needs, selected Proofbase provider calls can be routed through the gateway for centralized model routing and operational controls.
 
 ## Target audience
 
@@ -79,6 +79,8 @@ As a platform operator, I want to deploy the AI gateway across dev, staging, and
 ### Application developer
 
 As an application developer, I want an API key for my app so that I can send LLM requests through the gateway and track usage.
+
+As an application developer with an existing AI app, I want to submit normalized LLM usage telemetry to the platform so that my app's model usage, cost, latency, and failures can be monitored centrally before I migrate provider calls through the gateway.
 
 ### Engineering manager
 
@@ -172,6 +174,43 @@ The dashboard should show:
 - requests by model
 - prompt versions
 - model routes
+
+### External telemetry ingestion
+
+Existing AI applications should be able to connect to the platform before fully routing calls through the gateway.
+
+The first integration target is Proofbase (`enterprise-knowledge-agent`). Proofbase should remain the AI product layer and should not move RAG-specific behavior into this repository. The platform should receive safe, normalized telemetry events for Proofbase AI operations such as RAG chat generation, streaming chat generation, AI Markdown cleanup, query decomposition, and embedding generation where cost/token data can be represented honestly.
+
+External telemetry events should support:
+
+- source application identity
+- operation type
+- external request ID
+- project/application attribution
+- model and provider
+- prompt name and version when available
+- input and output tokens when available
+- estimated cost when available
+- latency
+- status
+- error category
+- bounded metadata
+
+External telemetry events should not include by default:
+
+- API keys
+- provider credentials
+- full prompts
+- full user questions
+- retrieved chunks
+- citations
+- uploaded document text
+- extracted Markdown
+- raw customer or employee data
+
+Telemetry submission should be best-effort for client apps. If the platform is unavailable, the client app should keep serving users and record the telemetry failure locally without exposing secrets.
+
+The detailed Phase 31 contract is documented in `docs/external-telemetry-contract.md`. It defines the Proofbase operation taxonomy, required and optional fields, sensitive-data exclusions, idempotency strategy, retry behavior, and AgentOps handoff boundary.
 
 ## Infrastructure goals
 

@@ -77,4 +77,4 @@ Tradeoff:
 
 Future integration:
 
-- Proofbase can be documented as a client application that sends model calls through this platform's LLM gateway for centralized cost, latency, tracing, and model-routing controls.
+- Proofbase should connect through telemetry first, then gateway routing later. In the telemetry-first step, Proofbase keeps owning retrieval, citations, permission filtering, memory, and evaluation, while this platform centralizes cost, latency, token, error, and request visibility. Gateway-routed model calls can follow after the gateway supports Proofbase's richer request contract.

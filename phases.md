@@ -658,3 +658,365 @@ Acceptance criteria:
 - An engineer can inspect the repo and see real implementation depth.
 - README clearly explains what was built, how it is deployed, how it is monitored, and how it fails safely.
 - Final claims are accurate and backed by code/docs.
+
+## Phase 31: Proofbase integration contract and event schema
+
+Define the telemetry-first integration between Proofbase (`enterprise-knowledge-agent`) and this Production AI Platform before changing runtime behavior.
+
+This phase intentionally avoids routing Proofbase LLM calls through the gateway. Proofbase should continue to own RAG, retrieval, citations, permissions, and answer-quality behavior. The Production AI Platform should receive normalized LLMOps telemetry so it can centralize cost, latency, token, error, and request visibility.
+
+Deliverables:
+
+- Shared external LLM event schema for client applications.
+- Operation taxonomy for Proofbase events:
+  - `rag_query`
+  - `rag_query_stream`
+  - `markdown_cleanup`
+  - `query_decomposition`
+  - `embedding_generation`
+- Required versus optional event fields.
+- Sensitive-data rules for telemetry payloads.
+- Idempotency and external request ID strategy.
+- Error and retry semantics for telemetry submission.
+- Phase-level implementation notes for Proofbase first, AgentOps second.
+
+Relevant files:
+
+- `docs/gateway-flow.md`
+- `docs/architecture.md`
+- `docs/observability.md`
+- `docs/security-baseline.md`
+- `docs/portfolio-demo-plan.md`
+- `PROJECT_SPEC.md`
+- `README.md`
+- Proofbase reference files:
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\main.py`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\generation\answer_generator.py`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\observability\logger.py`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\costing\estimator.py`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\embeddings\openai_embeddings.py`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\projects\markdown_cleanup.py`
+
+Acceptance criteria:
+
+- The integration path is documented as telemetry-first.
+- The event schema supports model, operation type, prompt version, input/output tokens, estimated cost, latency, status, error category, request ID, external request ID, project/application attribution, and metadata.
+- The schema explicitly excludes API keys, provider credentials, full prompts, full questions, retrieved chunks, citations, document text, and raw customer data by default.
+- The plan distinguishes Proofbase product-layer telemetry from Production AI Platform operations-layer responsibilities.
+
+## Phase 32: External telemetry ingestion API
+
+Add a central ingestion API for external client applications to send LLM usage events into Production AI Platform.
+
+Deliverables:
+
+- `POST /v1/usage/llm-events` or equivalent ingestion endpoint.
+- Pydantic request/response schemas for external LLM events.
+- Service layer that validates API key ownership and resolves project/application scope.
+- Persistence into existing `gateway_requests` and `cost_records`, or a purpose-built external event model if existing gateway tables cannot represent the data cleanly.
+- Error handling for invalid payloads, unknown applications, bad API keys, and duplicate external event IDs.
+- Metrics emission for accepted events, rejected events, token totals, cost totals, and ingestion errors.
+- Tests for success, validation failure, auth failure, duplicate handling, and cost aggregation.
+
+Relevant files:
+
+- `apps/api/app/api/usage.py`
+- `apps/api/app/schemas/usage.py`
+- `apps/api/app/services/usage.py`
+- `apps/api/app/services/auth.py`
+- `apps/api/app/models/gateway_request.py`
+- `apps/api/app/models/cost_record.py`
+- `apps/api/app/models/identity.py`
+- `apps/api/app/observability/metrics.py`
+- `apps/api/tests/`
+- `apps/api/alembic/versions/`
+
+Acceptance criteria:
+
+- External apps can submit one normalized LLM event with an application API key.
+- Accepted events appear in usage summaries and request listings.
+- Rejected events do not create partial cost records.
+- No raw secrets or sensitive prompt/document content are persisted.
+- Existing gateway behavior remains unchanged.
+
+## Phase 33: Proofbase application registration and configuration
+
+Register Proofbase as a first-class client application of the Production AI Platform and define the safe configuration contract between the two repos.
+
+Deliverables:
+
+- Seed/dev data for a Proofbase project/application or documented admin setup steps.
+- Dedicated placeholder API key for Proofbase local integration.
+- Prompt and model route records that make Proofbase events filterable in the dashboard.
+- `.env.example` additions for telemetry endpoint, API key, enabled flag, timeout, and redaction controls.
+- Configuration docs for running both apps locally without real cloud resources.
+- Tests or smoke checks proving the seed/setup is idempotent.
+
+Relevant files:
+
+- `apps/api/scripts/seed_dev_data.py`
+- `apps/api/.env.example`
+- `.env.example`
+- `apps/api/app/schemas/admin.py`
+- `apps/api/app/services/admin_config.py`
+- `docs/deployment.md`
+- `docs/gateway-flow.md`
+- `docs/secrets-management.md`
+- Proofbase target files:
+  - `S:\github-repos\enterprise-knowledge-agent\.env.example`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\core\config.py`
+
+Acceptance criteria:
+
+- Proofbase has a distinct project/application identity in Production AI Platform.
+- Local setup uses placeholders only and does not require real OpenAI or AWS credentials for telemetry validation.
+- The dashboard can distinguish Proofbase traffic from existing demo app traffic.
+- Proofbase remains fully functional if telemetry is disabled.
+
+## Phase 34: Dashboard source-app filtering and event detail
+
+Make external app telemetry visible and understandable in the Production AI Platform dashboard.
+
+Deliverables:
+
+- Dashboard filters for project/application/source app.
+- Request/event detail panel that shows external request IDs and operation type.
+- Usage summaries for Proofbase traffic.
+- Cost, latency, token, status, and error display for externally ingested events.
+- Empty states and error states for telemetry-only usage.
+- Frontend tests for filters and event rendering.
+
+Relevant files:
+
+- `apps/web/components/dashboard.tsx`
+- `apps/web/components/dashboard.test.tsx`
+- `apps/web/components/dashboard.module.css`
+- `apps/web/app/api/runtime-config/route.ts`
+- `apps/web/package.json`
+- `apps/api/app/api/usage.py`
+- `apps/api/app/schemas/usage.py`
+- `apps/api/app/services/usage.py`
+
+Acceptance criteria:
+
+- A user can filter the dashboard to only Proofbase telemetry.
+- Event detail shows operation type, model, tokens, cost, latency, status, external ID, and error category.
+- UI does not imply the platform performed Proofbase retrieval, citation validation, or permission checks.
+- Existing dashboard behavior for normal gateway requests still works.
+
+## Phase 35: Proofbase telemetry client and safe failure behavior
+
+Add a small Proofbase client that sends telemetry events to Production AI Platform without affecting user-facing RAG behavior.
+
+Deliverables:
+
+- Proofbase telemetry client module.
+- Config flags:
+  - enabled/disabled
+  - endpoint URL
+  - API key
+  - timeout
+  - max metadata size
+  - redaction behavior
+- Best-effort submission that never fails the user query if the platform is down.
+- Structured local log message when telemetry submission fails.
+- Tests for disabled mode, successful submission, timeout/failure, redaction, and no-secret logging.
+
+Relevant files:
+
+- Proofbase target files:
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\core\config.py`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\observability\logger.py`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\observability\__init__.py`
+  - `S:\github-repos\enterprise-knowledge-agent\scripts\`
+  - `S:\github-repos\enterprise-knowledge-agent\README.md`
+  - `S:\github-repos\enterprise-knowledge-agent\.env.example`
+- Production reference files:
+  - `apps/api/app/schemas/usage.py`
+  - `docs/observability.md`
+
+Acceptance criteria:
+
+- Proofbase can send a synthetic telemetry event to Production AI Platform in local development.
+- If Production AI Platform is unavailable, Proofbase queries still succeed.
+- Telemetry payloads do not include full prompt text, full user questions, retrieved chunks, citations, document text, OpenAI keys, or platform API keys.
+- Unit tests prove failure-isolation behavior.
+
+## Phase 36: Proofbase query and streaming telemetry
+
+Instrument Proofbase `/query` and `/query/stream` so chat-generation events are reported centrally.
+
+Deliverables:
+
+- Telemetry event emission after successful `/query` responses.
+- Telemetry event emission after successful `/query/stream` completion.
+- Failure telemetry for query errors where safe and useful.
+- Mapping from Proofbase fields to the shared schema:
+  - request ID
+  - project ID
+  - department ID
+  - prompt name/version
+  - model
+  - input/output tokens
+  - estimated cost
+  - retrieval/generation/total latency
+  - response type
+  - pricing status
+  - status/error category
+- Tests for non-streaming query telemetry, streaming telemetry, and failure telemetry.
+
+Relevant files:
+
+- Proofbase target files:
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\main.py`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\generation\answer_generator.py`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\observability\logger.py`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\observability\tracing.py`
+  - `S:\github-repos\enterprise-knowledge-agent\scripts\test_*.py`
+- Production target files:
+  - `apps/api/tests/`
+
+Acceptance criteria:
+
+- A normal Proofbase chat query creates a central Production AI Platform usage event.
+- A streaming Proofbase chat query creates exactly one completed central usage event.
+- Local Proofbase observability continues to work.
+- Proofbase answer quality, citations, permission filtering, and memory behavior are unchanged.
+
+## Phase 37: Proofbase auxiliary AI telemetry
+
+Extend telemetry coverage beyond chat generation to other Proofbase AI call paths where the data can be captured safely.
+
+Deliverables:
+
+- AI Markdown cleanup telemetry.
+- Query decomposition telemetry when OpenAI decomposition is used.
+- Embedding generation telemetry for ingestion and retrieval where token/cost estimates can be represented honestly.
+- Clear handling for operations with missing token usage or approximate estimates.
+- Documentation of what is and is not billing-grade.
+- Tests for cleanup telemetry and at least one embedding/decomposition telemetry path.
+
+Relevant files:
+
+- Proofbase target files:
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\projects\markdown_cleanup.py`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\reasoning\query_decomposer.py`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\embeddings\openai_embeddings.py`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\projects\document_store.py`
+  - `S:\github-repos\enterprise-knowledge-agent\docs\phase-16\cost-tracking.md`
+  - `S:\github-repos\enterprise-knowledge-agent\README.md`
+- Production target files:
+  - `apps/api/app/services/pricing.py`
+  - `apps/api/app/schemas/usage.py`
+  - `docs/cost-analysis.md`
+
+Acceptance criteria:
+
+- AI Markdown cleanup calls appear centrally with model, tokens, cost, latency, and operation type.
+- Embedding/decomposition telemetry is either implemented with honest estimates or explicitly documented as skipped until reliable usage data is available.
+- Dashboard labels make clear which costs are estimated and which are missing/approximate.
+- No uploaded document text or extracted Markdown is sent to Production AI Platform.
+
+## Phase 38: Cross-repository automated validation
+
+Add automated checks that prove the Proofbase-to-platform telemetry path works without relying on real OpenAI or cloud resources.
+
+Deliverables:
+
+- Production AI Platform tests for external event ingestion.
+- Proofbase tests for telemetry client behavior.
+- Cross-repo smoke script or documented local validation sequence.
+- Mocked platform receiver test for Proofbase.
+- Mocked Proofbase event fixture test for Production AI Platform.
+- `docker compose config` validation for both repos when applicable.
+
+Relevant files:
+
+- `apps/api/tests/`
+- `apps/web/components/dashboard.test.tsx`
+- `docs/testing.md`
+- `scripts/`
+- Proofbase target files:
+  - `S:\github-repos\enterprise-knowledge-agent\scripts\`
+  - `S:\github-repos\enterprise-knowledge-agent\scripts\test_*.py`
+  - `S:\github-repos\enterprise-knowledge-agent\docker-compose.yml`
+
+Acceptance criteria:
+
+- Tests can run without real OpenAI calls.
+- Tests can run without AWS.
+- Tests prove telemetry does not block Proofbase user workflows.
+- Validation commands are documented for a developer new to cloud/devops.
+
+## Phase 39: Browser end-to-end Proofbase telemetry demo
+
+Verify the integration through the browser and local running apps.
+
+Deliverables:
+
+- Local run instructions for both apps.
+- Browser validation checklist:
+  - open Proofbase
+  - send a query
+  - open Production AI Platform dashboard
+  - filter to Proofbase
+  - inspect the resulting event
+- Screenshot capture guidance with redaction rules.
+- Playwright or browser-driven smoke verification where practical.
+- Troubleshooting notes for ports, env vars, API keys, and unavailable services.
+
+Relevant files:
+
+- `docs/demo-script.md`
+- `docs/dashboard-screenshots.md`
+- `docs/testing.md`
+- `README.md`
+- `apps/web/components/dashboard.tsx`
+- Proofbase target files:
+  - `S:\github-repos\enterprise-knowledge-agent\apps\web\app\chat\ChatDemoClient.tsx`
+  - `S:\github-repos\enterprise-knowledge-agent\apps\web\app\dev-admin\observability\page.tsx`
+  - `S:\github-repos\enterprise-knowledge-agent\README.md`
+
+Acceptance criteria:
+
+- Browser validation proves a Proofbase interaction appears in Production AI Platform.
+- The demo does not require Terraform, AWS resources, or production deployment.
+- Screenshots avoid secrets, full prompts, full questions, document text, and sensitive content.
+- Any skipped browser automation is documented with the blocker.
+
+## Phase 40: Proofbase integration documentation and AgentOps handoff
+
+Close the Proofbase integration sequence and prepare the next client-app integration with AgentOps Workflow Platform.
+
+Deliverables:
+
+- Final Proofbase integration docs.
+- README update showing Proofbase as a connected client app.
+- Portfolio/demo wording that preserves the Proofbase versus Production AI Platform boundary.
+- Runbook notes for telemetry ingestion outages.
+- Security notes for telemetry API keys and redaction.
+- Reliability notes for best-effort telemetry.
+- Observability notes for central dashboard interpretation.
+- AgentOps integration readiness note that identifies reusable patterns and differences.
+
+Relevant files:
+
+- `README.md`
+- `docs/architecture.md`
+- `docs/observability.md`
+- `docs/runbook.md`
+- `docs/security-baseline.md`
+- `docs/portfolio-demo-plan.md`
+- `phases-progress.md`
+- AgentOps reference files for the next sequence:
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\services\llm_client.py`
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\services\cost_tracking.py`
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\models\agent_step.py`
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\models\cost_event.py`
+
+Acceptance criteria:
+
+- The docs can honestly claim Proofbase telemetry is centralized in Production AI Platform.
+- The docs do not claim Production AI Platform performs Proofbase retrieval, citations, permission filtering, or benchmark evaluation.
+- Telemetry outage behavior is documented as non-blocking.
+- The next phase sequence can proceed to AgentOps without redesigning the event ingestion foundation.

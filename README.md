@@ -23,7 +23,7 @@ This project complements **Proofbase**, the permission-aware enterprise RAG appl
 - Proofbase proves the AI product layer: document workflows, retrieval quality, citations, permissions, memory safety, and answer-quality evaluation.
 - Production AI Platform proves the operations layer: centralized model access, cost, latency, errors, traces, secrets, deployments, rollback, and cloud infrastructure.
 
-A future integration could make Proofbase a client app of this gateway so model routing, cost controls, traces, and request logs are centralized here.
+The next planned integration sequence connects Proofbase as a client app through telemetry first: Proofbase keeps owning RAG, retrieval, citations, permissions, memory, and answer-quality evaluation, while this platform centralizes model usage, cost, latency, token, error, and request visibility. Gateway-routed provider calls can follow after the gateway supports Proofbase's richer provider contract.
 
 ## Target Portfolio Claim
 
@@ -229,6 +229,7 @@ Recommended flow:
 - [docs/architecture.md](docs/architecture.md): architecture details
 - [docs/architecture-diagrams.md](docs/architecture-diagrams.md): Mermaid diagrams
 - [docs/gateway-flow.md](docs/gateway-flow.md): gateway request flow and code walkthrough
+- [docs/external-telemetry-contract.md](docs/external-telemetry-contract.md): Proofbase-first external LLM telemetry contract
 - [docs/deployment.md](docs/deployment.md): local, Kubernetes, Helm, CI/CD, rollback, GitOps
 - [docs/ci-cd.md](docs/ci-cd.md): GitHub Actions CI jobs, actions, scanners, and deployment boundaries
 - [docs/testing.md](docs/testing.md): validation commands
@@ -259,4 +260,4 @@ Recommended flow:
 
 ## Status
 
-All 30 planned phases are implemented in code and documentation. CI has been kept green during the final phase loop, and the repository is packaged as a portfolio-grade production AI platform rather than a toy LLM app.
+The original 30 infrastructure/platform phases are implemented in code and documentation. Phases 31-40 now define the next Proofbase telemetry integration sequence, starting with a safe event contract before any cross-repo runtime changes. CI was kept green during the original phase loop, and the repository is packaged as a portfolio-grade production AI platform rather than a toy LLM app.

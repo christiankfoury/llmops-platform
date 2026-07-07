@@ -245,6 +245,8 @@ The gateway wraps the provider call with bounded retry behavior. A transient fai
 
 This is the main future integration point. To connect the platform to OpenAI, add a real provider adapter and route `provider = openai` through that adapter.
 
+External apps that already call providers directly should not be forced through this provider-call path immediately. Proofbase uses a telemetry-first integration defined in [external-telemetry-contract.md](external-telemetry-contract.md): it keeps its own RAG provider calls and sends sanitized usage events to the platform for centralized visibility.
+
 ## Step 7: Cost And Token Calculation
 
 After a successful provider call, the gateway estimates cost.
@@ -417,6 +419,8 @@ The successful request should appear in recent requests. The simulated failure s
 ## Current Limitation
 
 The gateway has the production shape, but the provider is still mocked.
+
+Proofbase integration phases intentionally start with external telemetry ingestion rather than gateway-routed provider calls. That keeps Proofbase's retrieval, citation, permission, and answer-quality behavior outside this repository while still making cost, latency, token, request, and error signals visible in the platform.
 
 Current flow:
 

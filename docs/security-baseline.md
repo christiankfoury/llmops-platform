@@ -186,3 +186,11 @@ Do not log:
 - raw authorization headers
 - sensitive prompts by default
 - personally identifiable information unless explicitly required and protected
+
+## External telemetry data policy
+
+External client-app telemetry must follow [external-telemetry-contract.md](external-telemetry-contract.md).
+
+Proofbase telemetry may include operational fields such as model, provider, token counts, estimated cost, latency, status, error category, prompt version, source project IDs, and bounded metadata. It must not include API keys, provider credentials, full prompts, full questions, rewritten questions, retrieved chunks, citation text, uploaded document text, extracted Markdown, cleaned Markdown, provider payloads, or raw customer data by default.
+
+Duplicate telemetry events should be suppressed by stable event IDs so retries cannot inflate cost or request totals.
