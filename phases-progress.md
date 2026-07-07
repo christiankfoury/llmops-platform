@@ -52,7 +52,7 @@ Phase 32: External telemetry ingestion API
 | 28 | Cost controls and analysis | Completed | main | d433c06 | 2026-07-01 | Cloud cost estimates, optional AWS Budget Terraform module, LLM cost tracking explanation, right-sizing notes, and dev teardown guidance. |
 | 29 | GitOps with Argo CD | Completed | main | 1143de2 | 2026-07-01 | Optional Argo CD AppProject and Application manifests, Helm-based GitOps docs, sync strategy, and promotion guidance. |
 | 30 | Final documentation and portfolio polish | Completed | main | 68a98fb | 2026-07-01 | Final README, diagrams, demo script, incident simulation, portfolio summaries, screenshot guidance, known limitations, and final status. |
-| 31 | Proofbase integration contract and event schema | Completed | main | pending | 2026-07-06 | Defined telemetry-first contract, event schema, sensitive-data rules, operation taxonomy, idempotency, retry behavior, and Proofbase-first integration boundaries. |
+| 31 | Proofbase integration contract and event schema | Completed | main | a647d5b | 2026-07-06 | Defined telemetry-first contract, event schema, sensitive-data rules, operation taxonomy, idempotency, retry behavior, and Proofbase-first integration boundaries. |
 | 32 | External telemetry ingestion API | In Progress |  |  |  | Add central ingestion endpoint for external LLM usage events, persistence, metrics, validation, and tests. |
 | 33 | Proofbase application registration and configuration | Not Started |  |  |  | Register Proofbase as a client app with placeholder local API key, seed/setup docs, env examples, and idempotent checks. |
 | 34 | Dashboard source-app filtering and event detail | Not Started |  |  |  | Make Proofbase telemetry filterable and inspectable in the Production AI Platform dashboard. |
@@ -2502,7 +2502,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- a647d5b
 
 Completed date:
 
@@ -2545,9 +2545,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending
-- Fix commits: pending
+- Pushed commit: a647d5b
+- Top findings: Phase progress used temporary commit and post-commit review placeholders because the final pushed hash was unavailable before the commit existed.
+- Fix commits: Follow-up progress commit records the pushed Phase 31 hash and post-commit review result.
 
 Next phase:
 
