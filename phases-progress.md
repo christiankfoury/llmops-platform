@@ -55,7 +55,7 @@ Phase 35: Proofbase telemetry client and safe failure behavior
 | 31 | Proofbase integration contract and event schema | Completed | main | a647d5b | 2026-07-06 | Defined telemetry-first contract, event schema, sensitive-data rules, operation taxonomy, idempotency, retry behavior, and Proofbase-first integration boundaries. |
 | 32 | External telemetry ingestion API | Completed | main | d912eb0 | 2026-07-06 | Added external LLM event ingestion endpoint, schemas, auth/app resolution, persistence, metrics, duplicate handling, and tests. |
 | 33 | Proofbase application registration and configuration | Completed | main | 42b4749 | 2026-07-06 | Registered Proofbase seed data, placeholder telemetry env contract, local setup docs, and idempotency checks. |
-| 34 | Dashboard source-app filtering and event detail | Completed | main | pending | 2026-07-06 | Added source-app and operation filters, external event detail fields, telemetry-aware empty states, and frontend tests. |
+| 34 | Dashboard source-app filtering and event detail | Completed | main | ff71c3d | 2026-07-06 | Added source-app and operation filters, external event detail fields, telemetry-aware empty states, and frontend tests. |
 | 35 | Proofbase telemetry client and safe failure behavior | In Progress |  |  |  | Add best-effort Proofbase telemetry client with redaction, timeout, disabled mode, and failure isolation. |
 | 36 | Proofbase query and streaming telemetry | Not Started |  |  |  | Emit central events from Proofbase `/query` and `/query/stream` without changing RAG behavior. |
 | 37 | Proofbase auxiliary AI telemetry | Not Started |  |  |  | Extend coverage to AI Markdown cleanup, query decomposition, and embeddings where usage/cost can be represented honestly. |
@@ -2709,7 +2709,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- ff71c3d
 
 Completed date:
 
@@ -2763,9 +2763,9 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
-- Top findings: pending
-- Fix commits: pending
+- Pushed commit: ff71c3d
+- Top findings: Phase progress used temporary commit and post-commit review placeholders because the final pushed hash was unavailable before the commit existed.
+- Fix commits: Follow-up progress commit records the pushed Phase 34 hash and post-commit review result.
 
 Next phase:
 
