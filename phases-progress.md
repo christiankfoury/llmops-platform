@@ -56,7 +56,7 @@ Phase 36: Proofbase query and streaming telemetry
 | 32 | External telemetry ingestion API | Completed | main | d912eb0 | 2026-07-06 | Added external LLM event ingestion endpoint, schemas, auth/app resolution, persistence, metrics, duplicate handling, and tests. |
 | 33 | Proofbase application registration and configuration | Completed | main | 42b4749 | 2026-07-06 | Registered Proofbase seed data, placeholder telemetry env contract, local setup docs, and idempotency checks. |
 | 34 | Dashboard source-app filtering and event detail | Completed | main | ff71c3d | 2026-07-06 | Added source-app and operation filters, external event detail fields, telemetry-aware empty states, and frontend tests. |
-| 35 | Proofbase telemetry client and safe failure behavior | Completed | main | pending | 2026-07-06 | Added best-effort Proofbase telemetry client with redaction, timeout, disabled mode, failure isolation, smoke script, and tests. |
+| 35 | Proofbase telemetry client and safe failure behavior | Completed | main | 2735c93 | 2026-07-06 | Added best-effort Proofbase telemetry client with redaction, timeout, disabled mode, failure isolation, smoke script, and tests. |
 | 36 | Proofbase query and streaming telemetry | In Progress |  |  |  | Emit central events from Proofbase `/query` and `/query/stream` without changing RAG behavior. |
 | 37 | Proofbase auxiliary AI telemetry | Not Started |  |  |  | Extend coverage to AI Markdown cleanup, query decomposition, and embeddings where usage/cost can be represented honestly. |
 | 38 | Cross-repository automated validation | Not Started |  |  |  | Add mocked and local validation proving the telemetry path works without real OpenAI or AWS resources. |
@@ -2781,7 +2781,7 @@ Pushed to:
 
 Commit:
 
-- pending
+- 2735c93
 
 Completed date:
 
@@ -2838,10 +2838,10 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: pending
+- Pushed commit: 2735c93
 - Companion Proofbase commit: 56dce6d
-- Top findings: pending post-commit review.
-- Fix commits: pending.
+- Top findings: Phase progress used a temporary platform commit placeholder because the final pushed hash was unavailable before the commit existed.
+- Fix commits: Follow-up progress commit records the pushed Phase 35 platform hash and post-commit review result.
 
 Next phase:
 
