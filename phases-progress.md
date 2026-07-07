@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 40: Proofbase integration documentation and AgentOps handoff
+All defined phases completed. Next sequence: AgentOps Workflow Platform integration.
 
 ## Phase table
 
@@ -61,7 +61,7 @@ Phase 40: Proofbase integration documentation and AgentOps handoff
 | 37 | Proofbase auxiliary AI telemetry | Completed | main | 4140bd3 | 2026-07-06 | Added safe auxiliary telemetry for Markdown cleanup, query decomposition, and unpriced embedding usage/counts with tests and docs. |
 | 38 | Cross-repository automated validation | Completed | main | 4c45a30 | 2026-07-06 | Added platform schema fixtures, Proofbase mocked receiver tests, validation script, Compose config checks, and testing docs. |
 | 39 | Browser end-to-end Proofbase telemetry demo | Completed | main | e09a4c8 | 2026-07-07 | Added local browser demo guide, safe Proofbase event sender, screenshot rules, troubleshooting notes, and browser validation evidence. |
-| 40 | Proofbase integration documentation and AgentOps handoff | In Progress |  |  |  | Finalize docs, runbooks, demo story, security/reliability notes, and prepare the AgentOps integration sequence. |
+| 40 | Proofbase integration documentation and AgentOps handoff | Completed | main | pending | 2026-07-07 | Finalized Proofbase connection docs, runbook/security/observability notes, portfolio demo wording, and AgentOps readiness notes. |
 
 ## Phase execution log
 
@@ -3168,6 +3168,72 @@ Post-commit review:
 Next phase:
 
 - Phase 40: Proofbase integration documentation and AgentOps handoff
+
+### Phase 40: Proofbase integration documentation and AgentOps handoff
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending
+
+Completed date:
+
+- 2026-07-07
+
+Implementation notes:
+
+- Added `docs/proofbase-integration.md` as the final Proofbase integration summary, covering what is centralized, what remains in Proofbase, safety rules, failure behavior, local validation, and AgentOps handoff notes.
+- Updated the README to describe Proofbase as a connected telemetry-first client app rather than a future integration.
+- Updated architecture and observability docs to state the current external telemetry model, dashboard interpretation, and AgentOps reuse path.
+- Added runbook guidance for external telemetry ingestion outages, including 401, 422, 409, 5xx, endpoint, key, validation, duplicate conflict, and database triage.
+- Added security notes for telemetry API keys, redaction boundaries, and honest Proofbase/Production AI Platform claims.
+- Updated the portfolio demo plan to include the Proofbase-filtered dashboard view and AgentOps handoff story.
+- Inspected AgentOps Workflow Platform reference files for LLM client usage, cost tracking, agent-step fields, and cost-event fields to confirm the next sequence can reuse the existing ingestion foundation.
+
+Validation:
+
+- Command: `git diff --check`
+  Result: Passed with expected CRLF warnings only.
+- Command: focused secret-pattern scan across touched README/docs files
+  Result: Passed with no matches.
+- Command: targeted Proofbase overclaim wording scan across README/docs
+  Result: Passed; matches were intentional boundary statements only.
+
+Security notes:
+
+- No secrets, credentials, full prompts, full questions, retrieved chunks, citation text, document text, provider payloads, or customer data were added.
+- Docs now explicitly state that Production AI Platform may claim centralized Proofbase telemetry visibility but must not claim Proofbase retrieval, citation validation, permission filtering, memory safety, document ingestion, or benchmark evaluation.
+- Telemetry API keys are documented as hashed/stored-secret material that must not appear in logs, screenshots, shell history, or commits.
+
+Reliability notes:
+
+- Runbook now documents external telemetry outage triage and reiterates that Proofbase user workflows must continue when central telemetry is unavailable.
+- AgentOps handoff notes preserve the best-effort client pattern for the next integration.
+
+Observability notes:
+
+- Docs explain how to interpret `source_app=proofbase`, operation type, estimated cost, and unpriced/unknown pricing states in the central dashboard.
+- AgentOps readiness notes identify workflow/agent-step telemetry as the next observability mapping.
+
+Scope notes:
+
+- Completed Phase 40 documentation and handoff scope only.
+- Did not implement AgentOps emission, schema changes, API changes, Terraform, cloud resources, or deployments.
+
+Post-commit review:
+
+- Pushed commit: pending
+- Top findings: pending post-commit review.
+- Fix commits: pending.
+
+Next phase:
+
+- AgentOps Workflow Platform integration sequence.
 
 ## Update template
 

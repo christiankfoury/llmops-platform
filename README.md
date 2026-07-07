@@ -23,7 +23,7 @@ This project complements **Proofbase**, the permission-aware enterprise RAG appl
 - Proofbase proves the AI product layer: document workflows, retrieval quality, citations, permissions, memory safety, and answer-quality evaluation.
 - Production AI Platform proves the operations layer: centralized model access, cost, latency, errors, traces, secrets, deployments, rollback, and cloud infrastructure.
 
-The next planned integration sequence connects Proofbase as a client app through telemetry first: Proofbase keeps owning RAG, retrieval, citations, permissions, memory, and answer-quality evaluation, while this platform centralizes model usage, cost, latency, token, error, and request visibility. Gateway-routed provider calls can follow after the gateway supports Proofbase's richer provider contract.
+Proofbase is connected as a client app through telemetry first: Proofbase keeps owning RAG, retrieval, citations, permissions, memory, and answer-quality evaluation, while this platform centralizes model usage, cost, latency, token, error, and request visibility. Gateway-routed provider calls can follow after the gateway supports Proofbase's richer provider contract.
 
 ## Target Portfolio Claim
 
@@ -60,6 +60,7 @@ Platform:
 - Loki/Promtail/log dashboard assets
 - External Secrets integration
 - security, reliability, incident, backup/restore, cost, and GitOps docs
+- Proofbase external telemetry ingestion, dashboard filtering, browser validation, and client-app integration docs
 
 ## Architecture
 
@@ -176,6 +177,8 @@ Assets:
 
 See [docs/observability.md](docs/observability.md) and [docs/dashboard-screenshots.md](docs/dashboard-screenshots.md).
 
+Proofbase is the first connected client app. See [docs/proofbase-integration.md](docs/proofbase-integration.md) for the integration boundary, safety model, outage behavior, and AgentOps handoff notes.
+
 ## Security, Reliability, And Cost
 
 Security:
@@ -238,6 +241,7 @@ Recommended flow:
 - [docs/architecture-diagrams.md](docs/architecture-diagrams.md): Mermaid diagrams
 - [docs/gateway-flow.md](docs/gateway-flow.md): gateway request flow and code walkthrough
 - [docs/external-telemetry-contract.md](docs/external-telemetry-contract.md): Proofbase-first external LLM telemetry contract
+- [docs/proofbase-integration.md](docs/proofbase-integration.md): Proofbase connection summary and AgentOps handoff
 - [docs/proofbase-browser-telemetry-demo.md](docs/proofbase-browser-telemetry-demo.md): local browser demo for Proofbase telemetry
 - [docs/deployment.md](docs/deployment.md): local, Kubernetes, Helm, CI/CD, rollback, GitOps
 - [docs/ci-cd.md](docs/ci-cd.md): GitHub Actions CI jobs, actions, scanners, and deployment boundaries
@@ -259,7 +263,8 @@ Recommended flow:
 
 ## Known Limitations
 
-- The provider integration is a mock provider by default; real paid provider calls require refreshed pricing, credentials, quota controls, and approval.
+- The gateway provider integration is a mock provider by default; real paid provider calls through the gateway require refreshed pricing, credentials, quota controls, and approval.
+- Proofbase is connected through telemetry, not gateway-routed provider calls; Proofbase still owns RAG retrieval, citations, permissions, and answer quality.
 - Admin prompt/model endpoints are operator foundations, not a full production admin authorization system.
 - Rate limiting is in-process for the portfolio baseline; multi-replica production would use Redis-backed distributed limits.
 - Terraform is code-only until an approved apply creates real AWS resources.
@@ -269,4 +274,4 @@ Recommended flow:
 
 ## Status
 
-The original 30 infrastructure/platform phases are implemented in code and documentation. Phases 31-40 now define the Proofbase telemetry integration sequence. Phase 31 defines the safe event contract, and Phase 32 adds the central external LLM telemetry ingestion API. Proofbase runtime emission is intentionally deferred to later phases. CI was kept green during the original phase loop, and the repository is packaged as a portfolio-grade production AI platform rather than a toy LLM app.
+The original 30 infrastructure/platform phases are implemented in code and documentation. Phases 31-40 complete the Proofbase telemetry integration sequence and prepare the next AgentOps Workflow Platform integration. CI was kept green during the original phase loop, and the repository is packaged as a portfolio-grade production AI platform rather than a toy LLM app.

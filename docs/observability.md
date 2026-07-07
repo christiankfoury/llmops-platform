@@ -38,7 +38,7 @@ Prometheus server deployment is not installed by this repository, but scrape ann
 
 ## External app telemetry
 
-Phases 31-40 define the next observability expansion: external client applications send normalized LLM usage events into this platform before any provider calls are routed through the gateway.
+Phases 31-40 add the first connected external client app: Proofbase sends normalized LLM usage events into this platform before any provider calls are routed through the gateway.
 
 Phase 32 adds `POST /v1/usage/llm-events` for external telemetry ingestion. Accepted events are authenticated with application API keys, persisted as gateway request records with external event fields, optionally written to cost records, and included in the existing usage summary and request-list endpoints.
 
@@ -48,12 +48,21 @@ The external telemetry path must be best-effort for client apps. A telemetry out
 
 The Phase 31 contract lives in [external-telemetry-contract.md](external-telemetry-contract.md). It defines the Proofbase operation taxonomy, required and optional fields, sensitive-data exclusions, idempotency strategy, and retry semantics that the Phase 32 ingestion API should implement.
 
+The final Proofbase connection summary lives in [proofbase-integration.md](proofbase-integration.md). It documents what is centralized, what remains in Proofbase, and how the same observability foundation can be reused for AgentOps workflow and agent-step telemetry.
+
 Phase 32 ingestion metrics include:
 
 - `llm_external_telemetry_events_total`
 - `llm_external_telemetry_errors_total`
 - `llm_external_telemetry_estimated_cost_usd_total`
 - `llm_external_telemetry_tokens_total`
+
+Dashboard interpretation:
+
+- `source_app=proofbase` isolates Proofbase traffic from gateway-originated traffic.
+- `operation_type` distinguishes RAG query, streaming query, Markdown cleanup, query decomposition, and embedding generation events.
+- Estimated cost should be treated as operational cost visibility, not invoice-grade billing.
+- `pricing_status=unpriced` or `unknown` means token/count visibility exists but cost should not be used for financial reporting.
 
 ## Grafana dashboards
 

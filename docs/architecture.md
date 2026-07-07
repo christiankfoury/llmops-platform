@@ -74,7 +74,7 @@ For a developer-focused walkthrough of the gateway code path, see [gateway-flow.
 
 ## External telemetry integration
 
-The next planned integration sequence connects Proofbase through normalized telemetry before routing provider calls through the gateway. The event schema and privacy rules are defined in [external-telemetry-contract.md](external-telemetry-contract.md).
+Proofbase is connected through normalized telemetry before any provider calls are routed through the gateway. The event schema and privacy rules are defined in [external-telemetry-contract.md](external-telemetry-contract.md), and the completed integration summary lives in [proofbase-integration.md](proofbase-integration.md).
 
 In that model:
 
@@ -84,6 +84,8 @@ In that model:
 4. If Production AI Platform is unavailable, Proofbase continues serving users and records the telemetry failure locally.
 
 This preserves the project boundary: Proofbase owns the AI product layer, while this repository owns centralized operations visibility.
+
+AgentOps Workflow Platform is the next client-app integration target. It already records model, token, latency, cost, status, retry, workflow, and agent-step fields. The expected next step is to extend the external operation taxonomy and safe metadata keys for agent/workflow events while reusing the same ingestion, auth, idempotency, dashboard, and redaction foundation.
 
 ## Application components
 

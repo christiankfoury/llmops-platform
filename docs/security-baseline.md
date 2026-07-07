@@ -194,3 +194,15 @@ External client-app telemetry must follow [external-telemetry-contract.md](exter
 Proofbase telemetry may include operational fields such as model, provider, token counts, estimated cost, latency, status, error category, prompt version, source project IDs, and bounded metadata. It must not include API keys, provider credentials, full prompts, full questions, rewritten questions, retrieved chunks, citation text, uploaded document text, extracted Markdown, cleaned Markdown, provider payloads, or raw customer data by default.
 
 Duplicate telemetry events should be suppressed by stable event IDs so retries cannot inflate cost or request totals.
+
+Telemetry API keys:
+
+- Treat client telemetry keys like gateway API keys: store only hashed values in the platform and keep plaintext values in local `.env` files, CI/CD secrets, or cloud secret managers.
+- Do not print telemetry keys in client logs, platform logs, browser screenshots, GitHub Actions summaries, or runbooks.
+- Rotate a client telemetry key if it appears in logs, screenshots, shell history, or committed files.
+
+Proofbase redaction boundary:
+
+- Production AI Platform may claim centralized Proofbase telemetry, usage, latency, error, token, and estimated-cost visibility.
+- It must not claim to perform Proofbase retrieval, citation validation, permission filtering, memory safety checks, document ingestion, or benchmark evaluation.
+- Screenshots should show aggregate operational data, short request ids, source app, operation type, model, latency, and estimated cost only.
