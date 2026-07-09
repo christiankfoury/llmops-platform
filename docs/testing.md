@@ -164,3 +164,18 @@ What these checks prove:
 - Mocked receiver failures return `False` and do not raise into AgentOps workflow code.
 - Workflow summary events are accepted without creating central cost records.
 - Docker Compose files parse locally without starting containers.
+
+## AgentOps Browser Telemetry Demo
+
+Phase 46 adds a local browser validation path for the AgentOps dashboard connection. Start the platform stack, migrate, seed, send one safe AgentOps-shaped event, and inspect it in the web dashboard:
+
+```powershell
+docker compose up -d postgres redis api web
+docker compose exec api alembic upgrade head
+docker compose exec api python -m scripts.seed_dev_data
+.\.venv\Scripts\python scripts\send_agentops_browser_demo_event.py
+```
+
+Then open `http://localhost:3000`, filter **Source App** to `agentops`, and confirm the dashboard shows the `AgentOps Workflow Platform / AgentOps Workflow Platform` request.
+
+See [agentops-browser-telemetry-demo.md](agentops-browser-telemetry-demo.md) for the full browser checklist, AgentOps port guidance, screenshot rules, and troubleshooting notes.

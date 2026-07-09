@@ -236,6 +236,13 @@ Acceptance:
 - Demo does not require Terraform, AWS resources, or production deployment.
 - Screenshots avoid secrets, prompts, outputs, workflow JSON, tool payloads, and sensitive content.
 
+Phase 46 implementation notes:
+
+- Use `scripts/send_agentops_browser_demo_event.py` for the automated local browser proof path.
+- Use [agentops-browser-telemetry-demo.md](agentops-browser-telemetry-demo.md) for the dashboard checklist, AgentOps port guidance, screenshot rules, and troubleshooting notes.
+- Use the real AgentOps smoke sender, `S:\github-repos\agentops-workflow-platform\scripts\send_platform_telemetry_smoke.py`, only after the platform API is running and seeded.
+- Avoid real AgentOps workflow runs unless provider credentials and quota usage are intentional.
+
 ### Phase 47: AgentOps Integration Closeout
 
 Finalize documentation and portfolio wording for the second connected client app.

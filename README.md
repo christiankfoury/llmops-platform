@@ -25,6 +25,8 @@ This project complements **Proofbase**, the permission-aware enterprise RAG appl
 
 Proofbase is connected as a client app through telemetry first: Proofbase keeps owning RAG, retrieval, citations, permissions, memory, and answer-quality evaluation, while this platform centralizes model usage, cost, latency, token, error, and request visibility. Gateway-routed provider calls can follow after the gateway supports Proofbase's richer provider contract.
 
+AgentOps Workflow Platform is connected as the second telemetry client path: AgentOps keeps owning workflow execution, agent prompts, structured outputs, tool behavior, and workflow state, while this platform centralizes safe operational telemetry for agent steps and workflow summaries.
+
 ## Target Portfolio Claim
 
 > Built a production-grade AI platform on AWS using Kubernetes, Terraform, Helm, GitHub Actions, Prometheus, Grafana, Loki, OpenTelemetry, managed PostgreSQL, Redis, external secret management, staged deployments, rollback workflows, request tracing, cost monitoring, and reliability runbooks.
@@ -61,6 +63,7 @@ Platform:
 - External Secrets integration
 - security, reliability, incident, backup/restore, cost, and GitOps docs
 - Proofbase external telemetry ingestion, dashboard filtering, browser validation, and client-app integration docs
+- AgentOps external telemetry ingestion, dashboard filtering, browser validation, and client-app integration docs
 
 ## Architecture
 
@@ -121,6 +124,14 @@ python scripts/send_proofbase_browser_demo_event.py
 ```
 
 Open `http://localhost:3000`, filter **Source App** to `proofbase`, and confirm the request appears under `Proofbase / Enterprise Knowledge Agent`. See [docs/proofbase-browser-telemetry-demo.md](docs/proofbase-browser-telemetry-demo.md) for the full browser checklist and redaction rules.
+
+Send a safe AgentOps-shaped telemetry event and inspect it in the dashboard:
+
+```bash
+python scripts/send_agentops_browser_demo_event.py
+```
+
+Open `http://localhost:3000`, filter **Source App** to `agentops`, and confirm the request appears under `AgentOps Workflow Platform / AgentOps Workflow Platform`. See [docs/agentops-browser-telemetry-demo.md](docs/agentops-browser-telemetry-demo.md) for the full browser checklist and redaction rules.
 
 Useful commands:
 
@@ -242,8 +253,9 @@ Recommended flow:
 - [docs/gateway-flow.md](docs/gateway-flow.md): gateway request flow and code walkthrough
 - [docs/external-telemetry-contract.md](docs/external-telemetry-contract.md): Proofbase-first external LLM telemetry contract
 - [docs/proofbase-integration.md](docs/proofbase-integration.md): Proofbase connection summary and AgentOps handoff
-- [docs/agentops-integration-plan.md](docs/agentops-integration-plan.md): planned AgentOps Workflow Platform telemetry integration
+- [docs/agentops-integration-plan.md](docs/agentops-integration-plan.md): AgentOps Workflow Platform telemetry integration plan
 - [docs/proofbase-browser-telemetry-demo.md](docs/proofbase-browser-telemetry-demo.md): local browser demo for Proofbase telemetry
+- [docs/agentops-browser-telemetry-demo.md](docs/agentops-browser-telemetry-demo.md): local browser demo for AgentOps telemetry
 - [docs/deployment.md](docs/deployment.md): local, Kubernetes, Helm, CI/CD, rollback, GitOps
 - [docs/ci-cd.md](docs/ci-cd.md): GitHub Actions CI jobs, actions, scanners, and deployment boundaries
 - [docs/testing.md](docs/testing.md): validation commands
@@ -266,6 +278,7 @@ Recommended flow:
 
 - The gateway provider integration is a mock provider by default; real paid provider calls through the gateway require refreshed pricing, credentials, quota controls, and approval.
 - Proofbase is connected through telemetry, not gateway-routed provider calls; Proofbase still owns RAG retrieval, citations, permissions, and answer quality.
+- AgentOps is connected through telemetry, not platform-executed workflows; AgentOps still owns workflow orchestration, agent prompts, generated outputs, tools, and workflow state.
 - Admin prompt/model endpoints are operator foundations, not a full production admin authorization system.
 - Rate limiting is in-process for the portfolio baseline; multi-replica production would use Redis-backed distributed limits.
 - Terraform is code-only until an approved apply creates real AWS resources.
@@ -275,4 +288,4 @@ Recommended flow:
 
 ## Status
 
-The original 30 infrastructure/platform phases are implemented in code and documentation. Phases 31-40 complete the Proofbase telemetry integration sequence. Phases 41-47 define the AgentOps Workflow Platform integration sequence, with Phase 41 ready to implement the contract and platform registration. CI was kept green during the original phase loop, and the repository is packaged as a portfolio-grade production AI platform rather than a toy LLM app.
+The original 30 infrastructure/platform phases are implemented in code and documentation. Phases 31-40 complete the Proofbase telemetry integration sequence. Phases 41-46 complete the AgentOps contract, client, emission, validation, and browser-demo path. Phase 47 remains the AgentOps closeout phase. CI was kept green during the original phase loop, and the repository is packaged as a portfolio-grade production AI platform rather than a toy LLM app.

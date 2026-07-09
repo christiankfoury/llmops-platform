@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 46: Browser end-to-end AgentOps telemetry demo
+Phase 47: AgentOps integration closeout
 
 ## Phase table
 
@@ -67,8 +67,8 @@ Phase 46: Browser end-to-end AgentOps telemetry demo
 | 43 | AgentOps agent-step telemetry emission | Completed | agentops main | aab21a1 | 2026-07-09 | Emitted safe telemetry for completed model-backed steps through cost tracking and failed steps through workflow events. |
 | 44 | AgentOps structured generation and workflow summary telemetry | Completed | agentops main | 11b8a44 | 2026-07-09 | Kept structured calls as `agent_step` metadata, labeled text outputs, and added non-billable terminal workflow summary events. |
 | 45 | AgentOps cross-repository automated validation | Completed | main + agentops main | 104a4d3 / 6a14154 | 2026-07-09 | Added platform AgentOps workflow-summary ingestion coverage, AgentOps mocked receiver tests, and safe cross-repo validation docs. |
-| 46 | Browser end-to-end AgentOps telemetry demo | In Progress |  |  |  | Verify local AgentOps traffic appears in the Production AI Platform dashboard. |
-| 47 | AgentOps integration closeout | Not Started |  |  |  | Finalize docs, runbooks, security/reliability notes, and portfolio story for the second connected client app. |
+| 46 | Browser end-to-end AgentOps telemetry demo | Completed | main + agentops main | b9bcd85 / pending platform commit | 2026-07-09 | Added safe AgentOps browser demo sender, dashboard checklist, screenshot rules, troubleshooting notes, and local browser validation evidence. |
+| 47 | AgentOps integration closeout | In Progress |  |  |  | Finalize docs, runbooks, security/reliability notes, and portfolio story for the second connected client app. |
 
 ## Phase execution log
 
@@ -3612,6 +3612,87 @@ Post-commit review:
 Next phase:
 
 - Phase 46: Browser end-to-end AgentOps telemetry demo
+
+### Phase 46: Browser end-to-end AgentOps telemetry demo
+
+Status: Completed
+
+Pushed to:
+
+- main
+- agentops main
+
+Commit:
+
+- AgentOps: b9bcd85
+- Platform: pending platform commit
+
+Completed date:
+
+- 2026-07-09
+
+Implementation notes:
+
+- Added `scripts/send_agentops_browser_demo_event.py` to submit one safe AgentOps-shaped `agent_step` event to the local platform API.
+- Added [agentops-browser-telemetry-demo.md](docs/agentops-browser-telemetry-demo.md) with local run commands, AgentOps non-conflicting port guidance, browser checklist, screenshot rules, and troubleshooting notes.
+- Updated README, testing docs, dashboard screenshot guidance, and the AgentOps integration plan to link the AgentOps browser demo path.
+- Updated the AgentOps README with the safe platform-owned sender path and guidance to run real workflows only when provider credential and quota use are intentional.
+
+Validation:
+
+- Command: `docker compose ps`
+  Result: Passed with approved local Docker access; platform API, web, PostgreSQL, and Redis were running locally.
+- Command: `docker compose exec api alembic upgrade head`
+  Result: Passed with approved local Docker access.
+- Command: `docker compose exec api python -m scripts.seed_dev_data`
+  Result: Passed with approved local Docker access.
+- Command: `.\.venv\Scripts\python scripts\send_agentops_browser_demo_event.py`
+  Result: Passed; API accepted event `evt_phase46_agentops_browser_demo_20260709011206` as request `ext_aa887aa1b0a44706b96b77b7121f2927`.
+- Command: local browser dashboard validation at `http://localhost:3000`
+  Result: Passed; Source App filter selected `agentops`, recent requests showed AgentOps `Agent Step` telemetry with model `gpt-4.1-mini`, latency `245 ms`, cost `$0.000102`, and no matching failures; request detail showed `128 in / 32 out`, external event id `evt_phase46_agentops_browser_demo_20260709011206`, and external request id `agentops_step_phase46_browser_demo_20260709011206`.
+- Command: `.\.venv\Scripts\python -m ruff check scripts/send_agentops_browser_demo_event.py`
+  Result: Passed.
+- Command: `.\.venv\Scripts\python -m ruff format --check scripts/send_agentops_browser_demo_event.py`
+  Result: Passed after applying Ruff format.
+- Command: no-write Python compile parse check for `scripts/send_agentops_browser_demo_event.py`
+  Result: Passed.
+- Command: `git diff --check`
+  Result: Passed with expected CRLF warnings only.
+- Command: `git diff --check -- README.md` in AgentOps
+  Result: Passed with expected CRLF warnings only.
+
+Security notes:
+
+- The safe demo sender uses the local AgentOps placeholder key and sends operational metadata only.
+- No prompt text, generated output, workflow input/output JSON, tool arguments, tool results, provider payloads, API keys, provider credentials, or user/customer data are sent.
+- Screenshot guidance explicitly forbids secrets, prompts, generated outputs, workflow JSON, tool payloads, and sensitive content.
+- No screenshots were captured or committed.
+
+Reliability notes:
+
+- The demo path uses local Docker services only and does not require Terraform, AWS, Kubernetes, or production deployment.
+- Docs distinguish the safe synthetic event sender from real AgentOps workflow runs that may require provider credentials and quota.
+
+Observability notes:
+
+- Browser validation proves AgentOps traffic is visible through the central dashboard source-app filter, recent requests table, summary cards, and request detail panel.
+- The demo verifies both row-level telemetry fields and preserved external event/request ids for cross-app correlation.
+
+Scope notes:
+
+- Completed Phase 46 browser-demo documentation and local validation only.
+- Did not add final closeout runbook/security/portfolio updates beyond minimal links needed for the browser demo.
+- Did not modify dashboard code, execute real AgentOps workflows, call OpenAI, run Terraform, create cloud resources, or deploy to production.
+
+Post-commit review:
+
+- Pushed commit: AgentOps b9bcd85; platform pending platform commit
+- Top findings: No top actionable AgentOps findings after reviewing the pushed README update for scope, safety warnings, and provider-quota clarity.
+- Fix commits: None required.
+
+Next phase:
+
+- Phase 47: AgentOps integration closeout
 
 ## Update template
 
