@@ -66,7 +66,7 @@ Phase 46: Browser end-to-end AgentOps telemetry demo
 | 42 | AgentOps telemetry client and switch | Completed | agentops main | 4721dea | 2026-07-09 | Added AgentOps telemetry env switch, best-effort client, smoke script, redaction tests, and docs; fix commit `7580d19` preserves safe usage fields. |
 | 43 | AgentOps agent-step telemetry emission | Completed | agentops main | aab21a1 | 2026-07-09 | Emitted safe telemetry for completed model-backed steps through cost tracking and failed steps through workflow events. |
 | 44 | AgentOps structured generation and workflow summary telemetry | Completed | agentops main | 11b8a44 | 2026-07-09 | Kept structured calls as `agent_step` metadata, labeled text outputs, and added non-billable terminal workflow summary events. |
-| 45 | AgentOps cross-repository automated validation | Completed | main + agentops main | 104a4d3 / pending platform commit | 2026-07-09 | Added platform AgentOps workflow-summary ingestion coverage, AgentOps mocked receiver tests, and safe cross-repo validation docs. |
+| 45 | AgentOps cross-repository automated validation | Completed | main + agentops main | 104a4d3 / 6a14154 | 2026-07-09 | Added platform AgentOps workflow-summary ingestion coverage, AgentOps mocked receiver tests, and safe cross-repo validation docs. |
 | 46 | Browser end-to-end AgentOps telemetry demo | In Progress |  |  |  | Verify local AgentOps traffic appears in the Production AI Platform dashboard. |
 | 47 | AgentOps integration closeout | Not Started |  |  |  | Finalize docs, runbooks, security/reliability notes, and portfolio story for the second connected client app. |
 
@@ -3547,7 +3547,7 @@ Pushed to:
 Commit:
 
 - AgentOps: 104a4d3
-- Platform: pending platform commit
+- Platform: 6a14154
 
 Completed date:
 
@@ -3605,7 +3605,7 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: AgentOps 104a4d3; platform pending platform commit
+- Pushed commit: AgentOps 104a4d3; platform 6a14154
 - Top findings: No top actionable findings after reviewing mocked-only execution, sensitive-field exclusions, cost double-counting risk, and validation documentation.
 - Fix commits: None required.
 
