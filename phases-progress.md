@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 44: AgentOps structured generation and workflow summary telemetry
+Phase 45: AgentOps cross-repository automated validation
 
 ## Phase table
 
@@ -65,8 +65,8 @@ Phase 44: AgentOps structured generation and workflow summary telemetry
 | 41 | AgentOps contract and platform registration | Completed | main | 361b5ad | 2026-07-09 | Defined AgentOps operation taxonomy, safe metadata allowlist, strict schema rejection, local seed registration, and fixtures. |
 | 42 | AgentOps telemetry client and switch | Completed | agentops main | 4721dea | 2026-07-09 | Added AgentOps telemetry env switch, best-effort client, smoke script, redaction tests, and docs; fix commit `7580d19` preserves safe usage fields. |
 | 43 | AgentOps agent-step telemetry emission | Completed | agentops main | aab21a1 | 2026-07-09 | Emitted safe telemetry for completed model-backed steps through cost tracking and failed steps through workflow events. |
-| 44 | AgentOps structured generation and workflow summary telemetry | In Progress |  |  |  | Extend coverage without double-counting cost or exposing generated outputs/workflow JSON. |
-| 45 | AgentOps cross-repository automated validation | Not Started |  |  |  | Add platform fixtures, AgentOps mocked receiver tests, smoke script, and Compose validation docs. |
+| 44 | AgentOps structured generation and workflow summary telemetry | Completed | agentops main | 11b8a44 | 2026-07-09 | Kept structured calls as `agent_step` metadata, labeled text outputs, and added non-billable terminal workflow summary events. |
+| 45 | AgentOps cross-repository automated validation | In Progress |  |  |  | Add platform fixtures, AgentOps mocked receiver tests, smoke script, and Compose validation docs. |
 | 46 | Browser end-to-end AgentOps telemetry demo | Not Started |  |  |  | Verify local AgentOps traffic appears in the Production AI Platform dashboard. |
 | 47 | AgentOps integration closeout | Not Started |  |  |  | Finalize docs, runbooks, security/reliability notes, and portfolio story for the second connected client app. |
 
@@ -3463,6 +3463,77 @@ Post-commit review:
 Next phase:
 
 - Phase 44: AgentOps structured generation and workflow summary telemetry
+
+### Phase 44: AgentOps structured generation and workflow summary telemetry
+
+Status: Completed
+
+Pushed to:
+
+- agentops main
+
+Commit:
+
+- 11b8a44
+
+Completed date:
+
+- 2026-07-09
+
+Implementation notes:
+
+- Decided not to emit separate `structured_generation` billable events because structured JSON calls already map cleanly to one model-backed `agent_step` event and one local cost event.
+- Labeled structured outputs as `response_type=structured_json` in `agent_step` telemetry.
+- Labeled writer and baseline text outputs as `response_type=text` in `agent_step` telemetry.
+- Added terminal `workflow_summary` telemetry from AgentOps workflow state transitions as aggregate-only events.
+- Kept workflow summary events non-billable by omitting token and cost fields, preventing central cost double-counting.
+- Updated AgentOps README and the platform AgentOps integration plan with the billing-estimate versus aggregate-summary decision.
+
+Validation:
+
+- Command: `S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe -m pytest apps/api/tests/test_platform_telemetry.py apps/api/tests/test_workflow_state.py apps/api/tests/test_cost_tracking.py -vv`
+  Result: Passed, 19 tests; pytest emitted existing local cache permission warnings and a Starlette/httpx deprecation warning.
+- Command: `S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe -m ruff check --no-cache apps/api/src/observability/platform_telemetry.py apps/api/src/services/workflow_state.py apps/api/tests/test_platform_telemetry.py apps/api/tests/test_workflow_state.py`
+  Result: Passed.
+- Command: `S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe -m ruff format --check --no-cache apps/api/src/observability/platform_telemetry.py apps/api/src/services/workflow_state.py apps/api/tests/test_platform_telemetry.py apps/api/tests/test_workflow_state.py`
+  Result: Passed after running Ruff format with approved filesystem access for a mechanical formatting change.
+- Command: no-write Python compile check for touched AgentOps Python files
+  Result: Passed.
+- Command: `git diff --check`
+  Result: Passed with expected CRLF warnings only.
+- Command: focused secret-pattern scan across touched AgentOps Phase 44 files
+  Result: Passed with no matches.
+
+Security notes:
+
+- No prompts, generated outputs, workflow input/output JSON, tool arguments, tool results, provider payloads, credentials, customer data, token totals, or cost totals are sent in workflow summary telemetry.
+- Structured generation remains visible only as operational step metadata, not as raw JSON content or schema payloads.
+
+Reliability notes:
+
+- Workflow summary telemetry is emitted only on terminal transitions and remains best-effort through the existing client.
+- Summary telemetry cannot double-count central cost because no estimated-cost field is present.
+- Existing workflow transition validation and terminal-state behavior are unchanged.
+
+Observability notes:
+
+- Central telemetry can distinguish structured step calls (`response_type=structured_json`), text step calls (`response_type=text`), and aggregate workflow summaries (`response_type=aggregate_summary`).
+- Workflow summaries provide terminal status, latency, retry count, and workflow correlation without pretending to be billing events.
+
+Scope notes:
+
+- Completed Phase 44 structured-generation and workflow-summary telemetry only.
+- Did not add cross-repository validation scripts, browser validation, cloud resources, deployments, or new workflow execution behavior.
+
+Post-commit review:
+
+- Pushed commit: 11b8a44
+- Top findings: No top actionable findings after reviewing cost double-counting risk, summary token/cost omission, terminal-only emission, sensitive-field exclusions, and documentation clarity.
+- Fix commits: None required.
+
+Next phase:
+
+- Phase 45: AgentOps cross-repository automated validation
 
 ## Update template
 

@@ -178,6 +178,12 @@ Acceptance:
 
 Cover additional AgentOps AI paths without double-counting cost.
 
+Implementation decision:
+
+- Structured JSON generation stays represented as `agent_step` telemetry with `response_type=structured_json` because each structured call already corresponds to one model-backed step and one local cost event.
+- Writer and baseline text calls are represented as `agent_step` telemetry with `response_type=text`.
+- `workflow_summary` events are aggregate terminal-status events only. They omit token and cost fields so Production AI Platform does not double-count spend already reported by per-step `agent_step` events.
+
 Deliverables:
 
 - Decide whether structured generation is represented as `agent_step` metadata or a separate `structured_generation` operation.
