@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 43: AgentOps agent-step telemetry emission
+Phase 44: AgentOps structured generation and workflow summary telemetry
 
 ## Phase table
 
@@ -64,8 +64,8 @@ Phase 43: AgentOps agent-step telemetry emission
 | 40 | Proofbase integration documentation and AgentOps handoff | Completed | main | b7c1d69 | 2026-07-07 | Finalized Proofbase connection docs, runbook/security/observability notes, portfolio demo wording, and AgentOps readiness notes. |
 | 41 | AgentOps contract and platform registration | Completed | main | 361b5ad | 2026-07-09 | Defined AgentOps operation taxonomy, safe metadata allowlist, strict schema rejection, local seed registration, and fixtures. |
 | 42 | AgentOps telemetry client and switch | Completed | agentops main | 4721dea | 2026-07-09 | Added AgentOps telemetry env switch, best-effort client, smoke script, redaction tests, and docs; fix commit `7580d19` preserves safe usage fields. |
-| 43 | AgentOps agent-step telemetry emission | In Progress |  |  |  | Emit safe telemetry for completed and failed AgentOps model-backed agent steps. |
-| 44 | AgentOps structured generation and workflow summary telemetry | Not Started |  |  |  | Extend coverage without double-counting cost or exposing generated outputs/workflow JSON. |
+| 43 | AgentOps agent-step telemetry emission | Completed | agentops main | aab21a1 | 2026-07-09 | Emitted safe telemetry for completed model-backed steps through cost tracking and failed steps through workflow events. |
+| 44 | AgentOps structured generation and workflow summary telemetry | In Progress |  |  |  | Extend coverage without double-counting cost or exposing generated outputs/workflow JSON. |
 | 45 | AgentOps cross-repository automated validation | Not Started |  |  |  | Add platform fixtures, AgentOps mocked receiver tests, smoke script, and Compose validation docs. |
 | 46 | Browser end-to-end AgentOps telemetry demo | Not Started |  |  |  | Verify local AgentOps traffic appears in the Production AI Platform dashboard. |
 | 47 | AgentOps integration closeout | Not Started |  |  |  | Finalize docs, runbooks, security/reliability notes, and portfolio story for the second connected client app. |
@@ -3392,6 +3392,77 @@ Post-commit review:
 Next phase:
 
 - Phase 43: AgentOps agent-step telemetry emission
+
+### Phase 43: AgentOps agent-step telemetry emission
+
+Status: Completed
+
+Pushed to:
+
+- agentops main
+
+Commit:
+
+- aab21a1
+
+Completed date:
+
+- 2026-07-09
+
+Implementation notes:
+
+- Added `build_agent_step_event` and `emit_agent_step_telemetry` in AgentOps to map completed and failed `AgentStep` records into safe Production AI Platform `agent_step` telemetry events.
+- Emitted completed-step telemetry from `record_agent_cost`, preserving the existing one-cost-event-per-step duplicate guard.
+- Emitted failed-step telemetry from `log_agent_failed` with bounded error categories such as `provider_timeout`, `rate_limited`, `validation_error`, `provider_error`, and `unknown`.
+- Kept telemetry best-effort through the Phase 42 client, so submission failures do not raise into AgentOps workflows.
+- Added focused tests for safe event mapping, completed-step telemetry emission, and failed-step telemetry emission.
+
+Validation:
+
+- Command: `S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe -m pytest apps/api/tests/test_platform_telemetry.py apps/api/tests/test_cost_tracking.py apps/api/tests/test_workflow_events.py -vv`
+  Result: Passed, 14 tests; pytest emitted existing local cache permission warnings and a Starlette/httpx deprecation warning.
+- Command: `S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe -m ruff check --no-cache apps/api/src/observability/platform_telemetry.py apps/api/src/services/cost_tracking.py apps/api/src/services/workflow_events.py apps/api/tests/test_platform_telemetry.py apps/api/tests/test_cost_tracking.py apps/api/tests/test_workflow_events.py`
+  Result: Passed.
+- Command: `S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe -m ruff format --check --no-cache apps/api/src/observability/platform_telemetry.py apps/api/src/services/cost_tracking.py apps/api/src/services/workflow_events.py apps/api/tests/test_platform_telemetry.py apps/api/tests/test_cost_tracking.py apps/api/tests/test_workflow_events.py`
+  Result: Passed.
+- Command: no-write Python compile check for touched AgentOps Python files
+  Result: Passed.
+- Command: `git diff --check`
+  Result: Passed with expected CRLF warnings only.
+- Command: focused secret-pattern scan across touched AgentOps Phase 43 files
+  Result: Passed with no matches.
+
+Security notes:
+
+- Agent-step telemetry omits `input_json`, `output_json`, raw prompts, generated outputs, workflow input/output JSON, tool arguments, tool results, provider payloads, and raw error messages.
+- Failed telemetry sends bounded error categories only.
+- Opaque workflow and step IDs are included for correlation; no customer data is sent.
+
+Reliability notes:
+
+- Completed telemetry follows the existing cost event idempotency path, so repeated `record_agent_cost` calls do not double-emit successful step telemetry.
+- Failure telemetry is emitted from the shared workflow-event helper and remains non-blocking through the best-effort client.
+- No workflow state transition logic was changed.
+
+Observability notes:
+
+- Completed model-backed AgentOps steps can now appear centrally as `source_app=agentops` / `operation_type=agent_step` with model, tokens, estimated cost, latency, retry count, agent metadata, and workflow/step IDs.
+- Failed AgentOps steps can appear centrally with safe status/error telemetry even when model or token data is unavailable.
+
+Scope notes:
+
+- Completed Phase 43 agent-step emission only.
+- Did not add structured-generation-specific events, workflow summary events, cross-repository validation, browser demo steps, cloud resources, or deployments.
+
+Post-commit review:
+
+- Pushed commit: aab21a1
+- Top findings: No top actionable findings after reviewing duplicate behavior, best-effort failure handling, sensitive-field exclusions, workflow-state impact, and test coverage.
+- Fix commits: None required.
+
+Next phase:
+
+- Phase 44: AgentOps structured generation and workflow summary telemetry
 
 ## Update template
 
