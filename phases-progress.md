@@ -67,7 +67,7 @@ Phase 47: AgentOps integration closeout
 | 43 | AgentOps agent-step telemetry emission | Completed | agentops main | aab21a1 | 2026-07-09 | Emitted safe telemetry for completed model-backed steps through cost tracking and failed steps through workflow events. |
 | 44 | AgentOps structured generation and workflow summary telemetry | Completed | agentops main | 11b8a44 | 2026-07-09 | Kept structured calls as `agent_step` metadata, labeled text outputs, and added non-billable terminal workflow summary events. |
 | 45 | AgentOps cross-repository automated validation | Completed | main + agentops main | 104a4d3 / 6a14154 | 2026-07-09 | Added platform AgentOps workflow-summary ingestion coverage, AgentOps mocked receiver tests, and safe cross-repo validation docs. |
-| 46 | Browser end-to-end AgentOps telemetry demo | Completed | main + agentops main | b9bcd85 / pending platform commit | 2026-07-09 | Added safe AgentOps browser demo sender, dashboard checklist, screenshot rules, troubleshooting notes, and local browser validation evidence. |
+| 46 | Browser end-to-end AgentOps telemetry demo | Completed | main + agentops main | b9bcd85 / f360dc6 | 2026-07-09 | Added safe AgentOps browser demo sender, dashboard checklist, screenshot rules, troubleshooting notes, and local browser validation evidence. |
 | 47 | AgentOps integration closeout | In Progress |  |  |  | Finalize docs, runbooks, security/reliability notes, and portfolio story for the second connected client app. |
 
 ## Phase execution log
@@ -3625,7 +3625,7 @@ Pushed to:
 Commit:
 
 - AgentOps: b9bcd85
-- Platform: pending platform commit
+- Platform: f360dc6
 
 Completed date:
 
@@ -3686,8 +3686,8 @@ Scope notes:
 
 Post-commit review:
 
-- Pushed commit: AgentOps b9bcd85; platform pending platform commit
-- Top findings: No top actionable AgentOps findings after reviewing the pushed README update for scope, safety warnings, and provider-quota clarity.
+- Pushed commit: AgentOps b9bcd85; platform f360dc6
+- Top findings: No top actionable findings after reviewing the pushed AgentOps README update and platform browser-demo commit for scope, safe demo data, redaction guidance, validation evidence, and provider-quota clarity.
 - Fix commits: None required.
 
 Next phase:
