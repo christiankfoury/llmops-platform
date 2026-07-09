@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 42: AgentOps telemetry client and switch
+Phase 43: AgentOps agent-step telemetry emission
 
 ## Phase table
 
@@ -63,8 +63,8 @@ Phase 42: AgentOps telemetry client and switch
 | 39 | Browser end-to-end Proofbase telemetry demo | Completed | main | e09a4c8 | 2026-07-07 | Added local browser demo guide, safe Proofbase event sender, screenshot rules, troubleshooting notes, and browser validation evidence. |
 | 40 | Proofbase integration documentation and AgentOps handoff | Completed | main | b7c1d69 | 2026-07-07 | Finalized Proofbase connection docs, runbook/security/observability notes, portfolio demo wording, and AgentOps readiness notes. |
 | 41 | AgentOps contract and platform registration | Completed | main | 361b5ad | 2026-07-09 | Defined AgentOps operation taxonomy, safe metadata allowlist, strict schema rejection, local seed registration, and fixtures. |
-| 42 | AgentOps telemetry client and switch | In Progress |  |  |  | Add AgentOps env switch, best-effort telemetry client, smoke script, and client tests. |
-| 43 | AgentOps agent-step telemetry emission | Not Started |  |  |  | Emit safe telemetry for completed and failed AgentOps model-backed agent steps. |
+| 42 | AgentOps telemetry client and switch | Completed | agentops main | 4721dea | 2026-07-09 | Added AgentOps telemetry env switch, best-effort client, smoke script, redaction tests, and docs; fix commit `7580d19` preserves safe usage fields. |
+| 43 | AgentOps agent-step telemetry emission | In Progress |  |  |  | Emit safe telemetry for completed and failed AgentOps model-backed agent steps. |
 | 44 | AgentOps structured generation and workflow summary telemetry | Not Started |  |  |  | Extend coverage without double-counting cost or exposing generated outputs/workflow JSON. |
 | 45 | AgentOps cross-repository automated validation | Not Started |  |  |  | Add platform fixtures, AgentOps mocked receiver tests, smoke script, and Compose validation docs. |
 | 46 | Browser end-to-end AgentOps telemetry demo | Not Started |  |  |  | Verify local AgentOps traffic appears in the Production AI Platform dashboard. |
@@ -3320,6 +3320,78 @@ Post-commit review:
 Next phase:
 
 - Phase 42: AgentOps telemetry client and switch
+
+### Phase 42: AgentOps telemetry client and switch
+
+Status: Completed
+
+Pushed to:
+
+- agentops main
+
+Commit:
+
+- 4721dea
+
+Completed date:
+
+- 2026-07-09
+
+Implementation notes:
+
+- Added AgentOps telemetry configuration with `AGENTOPS_TELEMETRY_ENABLED=false` by default, endpoint, API key, timeout, metadata-size, and redaction settings.
+- Added `src.observability.platform_telemetry` with disabled-mode behavior, short-timeout sender path, safe top-level allowlist, safe AgentOps metadata allowlist, metadata byte budget, and redacted failure logging.
+- Added `scripts/send_platform_telemetry_smoke.py` to send one safe local `agent_step` event through the Production AI Platform ingestion endpoint when the platform API is running and seeded.
+- Updated AgentOps `.env.example` and README with placeholder-only telemetry settings, Docker host endpoint guidance, and safety boundaries.
+- Added focused AgentOps tests for disabled mode, successful send, receiver timeout/failure isolation, no-secret logging, sensitive-field redaction, metadata-size enforcement, and telemetry key masking.
+
+Validation:
+
+- Command: `S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe -m pytest apps/api/tests/test_platform_telemetry.py apps/api/tests/test_security_controls.py -vv`
+  Result: Passed, 9 tests; pytest emitted existing local cache permission warnings and a Starlette/httpx deprecation warning.
+- Command: `S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe -m ruff check --no-cache apps/api/src/config.py apps/api/src/observability apps/api/tests/test_platform_telemetry.py apps/api/tests/test_security_controls.py scripts/send_platform_telemetry_smoke.py`
+  Result: Passed.
+- Command: `S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe -m ruff format --check --no-cache apps/api/src/config.py apps/api/src/observability apps/api/tests/test_platform_telemetry.py apps/api/tests/test_security_controls.py scripts/send_platform_telemetry_smoke.py`
+  Result: Passed after manually applying the formatting change because Ruff could not write outside the sandbox.
+- Command: no-write Python compile check for touched AgentOps Python files
+  Result: Passed; used no-write compile because `compileall` could not write `__pycache__` outside the sandbox.
+- Command: `git diff --check`
+  Result: Passed with expected CRLF warnings only.
+- Command: focused secret-pattern scan across touched AgentOps files
+  Result: Only matched the existing fake `sk-test-secret` used by the secret-masking test.
+
+Security notes:
+
+- No real platform keys, OpenAI keys, AWS credentials, prompts, generated outputs, workflow input/output JSON, tool arguments, tool results, provider payloads, or customer data were added.
+- Telemetry is disabled by default and uses placeholder-only local API key configuration.
+- Failure logging includes bounded operation/event IDs only and does not log the platform API key.
+- The client drops unknown or sensitive fields before submission and bounds metadata size.
+
+Reliability notes:
+
+- Platform telemetry submission returns `False` on disabled mode, missing configuration, transport errors, timeouts, non-2xx responses, and unexpected exceptions.
+- AgentOps workflows are not wired to telemetry yet, so Phase 42 cannot affect runtime workflow execution.
+- Phase 43 can call the same client from model-backed step completion/failure paths.
+
+Observability notes:
+
+- AgentOps can now emit safe `source_app=agentops` telemetry to Production AI Platform using the shared external event contract.
+- Smoke script produces a synthetic `agent_step` event with model, tokens, latency, estimated cost, workflow ID, step ID, agent name/type, retry count, and status.
+
+Scope notes:
+
+- Completed Phase 42 client/switch scope only.
+- Did not emit telemetry from live AgentOps workflow steps, add structured-generation/workflow-summary events, run browser validation, call OpenAI, create cloud resources, or deploy anything.
+
+Post-commit review:
+
+- Pushed commit: 4721dea
+- Top findings: The first sanitizer version used generic sensitive substrings that would have stripped safe contract fields such as `prompt_name`, `prompt_version`, and `output_tokens`.
+- Fix commits: 7580d19 narrowed sensitive-key matching and added regression assertions that safe prompt metadata and output token counts are preserved while raw prompts, outputs, workflow JSON, tool payloads, and provider payloads are still dropped.
+
+Next phase:
+
+- Phase 43: AgentOps agent-step telemetry emission
 
 ## Update template
 
