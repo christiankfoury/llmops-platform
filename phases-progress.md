@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 45: AgentOps cross-repository automated validation
+Phase 46: Browser end-to-end AgentOps telemetry demo
 
 ## Phase table
 
@@ -66,8 +66,8 @@ Phase 45: AgentOps cross-repository automated validation
 | 42 | AgentOps telemetry client and switch | Completed | agentops main | 4721dea | 2026-07-09 | Added AgentOps telemetry env switch, best-effort client, smoke script, redaction tests, and docs; fix commit `7580d19` preserves safe usage fields. |
 | 43 | AgentOps agent-step telemetry emission | Completed | agentops main | aab21a1 | 2026-07-09 | Emitted safe telemetry for completed model-backed steps through cost tracking and failed steps through workflow events. |
 | 44 | AgentOps structured generation and workflow summary telemetry | Completed | agentops main | 11b8a44 | 2026-07-09 | Kept structured calls as `agent_step` metadata, labeled text outputs, and added non-billable terminal workflow summary events. |
-| 45 | AgentOps cross-repository automated validation | In Progress |  |  |  | Add platform fixtures, AgentOps mocked receiver tests, smoke script, and Compose validation docs. |
-| 46 | Browser end-to-end AgentOps telemetry demo | Not Started |  |  |  | Verify local AgentOps traffic appears in the Production AI Platform dashboard. |
+| 45 | AgentOps cross-repository automated validation | Completed | main + agentops main | 104a4d3 / pending platform commit | 2026-07-09 | Added platform AgentOps workflow-summary ingestion coverage, AgentOps mocked receiver tests, and safe cross-repo validation docs. |
+| 46 | Browser end-to-end AgentOps telemetry demo | In Progress |  |  |  | Verify local AgentOps traffic appears in the Production AI Platform dashboard. |
 | 47 | AgentOps integration closeout | Not Started |  |  |  | Finalize docs, runbooks, security/reliability notes, and portfolio story for the second connected client app. |
 
 ## Phase execution log
@@ -3534,6 +3534,84 @@ Post-commit review:
 Next phase:
 
 - Phase 45: AgentOps cross-repository automated validation
+
+### Phase 45: AgentOps cross-repository automated validation
+
+Status: Completed
+
+Pushed to:
+
+- main
+- agentops main
+
+Commit:
+
+- AgentOps: 104a4d3
+- Platform: pending platform commit
+
+Completed date:
+
+- 2026-07-09
+
+Implementation notes:
+
+- Added a platform ingestion regression test proving AgentOps `workflow_summary` telemetry is accepted without creating a central cost record.
+- Added an AgentOps mocked platform receiver validation script covering safe agent-step payloads, non-billable workflow summaries, and timeout isolation.
+- Documented a no-cloud, no-provider validation sequence for both repositories.
+- Documented Docker Compose config checks, using AgentOps `.env.example` placeholder values to avoid rendering local secrets.
+
+Validation:
+
+- Command: `.\.venv\Scripts\python scripts\validate_agentops_telemetry_contract.py`
+  Result: Passed.
+- Command: `.\.venv\Scripts\python -m pytest apps/api/tests/test_agentops_telemetry_contract.py apps/api/tests/test_external_telemetry.py -vv`
+  Result: Passed, 20 tests; pytest emitted existing Starlette/httpx, HTTP 422, and local cache permission warnings.
+- Command: `docker compose config`
+  Result: Passed for the platform compose file with local Docker config access warnings.
+- Command: `S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe scripts\test_phase45_mocked_platform_receiver.py`
+  Result: Passed, 3 tests; the timeout case emitted the expected redacted telemetry failure log.
+- Command: `S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe -m pytest apps/api/tests/test_platform_telemetry.py apps/api/tests/test_cost_tracking.py apps/api/tests/test_workflow_state.py -vv`
+  Result: Passed, 19 tests; pytest emitted existing local cache permission and deprecation warnings.
+- Command: `docker compose --env-file .env.example config`
+  Result: Passed for AgentOps with placeholder env values and local Docker config access warnings.
+- Command: Ruff check/format checks for touched production and AgentOps Python files
+  Result: Passed.
+- Command: no-write Python compile parse check for the AgentOps mocked receiver script
+  Result: Passed.
+- Command: `git diff --check`
+  Result: Passed with expected CRLF warnings only.
+
+Security notes:
+
+- Validation uses placeholder telemetry credentials and mocked receiver calls only.
+- AgentOps validation asserts workflow output JSON and tool payloads are not submitted.
+- Workflow summary events remain non-billable and do not create central cost records.
+- An unsafe initial AgentOps compose config invocation rendered local environment values during validation; the documented and rerun command uses `--env-file .env.example`.
+
+Reliability notes:
+
+- Mocked receiver timeout validation confirms AgentOps telemetry failures return `False` instead of raising into workflow code.
+- The platform accepts aggregate workflow summaries without requiring token or cost data.
+
+Observability notes:
+
+- Platform ingestion tests cover `source_app=agentops` and `operation_type=workflow_summary`.
+- AgentOps mocked receiver tests cover `agent_step` and `workflow_summary` telemetry payloads.
+
+Scope notes:
+
+- Completed Phase 45 cross-repository validation only.
+- Did not add browser validation, dashboard UX changes, cloud resources, deployments, or workflow execution behavior.
+
+Post-commit review:
+
+- Pushed commit: AgentOps 104a4d3; platform pending platform commit
+- Top findings: No top actionable findings after reviewing mocked-only execution, sensitive-field exclusions, cost double-counting risk, and validation documentation.
+- Fix commits: None required.
+
+Next phase:
+
+- Phase 46: Browser end-to-end AgentOps telemetry demo
 
 ## Update template
 

@@ -136,3 +136,31 @@ What these checks prove:
 - Existing Proofbase telemetry fixtures still validate against the shared external schema.
 - Unsafe top-level fields such as workflow JSON, generated output, provider payloads, tool payloads, and API keys are rejected.
 - Unsafe metadata fields such as raw prompts, input/output JSON, and tool results are rejected.
+
+## AgentOps Cross-Repository Validation
+
+Phase 45 adds no-cloud validation for the AgentOps-to-platform telemetry path. These checks do not call OpenAI, AWS, Terraform, Kubernetes, or a running Production AI Platform deployment.
+
+From `S:\github-repos\production-ai-platform`:
+
+```powershell
+.\.venv\Scripts\python scripts\validate_agentops_telemetry_contract.py
+.\.venv\Scripts\python -m pytest apps/api/tests/test_agentops_telemetry_contract.py apps/api/tests/test_external_telemetry.py -vv
+docker compose config
+```
+
+From `S:\github-repos\agentops-workflow-platform`:
+
+```powershell
+S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe scripts\test_phase45_mocked_platform_receiver.py
+S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe -m pytest apps/api/tests/test_platform_telemetry.py apps/api/tests/test_cost_tracking.py apps/api/tests/test_workflow_state.py -vv
+docker compose --env-file .env.example config
+```
+
+What these checks prove:
+
+- Platform schema and ingestion accept AgentOps-shaped telemetry fixtures.
+- AgentOps can submit agent-step and workflow-summary payloads to a mocked receiver without network calls.
+- Mocked receiver failures return `False` and do not raise into AgentOps workflow code.
+- Workflow summary events are accepted without creating central cost records.
+- Docker Compose files parse locally without starting containers.

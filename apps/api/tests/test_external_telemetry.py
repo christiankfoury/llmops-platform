@@ -6,7 +6,7 @@ import pytest
 from app.db.session import SessionLocal
 from app.main import app
 from fastapi.testclient import TestClient
-from scripts.seed_dev_data import PLACEHOLDER_API_KEY
+from scripts.seed_dev_data import AGENTOPS_PLACEHOLDER_API_KEY, PLACEHOLDER_API_KEY
 from scripts.seed_dev_data import main as seed_dev_data
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
@@ -57,6 +57,28 @@ def _event_payload(event_id: str | None = None, cost: str = "0.000812") -> dict:
             "citation_count": 4,
             "response_type": "answer",
             "streaming": False,
+        },
+    }
+
+
+def _agentops_workflow_summary_payload(event_id: str | None = None) -> dict:
+    return {
+        "event_id": event_id or f"evt_agentops_summary_{uuid4().hex}",
+        "external_request_id": f"agentops_workflow_{uuid4().hex}",
+        "source_app": "agentops",
+        "operation_type": "workflow_summary",
+        "environment": "local",
+        "occurred_at": datetime.now(UTC).isoformat(),
+        "status": "succeeded",
+        "provider": "unknown",
+        "model": "unknown",
+        "pricing_status": "unknown",
+        "latency_ms": 5000,
+        "metadata": {
+            "workflow_external_id": "workflow_test",
+            "workflow_status": "completed",
+            "retry_count": 1,
+            "response_type": "aggregate_summary",
         },
     }
 
@@ -210,3 +232,38 @@ def test_external_llm_event_duplicate_conflict_is_rejected() -> None:
 
     assert first_response.status_code == 202
     assert conflict_response.status_code == 409
+
+
+@requires_database
+def test_agentops_workflow_summary_event_is_accepted_without_cost_record() -> None:
+    seed_dev_data()
+    payload = _agentops_workflow_summary_payload()
+
+    response = client.post(
+        "/v1/usage/llm-events",
+        headers={"X-API-Key": AGENTOPS_PLACEHOLDER_API_KEY},
+        json=payload,
+    )
+
+    assert response.status_code == 202
+    accepted = response.json()
+    assert accepted["accepted"] is True
+    assert accepted["duplicate"] is False
+
+    with SessionLocal() as db:
+        row = db.execute(
+            text(
+                "select gr.source_app, gr.operation_type, gr.estimated_cost_usd, "
+                "count(cr.id) as cost_records "
+                "from gateway_requests gr "
+                "left join cost_records cr on cr.gateway_request_id = gr.id "
+                "where gr.external_event_id = :event_id "
+                "group by gr.id"
+            ),
+            {"event_id": payload["event_id"]},
+        ).one()
+
+    assert row.source_app == "agentops"
+    assert row.operation_type == "workflow_summary"
+    assert row.estimated_cost_usd is None
+    assert row.cost_records == 0
