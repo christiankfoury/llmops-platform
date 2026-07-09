@@ -125,24 +125,30 @@ Triage:
 Symptoms:
 
 - Proofbase traffic disappears from the dashboard.
+- AgentOps traffic disappears from the dashboard.
 - `POST /v1/usage/llm-events` returns 401, 422, 409, or 5xx.
 - External telemetry error metrics increase.
 - Proofbase local logs report telemetry send failures.
+- AgentOps local logs report telemetry send failures.
 
 Triage:
 
 1. Confirm the API health and readiness endpoints.
 2. Check API logs for `/v1/usage/llm-events` status codes.
 3. Separate auth failures from validation failures, duplicate conflicts, database failures, and platform 5xx errors.
-4. Confirm the Proofbase telemetry endpoint points to the correct platform API.
+4. Confirm the client telemetry endpoint points to the correct platform API:
+   - Proofbase: `PROOFBASE_TELEMETRY_ENDPOINT`
+   - AgentOps: `AGENTOPS_TELEMETRY_ENDPOINT`
 5. Confirm the client app is using an active application API key, without printing the key value.
 6. For 422 validation failures, compare the payload shape with `docs/external-telemetry-contract.md` and check for disallowed metadata keys.
 7. For 409 duplicate conflicts, confirm the client is not reusing an event id for a changed payload.
 8. For platform 5xx errors, inspect database connectivity and recent deploys before rolling back.
+9. For AgentOps `workflow_summary` events, confirm missing token/cost fields are expected and are not treated as ingestion failure.
 
 Reliability expectation:
 
 - Do not block Proofbase user workflows because central telemetry is unavailable.
+- Do not block AgentOps workflow runs because central telemetry is unavailable.
 - Keep telemetry submission best-effort with short timeouts and local diagnostics.
 - Backfill only sanitized operational events if a future client implements an approved replay path.
 

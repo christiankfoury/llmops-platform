@@ -12,12 +12,13 @@ The main focus is infrastructure: Terraform-managed AWS infrastructure, Kubernet
 
 ## Portfolio positioning
 
-Pair this project with Proofbase when explaining the portfolio:
+Pair this project with Proofbase and AgentOps when explaining the portfolio:
 
 - Proofbase: a realistic permission-aware RAG product with citations, scoped retrieval, document workflows, and benchmarked answer quality.
+- AgentOps Workflow Platform: a realistic agent workflow product with workflow runs, agent steps, structured generation, retries, tool categories, and per-step costs.
 - Production AI Platform: the production LLMOps layer that centralizes model access, cost, latency, errors, traces, secrets, deployments, rollback, and cloud operations.
 
-The clean demo story: Proofbase shows what the AI product does; this project shows how AI workloads are operated responsibly in production. Proofbase is now presented as a telemetry-connected client app first, with gateway-routed provider calls as a later step once the gateway supports Proofbase's richer RAG call patterns.
+The clean demo story: Proofbase shows the enterprise RAG product layer, AgentOps shows the agent workflow layer, and Production AI Platform shows how AI workloads are operated responsibly in production. Proofbase and AgentOps are telemetry-connected client apps; the platform centralizes operational visibility without taking over retrieval, citations, workflow execution, prompts, generated outputs, or tool payloads.
 
 ## Demo flow
 
@@ -26,19 +27,22 @@ The clean demo story: Proofbase shows what the AI product does; this project sho
 3. Send a gateway request.
 4. Show request in dashboard.
 5. Send the local Proofbase demo telemetry event and filter the dashboard to `source_app=proofbase`.
-6. Show cost/latency/error metrics.
-7. Show CI workflow.
-8. Show Terraform modules.
-9. Show Helm chart values for dev/staging/prod.
-10. Show Grafana dashboard.
-11. Show Loki logs by request ID.
-12. Show rollback workflow.
-13. Show incident runbook, including the external telemetry outage section.
+6. Send the local AgentOps demo telemetry event and filter the dashboard to `source_app=agentops`.
+7. Explain why Proofbase rows are RAG operations while AgentOps rows are agent-step/workflow-summary operations.
+8. Show cost/latency/error metrics.
+9. Show CI workflow.
+10. Show Terraform modules.
+11. Show Helm chart values for dev/staging/prod.
+12. Show Grafana dashboard.
+13. Show Loki logs by request ID.
+14. Show rollback workflow.
+15. Show incident runbook, including the external telemetry outage section.
 
 ## Screenshots to capture
 
 - Dashboard overview
 - Proofbase-filtered dashboard view
+- AgentOps-filtered dashboard view
 - Request table
 - Cost dashboard
 - Latency/error dashboard
@@ -58,7 +62,8 @@ The clean demo story: Proofbase shows what the AI product does; this project sho
 - Implemented API key auth, prompt versioning, model routing, request logging, latency tracking, error tracking, and estimated LLM cost monitoring.
 - Documented incident response, backup/restore, security baseline, and cloud cost controls.
 - Connected Proofbase as a telemetry-first client app for centralized LLM usage, latency, token, error, and estimated-cost visibility while preserving the RAG/product boundary.
+- Connected AgentOps Workflow Platform as a telemetry-first client app for centralized agent-step usage, latency, retry, status, token, error, workflow-summary, and estimated-cost visibility while preserving the workflow/orchestration boundary.
 
-## AgentOps handoff
+## Client App Boundaries
 
-AgentOps Workflow Platform is the next integration target. Its existing LLM client and cost-tracking models already expose model, token, cost, latency, status, retry, workflow, and agent-step data. The next sequence should reuse the external telemetry API foundation and add an agent/workflow operation taxonomy without redesigning ingestion.
+Proofbase remains the AI product layer for permission-aware enterprise RAG. AgentOps remains the agent workflow layer for workflow runs, agent steps, retries, structured generation, tools, and local workflow observability. Production AI Platform remains the operations layer that centralizes telemetry, cost, latency, failures, dashboards, infrastructure, deployment, secrets, and reliability controls.

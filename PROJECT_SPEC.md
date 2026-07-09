@@ -212,7 +212,7 @@ External telemetry events should not include by default:
 
 Telemetry submission should be best-effort for client apps. If the platform is unavailable, the client app should keep serving users and record the telemetry failure locally without exposing secrets.
 
-The detailed Phase 31 contract is documented in `docs/external-telemetry-contract.md`. It defines the Proofbase operation taxonomy, required and optional fields, sensitive-data exclusions, idempotency strategy, retry behavior, and AgentOps handoff boundary. The AgentOps implementation plan is documented in `docs/agentops-integration-plan.md` and should use Proofbase as a reference pattern while deriving operation types and metadata from AgentOps' own workflow/agent-step model.
+The detailed Phase 31 contract is documented in `docs/external-telemetry-contract.md`. It defines the external telemetry taxonomy, required and optional fields, sensitive-data exclusions, idempotency strategy, retry behavior, and client-app boundaries. The Proofbase summary is documented in `docs/proofbase-integration.md`; the AgentOps summary is documented in `docs/agentops-integration.md`; and the AgentOps phase notes live in `docs/agentops-integration-plan.md`.
 
 ## Infrastructure goals
 

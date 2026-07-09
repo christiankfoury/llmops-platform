@@ -18,9 +18,10 @@ This repository shows how I would operate AI workloads in production, not just h
 
 ## Portfolio Positioning
 
-This project complements **Proofbase**, the permission-aware enterprise RAG application.
+This project complements **Proofbase**, the permission-aware enterprise RAG application, and **AgentOps Workflow Platform**, the agent workflow/orchestration application.
 
 - Proofbase proves the AI product layer: document workflows, retrieval quality, citations, permissions, memory safety, and answer-quality evaluation.
+- AgentOps proves the agent workflow layer: workflow runs, agent steps, structured generation, retries, tool categories, and per-step costs.
 - Production AI Platform proves the operations layer: centralized model access, cost, latency, errors, traces, secrets, deployments, rollback, and cloud infrastructure.
 
 Proofbase is connected as a client app through telemetry first: Proofbase keeps owning RAG, retrieval, citations, permissions, memory, and answer-quality evaluation, while this platform centralizes model usage, cost, latency, token, error, and request visibility. Gateway-routed provider calls can follow after the gateway supports Proofbase's richer provider contract.
@@ -188,7 +189,7 @@ Assets:
 
 See [docs/observability.md](docs/observability.md) and [docs/dashboard-screenshots.md](docs/dashboard-screenshots.md).
 
-Proofbase is the first connected client app. See [docs/proofbase-integration.md](docs/proofbase-integration.md) for the integration boundary, safety model, outage behavior, and AgentOps handoff notes.
+Proofbase and AgentOps are connected telemetry clients. See [docs/proofbase-integration.md](docs/proofbase-integration.md) for the RAG boundary and [docs/agentops-integration.md](docs/agentops-integration.md) for the workflow boundary.
 
 ## Security, Reliability, And Cost
 
@@ -252,7 +253,8 @@ Recommended flow:
 - [docs/architecture-diagrams.md](docs/architecture-diagrams.md): Mermaid diagrams
 - [docs/gateway-flow.md](docs/gateway-flow.md): gateway request flow and code walkthrough
 - [docs/external-telemetry-contract.md](docs/external-telemetry-contract.md): Proofbase-first external LLM telemetry contract
-- [docs/proofbase-integration.md](docs/proofbase-integration.md): Proofbase connection summary and AgentOps handoff
+- [docs/proofbase-integration.md](docs/proofbase-integration.md): Proofbase connection summary and RAG boundary
+- [docs/agentops-integration.md](docs/agentops-integration.md): AgentOps connection summary and workflow boundary
 - [docs/agentops-integration-plan.md](docs/agentops-integration-plan.md): AgentOps Workflow Platform telemetry integration plan
 - [docs/proofbase-browser-telemetry-demo.md](docs/proofbase-browser-telemetry-demo.md): local browser demo for Proofbase telemetry
 - [docs/agentops-browser-telemetry-demo.md](docs/agentops-browser-telemetry-demo.md): local browser demo for AgentOps telemetry
@@ -288,4 +290,4 @@ Recommended flow:
 
 ## Status
 
-The original 30 infrastructure/platform phases are implemented in code and documentation. Phases 31-40 complete the Proofbase telemetry integration sequence. Phases 41-46 complete the AgentOps contract, client, emission, validation, and browser-demo path. Phase 47 remains the AgentOps closeout phase. CI was kept green during the original phase loop, and the repository is packaged as a portfolio-grade production AI platform rather than a toy LLM app.
+The original 30 infrastructure/platform phases are implemented in code and documentation. Phases 31-40 complete the Proofbase telemetry integration sequence. Phases 41-47 complete the AgentOps telemetry integration sequence, including contract, client, emission, validation, browser-demo, and closeout docs. CI was kept green during the original phase loop, and the repository is packaged as a portfolio-grade production AI platform rather than a toy LLM app.

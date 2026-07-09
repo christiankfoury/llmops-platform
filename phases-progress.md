@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 47: AgentOps integration closeout
+All phases completed
 
 ## Phase table
 
@@ -68,7 +68,7 @@ Phase 47: AgentOps integration closeout
 | 44 | AgentOps structured generation and workflow summary telemetry | Completed | agentops main | 11b8a44 | 2026-07-09 | Kept structured calls as `agent_step` metadata, labeled text outputs, and added non-billable terminal workflow summary events. |
 | 45 | AgentOps cross-repository automated validation | Completed | main + agentops main | 104a4d3 / 6a14154 | 2026-07-09 | Added platform AgentOps workflow-summary ingestion coverage, AgentOps mocked receiver tests, and safe cross-repo validation docs. |
 | 46 | Browser end-to-end AgentOps telemetry demo | Completed | main + agentops main | b9bcd85 / f360dc6 | 2026-07-09 | Added safe AgentOps browser demo sender, dashboard checklist, screenshot rules, troubleshooting notes, and local browser validation evidence. |
-| 47 | AgentOps integration closeout | In Progress |  |  |  | Finalize docs, runbooks, security/reliability notes, and portfolio story for the second connected client app. |
+| 47 | AgentOps integration closeout | Completed | main | pending platform commit | 2026-07-09 | Finalized AgentOps integration docs, runbook/security/observability notes, and portfolio story for the second connected client app. |
 
 ## Phase execution log
 
@@ -3693,6 +3693,72 @@ Post-commit review:
 Next phase:
 
 - Phase 47: AgentOps integration closeout
+
+### Phase 47: AgentOps integration closeout
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- Platform: pending platform commit
+
+Completed date:
+
+- 2026-07-09
+
+Implementation notes:
+
+- Added [agentops-integration.md](docs/agentops-integration.md) as the final AgentOps integration summary.
+- Updated README, PROJECT_SPEC, architecture, observability, runbook, security baseline, portfolio demo plan, demo script, external telemetry contract, Proofbase integration cross-link, and AgentOps integration plan.
+- Documented AgentOps as a connected telemetry client while preserving its workflow/orchestration boundary.
+- Documented AgentOps telemetry outage behavior as non-blocking and best-effort.
+- Documented AgentOps telemetry key handling, workflow payload redaction, dashboard interpretation, and workflow-summary cost double-counting rules.
+- Updated the portfolio story so Proofbase is the RAG product layer, AgentOps is the workflow layer, and Production AI Platform is the operations layer.
+
+Validation:
+
+- Command: `git diff --check`
+  Result: Passed with expected CRLF warnings only.
+- Command: focused secret-pattern scan across README, PROJECT_SPEC, docs, scripts, and env examples
+  Result: Passed with no matches.
+- Command: focused stale-language scan for future-facing AgentOps wording in README, PROJECT_SPEC, and docs
+  Result: Passed with no matches.
+
+Security notes:
+
+- No secrets, credentials, provider keys, account IDs, domains, or production values were added.
+- AgentOps docs explicitly forbid prompt text, system instructions, generated outputs, structured response JSON, workflow input/output JSON, tool arguments, tool results, provider payloads, API keys, provider credentials, and user/customer data.
+- Telemetry key guidance requires hashed platform storage, secret-manager/local-env plaintext handling, no logging, and rotation if exposed.
+
+Reliability notes:
+
+- Runbook guidance treats AgentOps telemetry as best-effort and non-blocking for workflow runs.
+- Outage triage separates auth, validation, duplicate conflict, database, and platform 5xx causes.
+- Workflow summary events are documented as aggregate-only and non-billable to avoid central cost double-counting.
+
+Observability notes:
+
+- Observability docs explain `source_app=agentops`, `operation_type=agent_step`, `operation_type=workflow_summary`, and `response_type=structured_json`.
+- Dashboard interpretation distinguishes AgentOps model-backed step cost from non-billable workflow summary correlation.
+
+Scope notes:
+
+- Completed Phase 47 closeout documentation only.
+- Did not execute real AgentOps workflows, inspect prompts or outputs, handle tool payloads, run Terraform, create cloud resources, deploy to production, or modify dashboard code.
+
+Post-commit review:
+
+- Pushed commit: platform pending platform commit
+- Top findings: Pending post-commit review.
+- Fix commits: Pending post-commit review.
+
+Next phase:
+
+- None. All phases are completed.
 
 ## Update template
 

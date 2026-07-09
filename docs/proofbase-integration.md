@@ -79,37 +79,8 @@ Use the contract checks:
 
 Then open `http://localhost:3000`, filter **Source App** to `proofbase`, and inspect the resulting dashboard rows.
 
-## AgentOps Handoff
+## Related AgentOps Integration
 
-AgentOps Workflow Platform has compatible usage concepts but a different shape from Proofbase.
+AgentOps Workflow Platform is now connected as the second telemetry client app. It uses the same ingestion foundation, but its event model is workflow/agent-step oriented rather than RAG oriented.
 
-The implementation should use Proofbase as the proven reference pattern, but should derive AgentOps event fields from AgentOps' own workflow and agent-step model. This is faster and safer than starting from scratch, while avoiding copy/paste of Proofbase RAG concepts into a workflow app.
-
-Observed AgentOps files:
-
-- `apps/api/src/services/llm_client.py`: OpenAI chat calls return model and token usage for text and structured responses.
-- `apps/api/src/services/cost_tracking.py`: cost estimation is already centralized around model pricing and agent steps.
-- `apps/api/src/models/agent_step.py`: agent steps store model, prompt version, tokens, cost, latency, status, retry count, and error message.
-- `apps/api/src/models/cost_event.py`: cost events store per-step token and cost totals.
-
-Reusable platform patterns:
-
-- external app API key registration
-- idempotent event ids
-- bounded metadata validation
-- source-app and operation filters
-- local mocked receiver tests
-- browser dashboard validation
-- redaction rules and non-blocking client behavior
-
-Expected AgentOps differences:
-
-- events should likely map to workflow run and agent step boundaries rather than RAG query boundaries
-- operation taxonomy should start with `agent_step`, `structured_generation`, and `workflow_summary`
-- later operation types can add tool-oriented names such as `tool_planning`, `tool_execution`, or `workflow_retry` if AgentOps exposes safe operational data for them
-- metadata should include safe workflow and agent identifiers, step order, retry count, and tool category without prompts or tool payloads
-- cost totals can be reconciled from existing AgentOps `CostEvent` rows
-
-The existing ingestion foundation should support AgentOps without redesign. The next phase sequence should focus on operation taxonomy, safe metadata keys, AgentOps app registration, and client-side best-effort emission.
-
-See [agentops-integration-plan.md](agentops-integration-plan.md) for the detailed implementation plan.
+Use [agentops-integration.md](agentops-integration.md) for the completed AgentOps connection summary and [agentops-integration-plan.md](agentops-integration-plan.md) for the implementation phase notes.

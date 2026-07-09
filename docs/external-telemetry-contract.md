@@ -275,9 +275,9 @@ Phases 33-39 should connect Proofbase one operation group at a time:
 4. Emit Markdown cleanup, query decomposition, and embedding telemetry.
 5. Validate with mocked tests and a browser demo.
 
-Phase 40 closes the Proofbase sequence and defines the AgentOps handoff using the same external telemetry model.
+Phase 40 closes the Proofbase sequence and prepares AgentOps to reuse the same external telemetry model.
 
-Phases 41-47 should connect AgentOps one operation group at a time:
+Phases 41-47 connect AgentOps one operation group at a time:
 
 1. Define AgentOps contract additions and register AgentOps as a platform application.
 2. Add AgentOps telemetry configuration and a best-effort client.
@@ -285,3 +285,5 @@ Phases 41-47 should connect AgentOps one operation group at a time:
 4. Decide whether structured generation and workflow summaries add non-duplicative visibility.
 5. Validate with mocked tests and a browser demo.
 6. Close the AgentOps integration documentation.
+
+The completed AgentOps summary lives in [agentops-integration.md](agentops-integration.md). It documents centralized workflow and agent-step telemetry while preserving AgentOps ownership of workflow execution, prompts, generated outputs, tool payloads, and workflow state.

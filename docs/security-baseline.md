@@ -193,6 +193,8 @@ External client-app telemetry must follow [external-telemetry-contract.md](exter
 
 Proofbase telemetry may include operational fields such as model, provider, token counts, estimated cost, latency, status, error category, prompt version, source project IDs, and bounded metadata. It must not include API keys, provider credentials, full prompts, full questions, rewritten questions, retrieved chunks, citation text, uploaded document text, extracted Markdown, cleaned Markdown, provider payloads, or raw customer data by default.
 
+AgentOps telemetry may include operational fields such as workflow ID, agent-step ID, agent name/type, step order, retry count, model, provider, token counts, estimated cost, latency, status, safe error category, prompt version identifier, workflow status, step status, and response type. It must not include API keys, provider credentials, prompt text, system instructions, generated outputs, structured response JSON, workflow input/output JSON, tool arguments, tool results, provider payloads, or user/customer data by default.
+
 Duplicate telemetry events should be suppressed by stable event IDs so retries cannot inflate cost or request totals.
 
 Telemetry API keys:
@@ -205,4 +207,11 @@ Proofbase redaction boundary:
 
 - Production AI Platform may claim centralized Proofbase telemetry, usage, latency, error, token, and estimated-cost visibility.
 - It must not claim to perform Proofbase retrieval, citation validation, permission filtering, memory safety checks, document ingestion, or benchmark evaluation.
+
+AgentOps redaction boundary:
+
+- Production AI Platform may claim centralized AgentOps workflow and agent-step telemetry, usage, latency, status, retry, token, error, and estimated-cost visibility.
+- It must not claim to execute AgentOps workflows, own AgentOps prompts, inspect generated outputs, evaluate workflow quality, run tools, or handle tool payloads.
+- Workflow summary events must remain aggregate-only and non-billable in the platform to avoid double-counting per-step cost.
+
 - Screenshots should show aggregate operational data, short request ids, source app, operation type, model, latency, and estimated cost only.

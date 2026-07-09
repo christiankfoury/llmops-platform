@@ -85,7 +85,16 @@ In that model:
 
 This preserves the project boundary: Proofbase owns the AI product layer, while this repository owns centralized operations visibility.
 
-AgentOps Workflow Platform is the next client-app integration target. It already records model, token, latency, cost, status, retry, workflow, and agent-step fields. The expected next step is to extend the external operation taxonomy and safe metadata keys for agent/workflow events while reusing the same ingestion, auth, idempotency, dashboard, and redaction foundation.
+AgentOps Workflow Platform is connected through the same normalized telemetry path. The completed integration summary lives in [agentops-integration.md](agentops-integration.md).
+
+In that model:
+
+1. AgentOps continues to execute its own workflows, agent steps, structured generation, retries, tool behavior, and local cost tracking.
+2. AgentOps sends bounded LLM usage events for safe agent-step and workflow-summary operations.
+3. Production AI Platform authenticates the AgentOps application key, validates the event, persists usage and cost data where appropriate, emits metrics, and shows the traffic in the dashboard.
+4. If Production AI Platform is unavailable, AgentOps continues running workflows and records a redacted local diagnostic entry.
+
+This preserves the second project boundary: AgentOps owns the agent workflow layer, while this repository owns centralized operations visibility.
 
 ## Application components
 
@@ -288,7 +297,7 @@ docs/                          architecture, deployment, operations, security, c
 
 ## Scope Boundary
 
-The repository intentionally focuses on the platform and operations layer: gateway, dashboard, CI/CD, Terraform, Kubernetes, Helm, observability, security, reliability, and cost controls. Advanced RAG features such as document ingestion, vector retrieval, citations, permission-aware retrieval, and benchmark-driven answer quality belong in Proofbase rather than this repository.
+The repository intentionally focuses on the platform and operations layer: gateway, dashboard, CI/CD, Terraform, Kubernetes, Helm, observability, security, reliability, and cost controls. Advanced RAG features such as document ingestion, vector retrieval, citations, permission-aware retrieval, and benchmark-driven answer quality belong in Proofbase rather than this repository. Agent workflow execution, prompts, generated outputs, tool payloads, and workflow state belong in AgentOps rather than this repository.
 
 ## Design principles
 

@@ -12,7 +12,7 @@ I built a lightweight LLM gateway and dashboard, then wrapped it in the kind of 
 
 1. README
    - Show the 60-second summary.
-   - Explain the Proofbase relationship: Proofbase is the AI product layer; this repo is the operating layer.
+   - Explain the portfolio relationship: Proofbase is the RAG product layer, AgentOps is the workflow/orchestration layer, and this repo is the operating layer.
 
 2. Local app
    - Run `docker compose up --build`.
@@ -33,40 +33,46 @@ I built a lightweight LLM gateway and dashboard, then wrapped it in the kind of 
    - Explain that Proofbase remains the RAG product layer while this platform centralizes usage, cost, latency, and failure visibility.
    - Use [proofbase-browser-telemetry-demo.md](proofbase-browser-telemetry-demo.md) for the browser checklist and screenshot rules.
 
-6. Backend depth
+6. AgentOps telemetry demo
+   - Run `python scripts/send_agentops_browser_demo_event.py`.
+   - Open the dashboard, filter **Source App** to `agentops`, and show the `AgentOps Workflow Platform / AgentOps Workflow Platform` request.
+   - Explain that AgentOps remains the workflow/orchestration layer while this platform centralizes safe agent-step and workflow-summary telemetry.
+   - Use [agentops-browser-telemetry-demo.md](agentops-browser-telemetry-demo.md) for the browser checklist and screenshot rules.
+
+7. Backend depth
    - Show SQLAlchemy models, Alembic migration, gateway service, pricing service, rate limiter, metrics, and tracing.
 
-7. Infrastructure
+8. Infrastructure
    - Show Terraform environment roots and reusable modules.
    - Show EKS, ECR, RDS, Redis, Secrets Manager, IAM, and optional budget modules.
    - Emphasize that applying Terraform is intentionally approval-gated.
 
-8. Kubernetes and Helm
+9. Kubernetes and Helm
    - Show raw manifests.
    - Show the Helm chart and dev/staging/prod values.
    - Explain probes, resources, security contexts, NetworkPolicies, HPA, and PDB.
 
-9. CI/CD
+10. CI/CD
    - Show `.github/workflows/ci.yml`.
    - Show deploy-dev, deploy-staging, deploy-prod, and rollback workflows.
    - Explain immutable image tags, scans, environment approvals, and smoke tests.
 
-10. Observability
+11. Observability
    - Show `docs/observability.md`.
    - Show Grafana dashboard JSON and Prometheus alert rules.
    - Explain request IDs, trace IDs, metrics, logs, and dashboard panels.
 
-11. Reliability and incident response
+12. Reliability and incident response
     - Show `docs/runbook.md`.
     - Walk through `docs/incident-simulation.md`.
     - Show rollback workflow and backup/restore docs.
 
-12. Cost and security
+13. Cost and security
     - Show `docs/cost-analysis.md`.
     - Show `docs/security-baseline.md`.
     - Explain rate limits, hashed API keys, External Secrets, private data services, and optional AWS Budget alerts.
 
-13. GitOps
+14. GitOps
     - Show Argo CD Application manifests.
     - Explain that GitHub Actions remains default, while Argo CD is an optional deployment control plane.
 
@@ -81,4 +87,5 @@ The intentionally small app makes the platform work easy to inspect. The value i
 - Packaged releases with Helm and automated CI/CD through GitHub Actions with staged promotion and rollback workflows.
 - Added OpenTelemetry traces, Prometheus metrics, Grafana dashboards, Loki log assets, and alert/runbook coverage.
 - Implemented API key auth, prompt versioning, model routing, request logging, latency tracking, error tracking, rate limiting, and estimated LLM cost monitoring.
+- Connected Proofbase and AgentOps as telemetry-first client apps while preserving their RAG and workflow product boundaries.
 - Documented backup/restore, incident response, security baseline, GitOps, cost controls, and known limitations.

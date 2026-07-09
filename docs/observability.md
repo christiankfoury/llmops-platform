@@ -40,15 +40,19 @@ Prometheus server deployment is not installed by this repository, but scrape ann
 
 Phases 31-40 add the first connected external client app: Proofbase sends normalized LLM usage events into this platform before any provider calls are routed through the gateway.
 
+Phases 41-47 add the second connected external client app: AgentOps sends normalized workflow and agent-step telemetry while keeping workflow execution, prompts, generated outputs, tools, and workflow state in AgentOps.
+
 Phase 32 adds `POST /v1/usage/llm-events` for external telemetry ingestion. Accepted events are authenticated with application API keys, persisted as gateway request records with external event fields, optionally written to cost records, and included in the existing usage summary and request-list endpoints.
 
-External events should include bounded operational fields such as source application, operation type, external request ID, model, prompt version, token counts, estimated cost, latency, status, and error category. They should not include API keys, provider credentials, full prompts, full questions, retrieved chunks, citations, document text, or uploaded file contents by default.
+External events should include bounded operational fields such as source application, operation type, external request ID, model, prompt version, token counts, estimated cost, latency, status, and error category. They should not include API keys, provider credentials, full prompts, full questions, retrieved chunks, citations, document text, uploaded file contents, workflow input/output JSON, generated outputs, tool arguments, or tool results by default.
 
-The external telemetry path must be best-effort for client apps. A telemetry outage should create local diagnostic logs, not break Proofbase user workflows.
+The external telemetry path must be best-effort for client apps. A telemetry outage should create local diagnostic logs, not break Proofbase user workflows or AgentOps workflow runs.
 
 The Phase 31 contract lives in [external-telemetry-contract.md](external-telemetry-contract.md). It defines the Proofbase operation taxonomy, required and optional fields, sensitive-data exclusions, idempotency strategy, and retry semantics that the Phase 32 ingestion API should implement.
 
-The final Proofbase connection summary lives in [proofbase-integration.md](proofbase-integration.md). It documents what is centralized, what remains in Proofbase, and how the same observability foundation can be reused for AgentOps workflow and agent-step telemetry.
+The final Proofbase connection summary lives in [proofbase-integration.md](proofbase-integration.md). It documents what is centralized and what remains in Proofbase.
+
+The final AgentOps connection summary lives in [agentops-integration.md](agentops-integration.md). It documents how AgentOps agent-step and workflow-summary telemetry appears centrally while AgentOps keeps workflow execution and payload ownership.
 
 Phase 32 ingestion metrics include:
 
@@ -61,6 +65,10 @@ Dashboard interpretation:
 
 - `source_app=proofbase` isolates Proofbase traffic from gateway-originated traffic.
 - `operation_type` distinguishes RAG query, streaming query, Markdown cleanup, query decomposition, and embedding generation events.
+- `source_app=agentops` isolates AgentOps traffic from gateway-originated and Proofbase traffic.
+- `operation_type=agent_step` identifies model-backed AgentOps step events that may include token and estimated-cost data.
+- `operation_type=workflow_summary` identifies aggregate terminal workflow status events; these intentionally omit token and cost fields to avoid double-counting.
+- `response_type=structured_json` on AgentOps metadata means the source app performed structured generation without sending the structured output.
 - Estimated cost should be treated as operational cost visibility, not invoice-grade billing.
 - `pricing_status=unpriced` or `unknown` means token/count visibility exists but cost should not be used for financial reporting.
 

@@ -1,8 +1,8 @@
 # AgentOps Integration Plan
 
-AgentOps Workflow Platform should be integrated as the second client app for Production AI Platform telemetry.
+AgentOps Workflow Platform is integrated as the second client app for Production AI Platform telemetry.
 
-The implementation should use Proofbase as the proven reference pattern, but it should not copy Proofbase's RAG-specific event names or metadata. AgentOps is a workflow/agent-step application, so telemetry should be derived from AgentOps workflow runs, agent steps, structured generation calls, retries, cost events, and tool/agent categories.
+The implementation uses Proofbase as the proven reference pattern, but it does not copy Proofbase's RAG-specific event names or metadata. AgentOps is a workflow/agent-step application, so telemetry is derived from AgentOps workflow runs, agent steps, structured generation calls, retries, and cost events.
 
 ## Strategy
 
@@ -260,6 +260,13 @@ Acceptance:
 - Docs can honestly claim AgentOps telemetry is centralized in Production AI Platform.
 - Docs do not claim Production AI Platform executes AgentOps workflows or owns AgentOps tool behavior.
 - Telemetry outage behavior is documented as non-blocking.
+- Proofbase and AgentOps are described as distinct connected client apps with different domains.
+
+Phase 47 implementation notes:
+
+- The final connection summary lives in [agentops-integration.md](agentops-integration.md).
+- Runbook, security, observability, architecture, portfolio, and README docs now describe AgentOps as a connected telemetry client while preserving the workflow boundary.
+- Proofbase remains the RAG/product integration; AgentOps remains the workflow/orchestration integration.
 
 ## Validation Baseline
 
@@ -272,7 +279,15 @@ cd S:\github-repos\production-ai-platform
 docker compose config
 ```
 
-AgentOps-specific validation commands should be added as Phase 42 and later create the client, smoke script, and tests.
+AgentOps-specific validation commands:
+
+```powershell
+.\.venv\Scripts\python scripts\validate_agentops_telemetry_contract.py
+.\.venv\Scripts\python -m pytest apps/api/tests/test_agentops_telemetry_contract.py apps/api/tests/test_external_telemetry.py -vv
+.\.venv\Scripts\python scripts\send_agentops_browser_demo_event.py
+S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe scripts\test_phase45_mocked_platform_receiver.py
+S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe scripts\send_platform_telemetry_smoke.py
+```
 
 ## Scope Boundary
 
