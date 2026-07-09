@@ -2,7 +2,7 @@
 
 This contract defines the telemetry-first integration path for external AI applications that already call model providers directly.
 
-Phase 31 focuses on Proofbase (`enterprise-knowledge-agent`) first. AgentOps Workflow Platform should reuse the same ingestion model later, after the Proofbase path is working end to end.
+Phase 31 focused on Proofbase (`enterprise-knowledge-agent`) first. Phases 41-47 extend the same ingestion model to AgentOps Workflow Platform using AgentOps-specific workflow and agent-step telemetry.
 
 ## Integration Goal
 
@@ -15,6 +15,14 @@ For Proofbase, that means:
 - Proofbase continues to work if Production AI Platform is unavailable.
 
 This phase does not route Proofbase provider calls through the gateway. Gateway-routed Proofbase calls are a later option after the gateway supports the richer RAG provider contract.
+
+For AgentOps, that means:
+
+- AgentOps keeps owning workflow execution, agent planning, prompts, structured outputs, retries, tool behavior, and workflow state.
+- Production AI Platform receives normalized events for model usage, estimated cost, latency, status, token usage, retry count, workflow/step IDs, and bounded agent metadata.
+- AgentOps continues to work if Production AI Platform is unavailable.
+
+The AgentOps implementation plan is documented in [agentops-integration-plan.md](agentops-integration-plan.md).
 
 ## Endpoint Shape
 
@@ -73,7 +81,7 @@ Example payload:
 |---|---|---|
 | `event_id` | string | Stable client-generated event ID. Used for idempotency and duplicate suppression. |
 | `external_request_id` | string | Stable request/workflow ID from the client app. Multiple operations can share one external request ID. |
-| `source_app` | string | Bounded slug such as `proofbase` or, later, `agentops-workflow-platform`. |
+| `source_app` | string | Bounded slug such as `proofbase` or `agentops`. |
 | `operation_type` | string enum | One of the operation types listed below. |
 | `environment` | string | Bounded environment value such as `local`, `dev`, `staging`, or `prod`. |
 | `occurred_at` | RFC 3339 timestamp | When the model operation completed or failed in the source app. |
@@ -102,6 +110,8 @@ Example payload:
 | `department_external_id` | string | Optional Proofbase department identifier. |
 | `metadata` | object | Bounded sanitized operational metadata. Keys and values must be allowlisted by the source app. |
 
+Unknown top-level fields are rejected. Clients must not include raw prompt text, generated output, workflow JSON, tool payloads, provider payloads, credentials, or other non-contract fields in telemetry requests.
+
 ## Operation Taxonomy
 
 Proofbase should start with these operation types:
@@ -114,7 +124,13 @@ Proofbase should start with these operation types:
 | `query_decomposition` | reasoning/query-decomposition path | AI-assisted decomposition or rewriting used before retrieval or generation. |
 | `embedding_generation` | `embeddings/openai_embeddings.py` and document indexing paths | Embedding provider call for query or document chunks. |
 
-AgentOps should add its own operation types later only after Phase 40. Expected examples are `workflow_run`, `agent_step`, `tool_call`, and `workflow_summary`, but those are not part of the Proofbase acceptance criteria.
+AgentOps phases should add these operation types:
+
+| Operation type | AgentOps source | Meaning |
+|---|---|---|
+| `agent_step` | Agent step completion/failure path and cost tracking | One completed or failed model-backed agent step. |
+| `structured_generation` | Structured JSON generation path when distinguishable from plain text generation | One structured model call, if it is not already represented by an `agent_step` event. |
+| `workflow_summary` | Workflow run completion path | One aggregate workflow summary event, only when it does not double-count per-step cost. |
 
 ## Sensitive Data Rules
 
@@ -145,8 +161,18 @@ Allowed metadata should be operational and bounded:
 - `document_count`
 - `chunk_count`
 - `embedding_count`
+- `workflow_external_id`
+- `agent_step_external_id`
+- `agent_name`
+- `agent_type`
+- `step_order`
+- `retry_count`
+- `workflow_status`
+- `step_status`
 
 If the source app needs correlation without content, it should send hashes or opaque IDs such as `question_hash`, `document_external_id`, or `session_external_id`. Hashes must be deterministic only inside the source app's trust boundary and must not allow easy reconstruction of sensitive content.
+
+AgentOps-specific metadata must stay operational. It must not include workflow input JSON, agent output JSON, prompts, generated content, tool arguments, tool results, structured response bodies, or provider payloads.
 
 ## Idempotency Strategy
 
@@ -213,6 +239,30 @@ Proofbase already has local request/cost fields that can map to this contract:
 
 Proofbase's local observability log may keep app-local diagnostics such as truncated questions. Those fields must not cross into Production AI Platform telemetry unless a later privacy review explicitly approves them.
 
+## AgentOps Field Mapping
+
+AgentOps already has local workflow, step, and cost fields that can map to this contract:
+
+| AgentOps field | Contract field |
+|---|---|
+| `AgentStep.id` | `event_id` suffix or `metadata.agent_step_external_id` |
+| `AgentStep.workflow_run_id` | `external_request_id` and `metadata.workflow_external_id` |
+| `AgentStep.agent_name` | `metadata.agent_name` |
+| `AgentStep.agent_type` | `metadata.agent_type` |
+| `AgentStep.step_order` | `metadata.step_order` |
+| `AgentStep.status` | `status` and `metadata.step_status` |
+| `AgentStep.model` | `model` |
+| `AgentStep.prompt_version_id` | `prompt_version` or safe metadata if a display version is unavailable |
+| `AgentStep.tokens_input` | `input_tokens` |
+| `AgentStep.tokens_output` | `output_tokens` |
+| `AgentStep.total_tokens` | `total_tokens` |
+| `AgentStep.cost` or `CostEvent.total_cost` | `estimated_cost_usd` |
+| `AgentStep.latency_ms` | `latency_ms` |
+| `AgentStep.retry_count` | `metadata.retry_count` |
+| sanitized local error category | `error_category` |
+
+AgentOps local records may keep workflow input/output JSON and error messages. Those fields must not cross into Production AI Platform telemetry unless a later privacy review explicitly approves a redacted debug mode.
+
 ## Phase Notes
 
 Phase 32 implements the Production AI Platform ingestion API from this contract.
@@ -225,4 +275,13 @@ Phases 33-39 should connect Proofbase one operation group at a time:
 4. Emit Markdown cleanup, query decomposition, and embedding telemetry.
 5. Validate with mocked tests and a browser demo.
 
-Phase 40 should close the Proofbase sequence and define the AgentOps handoff using the same external telemetry model.
+Phase 40 closes the Proofbase sequence and defines the AgentOps handoff using the same external telemetry model.
+
+Phases 41-47 should connect AgentOps one operation group at a time:
+
+1. Define AgentOps contract additions and register AgentOps as a platform application.
+2. Add AgentOps telemetry configuration and a best-effort client.
+3. Emit agent-step telemetry.
+4. Decide whether structured generation and workflow summaries add non-duplicative visibility.
+5. Validate with mocked tests and a browser demo.
+6. Close the AgentOps integration documentation.

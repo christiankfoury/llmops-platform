@@ -118,3 +118,21 @@ docker compose exec api python -m scripts.seed_dev_data
 Then open `http://localhost:3000`, filter **Source App** to `proofbase`, and confirm the dashboard shows the `Proofbase / Enterprise Knowledge Agent` request.
 
 See [proofbase-browser-telemetry-demo.md](proofbase-browser-telemetry-demo.md) for the full browser checklist, Proofbase port guidance, screenshot rules, and troubleshooting notes.
+
+## AgentOps Telemetry Contract Validation
+
+Phase 41 adds platform-side contract checks for the AgentOps Workflow Platform integration. These checks do not call OpenAI, create AWS resources, run Terraform, deploy Kubernetes resources, or require AgentOps to be running.
+
+From `S:\github-repos\production-ai-platform`:
+
+```powershell
+.\.venv\Scripts\python scripts\validate_agentops_telemetry_contract.py
+.\.venv\Scripts\python -m pytest apps/api/tests/test_agentops_telemetry_contract.py apps/api/tests/test_proofbase_telemetry_contract.py -vv
+```
+
+What these checks prove:
+
+- AgentOps-shaped telemetry events validate for `agent_step`, `structured_generation`, and `workflow_summary`.
+- Existing Proofbase telemetry fixtures still validate against the shared external schema.
+- Unsafe top-level fields such as workflow JSON, generated output, provider payloads, tool payloads, and API keys are rejected.
+- Unsafe metadata fields such as raw prompts, input/output JSON, and tool results are rejected.

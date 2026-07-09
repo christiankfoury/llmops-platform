@@ -83,6 +83,8 @@ Then open `http://localhost:3000`, filter **Source App** to `proofbase`, and ins
 
 AgentOps Workflow Platform has compatible usage concepts but a different shape from Proofbase.
 
+The implementation should use Proofbase as the proven reference pattern, but should derive AgentOps event fields from AgentOps' own workflow and agent-step model. This is faster and safer than starting from scratch, while avoiding copy/paste of Proofbase RAG concepts into a workflow app.
+
 Observed AgentOps files:
 
 - `apps/api/src/services/llm_client.py`: OpenAI chat calls return model and token usage for text and structured responses.
@@ -103,8 +105,11 @@ Reusable platform patterns:
 Expected AgentOps differences:
 
 - events should likely map to workflow run and agent step boundaries rather than RAG query boundaries
-- operation taxonomy should add agent-oriented names such as `agent_step`, `workflow_step`, or `tool_routing`
+- operation taxonomy should start with `agent_step`, `structured_generation`, and `workflow_summary`
+- later operation types can add tool-oriented names such as `tool_planning`, `tool_execution`, or `workflow_retry` if AgentOps exposes safe operational data for them
 - metadata should include safe workflow and agent identifiers, step order, retry count, and tool category without prompts or tool payloads
 - cost totals can be reconciled from existing AgentOps `CostEvent` rows
 
 The existing ingestion foundation should support AgentOps without redesign. The next phase sequence should focus on operation taxonomy, safe metadata keys, AgentOps app registration, and client-side best-effort emission.
+
+See [agentops-integration-plan.md](agentops-integration-plan.md) for the detailed implementation plan.

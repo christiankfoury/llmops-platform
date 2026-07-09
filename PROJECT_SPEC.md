@@ -181,6 +181,8 @@ Existing AI applications should be able to connect to the platform before fully 
 
 The first integration target is Proofbase (`enterprise-knowledge-agent`). Proofbase should remain the AI product layer and should not move RAG-specific behavior into this repository. The platform should receive safe, normalized telemetry events for Proofbase AI operations such as RAG chat generation, streaming chat generation, AI Markdown cleanup, query decomposition, and embedding generation where cost/token data can be represented honestly.
 
+The second integration target is AgentOps Workflow Platform (`agentops-workflow-platform`). AgentOps should remain the agent workflow/orchestration layer and should not move workflow execution, agent prompts, structured outputs, tool payloads, or workflow state into this repository. The platform should receive safe, normalized telemetry events for AgentOps workflow and agent-step operations where model, token, latency, status, retry, and estimated-cost data can be represented honestly.
+
 External telemetry events should support:
 
 - source application identity
@@ -210,7 +212,7 @@ External telemetry events should not include by default:
 
 Telemetry submission should be best-effort for client apps. If the platform is unavailable, the client app should keep serving users and record the telemetry failure locally without exposing secrets.
 
-The detailed Phase 31 contract is documented in `docs/external-telemetry-contract.md`. It defines the Proofbase operation taxonomy, required and optional fields, sensitive-data exclusions, idempotency strategy, retry behavior, and AgentOps handoff boundary.
+The detailed Phase 31 contract is documented in `docs/external-telemetry-contract.md`. It defines the Proofbase operation taxonomy, required and optional fields, sensitive-data exclusions, idempotency strategy, retry behavior, and AgentOps handoff boundary. The AgentOps implementation plan is documented in `docs/agentops-integration-plan.md` and should use Proofbase as a reference pattern while deriving operation types and metadata from AgentOps' own workflow/agent-step model.
 
 ## Infrastructure goals
 

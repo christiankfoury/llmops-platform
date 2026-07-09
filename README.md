@@ -242,6 +242,7 @@ Recommended flow:
 - [docs/gateway-flow.md](docs/gateway-flow.md): gateway request flow and code walkthrough
 - [docs/external-telemetry-contract.md](docs/external-telemetry-contract.md): Proofbase-first external LLM telemetry contract
 - [docs/proofbase-integration.md](docs/proofbase-integration.md): Proofbase connection summary and AgentOps handoff
+- [docs/agentops-integration-plan.md](docs/agentops-integration-plan.md): planned AgentOps Workflow Platform telemetry integration
 - [docs/proofbase-browser-telemetry-demo.md](docs/proofbase-browser-telemetry-demo.md): local browser demo for Proofbase telemetry
 - [docs/deployment.md](docs/deployment.md): local, Kubernetes, Helm, CI/CD, rollback, GitOps
 - [docs/ci-cd.md](docs/ci-cd.md): GitHub Actions CI jobs, actions, scanners, and deployment boundaries
@@ -274,4 +275,4 @@ Recommended flow:
 
 ## Status
 
-The original 30 infrastructure/platform phases are implemented in code and documentation. Phases 31-40 complete the Proofbase telemetry integration sequence and prepare the next AgentOps Workflow Platform integration. CI was kept green during the original phase loop, and the repository is packaged as a portfolio-grade production AI platform rather than a toy LLM app.
+The original 30 infrastructure/platform phases are implemented in code and documentation. Phases 31-40 complete the Proofbase telemetry integration sequence. Phases 41-47 define the AgentOps Workflow Platform integration sequence, with Phase 41 ready to implement the contract and platform registration. CI was kept green during the original phase loop, and the repository is packaged as a portfolio-grade production AI platform rather than a toy LLM app.

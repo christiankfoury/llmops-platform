@@ -19,6 +19,14 @@ ALLOWED_EXTERNAL_METADATA_KEYS = {
     "question_hash",
     "document_external_id",
     "session_external_id",
+    "workflow_external_id",
+    "agent_step_external_id",
+    "agent_name",
+    "agent_type",
+    "step_order",
+    "retry_count",
+    "workflow_status",
+    "step_status",
 }
 
 SENSITIVE_METADATA_KEY_PARTS = {
@@ -33,11 +41,14 @@ SENSITIVE_METADATA_KEY_PARTS = {
     "extracted_markdown",
     "full_question",
     "markdown",
+    "output",
     "password",
     "prompt",
     "provider_payload",
     "rewritten_question",
     "secret",
+    "tool",
+    "workflow_json",
 }
 
 
@@ -95,6 +106,9 @@ ExternalOperationType = Literal[
     "markdown_cleanup",
     "query_decomposition",
     "embedding_generation",
+    "agent_step",
+    "structured_generation",
+    "workflow_summary",
 ]
 
 ExternalEventStatus = Literal["succeeded", "failed", "skipped"]
@@ -103,7 +117,7 @@ ExternalMetadataValue = str | int | float | bool | None
 
 
 class ExternalLlmEventRequest(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
     event_id: str = Field(min_length=1, max_length=80)
     external_request_id: str = Field(min_length=1, max_length=120)

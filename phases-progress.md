@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-All defined phases completed. Next sequence: AgentOps Workflow Platform integration.
+Phase 42: AgentOps telemetry client and switch
 
 ## Phase table
 
@@ -62,6 +62,13 @@ All defined phases completed. Next sequence: AgentOps Workflow Platform integrat
 | 38 | Cross-repository automated validation | Completed | main | 4c45a30 | 2026-07-06 | Added platform schema fixtures, Proofbase mocked receiver tests, validation script, Compose config checks, and testing docs. |
 | 39 | Browser end-to-end Proofbase telemetry demo | Completed | main | e09a4c8 | 2026-07-07 | Added local browser demo guide, safe Proofbase event sender, screenshot rules, troubleshooting notes, and browser validation evidence. |
 | 40 | Proofbase integration documentation and AgentOps handoff | Completed | main | b7c1d69 | 2026-07-07 | Finalized Proofbase connection docs, runbook/security/observability notes, portfolio demo wording, and AgentOps readiness notes. |
+| 41 | AgentOps contract and platform registration | Completed | main | pending-push-hash | 2026-07-09 | Defined AgentOps operation taxonomy, safe metadata allowlist, strict schema rejection, local seed registration, and fixtures. |
+| 42 | AgentOps telemetry client and switch | In Progress |  |  |  | Add AgentOps env switch, best-effort telemetry client, smoke script, and client tests. |
+| 43 | AgentOps agent-step telemetry emission | Not Started |  |  |  | Emit safe telemetry for completed and failed AgentOps model-backed agent steps. |
+| 44 | AgentOps structured generation and workflow summary telemetry | Not Started |  |  |  | Extend coverage without double-counting cost or exposing generated outputs/workflow JSON. |
+| 45 | AgentOps cross-repository automated validation | Not Started |  |  |  | Add platform fixtures, AgentOps mocked receiver tests, smoke script, and Compose validation docs. |
+| 46 | Browser end-to-end AgentOps telemetry demo | Not Started |  |  |  | Verify local AgentOps traffic appears in the Production AI Platform dashboard. |
+| 47 | AgentOps integration closeout | Not Started |  |  |  | Finalize docs, runbooks, security/reliability notes, and portfolio story for the second connected client app. |
 
 ## Phase execution log
 
@@ -3234,6 +3241,85 @@ Post-commit review:
 Next phase:
 
 - AgentOps Workflow Platform integration sequence.
+
+### Phase 41: AgentOps contract and platform registration
+
+Status: Completed
+
+Pushed to:
+
+- main
+
+Commit:
+
+- pending-push-hash
+
+Completed date:
+
+- 2026-07-09
+
+Implementation notes:
+
+- Added AgentOps operation types `agent_step`, `structured_generation`, and `workflow_summary` to the shared external telemetry schema.
+- Added safe AgentOps metadata keys for workflow IDs, agent step IDs, agent name/type, step order, retry count, workflow status, and step status.
+- Tightened external telemetry validation to reject unknown top-level fields so raw prompts, generated outputs, workflow JSON, tool payloads, provider payloads, and API keys cannot be silently accepted.
+- Registered AgentOps as a distinct local seeded project/application with a hashed placeholder telemetry API key, placeholder prompt record, external model route, and audit log.
+- Added placeholder-only AgentOps telemetry environment settings to `.env.example`.
+- Added AgentOps telemetry contract tests and a no-network contract validation script.
+- Updated docs to link the AgentOps integration plan, validation commands, safe metadata rules, and Proofbase/AgentOps responsibility boundaries.
+- Read the required AgentOps reference files before mapping the contract: `llm_client.py`, `cost_tracking.py`, `agent_step.py`, `cost_event.py`, and `workflow_run.py`.
+
+Validation:
+
+- Command: `.\.venv\Scripts\python scripts\validate_agentops_telemetry_contract.py`
+  Result: Passed; validated 3 AgentOps telemetry event fixtures.
+- Command: `.\.venv\Scripts\python scripts\validate_proofbase_telemetry_contract.py`
+  Result: Passed; validated 5 Proofbase telemetry event fixtures.
+- Command: `.\.venv\Scripts\python -m pytest apps/api/tests/test_agentops_telemetry_contract.py apps/api/tests/test_proofbase_telemetry_contract.py apps/api/tests/test_seed_dev_data.py -vv`
+  Result: Passed, 25 tests; pytest emitted existing local cache permission warnings and a Starlette/httpx deprecation warning.
+- Command: `.\.venv\Scripts\python -m ruff check apps/api/app/schemas/usage.py apps/api/scripts/seed_dev_data.py apps/api/tests/test_agentops_telemetry_contract.py apps/api/tests/test_seed_dev_data.py scripts/validate_agentops_telemetry_contract.py`
+  Result: Passed.
+- Command: `.\.venv\Scripts\python -m ruff format --check apps/api/app/schemas/usage.py apps/api/scripts/seed_dev_data.py apps/api/tests/test_agentops_telemetry_contract.py apps/api/tests/test_seed_dev_data.py scripts/validate_agentops_telemetry_contract.py`
+  Result: Passed.
+- Command: `.\.venv\Scripts\python -m compileall apps\api\app apps\api\tests scripts`
+  Result: Passed.
+- Command: `git diff --check`
+  Result: Passed with expected CRLF warnings only.
+- Command: focused secret-pattern scan across touched Phase 41 files
+  Result: No new secret values found; matches were historical scan-command strings in `phases-progress.md`.
+
+Security notes:
+
+- No real API keys, OpenAI keys, AWS credentials, GitHub tokens, provider credentials, workflow input/output JSON, prompts, generated outputs, tool payloads, provider payloads, or customer data were added.
+- AgentOps telemetry metadata is allowlisted and operational only.
+- Unknown external telemetry request fields are now rejected instead of ignored.
+- Placeholder API keys remain local-only examples and are stored by seed data as hashes.
+
+Reliability notes:
+
+- Phase 41 does not touch AgentOps runtime behavior yet, so no workflow execution path can be affected.
+- The shared contract keeps telemetry best-effort semantics for Phase 42 and later.
+- Seed data is idempotent and covered by focused tests.
+
+Observability notes:
+
+- AgentOps traffic can now be represented centrally as `source_app=agentops` with operation types for agent steps, structured generation, and workflow summaries.
+- The contract preserves model, provider, token, cost, latency, retry, status, and safe workflow/agent-step correlation fields.
+
+Scope notes:
+
+- Completed Phase 41 platform contract and registration only.
+- Did not implement AgentOps runtime client code, agent-step emission, workflow summary emission, browser demo, cloud resources, Terraform, Kubernetes deployments, or production changes.
+
+Post-commit review:
+
+- Pushed commit: pending-push-hash
+- Top findings: Pending review after push.
+- Fix commits: Pending review after push.
+
+Next phase:
+
+- Phase 42: AgentOps telemetry client and switch
 
 ## Update template
 

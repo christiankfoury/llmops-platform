@@ -6,6 +6,7 @@ from sqlalchemy import select
 
 PLACEHOLDER_API_KEY = "local-dev-placeholder-key-not-a-secret"
 PROOFBASE_PLACEHOLDER_API_KEY = "proofbase-local-placeholder-key-not-a-secret"
+AGENTOPS_PLACEHOLDER_API_KEY = "agentops-local-placeholder-key-not-a-secret"
 
 
 def key_hash(value: str) -> str:
@@ -98,6 +99,52 @@ def main() -> None:
             application=proofbase_application,
             resource_id="phase-33-proofbase",
             metadata={"phase": 33, "contains_real_secret": False, "client_app": "proofbase"},
+        )
+
+        agentops_project, agentops_application = _ensure_project_application(
+            db,
+            project_slug="agentops",
+            project_name="AgentOps Workflow Platform",
+            project_description=(
+                "Agent workflow and orchestration application connected through local "
+                "external telemetry placeholders."
+            ),
+            application_slug="agentops-workflow-platform",
+            application_name="AgentOps Workflow Platform",
+            environment="local",
+        )
+        _ensure_api_key(
+            db,
+            application=agentops_application,
+            placeholder_key=AGENTOPS_PLACEHOLDER_API_KEY,
+            key_prefix="agentops-local",
+            description=("Hashed placeholder API key for local AgentOps telemetry integration."),
+        )
+        _ensure_prompt(
+            db,
+            project=agentops_project,
+            application=agentops_application,
+            name="agentops-external-telemetry",
+            version=1,
+            content=(
+                "Placeholder prompt record for filtering AgentOps external telemetry. "
+                "AgentOps owns workflow prompts and structured outputs at runtime."
+            ),
+        )
+        _ensure_route(
+            db,
+            project=agentops_project,
+            application=agentops_application,
+            environment="local",
+            provider="external",
+            model_name="reported-by-agentops",
+        )
+        _ensure_audit_log(
+            db,
+            project=agentops_project,
+            application=agentops_application,
+            resource_id="phase-41-agentops",
+            metadata={"phase": 41, "contains_real_secret": False, "client_app": "agentops"},
         )
 
         db.commit()

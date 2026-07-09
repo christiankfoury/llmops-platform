@@ -8,12 +8,40 @@ This repository is a portfolio-grade DevOps/cloud project connected to AI engine
 
 ## Portfolio relationship and scope boundary
 
-This project complements Proofbase, which is the permission-aware enterprise RAG application. Keep the distinction clear in code, docs, README claims, and demo scripts:
+This project complements Proofbase, which is the permission-aware enterprise RAG application, and AgentOps Workflow Platform, which is the agent workflow/orchestration application. Keep the distinction clear in code, docs, README claims, and demo scripts:
 
 - Proofbase proves the AI product layer: document ingestion, scoped retrieval, citations, permission safety, memory boundaries, and benchmark-driven answer quality.
+- AgentOps proves the agent workflow layer: workflow runs, agent steps, structured generation, retries, tool/agent categories, per-step costs, and workflow observability.
 - Production AI Platform proves the operations layer: LLM gateway, prompt/model routing, API keys, usage tracking, cost/latency/error monitoring, CI/CD, Kubernetes, Terraform, observability, secrets, rollback, and runbooks.
 
-Do not duplicate Proofbase's advanced RAG features in this repository. A future integration can describe Proofbase as a client app that calls this platform's LLM gateway for centralized routing, cost, latency, tracing, and operational controls.
+Do not duplicate Proofbase's advanced RAG features in this repository. Proofbase is currently connected as a telemetry-first client app; a later gateway-routing integration can describe Proofbase as a client app that calls this platform's LLM gateway for centralized routing, cost, latency, tracing, and operational controls.
+
+Do not duplicate AgentOps workflow orchestration features in this repository. AgentOps may connect as a client app that sends centralized LLM usage telemetry for workflow and agent-step operations. Production AI Platform should not execute AgentOps workflows, own AgentOps prompts, inspect generated outputs, or handle tool payloads.
+
+## AgentOps integration guidance
+
+When implementing the AgentOps Workflow Platform integration:
+
+- Use the completed Proofbase integration as the reference implementation and test template.
+- Do not copy Proofbase RAG-specific names or metadata into AgentOps.
+- Read AgentOps' actual files before designing each phase:
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\services\llm_client.py`
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\services\cost_tracking.py`
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\models\agent_step.py`
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\models\cost_event.py`
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\models\workflow_run.py`
+- Add an explicit switch so AgentOps can run with or without Production AI Platform:
+  - `AGENTOPS_TELEMETRY_ENABLED=false`
+  - `AGENTOPS_TELEMETRY_ENDPOINT=http://localhost:8000/v1/usage/llm-events`
+  - `AGENTOPS_TELEMETRY_API_KEY=agentops-local-placeholder-key-not-a-secret`
+  - `AGENTOPS_TELEMETRY_TIMEOUT_SECONDS=2`
+  - `AGENTOPS_TELEMETRY_MAX_METADATA_BYTES=2048`
+  - `AGENTOPS_TELEMETRY_REDACT_CONTENT=true`
+- Keep telemetry best-effort: platform outages, timeouts, or validation failures must not break AgentOps workflows.
+- Send operational metadata only: workflow/step IDs, agent name/type, step order, retry count, model, tokens, latency, estimated cost, status, and safe error categories.
+- Do not send prompts, generated outputs, workflow input/output JSON, tool arguments, tool results, raw provider payloads, API keys, provider credentials, or user/customer data.
+- Keep central cost reporting honest. Avoid double-counting per-step and workflow-summary costs; mark missing or aggregate-only data as `unknown` or `unpriced` where appropriate.
+- Implement AgentOps phases sequentially from `docs/agentops-integration-plan.md` and `phases.md`.
 
 ## Target portfolio claim
 

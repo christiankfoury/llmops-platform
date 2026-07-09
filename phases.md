@@ -1020,3 +1020,215 @@ Acceptance criteria:
 - The docs do not claim Production AI Platform performs Proofbase retrieval, citations, permission filtering, or benchmark evaluation.
 - Telemetry outage behavior is documented as non-blocking.
 - The next phase sequence can proceed to AgentOps without redesigning the event ingestion foundation.
+
+## Phase 41: AgentOps contract and platform registration
+
+Define AgentOps telemetry semantics and platform-side compatibility before touching AgentOps runtime code.
+
+Deliverables:
+
+- AgentOps operation taxonomy.
+- Safe AgentOps metadata key list.
+- Platform schema updates for AgentOps operation types.
+- Local AgentOps project/application seed data and placeholder telemetry API key.
+- AgentOps `.env.example` placeholder contract.
+- Platform tests for AgentOps-shaped telemetry fixtures.
+- Documentation updates linking to `docs/agentops-integration-plan.md`.
+
+Relevant files:
+
+- `docs/agentops-integration-plan.md`
+- `docs/external-telemetry-contract.md`
+- `docs/testing.md`
+- `.env.example`
+- `apps/api/app/schemas/usage.py`
+- `apps/api/scripts/seed_dev_data.py`
+- `apps/api/tests/`
+- AgentOps reference files:
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\services\llm_client.py`
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\services\cost_tracking.py`
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\models\agent_step.py`
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\models\cost_event.py`
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\models\workflow_run.py`
+
+Acceptance criteria:
+
+- AgentOps event fixtures validate locally.
+- Existing Proofbase telemetry fixtures still validate.
+- Platform schema rejects prompts, generated outputs, workflow JSON, tool payloads, and sensitive fields.
+- AgentOps can be registered as a distinct connected client app without redesigning ingestion.
+
+## Phase 42: AgentOps telemetry client and switch
+
+Add AgentOps-side configuration and a best-effort telemetry client.
+
+Deliverables:
+
+- `AGENTOPS_TELEMETRY_ENABLED=false` default.
+- Telemetry endpoint, API key, timeout, metadata-size, and redaction config.
+- Best-effort client with disabled mode, short timeout, failure isolation, and redacted diagnostics.
+- AgentOps smoke script that sends one safe AgentOps-shaped event.
+- Unit tests for disabled mode, success, receiver failure, timeout/failure isolation, and redaction.
+- README and local setup docs for running AgentOps with or without Production AI Platform.
+
+Relevant files:
+
+- AgentOps target files:
+  - `S:\github-repos\agentops-workflow-platform\.env.example`
+  - `S:\github-repos\agentops-workflow-platform\README.md`
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\core\config.py`
+  - `S:\github-repos\agentops-workflow-platform\apps\api\src\observability\`
+  - `S:\github-repos\agentops-workflow-platform\scripts\`
+- Proofbase reference files:
+  - `S:\github-repos\enterprise-knowledge-agent\apps\api\app\observability\platform_telemetry.py`
+  - `S:\github-repos\enterprise-knowledge-agent\scripts\test_platform_telemetry_client.py`
+
+Acceptance criteria:
+
+- AgentOps runs normally when telemetry is disabled.
+- AgentOps workflows are not blocked when Production AI Platform is down.
+- No secrets, prompts, generated outputs, workflow JSON, or tool payloads are logged or sent.
+- Client tests run without OpenAI, AWS, Terraform, or a running platform.
+
+## Phase 43: AgentOps agent-step telemetry emission
+
+Emit central telemetry for AgentOps agent steps.
+
+Deliverables:
+
+- Hook telemetry into the AgentOps agent-step completion/failure path.
+- Emit one `agent_step` event per completed or failed model-backed step when model/token/latency data is available.
+- Map workflow id, agent step id, agent name/type, step order, retry count, prompt version id, model, tokens, estimated cost, latency, status, and safe error category.
+- Preserve AgentOps local cost tracking and workflow behavior.
+- Tests for successful and failed step telemetry.
+
+Relevant files:
+
+- `S:\github-repos\agentops-workflow-platform\apps\api\src\models\agent_step.py`
+- `S:\github-repos\agentops-workflow-platform\apps\api\src\models\workflow_run.py`
+- `S:\github-repos\agentops-workflow-platform\apps\api\src\services\cost_tracking.py`
+- AgentOps services that create/update agent steps
+- AgentOps tests/scripts
+
+Acceptance criteria:
+
+- Completed agent steps appear centrally under `source_app=agentops`.
+- Failed agent steps include safe status/error telemetry.
+- AgentOps local workflow, retry, and cost behavior is unchanged.
+- No workflow input/output JSON, prompt text, generated output, or tool payload is sent.
+
+## Phase 44: AgentOps structured generation and workflow summary telemetry
+
+Extend AgentOps coverage beyond basic step telemetry without double-counting cost.
+
+Deliverables:
+
+- Decide whether structured generation is represented as `agent_step` metadata or a distinct `structured_generation` operation.
+- Add workflow summary telemetry only if it adds non-duplicative aggregate visibility.
+- Document billing-estimate events versus aggregate summary events.
+- Tests for duplicate prevention and cost-total consistency.
+
+Relevant files:
+
+- `S:\github-repos\agentops-workflow-platform\apps\api\src\services\llm_client.py`
+- `S:\github-repos\agentops-workflow-platform\apps\api\src\services\cost_tracking.py`
+- `S:\github-repos\agentops-workflow-platform\apps\api\src\models\cost_event.py`
+- AgentOps workflow run services/models
+- Platform docs and tests
+
+Acceptance criteria:
+
+- Central dashboard does not double-count per-step and workflow-summary costs.
+- Missing token/cost data is marked honestly as `unknown` or `unpriced`.
+- Structured generation visibility does not expose JSON response bodies or schemas that contain sensitive data.
+
+## Phase 45: AgentOps cross-repository automated validation
+
+Add automated checks that prove the AgentOps-to-platform telemetry path without relying on real OpenAI or cloud resources.
+
+Deliverables:
+
+- Platform tests for AgentOps-shaped external telemetry.
+- AgentOps mocked receiver tests.
+- AgentOps telemetry smoke script.
+- Cross-repo documented validation sequence.
+- Docker Compose config validation for both repos where applicable.
+
+Relevant files:
+
+- `apps/api/tests/`
+- `docs/testing.md`
+- `scripts/`
+- AgentOps target files:
+  - `S:\github-repos\agentops-workflow-platform\scripts\`
+  - `S:\github-repos\agentops-workflow-platform\tests\`
+  - `S:\github-repos\agentops-workflow-platform\docker-compose.yml`
+
+Acceptance criteria:
+
+- Tests can run without real OpenAI calls.
+- Tests can run without AWS, Terraform, or deployments.
+- Mocked platform failures do not break AgentOps workflows.
+- Validation commands are documented for a developer new to cloud/devops.
+
+## Phase 46: Browser end-to-end AgentOps telemetry demo
+
+Verify the AgentOps integration through local running apps and the browser dashboard.
+
+Deliverables:
+
+- Local run instructions for Production AI Platform and AgentOps on non-conflicting ports.
+- Browser validation checklist:
+  - run or simulate an AgentOps workflow
+  - open Production AI Platform dashboard
+  - filter to `agentops`
+  - inspect the resulting agent-step event
+- Screenshot capture guidance with redaction rules.
+- Troubleshooting notes for ports, env vars, API keys, unavailable services, and dashboard refresh.
+
+Relevant files:
+
+- `docs/agentops-integration-plan.md`
+- `docs/dashboard-screenshots.md`
+- `docs/testing.md`
+- `README.md`
+- `apps/web/components/dashboard.tsx`
+- AgentOps README and web/API local run docs
+
+Acceptance criteria:
+
+- Browser validation proves AgentOps traffic appears in Production AI Platform.
+- Demo does not require Terraform, AWS resources, or production deployment.
+- Screenshots avoid secrets, prompts, generated outputs, workflow JSON, tool payloads, and sensitive content.
+
+## Phase 47: AgentOps integration closeout
+
+Close the second client-app integration and update the portfolio story.
+
+Deliverables:
+
+- Final AgentOps integration docs.
+- README update showing Proofbase and AgentOps as connected telemetry clients.
+- Portfolio/demo wording that preserves app boundaries.
+- Runbook notes for AgentOps telemetry ingestion outages.
+- Security notes for telemetry keys and workflow payload redaction.
+- Reliability notes for best-effort AgentOps telemetry.
+- Observability notes for central dashboard interpretation.
+
+Relevant files:
+
+- `README.md`
+- `docs/architecture.md`
+- `docs/observability.md`
+- `docs/runbook.md`
+- `docs/security-baseline.md`
+- `docs/portfolio-demo-plan.md`
+- `docs/agentops-integration-plan.md`
+- `phases-progress.md`
+
+Acceptance criteria:
+
+- Docs can honestly claim AgentOps telemetry is centralized in Production AI Platform.
+- Docs do not claim Production AI Platform executes AgentOps workflows, owns prompts, inspects generated outputs, or handles tool payloads.
+- Telemetry outage behavior is documented as non-blocking.
+- Proofbase and AgentOps are described as distinct connected client apps with different domains.
