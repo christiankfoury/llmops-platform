@@ -116,6 +116,8 @@ const defaultFilters: DashboardFilters = {
   createdTo: ""
 };
 
+const DASHBOARD_REFRESH_INTERVAL_MS = 5000;
+
 async function getJson<T>(
   apiBaseUrl: string,
   path: string,
@@ -171,12 +173,19 @@ export function Dashboard() {
     }
 
     const apiUrl = apiBaseUrl;
-    const controller = new AbortController();
+    let stopped = false;
+    let activeController: AbortController | null = null;
     const filterQuery = buildFilterQuery(filters);
     const requestPath = buildPath("/v1/usage/requests", filterQuery, { limit: "12" });
     const errorPath = buildPath("/v1/usage/errors", filterQuery, { limit: "8" });
 
     async function loadDashboard() {
+      if (activeController != null) {
+        return;
+      }
+
+      const controller = new AbortController();
+      activeController = controller;
       setLoadState("loading");
       try {
         const [summary, requests, errors, prompts, routes, scopes] = await Promise.all([
@@ -192,20 +201,36 @@ export function Dashboard() {
           getJson<ProjectScope[]>(apiUrl, "/v1/usage/scopes", controller.signal)
         ]);
 
+        if (stopped || controller.signal.aborted) {
+          return;
+        }
         setData({ summary, requests, errors, prompts, routes, scopes });
         setLoadState("ready");
       } catch (error) {
-        if (controller.signal.aborted) {
+        if (stopped || controller.signal.aborted) {
           return;
         }
         setLoadState("error");
         setMessage(error instanceof Error ? error.message : "Dashboard load failed");
+      } finally {
+        if (activeController === controller) {
+          activeController = null;
+        }
       }
     }
 
-    loadDashboard();
+    void loadDashboard();
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        void loadDashboard();
+      }
+    }, DASHBOARD_REFRESH_INTERVAL_MS);
 
-    return () => controller.abort();
+    return () => {
+      stopped = true;
+      window.clearInterval(intervalId);
+      activeController?.abort();
+    };
   }, [apiBaseUrl, filters]);
 
   const selectedProject = data?.scopes.find((project) => project.id === filters.projectId);
@@ -425,7 +450,11 @@ function FilterToolbar({
       <div className={styles.filterHeader}>
         <div>
           <h2>Filters</h2>
-          <p>{isRefreshing ? "Refreshing filtered platform data" : "Backend-backed usage view"}</p>
+          <p>
+            {isRefreshing
+              ? "Refreshing filtered platform data"
+              : "Backend-backed usage view, auto-refreshes every 5 seconds"}
+          </p>
         </div>
         <button className={styles.resetButton} type="button" onClick={onReset}>
           Reset{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
