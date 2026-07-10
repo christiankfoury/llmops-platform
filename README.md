@@ -89,6 +89,8 @@ See [docs/gateway-flow.md](docs/gateway-flow.md) for a developer-focused walkthr
 
 ## Local Demo
 
+To run Production AI Platform, Proofbase, and AgentOps together without port conflicts, use the [local portfolio stack runbook](docs/local-portfolio-stack.md).
+
 Start the local stack:
 
 ```bash
