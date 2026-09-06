@@ -59,7 +59,8 @@ Use these defaults unless a phase explicitly changes them:
 - Database: Amazon RDS PostgreSQL.
 - Cache/queue: Amazon ElastiCache Redis where cloud-managed infrastructure is required; local Redis for development.
 - Secrets: AWS Secrets Manager through External Secrets Operator.
-- Backend: FastAPI, Python, SQLAlchemy, Alembic, Pydantic.
+- Backend target: Java 21, Spring Boot MVC, Maven Wrapper, Spring Data JPA/Hibernate, Flyway, Jakarta Validation.
+- Migration baseline: FastAPI/Python remains the reference runtime until the Java compatibility and cutover phases pass.
 - Frontend: Next.js, TypeScript, Tailwind, shadcn/ui where useful.
 - Database: PostgreSQL.
 - Local development: Docker Compose.
@@ -148,6 +149,8 @@ The application should implement a realistic but scoped LLMOps platform:
 Do not overbuild product features at the expense of infrastructure quality. The app is the payload; the infrastructure is the star.
 
 ## Autonomous phase loop
+
+The active continuation is the Java conversion and AWS release sequence in `docs/java-aws-implementation-plan.md` and phases 48-69. AWS remains the cloud target. Preserve phases 1-47 as historical completion evidence. Implement Java in `apps/api-java` and retain `apps/api` as the reference until the explicit runtime cutover phase. For Java changes, run Maven verification, formatting/static checks, and required PostgreSQL/Redis integration tests; do not count skipped database tests as successful validation. Do not start an Azure migration. Never run two migration owners or enable automatic destructive schema updates.
 
 Codex should operate as an autonomous phase-based engineering agent.
 

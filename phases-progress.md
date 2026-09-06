@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-All phases completed
+Phase 49: Backend compatibility contract baseline — In Progress. Phase 48 records the approved Java/AWS roadmap. Phases 1-47 remain the completed historical baseline.
 
 ## Phase table
 
@@ -71,6 +71,48 @@ All phases completed
 | 47 | AgentOps integration closeout | Completed | main | 37f4696 | 2026-07-09 | Finalized AgentOps integration docs, runbook/security/observability notes, and portfolio story for the second connected client app. |
 
 ## Phase execution log
+
+## Java and AWS continuation
+
+| Phase | Title | Status |
+|---:|---|---|
+| 48 | Java conversion and AWS release roadmap | Completed |
+| 49 | Backend compatibility contract baseline | In Progress |
+| 50 | Spring Boot build and service foundation | Not Started |
+| 51 | PostgreSQL persistence and migration handover | Not Started |
+| 52 | Java gateway and model routing | Not Started |
+| 53 | Java Proofbase and AgentOps telemetry ingestion | Not Started |
+| 54 | Java usage and operator configuration APIs | Not Started |
+| 55 | Operator authorization and application key lifecycle | Not Started |
+| 56 | Distributed limits and dependency-aware readiness | Not Started |
+| 57 | Java metrics logs and traces | Not Started |
+| 58 | Java Docker Compose and Helm runtime cutover | Not Started |
+| 59 | AWS infrastructure validation and bootstrap boundaries | Not Started |
+| 60 | Java supply chain and CI release eligibility | Not Started |
+| 61 | AWS immutable promotion migrations and rollback | Not Started |
+| 62 | Runnable monitoring stack and supported log collection | Not Started |
+| 63 | Local resilience recovery and cost rehearsal | Not Started |
+| 64 | Public repository and isolated demo preparation | Not Started |
+| 65 | AWS launch preflight and approval package | Not Started |
+| 66 | Approved AWS dev deployment and operational evidence | Not Started |
+| 67 | Approved staging promotion and recovery exercise | Not Started |
+| 68 | Approved production or public demo launch | Not Started |
+| 69 | Approved public repository release and closeout | Not Started |
+
+### Phase 48: Java conversion and AWS release roadmap
+
+Status: Completed
+
+Implementation notes:
+
+- Recorded the Java/AWS target, compatibility-first conversion, migration ownership, local-to-cloud evidence, and phase-specific approval gates.
+- Preserved historical phases 1-47 and marked Phase 49 as next.
+- Validation: documentation consistency, phase numbering/status checks, and git diff --check; results are in docs/phase-reviews/phase-48.md.
+- Security: real cloud/secret/domain mutations and publication remain gated; no credentials were added.
+- Reliability: Python remains the reference through explicit cutover; cloud claims require live evidence.
+- Observability: planned a running monitoring stack and measured recovery evidence.
+- Commit/push/post-commit review: recorded in docs/phase-reviews/phase-48.md after the planning commit is pushed.
+- Next phase: Phase 49, Backend compatibility contract baseline.
 
 ### Phase 1: Project specification and architecture
 

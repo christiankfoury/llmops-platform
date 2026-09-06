@@ -8,6 +8,8 @@ A production-grade AI platform that exposes an LLM gateway API and usage dashboa
 
 ## Why this project exists
 
+Active implementation direction (2026-09-06): convert the existing FastAPI backend to Java 21/Spring Boot while retaining AWS, PostgreSQL, the Next.js dashboard, and both telemetry client contracts. The Python runtime remains the reference until compatibility, authorization, and container cutover are validated. Phases 48-69 add the Java conversion, remaining access controls/reliability, AWS release validation, running monitoring, recovery evidence, and gated public release. See [the Java/AWS implementation plan](docs/java-aws-implementation-plan.md). Completed historical phases do not imply live AWS deployment or completion of this new sequence.
+
 This project is designed as a portfolio piece for DevOps/cloud, backend, full-stack, and AI engineering roles.
 
 The application is intentionally simple but realistic. The infrastructure around it is the main showcase.

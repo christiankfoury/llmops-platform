@@ -1232,3 +1232,337 @@ Acceptance criteria:
 - Docs do not claim Production AI Platform executes AgentOps workflows, owns prompts, inspects generated outputs, or handles tool payloads.
 - Telemetry outage behavior is documented as non-blocking.
 - Proofbase and AgentOps are described as distinct connected client apps with different domains.
+
+## Java conversion and AWS release continuation
+
+Phases 48-69 implement the user-approved Java Spring Boot conversion and remaining AWS/public-release work. Historical phases remain unchanged. Follow AGENTS.md for every phase and docs/java-aws-implementation-plan.md for cross-phase design. Cloud mutation and publication phases have explicit approval gates.
+
+## Phase 48: Java conversion and AWS release roadmap
+
+Deliverables:
+
+- Record the approved Java direction, AWS scope, migration boundaries, phase order, acceptance evidence, and human gates.
+
+Relevant files:
+
+- AGENTS.md, PROJECT_SPEC.md, phases.md, phases-progress.md, README.md, docs/java-aws-implementation-plan.md
+
+Acceptance criteria:
+
+- Historical phases 1-47 remain intact; the new sequence has exactly one current phase; Azure is superseded; implementation and live validation are explicitly distinguished.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 49: Backend compatibility contract baseline
+
+Deliverables:
+
+- Export the current HTTP/OpenAPI contract; inventory response/error formats, SQL constraints, metric names, and safe telemetry fixtures. Add reproducible contract checks and document intentional security changes.
+
+Relevant files:
+
+- contracts/, scripts/, apps/api/tests/, docs/java-migration-contract.md
+
+Acceptance criteria:
+
+- Baseline generation is deterministic and contains synthetic data only. Coverage includes gateway success/failure, usage filters, admin configuration, telemetry duplicates/conflicts/redaction, decimal serialization, timestamps, and non-billable summaries.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 50: Spring Boot build and service foundation
+
+Deliverables:
+
+- Create apps/api-java with Java 21, a pinned stable Spring Boot release, Maven Wrapper, formatting/static checks, MVC, validation, and narrowly exposed operational endpoints. Add Java verification to CI while Python remains the runtime.
+
+Relevant files:
+
+- apps/api-java/, .github/workflows/ci.yml, docs/testing.md
+
+Acceptance criteria:
+
+- Wrapper integrity and dependencies are checked; clean Maven verify passes locally and in CI; health and JSON/error boundary tests pass; no runtime cutover or real provider call occurs.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 51: PostgreSQL persistence and migration handover
+
+Deliverables:
+
+- Implement database mappings/repositories, transactions, Flyway SQL migrations, and deterministic synthetic seeds. Define a verified baseline/adoption procedure for an existing Alembic database.
+
+Relevant files:
+
+- apps/api-java/, contracts/, docs/database-migration-handover.md
+
+Acceptance criteria:
+
+- Fresh PostgreSQL and a copy of the Alembic schema reach the same schema without loss. UUIDs, JSONB, numeric precision, indexes, uniqueness, and foreign keys match. No auto-DDL, automatic downgrade, blind baselining, or dual migration owner.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 52: Java gateway and model routing
+
+Deliverables:
+
+- Port API-key hashing and active application checks, prompt/default-route selection, mock provider, timeout/retry behavior, durable request/cost recording, and bounded gateway validation.
+
+Relevant files:
+
+- apps/api-java/, contracts/
+
+Acceptance criteria:
+
+- HTTP contract tests cover success, missing/invalid/revoked keys, inactive applications, missing routes/prompts, transient failures, timeouts, and decimal cost values. External calls are mocked; provider inputs/outputs are not logged.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 53: Java Proofbase and AgentOps telemetry ingestion
+
+Deliverables:
+
+- Port ingestion validation, metadata allowlists, normalization, event attribution, idempotency, duplicate conflicts, pricing status, and workflow-summary treatment.
+
+Relevant files:
+
+- apps/api-java/, contracts/, scripts/
+
+Acceptance criteria:
+
+- Both client fixture suites pass without changing client payloads. Concurrent duplicate submissions create one event and at most one cost record; conflicting duplicates return the documented conflict; unsafe fields are rejected; summaries cannot double-count cost; metric labels are bounded.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 54: Java usage and operator configuration APIs
+
+Deliverables:
+
+- Port usage summary/request/error/scope queries and filters, prompt/model CRUD/activation, and audit records. Preserve the frontend response contract.
+
+Relevant files:
+
+- apps/api-java/, contracts/, apps/web/components/
+
+Acceptance criteria:
+
+- Equivalent seeded requests yield equivalent summaries and lists. Filtering, ordering, pagination caps, nulls, decimal strings, and audit behavior are covered. Existing frontend tests continue to pass; operator endpoints remain locally bound until Phase 55 access controls exist.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 55: Operator authorization and application key lifecycle
+
+Deliverables:
+
+- Implement OIDC-based operator authentication, viewer/operator roles, server-side project grants, and project-scoped key creation/revocation with verified audit actors. Integrate dashboard authentication and an explicit isolated synthetic demo mode.
+
+Relevant files:
+
+- apps/api-java/, apps/web/, docs/security-baseline.md, docs/security-audit.md
+
+Acceptance criteria:
+
+- Unauthenticated or unauthorized callers cannot read cross-project data or mutate settings; spoofed actor headers are ignored; machine API keys cannot grant operator access. OIDC issuer/audience/expiry/signature checks, CSRF/session protections where applicable, key lifecycle, and negative authorization tests pass. Local identity tests need no cloud account.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 56: Distributed limits and dependency-aware readiness
+
+Deliverables:
+
+- Implement atomic Redis limits shared across replicas, telemetry admission controls, bounded body/metadata/query sizes, timeouts, correct readiness/liveness separation, and graceful draining.
+
+Relevant files:
+
+- apps/api-java/, apps/api-java/src/test/, docs/runbook.md
+
+Acceptance criteria:
+
+- Multi-instance/concurrent limiter tests pass. Invalid-key spray is bounded. Redis/database outages return the documented safe errors; readiness observes required dependencies with timeouts; liveness survives dependency failure; retry/shutdown budgets are tested and documented.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 57: Java metrics logs and traces
+
+Deliverables:
+
+- Implement Actuator/Micrometer/OpenTelemetry instrumentation, safe structured logs, bounded request IDs, tracing propagation, and application metrics compatible with the existing dashboards or explicitly versioned replacements.
+
+Relevant files:
+
+- apps/api-java/, infra/monitoring/, docs/observability.md
+
+Acceptance criteria:
+
+- One request has correlated request/trace IDs and expected gateway spans. Metric labels exclude arbitrary client strings and identifiers. Redaction tests cover error paths; health/metrics exposure is restricted; dashboard queries are checked against actual Java metric output.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 58: Java Docker Compose and Helm runtime cutover
+
+Deliverables:
+
+- Build non-root JVM images, update local startup/migration/seed scripts and Helm/Kubernetes runtime configuration, and make Java the default API only after parity and authorization gates pass.
+
+Relevant files:
+
+- apps/api-java/Dockerfile*, docker-compose.yml, Makefile, infra/helm/, infra/k8s/, docs/local-portfolio-stack.md
+
+Acceptance criteria:
+
+- Fresh Compose startup, migrations, Java API, dashboard login/demo, gateway, and both telemetry clients pass end-to-end checks. JVM resources, startup/readiness probes, shutdown, TLS database/Redis connections, and writable paths are verified. Python is retained only as an explicit reference until removal is validated.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 59: AWS infrastructure validation and bootstrap boundaries
+
+Deliverables:
+
+- Strengthen Terraform validation and all-environment Helm/schema checks. Separate cluster-wide operators/stores/controller installation from namespace-scoped app releases; document private EKS runner/DNS connectivity and state bootstrap.
+
+Relevant files:
+
+- infra/terraform/, infra/helm/, infra/k8s/, .github/workflows/ci.yml, docs/deployment.md
+
+Acceptance criteria:
+
+- All AWS environment roots fmt/validate; all Helm values render and validate with CRD schemas. Required EKS add-ons and NetworkPolicy enforcement are explicit; cluster-scoped resources no longer require app deployer privilege escalation. Static validation creates no AWS resources.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 60: Java supply chain and CI release eligibility
+
+Deliverables:
+
+- Complete Java dependency/image/IaC/history-secret gates, SBOM generation, pinned tooling, and exact-revision release eligibility. Preserve frontend validation and contract tests while removing obsolete Python runtime gates only after cutover.
+
+Relevant files:
+
+- .github/workflows/ci.yml, apps/api-java/pom.xml, scripts/, docs/ci-cd.md
+
+Acceptance criteria:
+
+- Clean CI includes non-skipped PostgreSQL/Redis integration tests, frontend checks, runtime image builds/scans, Java audits, and infrastructure checks. Fork pull requests receive no deployment credentials. A failed or unverified revision cannot become release-eligible.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 61: AWS immutable promotion migrations and rollback
+
+Deliverables:
+
+- Refactor dev/staging/prod/rollback workflows to build and scan once, promote by verified digest, use scoped OIDC roles, run controlled migration jobs, and test functional deployment health. Keep automatic deployment disabled until approved.
+
+Relevant files:
+
+- .github/workflows/deploy-*.yml, .github/workflows/rollback.yml, infra/helm/, docs/deployment.md
+
+Acceptance criteria:
+
+- Dry-run/static tests reject invalid refs/digests and incompatible rollback inputs. Private runner connectivity and bootstrap permissions are explicit. Prod requires protected environment approval; database migrations have one owner; application rollback never auto-downgrades the database.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 62: Runnable monitoring stack and supported log collection
+
+Deliverables:
+
+- Codify a local monitoring profile and EKS bootstrap package for Prometheus, Grafana, Loki, Alloy, OpenTelemetry Collector, trace storage, exporters, and Alertmanager.
+
+Relevant files:
+
+- infra/monitoring/, docker-compose*.yml, docs/observability.md, docs/dashboard-screenshots.md
+
+Acceptance criteria:
+
+- Synthetic Java traffic produces non-empty dashboards, searchable logs/traces, and a fired/resolved local alert. Replace EOL Promtail, verify bounded cardinality and retention, provision durable storage appropriately, and protect monitoring access. Cloud installation remains gated.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 63: Local resilience recovery and cost rehearsal
+
+Deliverables:
+
+- Exercise disposable local load, dependency outages, restart/rolling release, compatible rollback, and PostgreSQL backup/restore. Add reproducible evidence and response runbooks; refresh AWS sizing assumptions.
+
+Relevant files:
+
+- scripts/, docs/backup-restore.md, docs/incident-response.md, docs/cost-analysis.md, docs/phase-reviews/
+
+Acceptance criteria:
+
+- Record measured local latency/error behavior, alert resolution, restore time and recovered records; mark local evidence distinctly from AWS RTO/RPO. No existing database is deleted. Budgets are documented as alerts, with quotas/retention/scaling as separate controls.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 64: Public repository and isolated demo preparation
+
+Deliverables:
+
+- Run a full-history secret review and dependency/security audit, prepare a license choice, security reporting/contribution guidance, synthetic demo screenshots/video instructions, draft release notes, and honest README claims.
+
+Relevant files:
+
+- README.md, SECURITY.md, CONTRIBUTING.md, docs/assets/, docs/portfolio-demo-plan.md
+
+Acceptance criteria:
+
+- Resolve publication blockers and record remaining decisions; choose the license with the owner before release. Demo data is isolated, admin writes are protected, paid provider calls remain disabled, and no customer telemetry is exposed. Do not change repository visibility or publish a release in this phase.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 65: AWS launch preflight and approval package
+
+Deliverables:
+
+- Prepare the concrete dev launch package: validated Terraform/Helm artifacts, current cost estimate, region/quota/access requirements, state/secret/bootstrap inputs, runner connectivity, monitoring/backup plan, and rollback commands.
+
+Relevant files:
+
+- docs/aws-launch-checklist.md, docs/cost-analysis.md, docs/deployment.md
+
+Acceptance criteria:
+
+- All locally executable checks pass. Record missing subscription/account/domain inputs without inventing values. Any authenticated plan remains read-only and uses safe state handling. Present a specific resource/cost/change package for approval before apply, real secrets, or DNS/TLS mutation.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 66: Approved AWS dev deployment and operational evidence
+
+Deliverables:
+
+- After explicit approval and required access, bootstrap AWS dev, install operators/monitoring, deploy the Java release, and run functional smoke and controlled operational checks.
+
+Relevant files:
+
+- AWS dev environment, docs/phase-reviews/, docs/aws-launch-checklist.md
+
+Acceptance criteria:
+
+- Real EKS deployment, scoped OIDC, secret synchronization, HTTPS, gateway/telemetry/auth, dashboards/traces, backup, and rollback are verified. Record actual cloud evidence and cost; do not claim production readiness from static checks.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 67: Approved staging promotion and recovery exercise
+
+Deliverables:
+
+- After environment-specific approval, promote the same verified image digest to staging and rehearse recovery and migration compatibility.
+
+Relevant files:
+
+- AWS staging environment, docs/backup-restore.md, docs/deployment.md
+
+Acceptance criteria:
+
+- Staging uses separate secrets and data, passes authorization/load checks, demonstrates safe rollback and a restore into a new approved target, and records measured RTO/RPO and residual risks.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 68: Approved production or public demo launch
+
+Deliverables:
+
+- Obtain explicit approval for the selected production/public-demo footprint and real DNS/TLS changes, then release through protected workflows.
+
+Relevant files:
+
+- AWS approved environment, docs/incident-response.md, docs/deployment.md
+
+Acceptance criteria:
+
+- Only an approved digest is released; operator access and synthetic demo boundaries work; spending limits/alerts and monitoring owners are configured; post-launch checks and rollback readiness are recorded. Public demo does not imply customer-production approval.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+
+## Phase 69: Approved public repository release and closeout
+
+Deliverables:
+
+- After explicit publication authorization, finalize the chosen license and sanitized portfolio assets, publish the verified release, and change repository visibility if requested.
+
+Relevant files:
+
+- README.md, release assets, GitHub repository settings, phases-progress.md
+
+Acceptance criteria:
+
+- History/security review is current, released code matches successful CI, claims match measured evidence, no secrets/customer data are public, and all implemented phases have pushed commits and completed reviews. Optional provider work is clearly separate.
+- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.

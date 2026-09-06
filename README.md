@@ -34,6 +34,8 @@ AgentOps Workflow Platform is connected as the second telemetry client path: Age
 
 ## What Is Implemented
 
+The existing implementation below is the Python baseline. The active [Java Spring Boot and AWS release plan](docs/java-aws-implementation-plan.md) extends the roadmap with phases 48-69: backend conversion, access controls, distributed limits, verified deployment, monitoring, recovery, and gated publication. AWS remains the cloud target; Java becomes the default runtime only after its cutover checks pass.
+
 Application:
 
 - FastAPI LLM gateway
