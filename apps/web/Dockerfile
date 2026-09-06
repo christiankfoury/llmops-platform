@@ -37,7 +37,7 @@ RUN addgroup -S nodejs \
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 RUN rm -f package-lock.json \
-    && npm install --omit=dev --package-lock=false --ignore-scripts --no-audit --no-fund cross-spawn@7.0.5 tar@7.5.11 \
+    && npm install --omit=dev --package-lock=false --ignore-scripts --no-audit --no-fund cross-spawn@7.0.5 tar@7.5.21 \
     && rm -rf node_modules/next/dist/compiled/@vercel/nft node_modules/next/dist/compiled/cross-spawn node_modules/next/dist/compiled/tar \
     && cp -R node_modules/cross-spawn node_modules/next/dist/compiled/cross-spawn \
     && cp -R node_modules/tar node_modules/next/dist/compiled/tar \

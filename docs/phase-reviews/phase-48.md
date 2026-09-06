@@ -48,6 +48,7 @@
 - Top findings: the planning diff has no top actionable issues. Its new CI run exposed existing frontend dependency advisories and vulnerable Python installation tooling in the runtime image. Backend tests/audit and infrastructure checks passed. Resolve both scan findings before advancing implementation.
 - Fix commits: fba1612 removes Python runtime installation tools. The separate frontend fix updates Next.js/eslint-config-next to 16.3.4 and compatible transitive packages; local lint, type checks, six tests, production build, and npm audit (zero vulnerabilities) pass. Record the final CI result before closing the review; no security gate is disabled.
 - Local Docker build cannot run because Docker Desktop's Linux engine did not become ready after startup. The required image build/scan will be verified in GitHub Actions before the review is closed.
+- CI on 1d81b4a passed frontend checks, backend checks, dependency audit, repository scan, infrastructure checks, both image builds, and the API image scan. The web image exposed a separate stale tar@7.5.11 runtime pin; update it to the scanner's fixed 7.5.21 version and verify the next image scan. Next.js regenerated its root-parameter type reference during the successful local build; retain that declaration with the runtime follow-up.
 
 ### Next Phase
 - Phase 49: Backend compatibility contract baseline.
