@@ -67,6 +67,10 @@ See [ci-cd.md](ci-cd.md) for a fuller explanation of the GitHub Actions jobs, th
 
 Phase 49 adds the [Java migration contract](java-migration-contract.md). Run `python scripts/export_backend_contract.py --check` to detect drift without changing files. Its static export uses no database or provider. The PostgreSQL lifecycle regression must run in CI (`REQUIRE_DATABASE_TESTS=true`); local skips must be reported separately from passing tests.
 
+## Java migration foundation
+
+Phase 50 adds a separate Java CI job while Python remains the runtime. From `apps/api-java`, run `./mvnw --batch-mode --no-transfer-progress --strict-checksums clean verify` (`.\mvnw.cmd` on Windows). This verifies Java/Maven versions, release dependencies, compiler warnings, formatting and the HTTP/JSON tests. CI verifies wrapper hashes before executing Maven, then smoke-tests the packaged service. See the [Java API README](../apps/api-java/README.md) for cache setup and the tested Windows socket-directory workaround. PostgreSQL/Redis integration is added when those dependencies enter the Java service, not claimed by the foundation tests.
+
 ## Smoke Load
 
 Phase 26 adds a small gateway smoke load script. After local migrations and seed data are available, run:

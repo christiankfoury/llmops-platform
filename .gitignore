@@ -22,6 +22,10 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Java build output and repository-local build caches
+target/
+.maven-cache/
+
 # Terraform
 .terraform/
 *.tfstate

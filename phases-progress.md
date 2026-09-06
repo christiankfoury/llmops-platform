@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 50: Spring Boot build and service foundation — In Progress. Phase 49 pushed review and CI passed, including all 80 backend tests against PostgreSQL. Phases 48-49 record the approved Java/AWS roadmap and Python compatibility baseline. Phases 1-47 remain the completed historical baseline.
+Phase 51: PostgreSQL persistence and migration handover — In Progress after Phase 50 pushed validation and review. The Java service foundation passes local Maven verification and packaged-JAR smoke checks. Phases 1-47 remain the completed historical baseline.
 
 ## Phase table
 
@@ -78,8 +78,8 @@ Phase 50: Spring Boot build and service foundation — In Progress. Phase 49 pus
 |---:|---|---|
 | 48 | Java conversion and AWS release roadmap | Completed |
 | 49 | Backend compatibility contract baseline | Completed |
-| 50 | Spring Boot build and service foundation | In Progress |
-| 51 | PostgreSQL persistence and migration handover | Not Started |
+| 50 | Spring Boot build and service foundation | Completed |
+| 51 | PostgreSQL persistence and migration handover | In Progress |
 | 52 | Java gateway and model routing | Not Started |
 | 53 | Java Proofbase and AgentOps telemetry ingestion | Not Started |
 | 54 | Java usage and operator configuration APIs | Not Started |
@@ -128,6 +128,21 @@ Implementation notes:
 - Observability: metric names/labels/buckets captured; no live exporter or provider called.
 - Commit/push/review evidence: docs/phase-reviews/phase-49.md.
 - Next phase: Phase 50, Spring Boot build and service foundation.
+
+### Phase 50: Spring Boot build and service foundation
+
+Status: Completed
+
+Implementation notes:
+
+- Added Java 21/Spring Boot MVC foundation with pinned Maven Wrapper and integrity checks, formatting/static build gates, health endpoints and safe JSON/errors.
+- Added separate Java CI verification and packaged-service smoke test while Python remains the active runtime.
+- Validation: clean Maven verify passed locally (four tests, no skips); packaged health/exposure checks passed with the documented Windows socket-directory setting.
+- Security: localhost default bind, hidden Actuator diagnostics, safe error bodies, checksummed tooling; no credentials or cloud changes.
+- Reliability: lifecycle readiness and independent liveness; database readiness follows in Phase 56.
+- Observability: no live exporter; broader Java instrumentation remains Phase 57.
+- Commit/push/review evidence: docs/phase-reviews/phase-50.md.
+- Next phase: Phase 51, PostgreSQL persistence and migration handover.
 
 ### Phase 1: Project specification and architecture
 
