@@ -43,9 +43,9 @@
 - Existing unauthenticated Python operator APIs remain unsuitable for public exposure until the authorization/cutover phases.
 
 ### Post-Commit Review
-- Pushed commit: pending initial push.
-- Top findings: pre-push verification corrected formatter configuration, deprecated assertion, mixed line endings, test-agent setup, and local socket temp configuration. Pushed review pending.
-- Fix commits: none yet.
+- Pushed commit: 59d943d724dae102ae6c303b9ccc834c1b3b5cb4, verified through GitHub main readback.
+- Top findings: inspection of the resolved Spring Boot 4.1.1 configuration metadata showed server.error.* settings were retired in 4.0. Replace them with spring.web.error.*, disable fallback path disclosure, and add a servlet fallback-error privacy regression in a separate fix.
+- Fix commits: fallback-error configuration follow-up pending validation/push; no security gate disabled.
 
 ### Next Phase
 - Phase 51: PostgreSQL persistence and migration handover, after pushed validation and review.

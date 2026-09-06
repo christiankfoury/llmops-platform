@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import jakarta.servlet.RequestDispatcher;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
@@ -106,6 +107,24 @@ class FoundationTest {
             .getResponse();
     assertThat(failure.getContentAsString())
         .doesNotContain("secret-sentinel", "IllegalStateException");
+  }
+
+  @Test
+  void servletFallbackErrorsHideExceptionMessageAndPath() throws Exception {
+    mvc.perform(
+            get("/error")
+                .accept(MediaType.APPLICATION_JSON)
+                .requestAttr(RequestDispatcher.ERROR_STATUS_CODE, 500)
+                .requestAttr(RequestDispatcher.ERROR_REQUEST_URI, "/secret-sentinel")
+                .requestAttr(RequestDispatcher.ERROR_MESSAGE, "secret-sentinel")
+                .requestAttr(
+                    RequestDispatcher.ERROR_EXCEPTION,
+                    new IllegalStateException("secret-sentinel")))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.message").doesNotExist())
+        .andExpect(jsonPath("$.path").doesNotExist())
+        .andExpect(jsonPath("$.exception").doesNotExist())
+        .andExpect(jsonPath("$.trace").doesNotExist());
   }
 
   @RestController
