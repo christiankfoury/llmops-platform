@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 50: Spring Boot build and service foundation — In Progress after the Phase 49 pushed review passes. Phases 48-49 record the approved Java/AWS roadmap and Python compatibility baseline. Phases 1-47 remain the completed historical baseline.
+Phase 50: Spring Boot build and service foundation — In Progress. Phase 49 pushed review and CI passed, including all 80 backend tests against PostgreSQL. Phases 48-49 record the approved Java/AWS roadmap and Python compatibility baseline. Phases 1-47 remain the completed historical baseline.
 
 ## Phase table
 
@@ -122,7 +122,7 @@ Implementation notes:
 
 - Added deterministic HTTP/telemetry/schema/metrics exports and eight synthetic event fixtures with normalization and fingerprint golden values.
 - Added HTTP boundary, privacy and decimal regressions, plus a required PostgreSQL fixture/admin lifecycle check in CI.
-- Local validation: Ruff checks pass; 56 tests passed and 22 database tests skipped. CI database validation is required before advancing.
+- Validation: Ruff and deterministic exports pass; final focused local tests passed (26, one documented database skip). CI run 34067417051 passed all six jobs, including all 80 backend tests against PostgreSQL with no skips.
 - Security: fixtures contain invented data only; public authentication, bounded values and safe errors are documented intentional changes.
 - Reliability: preserves decimal strings, timestamps, duplicates, cost uniqueness and existing migration ownership.
 - Observability: metric names/labels/buckets captured; no live exporter or provider called.
