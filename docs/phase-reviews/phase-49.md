@@ -45,9 +45,9 @@
 - Schema, authorization and deployment remain later phases; this phase does not claim Java conversion complete.
 
 ### Post-Commit Review
-- Pushed commit: pending initial push.
-- Top findings: pre-push review corrected test exception construction and normalized offline SQL whitespace; pushed review pending.
-- Fix commits: none yet.
+- Pushed commit: 0d1d443cc9307b0ee2dbc2881c46ca2284e154ee, verified through GitHub main readback.
+- Top findings: the first golden vectors covered only ASCII/UTC and plain decimal strings, leaving a Java replay compatibility gap for Unicode, float metadata, exponent costs and timezone offsets. Add a separate boundary vector and prove legacy scale/offset distinctions. CI result remains pending.
+- Fix commits: boundary-vector follow-up, recorded after push.
 
 ### Next Phase
 - Phase 50: Spring Boot build and service foundation, after pushed CI and review pass.

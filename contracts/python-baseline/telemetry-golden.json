@@ -279,6 +279,51 @@
       "source_app": "proofbase"
     }
   },
+  "proofbase_normalization_edges": {
+    "fingerprint": "1fd75653e6af13bbb6a41f6e4087a8438796841b4a3da99efacb024408913173",
+    "normalized": {
+      "currency": "USD",
+      "department_external_id": null,
+      "environment": "local",
+      "error_category": null,
+      "error_message_redacted": null,
+      "estimated_cost_usd": "1.00E-7",
+      "event_id": "contract_proofbase_normalization",
+      "external_request_id": "contract_normalization_1",
+      "generation_latency_ms": null,
+      "input_tokens": null,
+      "latency_ms": 1,
+      "metadata": {
+        "cache_hit": null,
+        "response_type": "synthetic caf\u00e9 \u2603",
+        "top_k": 3.0
+      },
+      "model": "synthetic-model",
+      "occurred_at": "2026-01-02T08:34:13.123456+05:30",
+      "operation_type": "rag_query_stream",
+      "output_tokens": null,
+      "pricing_status": "estimated",
+      "project_external_id": null,
+      "prompt_name": null,
+      "prompt_version": null,
+      "provider": "mock",
+      "retrieval_latency_ms": null,
+      "source_app": "proofbase",
+      "status": "succeeded",
+      "total_tokens": null
+    },
+    "persisted_cost": "0.000000",
+    "persisted_metadata": {
+      "external_request_id": "contract_normalization_1",
+      "metadata.response_type": "synthetic caf\u00e9 \u2603",
+      "metadata.top_k": 3.0,
+      "occurred_at": "2026-01-02T08:34:13.123456+05:30",
+      "operation_type": "rag_query_stream",
+      "payload_fingerprint": "1fd75653e6af13bbb6a41f6e4087a8438796841b4a3da99efacb024408913173",
+      "pricing_status": "estimated",
+      "source_app": "proofbase"
+    }
+  },
   "proofbase_query": {
     "fingerprint": "cedcf932d00fd23707a54de99b2d65c265b79e9dfc861fe137e9fa58acc7e8d5",
     "normalized": {

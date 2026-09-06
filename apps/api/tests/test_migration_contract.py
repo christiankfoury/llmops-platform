@@ -75,6 +75,24 @@ def test_decimal_wire_format_and_distinct_rounding_rules() -> None:
     assert _six_decimal_cost(None) is None
 
 
+def test_legacy_fingerprint_distinguishes_decimal_scale_and_timezone_representation() -> None:
+    raw = FIXTURES["proofbase_normalization_edges"]
+    original = ExternalLlmEventRequest.model_validate(raw)
+    changed_scale = ExternalLlmEventRequest.model_validate(
+        {**raw, "estimated_cost_usd": "0.0000001"}
+    )
+    changed_offset = ExternalLlmEventRequest.model_validate(
+        {
+            **raw,
+            "occurred_at": "2026-01-02T03:04:13.123456Z",
+        }
+    )
+    assert original.estimated_cost_usd == changed_scale.estimated_cost_usd
+    assert original.occurred_at == changed_offset.occurred_at
+    assert _payload_fingerprint(original) != _payload_fingerprint(changed_scale)
+    assert _payload_fingerprint(original) != _payload_fingerprint(changed_offset)
+
+
 @pytest.fixture
 def boundary_client(monkeypatch):
     # These tests cover the HTTP boundary. PostgreSQL semantics are checked separately below.
