@@ -1,0 +1,154 @@
+[
+  {
+    "buckets": [
+      0.005,
+      0.01,
+      0.025,
+      0.05,
+      0.1,
+      0.25,
+      0.5,
+      1,
+      2.5,
+      5,
+      10
+    ],
+    "labels": [
+      "method",
+      "path",
+      "status_code"
+    ],
+    "name": "http_request_duration_seconds",
+    "type": "Histogram"
+  },
+  {
+    "buckets": null,
+    "labels": [
+      "method",
+      "path",
+      "status_code"
+    ],
+    "name": "http_requests_total",
+    "type": "Counter"
+  },
+  {
+    "buckets": null,
+    "labels": [
+      "source_app",
+      "operation_type",
+      "error_category"
+    ],
+    "name": "llm_external_telemetry_errors_total",
+    "type": "Counter"
+  },
+  {
+    "buckets": null,
+    "labels": [
+      "source_app",
+      "operation_type"
+    ],
+    "name": "llm_external_telemetry_estimated_cost_usd_total",
+    "type": "Counter"
+  },
+  {
+    "buckets": null,
+    "labels": [
+      "source_app",
+      "operation_type",
+      "result"
+    ],
+    "name": "llm_external_telemetry_events_total",
+    "type": "Counter"
+  },
+  {
+    "buckets": null,
+    "labels": [
+      "source_app",
+      "operation_type",
+      "token_type"
+    ],
+    "name": "llm_external_telemetry_tokens_total",
+    "type": "Counter"
+  },
+  {
+    "buckets": null,
+    "labels": [
+      "environment"
+    ],
+    "name": "llm_gateway_api_key_auth_failures_total",
+    "type": "Counter"
+  },
+  {
+    "buckets": null,
+    "labels": [
+      "provider",
+      "model",
+      "environment",
+      "error_category"
+    ],
+    "name": "llm_gateway_errors_total",
+    "type": "Counter"
+  },
+  {
+    "buckets": null,
+    "labels": [
+      "provider",
+      "model",
+      "environment"
+    ],
+    "name": "llm_gateway_estimated_cost_usd_total",
+    "type": "Counter"
+  },
+  {
+    "buckets": null,
+    "labels": [],
+    "name": "llm_gateway_rate_limit_rejections_total",
+    "type": "Counter"
+  },
+  {
+    "buckets": [
+      0.005,
+      0.01,
+      0.025,
+      0.05,
+      0.1,
+      0.25,
+      0.5,
+      1,
+      2.5,
+      5,
+      10
+    ],
+    "labels": [
+      "provider",
+      "model",
+      "environment",
+      "status"
+    ],
+    "name": "llm_gateway_request_duration_seconds",
+    "type": "Histogram"
+  },
+  {
+    "buckets": null,
+    "labels": [
+      "provider",
+      "model",
+      "environment",
+      "status",
+      "error_category"
+    ],
+    "name": "llm_gateway_requests_total",
+    "type": "Counter"
+  },
+  {
+    "buckets": null,
+    "labels": [
+      "provider",
+      "model",
+      "environment",
+      "token_type"
+    ],
+    "name": "llm_gateway_tokens_total",
+    "type": "Counter"
+  }
+]

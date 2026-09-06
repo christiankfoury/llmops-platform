@@ -53,6 +53,7 @@ The workflow runs:
 
 - backend Ruff lint and format checks
 - backend Alembic migration plus pytest against a PostgreSQL service
+- deterministic Python migration contract drift check and required PostgreSQL telemetry fixture lifecycle
 - frontend lint, typecheck, Vitest, and high/critical npm audit gate
 - production API and web Docker image builds
 - Trivy high/critical image scans
@@ -63,6 +64,8 @@ The workflow runs:
 Phase 25 makes the Python dependency scan blocking. The blocking supply-chain gates are frontend high/critical npm audit, Python production dependency audit, high/critical container image scans, and repository-level Trivy filesystem scanning.
 
 See [ci-cd.md](ci-cd.md) for a fuller explanation of the GitHub Actions jobs, the actions used by the workflow, and how CI differs from local Docker Compose.
+
+Phase 49 adds the [Java migration contract](java-migration-contract.md). Run `python scripts/export_backend_contract.py --check` to detect drift without changing files. Its static export uses no database or provider. The PostgreSQL lifecycle regression must run in CI (`REQUIRE_DATABASE_TESTS=true`); local skips must be reported separately from passing tests.
 
 ## Smoke Load
 

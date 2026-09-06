@@ -41,6 +41,7 @@ jobs:
       DATABASE_URL: postgresql+psycopg://ai_platform:local_dev_password@localhost:55432/ai_platform
       REDIS_URL: redis://localhost:6379/0
       API_CORS_ORIGINS: http://localhost:3000
+      REQUIRE_DATABASE_TESTS: "true"
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -60,6 +61,12 @@ jobs:
 
       - name: Ruff format check
         run: python -m ruff format --check apps/api
+
+      - name: Verify Python migration contract baseline
+        run: |
+          python -m ruff check scripts/export_backend_contract.py
+          python -m ruff format --check scripts/export_backend_contract.py
+          python scripts/export_backend_contract.py --check
 
       # Running migrations before tests catches schema drift that unit tests
       # might miss when they rely on already-created local databases.

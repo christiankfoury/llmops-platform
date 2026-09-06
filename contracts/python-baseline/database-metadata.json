@@ -1,0 +1,1053 @@
+{
+  "api_keys": {
+    "columns": [
+      {
+        "name": "application_id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "key_prefix",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(24)"
+      },
+      {
+        "name": "key_hash",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(128)"
+      },
+      {
+        "name": "description",
+        "nullable": true,
+        "server_default": null,
+        "type": "TEXT"
+      },
+      {
+        "name": "is_active",
+        "nullable": false,
+        "server_default": null,
+        "type": "BOOLEAN"
+      },
+      {
+        "name": "last_used_at",
+        "nullable": true,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      {
+        "name": "revoked_at",
+        "nullable": true,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      {
+        "name": "id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "created_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      {
+        "name": "updated_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      }
+    ],
+    "constraints": [
+      {
+        "columns": [
+          "application_id"
+        ],
+        "name": null,
+        "ondelete": "CASCADE",
+        "references": [
+          "applications.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      },
+      {
+        "columns": [
+          "id"
+        ],
+        "name": null,
+        "type": "PrimaryKeyConstraint"
+      },
+      {
+        "columns": [
+          "key_hash"
+        ],
+        "name": null,
+        "type": "UniqueConstraint"
+      }
+    ],
+    "indexes": [
+      {
+        "columns": [
+          "application_id"
+        ],
+        "name": "ix_api_keys_application_id",
+        "unique": false
+      },
+      {
+        "columns": [
+          "key_prefix"
+        ],
+        "name": "ix_api_keys_key_prefix",
+        "unique": false
+      }
+    ]
+  },
+  "applications": {
+    "columns": [
+      {
+        "name": "project_id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "name",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(160)"
+      },
+      {
+        "name": "slug",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(120)"
+      },
+      {
+        "name": "environment",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(40)"
+      },
+      {
+        "name": "is_active",
+        "nullable": false,
+        "server_default": null,
+        "type": "BOOLEAN"
+      },
+      {
+        "name": "id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "created_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      {
+        "name": "updated_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      }
+    ],
+    "constraints": [
+      {
+        "columns": [
+          "id"
+        ],
+        "name": null,
+        "type": "PrimaryKeyConstraint"
+      },
+      {
+        "columns": [
+          "project_id"
+        ],
+        "name": null,
+        "ondelete": "CASCADE",
+        "references": [
+          "projects.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      },
+      {
+        "columns": [
+          "project_id",
+          "slug"
+        ],
+        "name": "uq_applications_project_slug",
+        "type": "UniqueConstraint"
+      }
+    ],
+    "indexes": [
+      {
+        "columns": [
+          "project_id"
+        ],
+        "name": "ix_applications_project_id",
+        "unique": false
+      },
+      {
+        "columns": [
+          "slug"
+        ],
+        "name": "ix_applications_slug",
+        "unique": false
+      }
+    ]
+  },
+  "audit_logs": {
+    "columns": [
+      {
+        "name": "project_id",
+        "nullable": true,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "application_id",
+        "nullable": true,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "actor_type",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(40)"
+      },
+      {
+        "name": "actor_id",
+        "nullable": true,
+        "server_default": null,
+        "type": "VARCHAR(120)"
+      },
+      {
+        "name": "action",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(120)"
+      },
+      {
+        "name": "resource_type",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(80)"
+      },
+      {
+        "name": "resource_id",
+        "nullable": true,
+        "server_default": null,
+        "type": "VARCHAR(120)"
+      },
+      {
+        "name": "metadata_json",
+        "nullable": false,
+        "server_default": null,
+        "type": "JSONB"
+      },
+      {
+        "name": "id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "created_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      {
+        "name": "updated_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      }
+    ],
+    "constraints": [
+      {
+        "columns": [
+          "application_id"
+        ],
+        "name": null,
+        "ondelete": "SET NULL",
+        "references": [
+          "applications.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      },
+      {
+        "columns": [
+          "id"
+        ],
+        "name": null,
+        "type": "PrimaryKeyConstraint"
+      },
+      {
+        "columns": [
+          "project_id"
+        ],
+        "name": null,
+        "ondelete": "SET NULL",
+        "references": [
+          "projects.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      }
+    ],
+    "indexes": [
+      {
+        "columns": [
+          "action"
+        ],
+        "name": "ix_audit_logs_action",
+        "unique": false
+      },
+      {
+        "columns": [
+          "application_id"
+        ],
+        "name": "ix_audit_logs_application_id",
+        "unique": false
+      },
+      {
+        "columns": [
+          "project_id"
+        ],
+        "name": "ix_audit_logs_project_id",
+        "unique": false
+      }
+    ]
+  },
+  "cost_records": {
+    "columns": [
+      {
+        "name": "gateway_request_id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "project_id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "application_id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "provider",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(80)"
+      },
+      {
+        "name": "model_name",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(160)"
+      },
+      {
+        "name": "input_tokens",
+        "nullable": false,
+        "server_default": null,
+        "type": "INTEGER"
+      },
+      {
+        "name": "output_tokens",
+        "nullable": false,
+        "server_default": null,
+        "type": "INTEGER"
+      },
+      {
+        "name": "estimated_cost_usd",
+        "nullable": false,
+        "server_default": null,
+        "type": "NUMERIC(12, 6)"
+      },
+      {
+        "name": "currency",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(3)"
+      },
+      {
+        "name": "id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "created_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      {
+        "name": "updated_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      }
+    ],
+    "constraints": [
+      {
+        "columns": [
+          "application_id"
+        ],
+        "name": null,
+        "ondelete": "RESTRICT",
+        "references": [
+          "applications.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      },
+      {
+        "columns": [
+          "gateway_request_id"
+        ],
+        "name": null,
+        "ondelete": "CASCADE",
+        "references": [
+          "gateway_requests.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      },
+      {
+        "columns": [
+          "gateway_request_id"
+        ],
+        "name": null,
+        "type": "UniqueConstraint"
+      },
+      {
+        "columns": [
+          "id"
+        ],
+        "name": null,
+        "type": "PrimaryKeyConstraint"
+      },
+      {
+        "columns": [
+          "project_id"
+        ],
+        "name": null,
+        "ondelete": "RESTRICT",
+        "references": [
+          "projects.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      }
+    ],
+    "indexes": [
+      {
+        "columns": [
+          "application_id"
+        ],
+        "name": "ix_cost_records_application_id",
+        "unique": false
+      },
+      {
+        "columns": [
+          "project_id"
+        ],
+        "name": "ix_cost_records_project_id",
+        "unique": false
+      }
+    ]
+  },
+  "gateway_requests": {
+    "columns": [
+      {
+        "name": "request_id",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(80)"
+      },
+      {
+        "name": "project_id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "application_id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "api_key_id",
+        "nullable": true,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "prompt_version_id",
+        "nullable": true,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "model_route_id",
+        "nullable": true,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "provider",
+        "nullable": true,
+        "server_default": null,
+        "type": "VARCHAR(80)"
+      },
+      {
+        "name": "model_name",
+        "nullable": true,
+        "server_default": null,
+        "type": "VARCHAR(160)"
+      },
+      {
+        "name": "status",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(40)"
+      },
+      {
+        "name": "latency_ms",
+        "nullable": true,
+        "server_default": null,
+        "type": "INTEGER"
+      },
+      {
+        "name": "estimated_input_tokens",
+        "nullable": true,
+        "server_default": null,
+        "type": "INTEGER"
+      },
+      {
+        "name": "estimated_output_tokens",
+        "nullable": true,
+        "server_default": null,
+        "type": "INTEGER"
+      },
+      {
+        "name": "estimated_cost_usd",
+        "nullable": true,
+        "server_default": null,
+        "type": "NUMERIC(12, 6)"
+      },
+      {
+        "name": "error_category",
+        "nullable": true,
+        "server_default": null,
+        "type": "VARCHAR(80)"
+      },
+      {
+        "name": "source_app",
+        "nullable": true,
+        "server_default": null,
+        "type": "VARCHAR(80)"
+      },
+      {
+        "name": "operation_type",
+        "nullable": true,
+        "server_default": null,
+        "type": "VARCHAR(80)"
+      },
+      {
+        "name": "external_event_id",
+        "nullable": true,
+        "server_default": null,
+        "type": "VARCHAR(80)"
+      },
+      {
+        "name": "external_request_id",
+        "nullable": true,
+        "server_default": null,
+        "type": "VARCHAR(120)"
+      },
+      {
+        "name": "external_metadata_json",
+        "nullable": true,
+        "server_default": null,
+        "type": "JSONB"
+      },
+      {
+        "name": "id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "created_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      {
+        "name": "updated_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      }
+    ],
+    "constraints": [
+      {
+        "columns": [
+          "api_key_id"
+        ],
+        "name": null,
+        "ondelete": "SET NULL",
+        "references": [
+          "api_keys.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      },
+      {
+        "columns": [
+          "application_id"
+        ],
+        "name": null,
+        "ondelete": "RESTRICT",
+        "references": [
+          "applications.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      },
+      {
+        "columns": [
+          "application_id",
+          "external_event_id"
+        ],
+        "name": "uq_gateway_requests_application_external_event",
+        "type": "UniqueConstraint"
+      },
+      {
+        "columns": [
+          "id"
+        ],
+        "name": null,
+        "type": "PrimaryKeyConstraint"
+      },
+      {
+        "columns": [
+          "model_route_id"
+        ],
+        "name": null,
+        "ondelete": "SET NULL",
+        "references": [
+          "model_routes.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      },
+      {
+        "columns": [
+          "project_id"
+        ],
+        "name": null,
+        "ondelete": "RESTRICT",
+        "references": [
+          "projects.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      },
+      {
+        "columns": [
+          "prompt_version_id"
+        ],
+        "name": null,
+        "ondelete": "SET NULL",
+        "references": [
+          "prompt_versions.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      }
+    ],
+    "indexes": [
+      {
+        "columns": [
+          "api_key_id"
+        ],
+        "name": "ix_gateway_requests_api_key_id",
+        "unique": false
+      },
+      {
+        "columns": [
+          "application_id"
+        ],
+        "name": "ix_gateway_requests_application_id",
+        "unique": false
+      },
+      {
+        "columns": [
+          "error_category"
+        ],
+        "name": "ix_gateway_requests_error_category",
+        "unique": false
+      },
+      {
+        "columns": [
+          "external_event_id"
+        ],
+        "name": "ix_gateway_requests_external_event_id",
+        "unique": false
+      },
+      {
+        "columns": [
+          "external_request_id"
+        ],
+        "name": "ix_gateway_requests_external_request_id",
+        "unique": false
+      },
+      {
+        "columns": [
+          "model_route_id"
+        ],
+        "name": "ix_gateway_requests_model_route_id",
+        "unique": false
+      },
+      {
+        "columns": [
+          "operation_type"
+        ],
+        "name": "ix_gateway_requests_operation_type",
+        "unique": false
+      },
+      {
+        "columns": [
+          "project_id"
+        ],
+        "name": "ix_gateway_requests_project_id",
+        "unique": false
+      },
+      {
+        "columns": [
+          "prompt_version_id"
+        ],
+        "name": "ix_gateway_requests_prompt_version_id",
+        "unique": false
+      },
+      {
+        "columns": [
+          "request_id"
+        ],
+        "name": "ix_gateway_requests_request_id",
+        "unique": true
+      },
+      {
+        "columns": [
+          "source_app"
+        ],
+        "name": "ix_gateway_requests_source_app",
+        "unique": false
+      }
+    ]
+  },
+  "model_routes": {
+    "columns": [
+      {
+        "name": "project_id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "application_id",
+        "nullable": true,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "environment",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(40)"
+      },
+      {
+        "name": "provider",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(80)"
+      },
+      {
+        "name": "model_name",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(160)"
+      },
+      {
+        "name": "priority",
+        "nullable": false,
+        "server_default": null,
+        "type": "INTEGER"
+      },
+      {
+        "name": "is_default",
+        "nullable": false,
+        "server_default": null,
+        "type": "BOOLEAN"
+      },
+      {
+        "name": "is_active",
+        "nullable": false,
+        "server_default": null,
+        "type": "BOOLEAN"
+      },
+      {
+        "name": "id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "created_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      {
+        "name": "updated_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      }
+    ],
+    "constraints": [
+      {
+        "columns": [
+          "application_id"
+        ],
+        "name": null,
+        "ondelete": "CASCADE",
+        "references": [
+          "applications.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      },
+      {
+        "columns": [
+          "id"
+        ],
+        "name": null,
+        "type": "PrimaryKeyConstraint"
+      },
+      {
+        "columns": [
+          "project_id"
+        ],
+        "name": null,
+        "ondelete": "CASCADE",
+        "references": [
+          "projects.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      }
+    ],
+    "indexes": [
+      {
+        "columns": [
+          "application_id"
+        ],
+        "name": "ix_model_routes_application_id",
+        "unique": false
+      },
+      {
+        "columns": [
+          "project_id"
+        ],
+        "name": "ix_model_routes_project_id",
+        "unique": false
+      }
+    ]
+  },
+  "projects": {
+    "columns": [
+      {
+        "name": "name",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(160)"
+      },
+      {
+        "name": "slug",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(120)"
+      },
+      {
+        "name": "description",
+        "nullable": true,
+        "server_default": null,
+        "type": "TEXT"
+      },
+      {
+        "name": "is_active",
+        "nullable": false,
+        "server_default": null,
+        "type": "BOOLEAN"
+      },
+      {
+        "name": "id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "created_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      {
+        "name": "updated_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      }
+    ],
+    "constraints": [
+      {
+        "columns": [
+          "id"
+        ],
+        "name": null,
+        "type": "PrimaryKeyConstraint"
+      }
+    ],
+    "indexes": [
+      {
+        "columns": [
+          "slug"
+        ],
+        "name": "ix_projects_slug",
+        "unique": true
+      }
+    ]
+  },
+  "prompt_versions": {
+    "columns": [
+      {
+        "name": "project_id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "application_id",
+        "nullable": true,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "name",
+        "nullable": false,
+        "server_default": null,
+        "type": "VARCHAR(160)"
+      },
+      {
+        "name": "version",
+        "nullable": false,
+        "server_default": null,
+        "type": "INTEGER"
+      },
+      {
+        "name": "content",
+        "nullable": false,
+        "server_default": null,
+        "type": "TEXT"
+      },
+      {
+        "name": "is_active",
+        "nullable": false,
+        "server_default": null,
+        "type": "BOOLEAN"
+      },
+      {
+        "name": "id",
+        "nullable": false,
+        "server_default": null,
+        "type": "UUID"
+      },
+      {
+        "name": "created_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      {
+        "name": "updated_at",
+        "nullable": false,
+        "server_default": null,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      }
+    ],
+    "constraints": [
+      {
+        "columns": [
+          "application_id"
+        ],
+        "name": null,
+        "ondelete": "CASCADE",
+        "references": [
+          "applications.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      },
+      {
+        "columns": [
+          "id"
+        ],
+        "name": null,
+        "type": "PrimaryKeyConstraint"
+      },
+      {
+        "columns": [
+          "project_id"
+        ],
+        "name": null,
+        "ondelete": "CASCADE",
+        "references": [
+          "projects.id"
+        ],
+        "type": "ForeignKeyConstraint"
+      },
+      {
+        "columns": [
+          "project_id",
+          "application_id",
+          "name",
+          "version"
+        ],
+        "name": "uq_prompt_versions_scope_name_version",
+        "type": "UniqueConstraint"
+      }
+    ],
+    "indexes": [
+      {
+        "columns": [
+          "application_id"
+        ],
+        "name": "ix_prompt_versions_application_id",
+        "unique": false
+      },
+      {
+        "columns": [
+          "project_id"
+        ],
+        "name": "ix_prompt_versions_project_id",
+        "unique": false
+      }
+    ]
+  }
+}

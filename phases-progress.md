@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 49: Backend compatibility contract baseline — In Progress. Phase 48 records the approved Java/AWS roadmap. Phases 1-47 remain the completed historical baseline.
+Phase 50: Spring Boot build and service foundation — In Progress after the Phase 49 pushed review passes. Phases 48-49 record the approved Java/AWS roadmap and Python compatibility baseline. Phases 1-47 remain the completed historical baseline.
 
 ## Phase table
 
@@ -77,8 +77,8 @@ Phase 49: Backend compatibility contract baseline — In Progress. Phase 48 reco
 | Phase | Title | Status |
 |---:|---|---|
 | 48 | Java conversion and AWS release roadmap | Completed |
-| 49 | Backend compatibility contract baseline | In Progress |
-| 50 | Spring Boot build and service foundation | Not Started |
+| 49 | Backend compatibility contract baseline | Completed |
+| 50 | Spring Boot build and service foundation | In Progress |
 | 51 | PostgreSQL persistence and migration handover | Not Started |
 | 52 | Java gateway and model routing | Not Started |
 | 53 | Java Proofbase and AgentOps telemetry ingestion | Not Started |
@@ -113,6 +113,21 @@ Implementation notes:
 - Observability: planned a running monitoring stack and measured recovery evidence.
 - Commit/push/post-commit review: recorded in docs/phase-reviews/phase-48.md after the planning commit is pushed.
 - Next phase: Phase 49, Backend compatibility contract baseline.
+
+### Phase 49: Backend compatibility contract baseline
+
+Status: Completed
+
+Implementation notes:
+
+- Added deterministic HTTP/telemetry/schema/metrics exports and eight synthetic event fixtures with normalization and fingerprint golden values.
+- Added HTTP boundary, privacy and decimal regressions, plus a required PostgreSQL fixture/admin lifecycle check in CI.
+- Local validation: Ruff checks pass; 56 tests passed and 22 database tests skipped. CI database validation is required before advancing.
+- Security: fixtures contain invented data only; public authentication, bounded values and safe errors are documented intentional changes.
+- Reliability: preserves decimal strings, timestamps, duplicates, cost uniqueness and existing migration ownership.
+- Observability: metric names/labels/buckets captured; no live exporter or provider called.
+- Commit/push/review evidence: docs/phase-reviews/phase-49.md.
+- Next phase: Phase 50, Spring Boot build and service foundation.
 
 ### Phase 1: Project specification and architecture
 

@@ -1,0 +1,303 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "currency": {
+      "default": "USD",
+      "maxLength": 3,
+      "minLength": 3,
+      "title": "Currency",
+      "type": "string"
+    },
+    "department_external_id": {
+      "anyOf": [
+        {
+          "maxLength": 120,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Department External Id"
+    },
+    "environment": {
+      "maxLength": 40,
+      "minLength": 1,
+      "title": "Environment",
+      "type": "string"
+    },
+    "error_category": {
+      "anyOf": [
+        {
+          "maxLength": 80,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error Category"
+    },
+    "error_message_redacted": {
+      "anyOf": [
+        {
+          "maxLength": 240,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error Message Redacted"
+    },
+    "estimated_cost_usd": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Estimated Cost Usd"
+    },
+    "event_id": {
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Event Id",
+      "type": "string"
+    },
+    "external_request_id": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "External Request Id",
+      "type": "string"
+    },
+    "generation_latency_ms": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Generation Latency Ms"
+    },
+    "input_tokens": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Input Tokens"
+    },
+    "latency_ms": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Latency Ms"
+    },
+    "metadata": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Metadata",
+      "type": "object"
+    },
+    "model": {
+      "maxLength": 160,
+      "minLength": 1,
+      "title": "Model",
+      "type": "string"
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "title": "Occurred At",
+      "type": "string"
+    },
+    "operation_type": {
+      "enum": [
+        "rag_query",
+        "rag_query_stream",
+        "markdown_cleanup",
+        "query_decomposition",
+        "embedding_generation",
+        "agent_step",
+        "structured_generation",
+        "workflow_summary"
+      ],
+      "title": "Operation Type",
+      "type": "string"
+    },
+    "output_tokens": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Output Tokens"
+    },
+    "pricing_status": {
+      "anyOf": [
+        {
+          "enum": [
+            "estimated",
+            "unpriced",
+            "cached",
+            "unknown"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Pricing Status"
+    },
+    "project_external_id": {
+      "anyOf": [
+        {
+          "maxLength": 120,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Project External Id"
+    },
+    "prompt_name": {
+      "anyOf": [
+        {
+          "maxLength": 160,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prompt Name"
+    },
+    "prompt_version": {
+      "anyOf": [
+        {
+          "maxLength": 80,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prompt Version"
+    },
+    "provider": {
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Provider",
+      "type": "string"
+    },
+    "retrieval_latency_ms": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Retrieval Latency Ms"
+    },
+    "source_app": {
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Source App",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "succeeded",
+        "failed",
+        "skipped"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "total_tokens": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Total Tokens"
+    }
+  },
+  "required": [
+    "event_id",
+    "external_request_id",
+    "source_app",
+    "operation_type",
+    "environment",
+    "occurred_at",
+    "status",
+    "provider",
+    "model"
+  ],
+  "title": "ExternalLlmEventRequest",
+  "type": "object"
+}

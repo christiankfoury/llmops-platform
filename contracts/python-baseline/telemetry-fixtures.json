@@ -1,0 +1,66 @@
+{
+  "proofbase_query": {
+    "event_id": "contract_proofbase_query", "external_request_id": "contract_query_1",
+    "source_app": " Proofbase ", "operation_type": "rag_query", "environment": " LOCAL ",
+    "occurred_at": "2026-01-02T03:04:05.123456Z", "status": "succeeded",
+    "provider": " OPENAI ", "model": " gpt-4.1-mini ", "currency": "usd",
+    "input_tokens": 100, "output_tokens": 20, "total_tokens": 120,
+    "estimated_cost_usd": "0.000072", "pricing_status": "estimated", "latency_ms": 42,
+    "metadata": {"retrieval_mode": "hybrid", "citation_count": 2, "streaming": false}
+  },
+  "proofbase_stream": {
+    "event_id": "contract_proofbase_stream", "external_request_id": "contract_stream_1",
+    "source_app": "proofbase", "operation_type": "rag_query_stream", "environment": "local",
+    "occurred_at": "2026-01-02T03:04:06+00:00", "status": "failed",
+    "provider": "openai", "model": "gpt-4.1-mini", "pricing_status": "unknown",
+    "error_category": "provider_timeout", "latency_ms": 2000,
+    "metadata": {"streaming": true}
+  },
+  "proofbase_cleanup": {
+    "event_id": "contract_proofbase_cleanup", "external_request_id": "contract_cleanup_1",
+    "source_app": "proofbase", "operation_type": "markdown_cleanup", "environment": "local",
+    "occurred_at": "2026-01-02T03:04:07Z", "status": "succeeded",
+    "provider": "openai", "model": "gpt-4.1-mini", "pricing_status": "estimated",
+    "input_tokens": 100, "output_tokens": 20, "estimated_cost_usd": "0.000072",
+    "metadata": {"document_external_id": "synthetic_document_1"}
+  },
+  "proofbase_decomposition": {
+    "event_id": "contract_proofbase_decomposition", "external_request_id": "contract_decompose_1",
+    "source_app": "proofbase", "operation_type": "query_decomposition", "environment": "local",
+    "occurred_at": "2026-01-02T03:04:08Z", "status": "skipped",
+    "provider": "unknown", "model": "unknown", "pricing_status": "cached",
+    "metadata": {"cache_hit": true}
+  },
+  "proofbase_embedding": {
+    "event_id": "contract_proofbase_embedding", "external_request_id": "contract_embedding_1",
+    "source_app": "proofbase", "operation_type": "embedding_generation", "environment": "local",
+    "occurred_at": "2026-01-02T03:04:09Z", "status": "succeeded",
+    "provider": "openai", "model": "text-embedding-3-small", "pricing_status": "unpriced",
+    "input_tokens": 70, "metadata": {"embedding_count": 3, "cache_hit": false}
+  },
+  "agentops_step": {
+    "event_id": "contract_agentops_step", "external_request_id": "contract_workflow_1",
+    "source_app": "agentops", "operation_type": "agent_step", "environment": "local",
+    "occurred_at": "2026-01-02T03:04:10Z", "status": "succeeded",
+    "provider": "openai", "model": "gpt-4.1-mini", "pricing_status": "estimated",
+    "input_tokens": 100, "output_tokens": 25, "total_tokens": 125,
+    "estimated_cost_usd": "0.000080", "latency_ms": 95,
+    "metadata": {"workflow_external_id": "synthetic_workflow_1", "agent_step_external_id": "synthetic_step_1", "agent_name": "analyst", "agent_type": "analysis", "step_order": 1, "retry_count": 0, "response_type": "text"}
+  },
+  "agentops_structured": {
+    "event_id": "contract_agentops_structured", "external_request_id": "contract_workflow_1",
+    "source_app": "agentops", "operation_type": "structured_generation", "environment": "local",
+    "occurred_at": "2026-01-02T03:04:11Z", "status": "succeeded",
+    "provider": "openai", "model": "gpt-4.1-mini", "pricing_status": "estimated",
+    "input_tokens": 50, "output_tokens": 10, "total_tokens": 60,
+    "estimated_cost_usd": "0.000040", "latency_ms": 80,
+    "metadata": {"workflow_external_id": "synthetic_workflow_1", "agent_step_external_id": "synthetic_step_2", "response_type": "structured_json", "step_order": 2, "retry_count": 1}
+  },
+  "agentops_summary": {
+    "event_id": "contract_agentops_summary", "external_request_id": "contract_workflow_1",
+    "source_app": "agentops", "operation_type": "workflow_summary", "environment": "local",
+    "occurred_at": "2026-01-02T03:04:12Z", "status": "succeeded",
+    "provider": "unknown", "model": "unknown", "pricing_status": "unknown", "latency_ms": 5000,
+    "metadata": {"workflow_external_id": "synthetic_workflow_1", "workflow_status": "completed", "response_type": "aggregate_summary"}
+  }
+}
