@@ -43,7 +43,7 @@ The frontend dependency audit currently passes the high/critical gate with:
 npm audit --audit-level=high
 ```
 
-npm still reports a moderate Next/PostCSS advisory where the automatic fix is a breaking downgrade. Keep this visible until the Next stable line has a non-breaking patched path.
+The Phase 48 review refreshed Next.js and eslint-config-next to 16.3.4 and updated compatible transitive dependencies. On 2026-09-06, npm audit reported zero vulnerabilities; lint, type checks, six frontend tests, and the production build passed locally. Re-run the audit on each release because advisory data changes over time.
 
 ## CI checks
 

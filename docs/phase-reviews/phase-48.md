@@ -46,7 +46,7 @@
 ### Post-Commit Review
 - Pushed commit: ead7c2b85416da6b7b623f689e38dc6430413450, verified through GitHub readback.
 - Top findings: the planning diff has no top actionable issues. Its new CI run exposed existing frontend dependency advisories and vulnerable Python installation tooling in the runtime image. Backend tests/audit and infrastructure checks passed. Resolve both scan findings before advancing implementation.
-- Fix commits: separate frontend dependency and Python runtime-tooling fixes are in progress; no security gate is disabled.
+- Fix commits: fba1612 removes Python runtime installation tools. The separate frontend fix updates Next.js/eslint-config-next to 16.3.4 and compatible transitive packages; local lint, type checks, six tests, production build, and npm audit (zero vulnerabilities) pass. Record the final CI result before closing the review; no security gate is disabled.
 - Local Docker build cannot run because Docker Desktop's Linux engine did not become ready after startup. The required image build/scan will be verified in GitHub Actions before the review is closed.
 
 ### Next Phase
