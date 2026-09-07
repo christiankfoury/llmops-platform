@@ -12,7 +12,7 @@ Every main push and pull request runs the same checks on disposable Ubuntu 24.04
 | Java dependencies | CycloneDX 2.9.3 resolves direct/transitive dependencies including test scope; required core packages and versioned identifiers must exist; Trivy audits that SBOM |
 | Frontend | Locked npm install, lint, TypeScript, component tests and high/critical npm audit |
 | Python reference | Retained lint/format, frozen contract comparison, PostgreSQL migration/tests and strict dependency audit; Python is not a deployment image |
-| Runtime images | Build Java API, isolated migration and web images; fresh Compose/TLS/client replay/shutdown tests; three image vulnerability scans and three verified CycloneDX SBOMs |
+| Runtime images | Build Java API, isolated migration and web images; fresh Compose/TLS/client replay/shutdown tests; three image vulnerability/secret scans and three verified CycloneDX SBOMs |
 | Infrastructure | Checksum-pinned tools, readonly provider locks, every Terraform root and mock plan, strict Helm/Kustomize/CRD schemas and rendered configuration scan |
 | Controller | Actual pinned v3.5.0 controller with bootstrap templates, real Kubernetes RBAC/admission/readiness/lifecycle and rejected unauthorized operations; local fake AWS endpoints only |
 | Repository/history | Dependency/config/secret scan and full fetched Git-history scan with fully redacted findings |
@@ -24,7 +24,7 @@ The [CycloneDX Maven plugin](https://cyclonedx.github.io/cyclonedx-maven-plugin/
 
 ## Pins and trust boundary
 
-`infra/validation/ci-actions.json` records upstream action tag resolutions to full commit SHAs. Active CI and its reusable controller workflow use those SHAs. `toolchain.json` records archive SHA-256 checksums for Terraform, Helm, kubeconform, Trivy 0.70.0 and Gitleaks 8.30.1. The installer extracts only the named binary after verifying the archive. The Maven Wrapper and production image bases are already checksum/digest pinned; test services, Java/Python/Node versions and Buildx are explicitly versioned. Ubuntu runner images, compiler distribution delivery and upstream package repositories remain external trust dependencies and receive security updates.
+`infra/validation/ci-actions.json` records upstream action tag resolutions to full commit SHAs. Active CI and its reusable controller workflow use those SHAs. `toolchain.json` records archive SHA-256 checksums for Terraform, Helm, kubeconform, Trivy 0.70.0 and Gitleaks 8.30.1. The installer extracts only the named binary after verifying the archive. The Maven Wrapper and production image bases are already checksum/digest pinned; test services, Java/Python/Node versions and Buildx are explicitly versioned. The four-part Temurin JDK release uses its separately checksummed official archive in `ci-java.json`, with an installed-version assertion before Maven. Ubuntu runner images, compiler distribution delivery and upstream package repositories remain external trust dependencies and receive security updates.
 
 CI has only `contents: read`, never requests OIDC tokens or deployment environments, and does not persist checkout credentials. It uses `pull_request`, never `pull_request_target` or privileged `workflow_run` code execution. Fork code runs in isolated hosted jobs without deployment secrets. Repository administrators and changes to the workflow/pin policy remain trusted; static policy tests do not replace branch protection and human review. GitHub recommends [full-length action commit pins and least-privilege permissions](https://docs.github.com/en/actions/reference/security/secure-use).
 
@@ -38,17 +38,17 @@ This review is separate from the inactive Trivy controller-permission proposal, 
 
 ## Exact-revision eligibility
 
-The `Release eligibility` job runs even when a dependency fails and requires every declared check to finish successfully. Pull requests receive this aggregate pass/fail check but never a release candidate artifact. Only a push to this repository's `main` can record a candidate with repository, full SHA, workflow path, run ID/attempt, required checks and hashes of the Java/image SBOM and audit evidence.
+The `Release eligibility` job runs even when a dependency fails and requires every declared check to finish successfully. Pull requests receive this aggregate pass/fail check but never a release candidate artifact. Only a push to this repository's `main` can record a candidate with repository, full SHA, workflow path, run ID/attempt, required checks and hashes of the Java/image SBOM and audit evidence. It also binds the CI workflows, every Python validation helper/test, scanner/action/JDK pins and history-review policy. A green run from an older, weaker policy cannot satisfy a stronger current policy merely by reusing job names.
 
 Artifact names include the attempt. Rerun **all jobs** for a new attempt: a partial rerun cannot borrow successful jobs or SBOMs from an earlier attempt. Evidence expires after 14 days; expired or missing evidence is ineligible and needs a fresh full CI run. Artifacts alone are insufficient: the final job cannot know its own eventual workflow conclusion.
 
-After the run completes, verify it read-only:
+After the run completes, verify it read-only **from a clean, trusted checkout of the reviewed current validation policy**. Do not first check out an untrusted requested revision and execute its verifier:
 
 ```powershell
 python scripts/release_eligibility.py verify --sha <full-40-character-commit> --run-id <CI-run-id>
 ```
 
-The verifier uses authenticated `gh api` reads, checks the exact successful completed main-push run in this repository and workflow, paginates every current-attempt job, and rejects missing/duplicate/unexpected/failed/skipped jobs, other SHAs, forks, other workflows, stale attempts, incomplete evidence and expired/ambiguous artifacts. It rereads run state to detect a rerun during verification. It does not grant AWS access, publish images or deploy anything.
+The verifier uses authenticated `gh api` reads, checks the exact successful completed main-push run in this repository and workflow, paginates every current-attempt job, and rejects missing/duplicate/unexpected/failed/skipped jobs, other SHAs, forks, other workflows, stale attempts, incomplete evidence, a different current policy and expired/ambiguous artifacts. Text policy hashes normalize Git line endings so Windows and Linux verification agree. It rereads run state to detect a rerun during verification. It does not grant AWS access, publish images or deploy anything.
 
 This phase establishes **source revision eligibility**, not a registry image digest or deployable release. Phase 61 must bind the verified revision to immutable built/scanned image artifacts, verify their bytes/digests, and preserve the protected environment, migration-owner and infrastructure approval gates. Rebuilding a tag is not evidence that it is the scanned image.
 

@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 60: Java supply chain and CI release eligibility - In Progress. Phase 59 removed Ingress mutation permissions and adopted validated Terraform-owned load balancing with restricted TargetGroupBinding registration. Both full CI and actual-controller authorization/lifecycle tests passed on 67d3bec. The scanner exception remains inactive and unapproved. Phases 1-47 remain historical completion evidence; Java conversion phases 48-58 are completed.
+Phase 61: AWS immutable promotion migrations and rollback - In Progress. Phase 60 passed full CI and exact-revision/current-policy eligibility verification on b529a25. Phase 59 removed Ingress writes with validated Terraform-owned load balancing and restricted TargetGroupBinding registration; its scanner exception remains inactive. Phases 1-47 remain historical evidence; Java conversion phases 48-58 are completed. Cloud deployment remains held and approval-gated.
 
 ## Phase table
 
@@ -88,8 +88,8 @@ Phase 60: Java supply chain and CI release eligibility - In Progress. Phase 59 r
 | 57 | Java metrics logs and traces | Completed |
 | 58 | Java Docker Compose and Helm runtime cutover | Completed | main | 287a81e | 2026-09-07 | docs/phase-reviews/phase-58.md |
 | 59 | AWS infrastructure validation and bootstrap boundaries | Completed |
-| 60 | Java supply chain and CI release eligibility | In Progress |
-| 61 | AWS immutable promotion migrations and rollback | Not Started |
+| 60 | Java supply chain and CI release eligibility | Completed |
+| 61 | AWS immutable promotion migrations and rollback | In Progress |
 | 62 | Runnable monitoring stack and supported log collection | Not Started |
 | 63 | Local resilience recovery and cost rehearsal | Not Started |
 | 64 | Public repository and isolated demo preparation | Not Started |
@@ -317,22 +317,28 @@ Implementation and validation:
 
 ### Phase 60: Java supply chain and CI release eligibility
 
+Status: Completed
+
+Implementation and validation:
+
+- Pinned active CI actions/scanner archives/JDK/tool versions and test image digests; added resolved Java and three runtime SBOMs/audits while preserving frontend and Python regression gates.
+- Required zero-skip PostgreSQL/Redis Java reports, actual controller compatibility on every CI run, full-history redacted review, all mandatory jobs and an exact main-push eligibility artifact. The read-only verifier binds repository/SHA/workflow/run/attempt, every successful job and 25 current-policy/helper inputs; old weaker policy evidence is rejected.
+- Final CI 34146481182 passed all eleven jobs on b529a25ffccf8183bcde9afe4144e31376474a1a. Retained evidence confirms 277 Java tests, zero skips, 192 resolved Java components, three image/TLS/client/shutdown validations and runtime inventories of 277/277/72 components, all required security scans, Terraform/manifests and controller tests. Twelve local/CI eligibility/security regressions passed.
+- Gitleaks covered 177 commits and retained ten raw redacted detections: nine historical synthetic local seed-key examples and one unsigned JWT rejection fixture. Exact fingerprints/source hashes classify only those reviewed matches; new/changed matches fail. No credential, history rewrite or Trivy exception changed.
+- Separate review fixes: 3c63822 verifies/installs the four-part JDK archive; b1f7f9d corrects inherited Maven SBOM output; 8216619 restores explicit image secret scans; 11f5255 binds current policy evidence; b529a25 includes all validation helpers. Real verification rejects failed and older-policy runs, and accepts the final successful run with deployment_authorized=false.
+- Full review and limitations: docs/phase-reviews/phase-60.md. Ordinary CI is read-only; all cloud workflows remain held. Source eligibility is not image digest provenance or deployment approval. Next: Phase 61.
+
+### Phase 61: AWS immutable promotion migrations and rollback
+
 Status: In Progress
 
 Implementation plan:
 
-- Inspect existing Java/frontend/container/contract checks and retain meaningful regression gates after cutover; keep cloud workflows held for Phase 61.
-- Pin CI actions and security tooling, audit resolved Java dependencies, generate Java and runtime-image SBOMs, and scan full Git history without exposing matched secrets.
-- Produce release-eligibility evidence only for an exact successful main push after every required job, including controller compatibility, passes. Reject missing, failed, skipped, mismatched, fork or unverified evidence; keep CI credentials read-only with no deployment identity.
-- Add positive/negative gate tests and validate the real clean CI pipeline, document evidence/limits, commit/push, review and fix separately before advancing to Phase 61.
+- Read the held release/rollback workflows, current IAM/bootstrap/migration boundaries and Phase 60 evidence contract before selecting the immutable image handoff.
+- Build and scan each image once in CI, retain verifiable image/chart artifacts and promote only their verified digests from a successful exact-revision/current-policy run.
+- Separate scoped publication, namespace application and migration-owner identities; prepare private-runner connectivity and controlled forward-only migration/health/rollback steps. Keep execution and all real AWS/production/secret/DNS changes approval-gated, with automatic deployment disabled.
+- Test invalid refs/digests, substituted artifacts, migration ownership and incompatible rollback inputs through static/dry-run checks; run required CI, document, commit/push, review and fix separately before Phase 62.
 
-
-Implementation and local validation (in progress):
-
-- Added pinned action commits, checksum-verified Trivy/Gitleaks, explicit CI tool/service versions, resolved Java and runtime-image SBOM/audit artifacts, and a zero-skip PostgreSQL/Redis report gate.
-- Integrated actual controller compatibility into every CI run and added a mandatory aggregate eligibility job. Candidate artifacts bind repository/SHA/run/attempt and evidence hashes; a read-only GitHub verifier rejects unfinished, failed, fork, mismatched or stale evidence. Deployment workflows remain held for Phase 61.
-- Full-history scan retained ten redacted detections across 171 commits. Reviewed exact historical source: nine documented synthetic local seed keys and one unsigned JWT rejection fixture. Exact fingerprints/source hashes classify those fixtures without disabling detection; new/changed matches fail. No real credential or Trivy exception was changed.
-- Local eligibility/security regressions (11 tests), CI policy, Java SBOM generation (192 components) and resolved Java fixable HIGH/CRITICAL audit passed. Full clean Maven verification, image SBOMs and the changed pipeline must still pass on the pushed revision; prior test reports are not new execution evidence.
 
 ### Phase 1: Project specification and architecture
 
