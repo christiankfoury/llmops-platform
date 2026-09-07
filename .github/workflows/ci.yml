@@ -454,7 +454,7 @@ jobs:
           mkdir -p .maven-cache/supply-chain/images
           for image in api migration web; do
             trivy image --format cyclonedx --output ".maven-cache/supply-chain/images/$image.cdx.json" "production-ai-platform-$image:ci"
-            trivy image --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed --scanners vuln --format json --output ".maven-cache/supply-chain/images/$image-audit.json" "production-ai-platform-$image:ci"
+            trivy image --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed --scanners vuln,secret --format json --output ".maven-cache/supply-chain/images/$image-audit.json" "production-ai-platform-$image:ci"
           done
           python3 scripts/validate_supply_chain.py images
 

@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 import release_eligibility as release  # noqa: E402 - standalone scripts need the test path above
-from validate_ci_policy import check_workflow  # noqa: E402
+from validate_ci_policy import check_image_scanners, check_workflow  # noqa: E402
 from validate_supply_chain import java_reports, review_history  # noqa: E402
 
 
@@ -165,6 +165,17 @@ class EligibilityTest(unittest.TestCase):
 
 
 class SecretAndPolicyTest(unittest.TestCase):
+    def test_runtime_image_secret_scanning_cannot_be_dropped(self):
+        def job(scanners):
+            return {"steps": [{"run": f"trivy image --exit-code 1 --scanners {scanners} image:ci"}]}
+
+        check_image_scanners(job("vuln,secret"))
+        for scanners in ("vuln", "secret", "misconfig"):
+            with self.subTest(scanners=scanners), self.assertRaises(ValueError):
+                check_image_scanners(job(scanners))
+        with self.assertRaises(ValueError):
+            check_image_scanners({"steps": []})
+
     def test_only_exact_reviewed_historical_source_is_accepted(self):
         finding = {
             "Fingerprint": "commit:file:rule:1",

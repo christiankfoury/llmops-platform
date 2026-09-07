@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import shlex
 from pathlib import Path
 
 import yaml
@@ -11,6 +12,24 @@ from release_eligibility import REQUIRED
 from validate_aws_manifests import UniqueLoader
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def check_image_scanners(job: dict) -> None:
+    commands = [
+        shlex.split(line.strip())
+        for step in job.get("steps", [])
+        for line in step.get("run", "").splitlines()
+        if line.strip().startswith("trivy image") and "--exit-code" in line
+    ]
+    if not commands:
+        raise ValueError("Missing blocking image security scan")
+    for command in commands:
+        if "--scanners" not in command or not {"vuln", "secret"} <= set(
+            command[command.index("--scanners") + 1].split(",")
+        ):
+            raise ValueError("Runtime image audit must preserve vulnerability and secret scans")
+        if command[command.index("--exit-code") + 1] != "1":
+            raise ValueError("Image security findings must fail CI")
 
 
 def check_workflow(data: dict, pins: dict) -> None:
@@ -56,6 +75,7 @@ def main() -> None:
             raise ValueError("CI cannot request deployment credentials")
         if file == "ci.yml":
             jobs = data["jobs"]
+            check_image_scanners(jobs["docker"])
             if set(jobs) != set(REQUIRED) | {"release-eligibility"}:
                 raise ValueError("Required job inventory changed without eligibility policy review")
             if set(jobs["release-eligibility"]["needs"]) != set(REQUIRED):
