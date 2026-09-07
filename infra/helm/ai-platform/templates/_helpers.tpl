@@ -2,6 +2,17 @@
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "ai-platform.image" -}}
+{{- $image := .image -}}
+{{- if $image.digest -}}
+{{- if not (regexMatch "^sha256:[a-f0-9]{64}$" $image.digest) -}}{{ fail "Release image digest must be a full sha256" }}{{- end -}}
+{{- printf "%s@%s" $image.repository $image.digest -}}
+{{- else -}}
+{{- if .requireDigest -}}{{ fail "Release deployment requires immutable image digests" }}{{- end -}}
+{{- printf "%s:%s" $image.repository $image.tag -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "ai-platform.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}

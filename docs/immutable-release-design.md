@@ -1,6 +1,6 @@
 # Immutable Java releases — Phase 61
 
-Status: implementation in progress. OCI export/copy compatibility must pass before cloud promotion adopts it. All existing deployment and rollback workflows remain held; this document approves no AWS operation.
+Status: OCI export/copy compatibility passed in CI 34149204882 on 7aac16a before promotion workflow adoption. Phase 61 release validation is in progress. Manual preflight is read-only; cloud execution remains hard-held. The [release runbook](immutable-release-runbook.md) defines the implemented procedure and remaining approval gates.
 
 ## Build and artifact ownership
 
@@ -10,7 +10,7 @@ The CI release manifest records image root/configuration digests, archive hashes
 
 Before any cloud use, CI copies all three archives through a disposable loopback-only registry using the digest-pinned Skopeo image in `infra/release/toolchain.json`. It checks the destination raw manifest hash and pulls by digest to compare the resulting image configuration with the tested/scanned build. [Skopeo copy](https://github.com/podman-container-tools/skopeo/blob/main/docs/skopeo-copy.1.md) uses `--all --preserve-digests`; failure to preserve bytes must fail the release. The fixture's HTTP/TLS-verification exception is restricted to its hardcoded loopback registry. Real ECR copies must retain TLS verification. AWS documents [ECR manifest support](https://docs.aws.amazon.com/AmazonECR/latest/userguide/image-manifest-formats.html), but the local fixture does not prove live ECR/IAM behavior.
 
-## Planned promotion and rollback boundary
+## Implemented promotion and rollback boundary
 
 - Resolve a full commit SHA and exact successful main CI run using the trusted current-policy verifier, then verify downloaded manifest/chart/archive bytes before obtaining cloud credentials.
 - Publish the verified OCI digests to environment-specific ECR repositories without rebuilding. Keep publisher, migration-owner and namespace application identities separate; never grant the publisher Kubernetes access.

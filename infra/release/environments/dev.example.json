@@ -1,0 +1,30 @@
+{
+  "environment": "dev",
+  "account_id": "000000000000",
+  "region": "us-east-1",
+  "cluster": "production-ai-platform-dev-eks",
+  "repositories": {
+    "api": "production-ai-platform-dev/api",
+    "migration": "production-ai-platform-dev/migration",
+    "web": "production-ai-platform-dev/web"
+  },
+  "roles": {
+    "publish": "arn:aws:iam::000000000000:role/production-ai-platform-dev-github-publisher",
+    "migrate": "arn:aws:iam::000000000000:role/production-ai-platform-dev-github-migration",
+    "deploy": "arn:aws:iam::000000000000:role/production-ai-platform-dev-github-actions"
+  },
+  "api_origin": "https://api.example.com",
+  "web_origin": "https://web.example.com",
+  "api_config": {
+    "operatorAuthMode": "oidc",
+    "oidcIssuer": "https://identity.example.com",
+    "oidcAudience": "platform",
+    "oidcJwksUri": "https://identity.example.com/keys"
+  },
+  "web_config": {
+    "authMode": "oidc",
+    "origin": "https://web.example.com",
+    "oidcIssuer": "https://identity.example.com",
+    "oidcClientId": "platform-web"
+  }
+}

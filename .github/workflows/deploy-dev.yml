@@ -1,161 +1,38 @@
-name: Deploy Dev
-
+name: Deploy dev
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
-      image_tag:
-        description: Commit SHA or immutable tag to deploy. Defaults to the triggering commit SHA.
-        required: false
+      sha:
+        description: Full commit from successful main CI
+        required: true
         type: string
-
+      ci_run_id:
+        description: Successful exact-revision CI run ID
+        required: true
+        type: string
+      schema_version:
+        description: Declared post-migration schema version
+        required: true
+        default: '2'
+        type: string
+      previous_run_id:
+        description: Previous environment's successful deployment run ID (0 for dev)
+        default: '0'
+        type: string
 permissions:
   contents: read
+  actions: read
   id-token: write
-
 concurrency:
-  group: deploy-dev
+  group: aws-release-dev
   cancel-in-progress: false
-
 jobs:
-  deploy-dev:
-    name: Build, publish, and deploy dev
-    runs-on: ubuntu-latest
-    # Phase 58 cutover hold: Phase 61 replaces the Python release/rollback scaffold.
-    if: ${{ false }}
-    environment: dev
-    env:
-      AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
-      AWS_REGION: ${{ vars.AWS_REGION }}
-      AWS_DEV_DEPLOY_ROLE_ARN: ${{ vars.AWS_DEV_DEPLOY_ROLE_ARN }}
-      DEV_EKS_CLUSTER_NAME: ${{ vars.DEV_EKS_CLUSTER_NAME }}
-      DEV_NAMESPACE: ${{ vars.DEV_NAMESPACE }}
-      DEV_API_HOST: ${{ vars.DEV_API_HOST }}
-      DEV_WEB_HOST: ${{ vars.DEV_WEB_HOST }}
-      DEV_API_BASE_URL: ${{ vars.DEV_API_BASE_URL }}
-      DEV_WEB_BASE_URL: ${{ vars.DEV_WEB_BASE_URL }}
-      DEV_API_ECR_REPOSITORY: ${{ vars.DEV_API_ECR_REPOSITORY }}
-      DEV_WEB_ECR_REPOSITORY: ${{ vars.DEV_WEB_ECR_REPOSITORY }}
-      INPUT_IMAGE_TAG: ${{ github.event.inputs.image_tag }}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-
-      - name: Resolve deployment configuration
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          : "${AWS_ACCOUNT_ID:?Set AWS_ACCOUNT_ID as a repository variable.}"
-          : "${AWS_REGION:?Set AWS_REGION as a repository variable.}"
-          : "${AWS_DEV_DEPLOY_ROLE_ARN:?Set AWS_DEV_DEPLOY_ROLE_ARN as a repository variable.}"
-          : "${DEV_EKS_CLUSTER_NAME:?Set DEV_EKS_CLUSTER_NAME as a repository variable.}"
-          : "${DEV_API_HOST:?Set DEV_API_HOST as a repository variable.}"
-          : "${DEV_WEB_HOST:?Set DEV_WEB_HOST as a repository variable.}"
-          : "${DEV_API_BASE_URL:?Set DEV_API_BASE_URL as a repository variable.}"
-          : "${DEV_WEB_BASE_URL:?Set DEV_WEB_BASE_URL as a repository variable.}"
-
-          {
-            echo "DEV_NAMESPACE=${DEV_NAMESPACE:-ai-platform-dev}"
-            echo "DEV_API_ECR_REPOSITORY=${DEV_API_ECR_REPOSITORY:-production-ai-platform-dev/api}"
-            echo "DEV_WEB_ECR_REPOSITORY=${DEV_WEB_ECR_REPOSITORY:-production-ai-platform-dev/web}"
-            echo "IMAGE_TAG=${INPUT_IMAGE_TAG:-$GITHUB_SHA}"
-            echo "ECR_REGISTRY=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-          } >> "$GITHUB_ENV"
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ env.AWS_DEV_DEPLOY_ROLE_ARN }}
-
-      - name: Log in to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Build and push API image
-        uses: docker/build-push-action@v7
-        with:
-          context: apps/api
-          file: apps/api/Dockerfile
-          push: true
-          tags: ${{ env.ECR_REGISTRY }}/${{ env.DEV_API_ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-
-      - name: Build and push web image
-        uses: docker/build-push-action@v7
-        with:
-          context: apps/web
-          file: apps/web/Dockerfile
-          push: true
-          tags: ${{ env.ECR_REGISTRY }}/${{ env.DEV_WEB_ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-
-      - name: Install kubectl
-        env:
-          KUBECTL_VERSION: v1.32.0
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl --fail --location --silent --show-error \
-            "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
-            --output kubectl
-          sudo install -m 0755 kubectl /usr/local/bin/kubectl
-          kubectl version --client=true
-
-      - name: Install Helm
-        env:
-          HELM_VERSION: v3.18.4
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl --fail --location --silent --show-error \
-            "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" \
-            --output helm.tar.gz
-          tar --extract --gzip --file helm.tar.gz
-          sudo install -m 0755 linux-amd64/helm /usr/local/bin/helm
-          helm version --short
-
-      - name: Configure dev Kubernetes context
-        shell: bash
-        run: |
-          set -euo pipefail
-          aws eks update-kubeconfig \
-            --region "$AWS_REGION" \
-            --name "$DEV_EKS_CLUSTER_NAME"
-
-      - name: Deploy dev release
-        shell: bash
-        run: |
-          set -euo pipefail
-          helm upgrade --install ai-platform-dev infra/helm/ai-platform \
-            --namespace "$DEV_NAMESPACE" \
-            --values infra/helm/ai-platform/values-dev.yaml \
-            --atomic \
-            --wait \
-            --timeout 10m \
-            --set namespace.create=false \
-            --set-string api.image.repository="$ECR_REGISTRY/$DEV_API_ECR_REPOSITORY" \
-            --set-string api.image.tag="$IMAGE_TAG" \
-            --set-string web.image.repository="$ECR_REGISTRY/$DEV_WEB_ECR_REPOSITORY" \
-            --set-string web.image.tag="$IMAGE_TAG" \
-            --set-string api.config.corsOrigins="$DEV_WEB_BASE_URL" \
-            --set-string web.config.apiBaseUrl="$DEV_API_BASE_URL" \
-            --set-string ingress.apiHost="$DEV_API_HOST" \
-            --set-string ingress.webHost="$DEV_WEB_HOST"
-
-      - name: Check rollout status
-        shell: bash
-        run: |
-          set -euo pipefail
-          kubectl rollout status deployment/ai-platform-dev-api --namespace "$DEV_NAMESPACE" --timeout=5m
-          kubectl rollout status deployment/ai-platform-dev-web --namespace "$DEV_NAMESPACE" --timeout=5m
-
-      - name: Smoke test dev
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl --fail --show-error --silent "$DEV_API_BASE_URL/health/ready"
-          curl --fail --show-error --silent "$DEV_WEB_BASE_URL" > /dev/null
+  release:
+    uses: ./.github/workflows/release.yml
+    with:
+      environment: dev
+      operation: deploy
+      sha: ${{ inputs.sha }}
+      ci_run_id: ${{ inputs.ci_run_id }}
+      schema_version: ${{ inputs.schema_version }}
+      previous_run_id: ${{ inputs.previous_run_id }}

@@ -1,4 +1,6 @@
 imagePullSecrets: []
+release:
+  requireDigests: false
 podSecurityContext:
   runAsNonRoot: true
   seccompProfile:
@@ -30,9 +32,12 @@ runtimeSecret:
     DATABASE_USERNAME: database-username
     DATABASE_PASSWORD: database-password
 migration:
+  command: migrate
+  expectedSchemaVersion: '2'
   jobName: ai-platform-migrate
   image:
     repository: production-ai-platform-migration
+    digest: ''
     tag: local
     pullPolicy: IfNotPresent
   secretName: ai-platform-migration-secrets

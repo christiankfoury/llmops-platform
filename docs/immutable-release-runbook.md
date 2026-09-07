@@ -1,0 +1,49 @@
+# Immutable AWS release procedure
+
+Phase 61 implements and tests the release control plane. Cloud jobs in `release.yml` are hard-held with `if: ${{ false }}`. Manual dispatch currently verifies artifacts without obtaining AWS credentials. Removing those holds, creating/configuring environments or runners, changing real secrets, deploying to AWS, and applying Terraform still require the environment-specific approvals in AGENTS.md. This document is not that approval.
+
+## Verified artifact path
+
+CI builds each API, migration and web image once, tests/scans the loaded image, and exports the same build as OCI. Its manifest binds archive/blob/configuration digests, packaged charts, environment values and schema compatibility. CI copies the images through a disposable registry with pinned Skopeo and compares pulled configuration identities. Run [34149204882](https://github.com/christiankfoury/production-ai-platform/actions/runs/34149204882) verified this compatibility on `7aac16a`; it is local-registry evidence, not an ECR deployment.
+
+Manual `deploy-dev.yml`, `deploy-staging.yml`, `deploy-prod.yml` and `rollback.yml` use `release.yml`. Supply a full commit SHA and successful main CI run ID. Mutable branches/tags, foreign/fork runs, failed/skipped jobs, old policy evidence, expired/ambiguous artifacts, altered files and unsupported schema declarations fail before cloud credentials. The trusted workflow checkout remains on main; it never executes scripts from the candidate's artifact or switches to its source. A change to the current release policy requires fresh CI qualification; older green runs do not override stricter current policy.
+
+The prepared artifact contains only verified OCI images, charts, values, manifest and a hashed plan. Dev requires no previous release. Staging requires the successful dev release run ID; prod requires staging's. Their receipts must identify the same commit and all three digests, the current successful run attempt, and passed functional health. Missing/expired evidence fails closed. CI artifacts expire after 14 days; prepared plans after seven, receipts after 90. Longer release retention needs an approved artifact archival design; never replace missing evidence with a mutable ECR tag.
+
+After approval, each environment copies these same verified OCI bytes to its own ECR repositories, using `--all --preserve-digests` and TLS verification. It does not rebuild. An existing immutable SHA tag is accepted only if its manifest digest matches. The actual image references installed by Helm are `repository@sha256:...`. Linux amd64 is the tested platform and is selected explicitly by the workloads.
+
+## Bootstrap prerequisites and identities
+
+Complete [AWS bootstrap](aws-bootstrap.md) and the [TargetGroupBinding ownership sequence](targetgroupbinding-design.md) first. Terraform owns the ALB/listeners/rules/security groups/target groups. Bootstrap owns Services, policies, controllers, bindings, runtime/migration secret readers, trust bundles and Kubernetes RBAC. A release cannot install those resources or modify bindings/Ingress. Use release name **`ai-platform`** in each `ai-platform-<environment>` namespace: its pod labels must match the bootstrap-owned network Services and exact approved bindings.
+
+There are three distinct OIDC subjects and IAM roles per environment:
+
+| GitHub environment | Terraform role suffix | Access |
+|---|---|---|
+| `<env>-publish` | `github-publisher` | ECR token plus upload/read-manifest operations scoped to three repository ARNs; no EKS access entry |
+| `<env>-migration` | `github-migration` | Describe the exact EKS cluster; create/read Jobs in the isolated migration namespace |
+| `<env>` | `github-actions` | Describe the exact EKS cluster; Helm application resources in the application namespace |
+
+The ECR authorization-token API requires `Resource: "*"`; repository operations remain ARN-scoped. No role can provision AWS infrastructure. App deployers retain namespace Secret access because Helm stores release records there; migration credentials are in a separate namespace. Migration job creation permits arbitrary code with the migration namespace's database access, so it remains a privileged, reviewed identity. Database owners can alter data; the explicit workflow boundary is not a database sandbox.
+
+The owner must approve/create all three GitHub environments, restrict deployment branches to exactly `main`, configure required reviewers, prevent self-review and disable administrator bypass. `check_release_runner.py` checks these rules before OIDC; missing permissions or protection metadata blocks execution. See GitHub's [environment API](https://docs.github.com/en/rest/deployments/environments) and [deployment protections](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments). This repository does not change those settings automatically.
+
+Approved private runners must be ephemeral Linux amd64 machines with no ambient AWS identity, no shared workspace from untrusted PRs, Docker, GitHub CLI, Python 3.12.14, AWS CLI 2.36.40 and kubectl v1.36.4. Helm is installed from the checksum-pinned toolchain. Approve the runner image/provenance and destruction lifecycle before launch; a label or version string alone cannot attest host integrity. Runners need private EKS endpoint and VPC DNS resolution, HTTPS to GitHub/OIDC/ECR and the approved application endpoints, and the documented RDS/Redis/identity connectivity. Public GitHub runners cannot be assumed to reach private EKS. The version gate is implemented; real connectivity and EKS/IAM behavior remain Phase 66 evidence.
+
+Create the reviewed, nonsecret `infra/release/environments/<env>.json` from the supplied example only as part of the launch approval package. Its account, region, cluster, ECR repositories, three roles, HTTPS origins and OIDC configuration must match Terraform outputs/bootstrap. Configure `AWS_ROLE_ARN`, `AWS_ACCOUNT_ID` and `AWS_REGION` as variables on each protected environment. Never put credentials in this file. The example deliberately cannot authorize a release.
+
+## Migration, health and rollback
+
+Each release uses a unique, bounded Job in `ai-platform-<env>-migration`, with a 600-second deadline and no automatic retry. The Java migration owner acquires the existing shared advisory lock. Normal deployment runs forward `migrate`, then `verify-schema`. The latter requires an existing Flyway history, the declared current version and valid checksums; it does not create history, migrate, baseline, repair, clean or downgrade. Existing Alembic databases need the separate reviewed adoption procedure before ordinary releases. Never enable both migration owners.
+
+The current contract supports schema V2 only. CI checks the declared migration target against the highest packaged Flyway migration. Real PostgreSQL tests verify unchanged compatible history and reject missing history, newer history, changed checksums and invalid expectations without repairing/downgrading. A future migration requires an explicit compatibility decision and tests; destructive migrations retain their separate approval gate.
+
+Application deployment uses Helm `--wait` with a bounded timeout. It deliberately does not use `--atomic` or automatic Helm/database rollback, because an old application may not accept the resulting schema. Functional smoke checks verify liveness/readiness, rejected anonymous operator access, hidden management metrics, dashboard reachability, and an authenticated gateway request against an **approved synthetic project with a mock route in the target environment**. Provision that project/prompt/route and its environment-specific `RELEASE_SMOKE_API_KEY` only with the required access/secret approval. Do not run `seed-local` in AWS. Redirects cannot carry the API key to another origin; responses, keys and database errors are not printed. Health evidence and a receipt are published only after success.
+
+For rollback, manually select a previously qualified compatible commit and its retained CI run, and specify the current schema version. The migration job runs **only `verify-schema`** using that release's verified migration image. If live history is incompatible or altered, it fails before app changes. The app is then upgraded to the selected older digests and smoke-tested. This is an application rollback, never a database downgrade. Deploy and rollback share an environment concurrency group and cannot cancel an in-flight migration. Schema changes outside this serialized workflow remain an operator coordination risk. Flyway history/checksum validation does not detect arbitrary manual DDL that leaves history untouched; prohibit out-of-band schema edits and investigate suspected drift before release.
+
+On migration/health failure, preserve Jobs, history and deployment evidence. Inspect through the authorized operator path; scripts avoid dumping potentially sensitive errors into Actions output. Choose a compatible rollback or forward fix after review. Do not delete Jobs/databases, repair Flyway history, clear finalizers, restore broad controller permissions or activate the unapproved scanner exception to unblock a release.
+
+## Validation boundary
+
+Unit/negative policy tests, real PostgreSQL schema checks, offline Terraform plans, strict Helm schemas, CI runtime/TLS tests/scans and a real disposable-registry copy establish local behavior. No live AWS publish, protected-environment approval, private EKS migration, ALB data-plane smoke, production rollback, DNS or secret modification has been performed. Phase 65 prepares the concrete cloud change package; phases 66–68 require explicit environment approval and live evidence.

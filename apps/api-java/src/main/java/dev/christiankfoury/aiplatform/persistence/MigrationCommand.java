@@ -11,10 +11,15 @@ public final class MigrationCommand {
   public static void main(String[] args) throws java.sql.SQLException {
     if (args.length != 1
         || !java.util.Set.of(
-                "migrate", "adopt-alembic", "grant-operator", "revoke-operator-grant", "seed-local")
+                "migrate",
+                "verify-schema",
+                "adopt-alembic",
+                "grant-operator",
+                "revoke-operator-grant",
+                "seed-local")
             .contains(args[0])) {
       throw new IllegalArgumentException(
-          "Choose migrate, adopt-alembic, grant-operator, revoke-operator-grant, or seed-local explicitly");
+          "Choose migrate, verify-schema, adopt-alembic, grant-operator, revoke-operator-grant, or seed-local explicitly");
     }
     String url = required("JDBC_DATABASE_URL");
     String environment = System.getenv().getOrDefault("ENVIRONMENT", "local");
@@ -65,7 +70,10 @@ public final class MigrationCommand {
             .baselineOnMigrate(false)
             .cleanDisabled(true)
             .load();
-    if (args[0].equals("adopt-alembic")) DatabaseMigrations.adoptAlembic(flyway);
+    if (args[0].equals("verify-schema")) {
+      DatabaseMigrations.verifySchema(flyway, required("EXPECTED_SCHEMA_VERSION"));
+      System.out.println("Release schema compatibility verified");
+    } else if (args[0].equals("adopt-alembic")) DatabaseMigrations.adoptAlembic(flyway);
     else DatabaseMigrations.migrate(flyway);
   }
 

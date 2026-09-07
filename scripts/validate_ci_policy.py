@@ -87,11 +87,9 @@ def main() -> None:
                     raise ValueError("Required job cannot be conditional or optional")
                 if key != "tgb" and jobs[key]["name"] != name:
                     raise ValueError("Required job name does not match GitHub verification policy")
-    # Phase 60 does not release the legacy deployment/rollback hold.
-    for file in ("deploy-dev.yml", "deploy-staging.yml", "deploy-prod.yml", "rollback.yml"):
-        data = yaml.load((ROOT / ".github/workflows" / file).read_text(), Loader=UniqueLoader)
-        if any(job.get("if") != "${{ false }}" for job in data["jobs"].values()):
-            raise ValueError("Legacy deployment hold must remain until Phase 61")
+    from validate_release_workflows import main as validate_releases
+
+    validate_releases()
     print(
         "Read-only CI, pinned actions, complete eligibility dependencies and cloud holds verified"
     )

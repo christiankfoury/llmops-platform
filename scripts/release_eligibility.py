@@ -18,6 +18,11 @@ ROOT = Path(__file__).resolve().parents[1]
 POLICY_FILES = (
     WORKFLOW,
     ".github/workflows/tgb-compatibility.yml",
+    ".github/workflows/release.yml",
+    ".github/workflows/deploy-dev.yml",
+    ".github/workflows/deploy-staging.yml",
+    ".github/workflows/deploy-prod.yml",
+    ".github/workflows/rollback.yml",
     "infra/validation/toolchain.json",
     "infra/validation/ci-actions.json",
     "infra/validation/ci-java.json",
@@ -166,7 +171,7 @@ def pages(path: str, key: str) -> list:
         page += 1
 
 
-def check_github(sha: str, run_id: int) -> dict:
+def check_github(sha: str, run_id: int, include_evidence: bool = False) -> dict:
     identity(REPOSITORY, sha, run_id, 1)
     prefix = f"repos/{REPOSITORY}/actions"
     run = gh_json(f"{prefix}/runs/{run_id}")
@@ -196,6 +201,7 @@ def check_github(sha: str, run_id: int) -> dict:
         "run_id": run_id,
         "run_attempt": run["run_attempt"],
         "url": run["html_url"],
+        **({"evidence": evidence} if include_evidence else {}),
         "deployment_authorized": False,
     }
 

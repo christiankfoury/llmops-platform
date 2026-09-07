@@ -1438,7 +1438,7 @@ Acceptance criteria:
 
 Deliverables:
 
-- Refactor dev/staging/prod/rollback workflows to build and scan once, promote by verified digest, use scoped OIDC roles, run controlled migration jobs, and test functional deployment health. Keep automatic deployment disabled until approved.
+- Refactor dev/staging/prod/rollback workflows to build and scan once, promote by verified digest, use scoped publisher/migration/application OIDC roles, run controlled migration jobs, and test functional deployment health. Verify OCI copy compatibility before adoption; bind packaged charts/environment values and staged receipts to CI provenance. Manual preflight is read-only; keep cloud jobs explicitly held until environment approval. Rollback verifies live schema without database downgrade.
 
 Relevant files:
 

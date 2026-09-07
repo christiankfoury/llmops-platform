@@ -1,6 +1,11 @@
 output "github_actions_role_arn" {
-  description = "ARN of the optional GitHub Actions role."
+  description = "Namespace application deployment identity; no registry publishing."
   value       = try(aws_iam_role.github_actions[0].arn, null)
+}
+
+output "github_publisher_role_arn" {
+  description = "Environment-scoped ECR publisher with no Kubernetes access entry."
+  value       = try(aws_iam_role.github_publisher[0].arn, null)
 }
 
 output "github_oidc_provider_arn" {

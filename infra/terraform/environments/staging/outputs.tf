@@ -97,3 +97,8 @@ output "load_balancing_bootstrap_values" {
 output "alb_dns_name" {
   value = module.load_balancing.alb_dns_name
 }
+
+output "github_publisher_role_arn" {
+  description = "Separate environment ECR publisher; no Kubernetes access."
+  value       = module.iam.github_publisher_role_arn
+}

@@ -1,4 +1,6 @@
 nameOverride: ''
+release:
+  requireDigests: false
 fullnameOverride: ''
 namespace:
   name: ''
@@ -23,6 +25,7 @@ api:
   replicaCount: 2
   image:
     repository: production-ai-platform-api
+    digest: ''
     tag: latest
     pullPolicy: IfNotPresent
   serviceAccount:
@@ -93,6 +96,7 @@ web:
   replicaCount: 2
   image:
     repository: production-ai-platform-web
+    digest: ''
     tag: latest
     pullPolicy: IfNotPresent
   serviceAccount:

@@ -86,22 +86,13 @@ data "aws_iam_policy_document" "github_actions_ecr" {
     resources = var.ecr_repository_arns
   }
 
-  dynamic "statement" {
-    for_each = local.allow_eks_describe ? [1] : []
-
-    content {
-      sid       = "DescribeEksClusterForKubeconfig"
-      actions   = ["eks:DescribeCluster"]
-      resources = ["arn:${data.aws_partition.current[0].partition}:eks:${data.aws_region.current[0].region}:${data.aws_caller_identity.current[0].account_id}:cluster/${var.eks_cluster_name}"]
-    }
-  }
 }
 
 resource "aws_iam_policy" "github_actions_ecr" {
   count = local.create_github_actions_role ? 1 : 0
 
   name        = "${var.name_prefix}-github-actions-ecr"
-  description = "Least-privilege ECR publish and EKS describe policy for Production AI Platform CI/CD."
+  description = "Environment-scoped image publisher only; no EKS or bootstrap permissions."
   policy      = data.aws_iam_policy_document.github_actions_ecr[0].json
 
   tags = var.tags
@@ -110,8 +101,50 @@ resource "aws_iam_policy" "github_actions_ecr" {
 resource "aws_iam_role_policy_attachment" "github_actions_ecr" {
   count = local.create_github_actions_role ? 1 : 0
 
-  role       = aws_iam_role.github_actions[0].name
+  role       = aws_iam_role.github_publisher[0].name
   policy_arn = aws_iam_policy.github_actions_ecr[0].arn
+}
+
+data "aws_iam_policy_document" "publisher_assume" {
+  count = local.create_github_actions_role ? 1 : 0
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    principals {
+      type        = "Federated"
+      identifiers = [data.aws_iam_openid_connect_provider.github[0].arn]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:sub"
+      values   = ["repo:${var.github_repository}:environment:${var.environment}-publish"]
+    }
+  }
+}
+
+resource "aws_iam_role" "github_publisher" {
+  count              = local.create_github_actions_role ? 1 : 0
+  name               = "${var.name_prefix}-github-publisher"
+  assume_role_policy = data.aws_iam_policy_document.publisher_assume[0].json
+  tags               = var.tags
+}
+
+resource "aws_iam_role_policy" "github_application" {
+  count = local.allow_eks_describe ? 1 : 0
+  name  = "describe-approved-cluster"
+  role  = aws_iam_role.github_actions[0].id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["eks:DescribeCluster"]
+      Resource = "arn:${data.aws_partition.current[0].partition}:eks:${data.aws_region.current[0].region}:${data.aws_caller_identity.current[0].account_id}:cluster/${var.eks_cluster_name}"
+    }]
+  })
 }
 
 data "aws_iam_policy_document" "migration_assume" {

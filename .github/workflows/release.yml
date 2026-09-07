@@ -1,0 +1,235 @@
+name: Verified immutable AWS release
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      operation:
+        required: true
+        type: string
+      sha:
+        required: true
+        type: string
+      ci_run_id:
+        required: true
+        type: string
+      schema_version:
+        required: true
+        type: string
+      previous_run_id:
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+jobs:
+  preflight:
+    name: Verify immutable release without cloud access
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+    timeout-minutes: 30
+    outputs:
+      plan_sha256: ${{ steps.plan.outputs.plan_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12.14'
+      - name: Verify trusted main control plane
+        env:
+          CONTROL_REF: ${{ github.ref }}
+        run: test "$CONTROL_REF" = refs/heads/main
+      - name: Verify CI, archives, schema and prior environment receipt
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ inputs.sha }}
+          CI_RUN: ${{ inputs.ci_run_id }}
+          RELEASE_ENV: ${{ inputs.environment }}
+          OPERATION: ${{ inputs.operation }}
+          SCHEMA_VERSION: ${{ inputs.schema_version }}
+          PREVIOUS_RUN: ${{ inputs.previous_run_id }}
+        run: >-
+          python scripts/release_plan.py --sha "$RELEASE_SHA" --run-id "$CI_RUN"
+          --environment "$RELEASE_ENV" --operation "$OPERATION"
+          --schema-version "$SCHEMA_VERSION" --previous-run-id "$PREVIOUS_RUN"
+          --output "$RUNNER_TEMP/prepared-release"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: prepared-release-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/prepared-release/plan.json
+            ${{ runner.temp }}/prepared-release/manifest.json
+            ${{ runner.temp }}/prepared-release/charts
+            ${{ runner.temp }}/prepared-release/values
+            ${{ runner.temp }}/prepared-release/*.oci.tar
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+      - name: Record approval hold
+        run: echo 'Artifacts verified. AWS execution remains held pending explicit environment approval and bootstrap.' >> "$GITHUB_STEP_SUMMARY"
+
+  publish:
+    # Phase 66+ approval must review and deliberately remove this hard hold.
+    if: ${{ false }}
+    needs: [preflight]
+    runs-on: [self-hosted, linux, x64, ai-platform-private-ephemeral]
+    environment: ${{ inputs.environment }}-publish
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      AWS_EC2_METADATA_DISABLED: 'true'
+      KUBECONFIG: ${{ runner.temp }}/release-kubeconfig
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12.14'
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: prepared-release-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/prepared-release
+      - name: Check protected environment and approved runner
+        env:
+          RELEASE_ENV: ${{ inputs.environment }}
+        run: python scripts/check_release_runner.py --environment "$RELEASE_ENV"
+      - name: Install checksum-pinned Helm
+        run: |
+          python scripts/install_validation_tools.py --tools helm
+          echo "$GITHUB_WORKSPACE/.maven-cache/tools/pinned" >> "$GITHUB_PATH"
+      - uses: aws-actions/configure-aws-credentials@463133d79af6d001e45482f356e244208e65f0c5
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+          unset-current-credentials: true
+          role-duration-seconds: 3600
+          role-session-name: release-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Execute approved publish operation
+        env:
+          AWS_RELEASE_APPROVED: explicit-environment-approval
+          RELEASE_ENV: ${{ inputs.environment }}
+          PLAN_SHA256: ${{ needs.preflight.outputs.plan_sha256 }}
+        run: >-
+          python scripts/execute_release.py publish --directory "$RUNNER_TEMP/prepared-release"
+          --config "infra/release/environments/$RELEASE_ENV.json" --plan-sha256 "$PLAN_SHA256"
+
+  migrate:
+    # Phase 66+ approval must review and deliberately remove this hard hold.
+    if: ${{ false }}
+    needs: [preflight, publish]
+    runs-on: [self-hosted, linux, x64, ai-platform-private-ephemeral]
+    environment: ${{ inputs.environment }}-migration
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      AWS_EC2_METADATA_DISABLED: 'true'
+      KUBECONFIG: ${{ runner.temp }}/release-kubeconfig
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12.14'
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: prepared-release-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/prepared-release
+      - name: Check protected environment and approved runner
+        env:
+          RELEASE_ENV: ${{ inputs.environment }}
+        run: python scripts/check_release_runner.py --environment "$RELEASE_ENV"
+      - name: Install checksum-pinned Helm
+        run: |
+          python scripts/install_validation_tools.py --tools helm
+          echo "$GITHUB_WORKSPACE/.maven-cache/tools/pinned" >> "$GITHUB_PATH"
+      - uses: aws-actions/configure-aws-credentials@463133d79af6d001e45482f356e244208e65f0c5
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+          unset-current-credentials: true
+          role-duration-seconds: 3600
+          role-session-name: release-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Execute approved migrate operation
+        env:
+          AWS_RELEASE_APPROVED: explicit-environment-approval
+          RELEASE_ENV: ${{ inputs.environment }}
+          PLAN_SHA256: ${{ needs.preflight.outputs.plan_sha256 }}
+        run: >-
+          python scripts/execute_release.py migrate --directory "$RUNNER_TEMP/prepared-release"
+          --config "infra/release/environments/$RELEASE_ENV.json" --plan-sha256 "$PLAN_SHA256"
+
+  deploy:
+    # Phase 66+ approval must review and deliberately remove this hard hold.
+    if: ${{ false }}
+    needs: [preflight, migrate]
+    runs-on: [self-hosted, linux, x64, ai-platform-private-ephemeral]
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      AWS_EC2_METADATA_DISABLED: 'true'
+      KUBECONFIG: ${{ runner.temp }}/release-kubeconfig
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12.14'
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: prepared-release-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/prepared-release
+      - name: Check protected environment and approved runner
+        env:
+          RELEASE_ENV: ${{ inputs.environment }}
+        run: python scripts/check_release_runner.py --environment "$RELEASE_ENV"
+      - name: Install checksum-pinned Helm
+        run: |
+          python scripts/install_validation_tools.py --tools helm
+          echo "$GITHUB_WORKSPACE/.maven-cache/tools/pinned" >> "$GITHUB_PATH"
+      - uses: aws-actions/configure-aws-credentials@463133d79af6d001e45482f356e244208e65f0c5
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+          unset-current-credentials: true
+          role-duration-seconds: 3600
+          role-session-name: release-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Execute approved deploy operation
+        env:
+          AWS_RELEASE_APPROVED: explicit-environment-approval
+          RELEASE_ENV: ${{ inputs.environment }}
+          PLAN_SHA256: ${{ needs.preflight.outputs.plan_sha256 }}
+          RELEASE_SMOKE_API_KEY: ${{ secrets.RELEASE_SMOKE_API_KEY }}
+        run: >-
+          python scripts/execute_release.py deploy --directory "$RUNNER_TEMP/prepared-release"
+          --config "infra/release/environments/$RELEASE_ENV.json" --plan-sha256 "$PLAN_SHA256"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: release-receipt-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/prepared-release/receipt.json
+          if-no-files-found: error
+          retention-days: 90

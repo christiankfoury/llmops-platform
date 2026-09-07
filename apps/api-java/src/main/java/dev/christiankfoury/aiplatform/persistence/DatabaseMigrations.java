@@ -8,6 +8,27 @@ import org.flywaydb.core.Flyway;
 public final class DatabaseMigrations {
   private DatabaseMigrations() {}
 
+  /** Read-only release check under the same ownership lock; never repair or downgrade history. */
+  public static void verifySchema(Flyway flyway, String expectedVersion) {
+    if (expectedVersion == null || !expectedVersion.matches("[1-9][0-9]*")) {
+      throw new IllegalArgumentException("An explicit numeric schema version is required");
+    }
+    locked(
+        flyway,
+        connection -> {
+          if (!hasTable(connection, schema(flyway, connection), "flyway_schema_history")) {
+            throw new IllegalStateException("Verified Flyway history is required before release");
+          }
+          var current = flyway.info().current();
+          if (current == null
+              || current.getVersion() == null
+              || !expectedVersion.equals(current.getVersion().getVersion())) {
+            throw new IllegalStateException("Database schema is incompatible with this release");
+          }
+          flyway.validate();
+        });
+  }
+
   public static void migrate(Flyway flyway) {
     locked(
         flyway,

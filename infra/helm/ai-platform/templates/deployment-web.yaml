@@ -27,6 +27,8 @@ spec:
         {{- include "ai-platform.labels" . | nindent 8 }}
         app.kubernetes.io/component: web
     spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
       serviceAccountName: {{ include "ai-platform.webServiceAccountName" . }}
       terminationGracePeriodSeconds: {{ .Values.web.lifecycle.terminationGracePeriodSeconds }}
       {{- with .Values.imagePullSecrets }}
@@ -37,7 +39,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: web
-          image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}"
+          image: {{ include "ai-platform.image" (dict "image" .Values.web.image "requireDigest" .Values.release.requireDigests) | quote }}
           imagePullPolicy: {{ .Values.web.image.pullPolicy }}
           ports:
             - name: http

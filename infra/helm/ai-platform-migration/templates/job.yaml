@@ -1,3 +1,4 @@
+{{- if not (has .Values.migration.command (list "migrate" "verify-schema")) }}{{ fail "Only migrate or verify-schema is allowed in release Jobs" }}{{ end }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -15,6 +16,8 @@ spec:
         app.kubernetes.io/name: ai-platform-migration
         app.kubernetes.io/component: migration
     spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
       restartPolicy: Never
       automountServiceAccountToken: false
       {{- with .Values.imagePullSecrets }}
@@ -25,10 +28,12 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: migration
-          image: "{{ .Values.migration.image.repository }}:{{ .Values.migration.image.tag }}"
+          image: {{ include "ai-platform-migration.image" . | quote }}
           imagePullPolicy: {{ .Values.migration.image.pullPolicy }}
-          args: ["java", "-jar", "/app/migration.jar", "migrate"]
+          args: ["java", "-jar", "/app/migration.jar", {{ .Values.migration.command | quote }}]
           env:
+            - name: EXPECTED_SCHEMA_VERSION
+              value: {{ .Values.migration.expectedSchemaVersion | quote }}
             - name: ENVIRONMENT
               value: {{ .Values.api.config.environment | quote }}
             {{- range $environment, $key := .Values.runtimeSecret.keys }}

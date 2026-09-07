@@ -169,13 +169,30 @@ def create_bundle() -> None:
         if len(matches) != 1:
             raise ValueError("Ambiguous packaged chart")
         charts[name] = {"file": "charts/" + matches[0].name, "sha256": sha256(matches[0])}
+    values = {}
+    (output / "values").mkdir(exist_ok=True)
+    for chart in charts:
+        for environment in ("dev", "staging", "prod"):
+            name = f"values/{chart}-{environment}.yaml"
+            (output / name).write_bytes(
+                (ROOT / f"infra/helm/{chart}/values-{environment}.yaml").read_bytes()
+            )
+            values[name] = sha256(output / name)
+    schema = json_bytes((ROOT / "infra/release/schema-compatibility.json").read_bytes())
+    versions = [
+        int(p.name.split("__")[0][1:])
+        for p in (ROOT / "apps/api-java/src/main/resources/db/migration").glob("V*__*.sql")
+    ]
+    if schema["migration_target"] != str(max(versions)):
+        raise ValueError("Schema release contract must match the latest packaged Flyway migration")
     manifest = {
         "schema_version": 1,
         "repository": REPOSITORY,
         "revision": revision,
         "images": records,
         "charts": charts,
-        "schema": json_bytes((ROOT / "infra/release/schema-compatibility.json").read_bytes()),
+        "values": values,
+        "schema": schema,
     }
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     print("Release bundle matches all three tested/scanned runtime configurations")

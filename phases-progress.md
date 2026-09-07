@@ -343,8 +343,9 @@ Implementation plan:
 Implementation notes (in progress):
 
 - Added same-build OCI exports, bounded descriptor/blob/archive validation and identity comparison with the tested/scanned Docker image; package app/migration charts and bind the release manifest into exact-revision eligibility.
-- Added a digest-pinned Skopeo/disposable-registry rehearsal to verify manifest preservation and pulled-image identity without AWS. Compatibility is pending on CI before promotion workflow adoption.
-- Eighteen local eligibility/archive security tests, Ruff and CI policy checks passed. Existing cloud workflows remain held. Design and remaining work: docs/immutable-release-design.md.
+- Added a digest-pinned Skopeo/disposable-registry rehearsal to verify manifest preservation and pulled-image identity without AWS. Compatibility passed on 7aac16a in CI 34149204882 before promotion workflow adoption.
+- Added manual provenance/archive/receipt preflight and hard-held publisher, migration and application jobs; exact ECR digests, separate scoped OIDC roles, controlled schema owner and compatible application rollback. PostgreSQL schema-verification tests pass (3); current release/eligibility/archive tests pass (27). Full updated CI is pending.
+- Helm positive/negative digest renders and fixed Service/pod selector contract passed across three environments. Terraform dev has five passing mocked plans, including publisher/app separation. No AWS resources, deployments, real secrets or environment protection settings changed. Procedure: docs/immutable-release-runbook.md.
 
 ### Phase 1: Project specification and architecture
 
