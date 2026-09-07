@@ -8,6 +8,7 @@ mock AWS authorization does not prove the real AWS IAM service or ALB data plane
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 import json
 import os
 import subprocess
@@ -390,9 +391,10 @@ def main():
             timeout=240,
         )
         created = True
-        gateway = json.loads(run("docker", "network", "inspect", "kind").stdout)[0]["IPAM"][
-            "Config"
-        ][0]["Gateway"]
+        route = run(
+            "docker", "exec", CLUSTER + "-control-plane", "ip", "-4", "route", "show", "default"
+        ).stdout.split()
+        gateway = str(ipaddress.IPv4Address(route[route.index("via") + 1]))
         url = "http://" + gateway + ":" + str(server.server_port)
         apply(
             [
