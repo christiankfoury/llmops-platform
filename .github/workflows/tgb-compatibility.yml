@@ -1,10 +1,21 @@
 name: TargetGroupBinding compatibility
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - scripts/validate_tgb_controller.py
+      - scripts/validate_aws_manifests.py
+      - infra/validation/charts.json
+      - infra/validation/tgb/**
+      - infra/bootstrap/**
+      - infra/terraform/modules/load-balancing/**
+      - .github/workflows/tgb-compatibility.yml
   push:
     branches: [main]
     paths:
       - scripts/validate_tgb_controller.py
+      - scripts/validate_aws_manifests.py
+      - infra/validation/charts.json
       - infra/validation/tgb/**
       - infra/bootstrap/**
       - infra/terraform/modules/load-balancing/**
