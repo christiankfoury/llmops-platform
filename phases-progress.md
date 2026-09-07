@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 58: Java Docker Compose and Helm runtime cutover - In Progress. Phase 57 review and all seven CI jobs passed, including 275 Java tests and packaged private metrics/correlated log checks. Phases 1-47 remain the completed historical baseline.
+Phase 59: AWS infrastructure validation and bootstrap boundaries - In Progress. Phase 58 review and all seven CI jobs passed, including 277 Java tests, fresh TLS Compose/client checks, bounded shutdown and all three image scans. Phases 1-47 remain the completed historical baseline.
 
 ## Phase table
 
@@ -86,8 +86,8 @@ Phase 58: Java Docker Compose and Helm runtime cutover - In Progress. Phase 57 r
 | 55 | Operator authorization and application key lifecycle | Completed | main | 3cdefbf | 2026-09-06 | OIDC/project grants, key lifecycle, protected dashboard and synthetic isolation; 256 Java/19 frontend tests and all CI jobs passed. |
 | 56 | Distributed limits and dependency-aware readiness | Completed |
 | 57 | Java metrics logs and traces | Completed |
-| 58 | Java Docker Compose and Helm runtime cutover | In Progress |
-| 59 | AWS infrastructure validation and bootstrap boundaries | Not Started |
+| 58 | Java Docker Compose and Helm runtime cutover | Completed | main | 287a81e | 2026-09-07 | docs/phase-reviews/phase-58.md |
+| 59 | AWS infrastructure validation and bootstrap boundaries | In Progress |
 | 60 | Java supply chain and CI release eligibility | Not Started |
 | 61 | AWS immutable promotion migrations and rollback | Not Started |
 | 62 | Runnable monitoring stack and supported log collection | Not Started |
@@ -280,7 +280,7 @@ Implementation and validation:
 
 ### Phase 58: Java Docker Compose and Helm runtime cutover
 
-Status: In Progress
+Status: Completed
 
 Implementation plan:
 
@@ -289,6 +289,29 @@ Implementation plan:
 - Update Helm/raw Kubernetes configuration, separate private management access, secret references, server-side dashboard settings, TLS database/Redis wiring, startup probes and termination grace. Keep cloud application and bootstrap deployment gated.
 - Validate Compose configuration locally and build/run the fresh container stack in CI because this workstation's Docker Linux engine is unavailable. Verify gateway, both telemetry clients/replays, dashboard mode/auth boundaries, migrations, probes and container security/writable paths.
 - Run Java checks for startup/TLS changes, relevant frontend image checks, Helm rendering/lint and Kubernetes validation; document migration/cutover/rollback commands, commit/push, review and fix before AWS static infrastructure Phase 59.
+
+Implementation and validation:
+
+- Java API/migration images, Node 24 dashboard, fresh Compose migration/seeding and explicit Python reference are implemented; new local volumes preserve historical data.
+- Hosted JDBC verification, private management service/policy, bounded JVM/probes/shutdown and separate runtime/migration/session secret references are implemented and documented.
+- All 277 Java tests and the exact packaged smoke passed locally and in CI. Strict Helm/Kustomize boundary checks pass for every environment and optional variants.
+- CI run 34087643134 passed all seven jobs on 287a81e1b74c84f927ffef4e307c829cd016d4f9, including actual Linux image builds, fresh PostgreSQL/Redis TLS, gateway/eight client captures/replays, dashboard isolation, negative trust/hostname cases, bounded SIGTERM shutdown and all three image scans.
+- Separate fixes address web OIDC audience wiring (eff07cc), Maven ZIP extraction (38962cc), actual container shutdown validation (9691cad) and the patched Tomcat 11.0.25 dependency (287a81e). No scan was bypassed; pushed review found no remaining top findings.
+- Local Linux Docker remains unavailable; actual container evidence is from CI. No AWS resources, real secrets, identity, public visibility or licensing changed. Historical cloud release/rollback jobs are held until Phase 61 replaces their Python scaffold.
+- Full evidence: docs/phase-reviews/phase-58.md. Next: Phase 59.
+
+### Phase 59: AWS infrastructure validation and bootstrap boundaries
+
+Status: In Progress
+
+Implementation plan:
+
+- Validate each AWS Terraform root with pinned/checksummed tooling, committed provider locks and backend-disabled initialization; add mocked planning checks for dependency ordering and computed resource IDs without AWS calls.
+- Make EKS access mode, supported Linux nodes, required networking/DNS/proxy/storage add-ons and NetworkPolicy enforcement explicit. Review private data-service authentication, environment separation and migration registry/secret prerequisites.
+- Move namespaces, secret stores, controller/bootstrap identities and permissions out of normal app releases. Keep migration-owner credentials outside the app deployer's namespace access where required by the release design.
+- Pin and validate Kubernetes/External Secrets schemas; render/lint/schema-check all Helm and Kustomize environments and bootstrap manifests. Fail on missing schemas instead of ignoring unknown resources.
+- Document state initialization, private EKS runner/DNS/endpoint connectivity, public CA delivery and ordered bootstrap/release responsibilities. Keep cloud apply, resources, real secrets and deployment gated.
+- Run static checks, commit/push, review the pushed change, fix top findings separately and record evidence before Phase 60.
 
 ### Phase 1: Project specification and architecture
 
@@ -3977,15 +4000,6 @@ Post-commit review:
 Next phase:
 
 - None. All phases are completed.
-
-Implementation and validation in progress:
-
-- Java API/migration images, fresh Compose migration/seed ordering, Node 24 web runtime, new local volume and explicit Python reference are implemented.
-- Added verified hosted JDBC transport, isolated private management, bounded JVM/probes/shutdown, read-only mounts, separate Kubernetes runtime/migration/session secret references and optional migration Job.
-- All 277 Java tests passed without skips; the packaged migration/seed/gateway/both-client/operator/body/metrics/log smoke passed. Strict Helm lint and runtime boundary checks pass for every Helm/Kustomize environment, plus optional OIDC/migration and unsafe metrics refusal. Compose configurations and fixture scripts validate.
-- New required CI builds/scans all three images and runs an isolated fresh TLS Compose stack with positive/replay/accounting and negative certificate checks. Linux Docker is unavailable locally; container evidence is pending CI and is not claimed as passed.
-- AWS release/rollback jobs are held during the runtime transition until Phase 61 replaces the historical Python scaffold. No cloud, identity, real secrets, databases, visibility or licensing changed.
-- Pushed review and CI evidence will be recorded in docs/phase-reviews/phase-58.md before advancing.
 
 ## Update template
 

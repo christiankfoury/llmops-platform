@@ -3,7 +3,7 @@
 ### Summary
 - Switched default local and Kubernetes packaging to Java, with a separate Flyway image and explicit local Python reference.
 - Added hosted JDBC TLS enforcement, private management Service/policy, bounded JVM resources and writable paths, and fresh container/TLS CI acceptance.
-- Status: implementation pushed for CI and review; phase completion waits for actual container evidence.
+- Status: completed; pushed implementation/fixes reviewed and all required CI jobs passed.
 
 ### Scope Check
 - In scope: Java image/runtime cutover, migration/seed ordering, data TLS, probes/resources/shutdown, Kubernetes settings/secrets, container and manifest checks.
@@ -22,8 +22,8 @@
 - Command: scripts/validate_java_manifests.py with Helm 3.18.4 and kubectl kustomize.
 - Result: strict lint/render and runtime/network/secret boundary checks pass for base/dev/staging/prod, optional OIDC/migration Job, and refusal of unprotected metrics.
 - Command: Compose config (base/TLS), Ruff checks for three fixture/validation scripts, direct Java 21 probe compilation, workflow/embedded Python parse and wrapper digest validation.
-- Result: passed. Linux Docker engine is unavailable locally; actual image/fresh TLS stack results must come from CI. General Kubernetes/CRD schema validation expands in Phase 59.
-- CI: run 34086916719 built all images and passed the fresh TLS Compose checks, then correctly failed the image vulnerability gate on Tomcat 11.0.24. The 11.0.25 upstream patch is being validated; final successful pushed-run evidence is pending.
+- Result: passed. Linux Docker engine is unavailable locally; actual container evidence is provided by the required Linux CI job. General Kubernetes/CRD schema validation expands in Phase 59.
+- CI: [run 34087643134](https://github.com/christiankfoury/production-ai-platform/actions/runs/34087643134) passed all seven jobs on 287a81e1b74c84f927ffef4e307c829cd016d4f9. Logs confirm 277 tests without skips, packaged smoke, three image builds, actual fresh TLS/client/replay/dashboard/private metrics/negative certificate/SIGTERM checks, and all three vulnerability scans. Deploy Dev was skipped.
 
 ### Security Review
 - Secrets: only placeholders and ignored generated fixture keys; separate runtime, migration-owner and web session references; public trust bundle references.
@@ -44,15 +44,16 @@
 - Dashboards: isolated local fixtures; signed OIDC/project setup required for real data; runnable monitoring remains Phase 62.
 
 ### Risks / Follow-ups
-- Container runtime/TLS acceptance awaits CI; static manifests do not prove a running EKS policy or pod lifecycle.
+- Container runtime/TLS/shutdown acceptance passed in Linux CI; static manifests still do not prove running EKS policies or pod rollout behavior.
 - AWS public trust, runtime/owner roles, identity, SecretStore/bootstrap and paid deployment remain later approved work.
 - Local Redis image is verified Linux amd64; ARM and performance sizing are not claimed.
 - Historical deployment/browser docs retain clearly marked Python context; Java cutover guide is authoritative.
 
 ### Post-Commit Review
 - Pushed commit: 7d9bb448f0fc36ccb17c662abbdcd6c808b6d832.
-- Top findings: Kubernetes web configuration omitted the required OIDC audience; minimal JDK image lacked unzip and caused Maven Wrapper to select a tarball against the pinned ZIP checksum. Both have separate fixes (eff07cc and 38962cc). Review also added an actual PID 1/SIGTERM check to cover the shipped entrypoint, beyond Java lifecycle and static grace-period tests; the image scan then identified the Tomcat patch requirement (CVE-2026-65182, CVE-2026-65905, CVE-2026-68525). A separate dependency fix is being validated; required CI remains pending.
-- Fix commits: separate OIDC audience wiring and Maven archive extraction fixes; final identifiers/CI evidence follow.
+- Top findings: fixed omitted web OIDC audience, missing ZIP extraction support, the container signal validation gap and the Tomcat version reported by image scanning. Final pushed review checked secret/network boundaries, entrypoint/CA behavior, migration ordering, all-environment rendering, exact JAR versions and CI evidence; no top findings remain.
+- Fix commits: eff07cc (OIDC audience), 38962cc (Maven ZIP extraction), 9691cad (SIGTERM acceptance), 287a81e (Tomcat 11.0.25). The scan gates remained enabled throughout.
+
 
 ### Next Phase
-- Phase 59: AWS infrastructure validation and bootstrap boundaries, after Phase 58 checks/review pass.
+- Phase 59: AWS infrastructure validation and bootstrap boundaries, Phase 58 checks/review passed.
