@@ -1,0 +1,291 @@
+{
+  "phase": 62,
+  "status": "blocked-validation",
+  "collected_at": "2026-09-07T19:33:48.991238+00:00",
+  "scanner": "Trivy 0.70.0",
+  "policy": "HIGH,CRITICAL; ignore-unfixed; vuln,secret; exit-code 1",
+  "scanner_exception_active": false,
+  "local_runtime": {
+    "kind": "local-synthetic-monitoring",
+    "project": "ai-platform-monitoring-test-ba2b9fab1da1",
+    "aws_calls": 0,
+    "image_configs": {
+      "api": "sha256:555129b30d94dbcc3dfe2d6abf6a47dea7c3cf21628af284d553834f74b1b442",
+      "prometheus": "sha256:31c1e0aacb3a1914563c4e9b1e8d0a55095bf433aa43c1b0fe695959742845bd",
+      "alertmanager": "sha256:c4e1c067b29efd75f31a9cc1efe0d7eb501251251ec166396a51f5389b935d94",
+      "grafana": "sha256:8400f365c39767b0d0df30e3aeb0796f873c3acf89b28089745bfafd88d83c7c",
+      "loki": "sha256:a52a3f3d29ceb505474cb493a7d61f7d810ac666ecd98dff41c676299f5bf684",
+      "tempo": "sha256:d67333d74119080feb83eadcd9be506dda2fb1172e4b499ec10e44a6368ec1ed",
+      "otel-collector": "sha256:5f92255513d9fcfe89bedd02c1a244717bcde223827465031744d5ffdd8f0b2d",
+      "alloy": "sha256:c740ac942015564dcfa657af569f93d895cb7570f1af0b94e16cd2277c23b891",
+      "postgres-exporter": "sha256:1dcb30ec16e2379751c9101006ac4e7b13ddfb5ec494bac3845a99bcad0aa141",
+      "redis-exporter": "sha256:52fb4a85bfb765a17f6ec3e008b78a7b2bbed12e59a5647ba379c1e7f60646d9",
+      "alert-sink": "sha256:28eb0cb65acb65b970e85c0dc57d10067868fae8dd00d072413df273132123ac"
+    },
+    "application_series": 44,
+    "correlation": {
+      "request_id": "monitor-ddf88a4fb9f74daebc5207eb6222d399",
+      "trace_id": "8ec5275b73c47120c8d93bf0954e54eb"
+    },
+    "loki_streams": [
+      {
+        "environment": "local",
+        "service_name": "api",
+        "component": "api"
+      }
+    ],
+    "dashboards": [
+      {
+        "uid": "ai-platform-cost",
+        "populated_queries": 7
+      },
+      {
+        "uid": "ai-platform-logs",
+        "populated_queries": 7
+      },
+      {
+        "uid": "ai-platform-overview",
+        "populated_queries": 7
+      },
+      {
+        "uid": "ai-platform-reliability",
+        "populated_queries": 8
+      }
+    ],
+    "alert_events": [
+      {
+        "status": "firing",
+        "alerts": [
+          "LocalJavaMissing"
+        ]
+      },
+      {
+        "status": "resolved",
+        "alerts": [
+          "LocalJavaMissing"
+        ]
+      },
+      {
+        "status": "firing",
+        "alerts": [
+          "LocalJavaNotReady"
+        ]
+      },
+      {
+        "status": "resolved",
+        "alerts": [
+          "LocalJavaNotReady"
+        ]
+      }
+    ],
+    "status": "passed"
+  },
+  "images": [
+    {
+      "name": "prometheus",
+      "image": "prom/prometheus:v3.14.0@sha256:5ce7540c3c00ef4ab0c9d2c995c6a5b9c421f44b4a115d97a2c7af3b1c21cbb0",
+      "audit_sha256": "a758bff937e123e35070f542fcfe709b79a7f8db66d38f443085d39b351b781e",
+      "high": 2,
+      "critical": 2,
+      "secret_findings": 0,
+      "vulnerability_ids": [
+        "CVE-2026-56854",
+        "CVE-2026-84304"
+      ],
+      "eligible": false
+    },
+    {
+      "name": "alertmanager",
+      "image": "prom/alertmanager:v0.34.0@sha256:690c7b525f4367aa91f73e2f91c632206d32e97c6384bdbf2fb7a861b420340d",
+      "audit_sha256": "a09d3cc01f32748bfe3601f67ab0150109ed3c6e40608f6701430fbaf5b79b41",
+      "high": 4,
+      "critical": 2,
+      "secret_findings": 0,
+      "vulnerability_ids": [
+        "CVE-2026-56854",
+        "CVE-2026-56864",
+        "CVE-2026-56865",
+        "CVE-2026-84304"
+      ],
+      "eligible": false
+    },
+    {
+      "name": "grafana",
+      "image": "grafana/grafana:13.2.1@sha256:f772d434e8fab0049deb2b1b30abd43342bcfca1537614aa8d36080232cf4283",
+      "audit_sha256": "bc274a1a5ef95ee0d5188bd783752b7a0fa8a169cfb075102c3de773729355a1",
+      "high": 159,
+      "critical": 3,
+      "secret_findings": 0,
+      "vulnerability_ids": [
+        "CVE-2026-14456",
+        "CVE-2026-21728",
+        "CVE-2026-25679",
+        "CVE-2026-25681",
+        "CVE-2026-27136",
+        "CVE-2026-27145",
+        "CVE-2026-28377",
+        "CVE-2026-29181",
+        "CVE-2026-32280",
+        "CVE-2026-32281",
+        "CVE-2026-32283",
+        "CVE-2026-33811",
+        "CVE-2026-33814",
+        "CVE-2026-33818",
+        "CVE-2026-39820",
+        "CVE-2026-39821",
+        "CVE-2026-39822",
+        "CVE-2026-39836",
+        "CVE-2026-39883",
+        "CVE-2026-42499",
+        "CVE-2026-42504",
+        "CVE-2026-43871",
+        "CVE-2026-46600",
+        "CVE-2026-56852",
+        "CVE-2026-56853",
+        "CVE-2026-56854",
+        "CVE-2026-56858",
+        "CVE-2026-56859",
+        "CVE-2026-56860",
+        "CVE-2026-56862",
+        "CVE-2026-84304",
+        "GHSA-hrxh-6v49-42gf"
+      ],
+      "eligible": false
+    },
+    {
+      "name": "loki",
+      "image": "grafana/loki:3.7.7@sha256:d70e4659623f3e109af669cae76fe2a5dd5be54e2298fe8aed380d982fbc2500",
+      "audit_sha256": "eb50d69155eea4ce9606eaddaaee42489c1508853de180978a68661503e3ae99",
+      "high": 9,
+      "critical": 0,
+      "secret_findings": 0,
+      "vulnerability_ids": [
+        "CVE-2026-33818",
+        "CVE-2026-39821",
+        "CVE-2026-46600",
+        "CVE-2026-56853",
+        "CVE-2026-56858",
+        "CVE-2026-56859",
+        "CVE-2026-56860",
+        "CVE-2026-56862",
+        "CVE-2026-84304"
+      ],
+      "eligible": false
+    },
+    {
+      "name": "alloy",
+      "image": "grafana/alloy:v1.19.2@sha256:b8ec653c44235fbe910879145dac3597d66b0aaecf60bcbbe82580767771a839",
+      "audit_sha256": "0d309857576514ecdb31ff20748d032ae9908107432d2f45a40f1e3afdb143e1",
+      "high": 1,
+      "critical": 0,
+      "secret_findings": 0,
+      "vulnerability_ids": [
+        "CVE-2026-84304"
+      ],
+      "eligible": false
+    },
+    {
+      "name": "tempo",
+      "image": "grafana/tempo:3.0.3@sha256:0296560ac66f8a3600d7fb3014a52c189d4d9c3549ad6ff441bf2409855d68d5",
+      "audit_sha256": "ff4ac687582747158f4b0b3535226e14c71116be49915347ff1126760456c84b",
+      "high": 10,
+      "critical": 1,
+      "secret_findings": 0,
+      "vulnerability_ids": [
+        "CVE-2026-33818",
+        "CVE-2026-39821",
+        "CVE-2026-43871",
+        "CVE-2026-46600",
+        "CVE-2026-56853",
+        "CVE-2026-56854",
+        "CVE-2026-56858",
+        "CVE-2026-56859",
+        "CVE-2026-56860",
+        "CVE-2026-56862",
+        "CVE-2026-84304"
+      ],
+      "eligible": false
+    },
+    {
+      "name": "otel-collector",
+      "image": "otel/opentelemetry-collector-contrib:0.160.0@sha256:799dc6cf12c96192af37b5bdba804da8c10b3bc563b43cb90c3f3c58d9572ad6",
+      "audit_sha256": "489588f8daea400a5dee2fe891a91eaa798d754459e83f1b0db10f00abf465b2",
+      "high": 1,
+      "critical": 0,
+      "secret_findings": 0,
+      "vulnerability_ids": [
+        "CVE-2026-79921"
+      ],
+      "eligible": false
+    },
+    {
+      "name": "postgres-exporter",
+      "image": "quay.io/prometheuscommunity/postgres-exporter:v0.20.1@sha256:ac5ec343104fae0e2d84a27bb8d69b38430a11910c5382cad85d478d2bab713e",
+      "audit_sha256": "a388c07513be95b89f467509f88576beaa553ddce7a567123eb0f488dab6994e",
+      "high": 11,
+      "critical": 1,
+      "secret_findings": 0,
+      "vulnerability_ids": [
+        "CVE-2026-33818",
+        "CVE-2026-39821",
+        "CVE-2026-39822",
+        "CVE-2026-46600",
+        "CVE-2026-56852",
+        "CVE-2026-56853",
+        "CVE-2026-56854",
+        "CVE-2026-56858",
+        "CVE-2026-56859",
+        "CVE-2026-56860",
+        "CVE-2026-56862"
+      ],
+      "eligible": false
+    },
+    {
+      "name": "redis-exporter",
+      "image": "oliver006/redis_exporter:v1.91.0@sha256:b01dcb400d6a0c14513fc0f7af26908f2d6b6aca1e47debdb9d303f92c37963d",
+      "audit_sha256": "4ec8c88692841d606793520d1732aaacaf449cb497685e19d7bd1a65981915e9",
+      "high": 0,
+      "critical": 0,
+      "secret_findings": 0,
+      "vulnerability_ids": [],
+      "eligible": true
+    },
+    {
+      "name": "kube-state-metrics",
+      "image": "registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0@sha256:42cfe3723a5f058171c627537fb57a3ea0f26e4380fa18555a95cb1a1b4cfc5b",
+      "audit_sha256": "ccaa33dda486917414f2fa37e081f2f61f3515f8948a56aa7778198ee0168060",
+      "high": 2,
+      "critical": 1,
+      "secret_findings": 0,
+      "vulnerability_ids": [
+        "CVE-2026-56854",
+        "CVE-2026-84304",
+        "GHSA-hrxh-6v49-42gf"
+      ],
+      "eligible": false
+    },
+    {
+      "name": "alert-sink",
+      "image": "python:3.12.14-alpine@sha256:b64631e04e4920160c50fbe8d8df828f7f35f06f425cb44aa09bca53e708a35a",
+      "audit_sha256": "719f6a472b6706e53e84d6fd5b4a08e534ad4c386e1ffb0f6a7c222bf32efd98",
+      "high": 7,
+      "critical": 0,
+      "secret_findings": 0,
+      "vulnerability_ids": [
+        "CVE-2026-53612",
+        "CVE-2026-53613",
+        "CVE-2026-53614",
+        "CVE-2026-76642",
+        "CVE-2026-78408",
+        "CVE-2026-78409",
+        "CVE-2026-78410"
+      ],
+      "eligible": false
+    }
+  ],
+  "rejected_backport": {
+    "image": "prom/prometheus:v3.13.3@sha256:6976aa8a60fec930796ce5772b8d12da7a318a5daa8d40d69c5c7819a05eeed7",
+    "audit_sha256": "6db30820ca4f673ec006522eac2011de2b5a6aef69eb183896c50d45bcc59898",
+    "reason": "CVE-2026-84304 remains in bundled grpc v1.82.1; fixed version 1.83.1"
+  }
+}

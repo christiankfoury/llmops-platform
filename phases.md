@@ -1462,6 +1462,7 @@ Relevant files:
 Acceptance criteria:
 
 - Synthetic Java traffic produces non-empty dashboards, searchable logs/traces, and a fired/resolved local alert. Replace EOL Promtail, verify bounded cardinality and retention, provision durable storage appropriately, and protect monitoring access. Cloud installation remains gated.
+- Audit every pinned monitoring image against the existing high/critical vulnerability and secret policy before adoption. A successful runtime rehearsal or clean manifest scan cannot substitute for image eligibility. Record unresolved upstream image findings as a phase blocker; do not silently add exceptions or adopt unverified dependency overrides.
 - Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
 
 ## Phase 63: Local resilience recovery and cost rehearsal

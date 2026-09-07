@@ -18,6 +18,8 @@ Codex must update this file at the end of every phase.
 
 Phase 62: Runnable monitoring stack and supported log collection - In Progress. Phase 61 passed all eleven CI gates and real immutable-artifact preflight on 35719e2, with every cloud job held. Phase 59 removed Ingress writes using the validated Terraform-owned load balancing and restricted TargetGroupBinding design; the scanner exception remains inactive. Phases 1-47 remain historical evidence; AWS execution and production/secrets/DNS changes retain explicit approval gates.
 
+Current stop condition (2026-09-07): ten of eleven proposed upstream monitoring images fail the high/critical vulnerability gate. The local synthetic runtime rehearsal passed, but Phase 62 implementation remains uncommitted and not release-eligible. See docs/phase-reviews/phase-62.md and its evidence record. Phase 63 has not started.
+
 ## Phase table
 
 | Phase | Title | Status | Pushed To | Commit | Completed Date | Notes |
@@ -354,7 +356,20 @@ Implementation and validation:
 
 Status: In Progress
 
-Implementation plan: pending the phase-start repository and monitoring inventory review. Cloud monitoring installation remains approval-gated.
+Implementation plan:
+
+- Replace the Promtail scaffold with pinned Alloy collection of the Java allowlisted JSON logs, avoiding Docker socket and host-log access; keep request/trace IDs out of stream labels.
+- Add an isolated Compose monitoring profile with Prometheus, Grafana, Loki, Alloy, OpenTelemetry Collector, Tempo, database/cache exporters and Alertmanager; provision existing dashboards and bounded storage/retention.
+- Codify the EKS monitoring bootstrap package with private access, secret references, minimal discovery permissions, workload limits/probes/network policies and explicit durable-storage choices; normal app releases never bootstrap monitoring infrastructure.
+- Exercise actual Java synthetic traffic, dashboard data queries, searchable correlated logs/traces and fired/resolved local alerts in disposable Linux CI; validate configs, schemas, security and negative access/redaction/cardinality boundaries.
+- Record measured local evidence separately from AWS, update docs, commit/push and review/fix before Phase 63. Cloud monitoring installation remains approval-gated.
+
+Validation hold and handoff:
+
+- Built new local Java API/migration images and passed a disposable monitoring rehearsal: all four dashboards populated; 44 application series; bounded stream labels; searchable correlated Java logs/traces with content/key sentinels absent; unauthorized metrics/Grafana access rejected; Redis outage fired and resolved a local alert while liveness stayed healthy.
+- Pinned binary configuration checks passed. The proposed private dev bootstrap has 56 schema-valid resources, zero skips, four passing security-boundary tests and no high/critical manifest findings. Existing Java/release/AWS/TGB policy validators also pass on the working tree. Actual EKS transport, storage and credential behavior remains untested and gated.
+- Ten of eleven image audits failed; Redis exporter passed, no secrets were found. Today's Prometheus 3.13.3 security backport still fails on bundled gRPC and was not adopted. No complete supported upstream image set passing the gate was found; dependency overrides and exceptions were not introduced.
+- Phase 62 code/configuration remains local and uncommitted. This documentation records the failed validation honestly; it does not finish the phase or authorize deployment. Resume by resolving image eligibility, finishing remaining package checks, wiring required CI, and completing the commit/push/review loop. Full review and sanitized evidence: docs/phase-reviews/phase-62.md.
 
 ### Phase 1: Project specification and architecture
 
