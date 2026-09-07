@@ -16,10 +16,10 @@ permissions:
 jobs:
   java:
     name: Java build and contract foundation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       postgres:
-        image: postgres:16.15-alpine
+        image: postgres:16.15-alpine@sha256:cf78e76683b9ca8c5733cbbdce6c9262b45b6767934dd0a95e671f9a0fc20685
         env:
           POSTGRES_DB: ai_platform
           POSTGRES_USER: ai_platform
@@ -53,21 +53,42 @@ jobs:
         working-directory: apps/api-java
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Verify committed Maven Wrapper integrity
         run: sha256sum --check .mvn/wrapper/SHA256SUMS
 
       - name: Set up Java 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "21.0.12.1+1"
           cache: maven
           cache-dependency-path: apps/api-java/pom.xml
 
       - name: Verify Java build, formatting, and HTTP boundaries
         run: ./mvnw --batch-mode --no-transfer-progress --strict-checksums clean verify
+
+      - name: Verify non-skipped integration reports and resolved Java SBOM
+        working-directory: .
+        run: python3 scripts/validate_supply_chain.py java
+
+      - name: Audit resolved Java dependencies
+        working-directory: .
+        run: |
+          python3 scripts/install_validation_tools.py --tools trivy
+          .maven-cache/tools/pinned/trivy sbom --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed --format json --output .maven-cache/supply-chain/java/audit.json .maven-cache/supply-chain/java/bom.json
+
+      - name: Retain Java supply-chain evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: java-supply-chain-${{ github.run_attempt }}
+          path: .maven-cache/supply-chain/java
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Smoke-test the packaged Java service
         run: |
@@ -254,12 +275,12 @@ jobs:
   # migrate a fresh PostgreSQL database, and pass its test suite.
   backend:
     name: Backend lint and tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       # GitHub Actions service container used only for this job.
       # The app connects through localhost:55432 from the runner.
       postgres:
-        image: postgres:16-alpine
+        image: postgres:16.15-alpine@sha256:cf78e76683b9ca8c5733cbbdce6c9262b45b6767934dd0a95e671f9a0fc20685
         env:
           POSTGRES_DB: ai_platform
           POSTGRES_USER: ai_platform
@@ -280,12 +301,14 @@ jobs:
       REQUIRE_DATABASE_TESTS: "true"
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
-          python-version: "3.12"
+          python-version: "3.12.14"
           cache: pip
           cache-dependency-path: apps/api/requirements.txt
 
@@ -317,16 +340,18 @@ jobs:
   # would before shipping: lint, TypeScript, tests, then dependency audit.
   frontend:
     name: Frontend lint, typecheck, tests, and audit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: apps/web
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: "24.20.0"
           cache: npm
@@ -352,16 +377,20 @@ jobs:
   # This catches Dockerfile/runtime issues before Kubernetes or Helm ever see them.
   docker:
     name: Production image build and scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
+        with:
+          version: v0.37.0
 
       - name: Build API image
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
         with:
           context: .
           file: apps/api-java/Dockerfile
@@ -373,7 +402,7 @@ jobs:
             production-ai-platform-api:local
 
       - name: Build migration image
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
         with:
           context: .
           file: apps/api-java/Dockerfile
@@ -385,7 +414,7 @@ jobs:
             production-ai-platform-migration:local
 
       - name: Build web image
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
         with:
           context: apps/web
           file: apps/web/Dockerfile
@@ -398,48 +427,42 @@ jobs:
       - name: Fresh Java Compose stack and verified data TLS
         run: python3 scripts/validate_java_container_stack.py
 
-      - name: Scan migration image
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: production-ai-platform-migration:ci
-          format: table
-          exit-code: "1"
-          ignore-unfixed: true
-          severity: HIGH,CRITICAL
+      - name: Scan runtime images and generate SBOMs
+        run: |
+          set -euo pipefail
+          python3 scripts/install_validation_tools.py --tools trivy
+          export PATH="$GITHUB_WORKSPACE/.maven-cache/tools/pinned:$PATH"
+          mkdir -p .maven-cache/supply-chain/images
+          for image in api migration web; do
+            trivy image --format cyclonedx --output ".maven-cache/supply-chain/images/$image.cdx.json" "production-ai-platform-$image:ci"
+            trivy image --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed --scanners vuln --format json --output ".maven-cache/supply-chain/images/$image-audit.json" "production-ai-platform-$image:ci"
+          done
+          python3 scripts/validate_supply_chain.py images
 
-      # Trivy fails the job on high/critical vulnerabilities in the built image.
-      - name: Scan API image
-        uses: aquasecurity/trivy-action@v0.36.0
+      - name: Retain runtime image supply-chain evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          image-ref: production-ai-platform-api:ci
-          format: table
-          exit-code: "1"
-          ignore-unfixed: true
-          severity: HIGH,CRITICAL
-
-      # Scan the web image separately so backend and frontend image risk is visible.
-      - name: Scan web image
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: production-ai-platform-web:ci
-          format: table
-          exit-code: "1"
-          ignore-unfixed: true
-          severity: HIGH,CRITICAL
+          name: image-supply-chain-${{ github.run_attempt }}
+          path: .maven-cache/supply-chain/images
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
 
   # Python dependency audit focuses on the production requirements file.
   # This is intentionally separate from tests so dependency risk is explicit.
   dependency-scan:
     name: Python dependency scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
-          python-version: "3.12"
+          python-version: "3.12.14"
 
       - name: Install pip-audit
         run: python -m pip install pip-audit==2.9.0
@@ -452,38 +475,38 @@ jobs:
   # and filesystem vulnerabilities can fail this job.
   repository-scan:
     name: Repository vulnerability scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
-
-      - name: Scan repository dependencies and config
-        uses: aquasecurity/trivy-action@v0.36.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          scan-type: fs
-          scan-ref: .
-          scanners: vuln,config,secret
-          format: table
-          exit-code: "1"
-          ignore-unfixed: true
-          severity: HIGH,CRITICAL
+          persist-credentials: false
+
+      - name: Scan repository dependencies, config and secrets
+        run: |
+          python3 scripts/install_validation_tools.py --tools trivy
+          mkdir -p "$RUNNER_TEMP/source-scan"
+          git archive HEAD | tar -x -C "$RUNNER_TEMP/source-scan"
+          .maven-cache/tools/pinned/trivy fs --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed --scanners vuln,misconfig,secret "$RUNNER_TEMP/source-scan"
 
   # No AWS credentials, backend initialization, real plans, apply or cluster mutation.
   infrastructure:
     name: Infrastructure static checks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
-          python-version: "3.12"
+          python-version: "3.12.14"
 
       - name: Install checksum-pinned Terraform, Helm and kubeconform
         run: |
-          python scripts/install_validation_tools.py
+          python scripts/install_validation_tools.py --tools terraform helm kubeconform trivy
           echo "$GITHUB_WORKSPACE/.maven-cache/tools/pinned" >> "$GITHUB_PATH"
           python -m pip install PyYAML==6.0.3
 
@@ -510,10 +533,90 @@ jobs:
 
       # Scan the exact reviewed controller/bootstrap configuration, not unused archive defaults.
       - name: Scan rendered deployment configuration
-        uses: aquasecurity/trivy-action@v0.36.0
+        run: trivy config --exit-code 1 --severity HIGH,CRITICAL .maven-cache/aws-manifest-validation/rendered
+
+  tgb:
+    uses: ./.github/workflows/tgb-compatibility.yml
+    permissions:
+      contents: read
+
+  history-secrets:
+    name: Full-history secret review
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          scan-type: config
-          scan-ref: .maven-cache/aws-manifest-validation/rendered
-          format: table
-          exit-code: "1"
-          severity: HIGH,CRITICAL
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Scan every fetched commit with redacted findings
+        run: |
+          python3 scripts/install_validation_tools.py --tools gitleaks
+          python3 scripts/validate_supply_chain.py history --gitleaks .maven-cache/tools/pinned/gitleaks
+      - name: Retain redacted history evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: history-secret-evidence-${{ github.run_attempt }}
+          path: .maven-cache/supply-chain/history/*.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+
+  ci-policy:
+    name: CI policy and eligibility tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12.14"
+      - run: python -m pip install PyYAML==6.0.3 ruff==0.15.20
+      - name: Enforce CI boundaries and test rejected evidence
+        run: |
+          python scripts/validate_ci_policy.py
+          python -m unittest discover -s scripts/tests -p 'test_supply_chain.py' -v
+          python -m ruff check scripts/validate_supply_chain.py scripts/release_eligibility.py scripts/validate_ci_policy.py scripts/tests/test_supply_chain.py scripts/install_validation_tools.py
+          python -m ruff format --check scripts/validate_supply_chain.py scripts/release_eligibility.py scripts/validate_ci_policy.py scripts/tests/test_supply_chain.py scripts/install_validation_tools.py
+
+  release-eligibility:
+    name: Release eligibility
+    needs: [java, backend, frontend, docker, dependency-scan, repository-scan, infrastructure, tgb, history-secrets, ci-policy]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Require every validation job to pass
+        env:
+          CI_NEEDS_JSON: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from scripts.release_eligibility import REQUIRED
+          jobs = json.loads(os.environ['CI_NEEDS_JSON'])
+          if set(jobs) != set(REQUIRED) or any(j['result'] != 'success' for j in jobs.values()):
+              raise SystemExit('Missing, failed, cancelled or skipped checks prevent eligibility')
+          PY
+      - name: Collect supply-chain evidence from this run
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/production-ai-platform'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: '*-supply-chain-${{ github.run_attempt }}'
+          path: .maven-cache/eligibility-inputs
+      - name: Create exact-revision candidate evidence
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/production-ai-platform'
+        env:
+          CI_NEEDS_JSON: ${{ toJSON(needs) }}
+        run: python3 scripts/release_eligibility.py candidate --inputs .maven-cache/eligibility-inputs --output .maven-cache/release/eligibility.json
+      - name: Retain candidate for completed-run verification
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/production-ai-platform'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: release-eligibility-${{ github.sha }}-${{ github.run_attempt }}
+          path: .maven-cache/release/eligibility.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14

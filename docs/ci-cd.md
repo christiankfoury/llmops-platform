@@ -1,459 +1,66 @@
 # CI/CD
 
-This document explains the GitHub Actions workflows in this repository, starting with the main CI workflow:
+The active CI builds the Java API and migration command, tests PostgreSQL/Redis integration and the dashboard, audits resolved dependencies and runtime images, and validates AWS configuration without cloud credentials. Deployment and rollback remain held until Phase 61 replaces the historical workflows; passing CI does not approve deployment.
 
-```text
-.github/workflows/ci.yml
+## Required checks
+
+Every main push and pull request runs the same checks on disposable Ubuntu 24.04 runners:
+
+| Check | Required evidence |
+|---|---|
+| Java | Maven strict checksums, Enforcer/compiler/Spotless, unit/HTTP/contract tests, real PostgreSQL and Redis suites, zero skipped/empty/failing reports, packaged-service smoke |
+| Java dependencies | CycloneDX 2.9.3 resolves direct/transitive dependencies including test scope; required core packages and versioned identifiers must exist; Trivy audits that SBOM |
+| Frontend | Locked npm install, lint, TypeScript, component tests and high/critical npm audit |
+| Python reference | Retained lint/format, frozen contract comparison, PostgreSQL migration/tests and strict dependency audit; Python is not a deployment image |
+| Runtime images | Build Java API, isolated migration and web images; fresh Compose/TLS/client replay/shutdown tests; three image vulnerability scans and three verified CycloneDX SBOMs |
+| Infrastructure | Checksum-pinned tools, readonly provider locks, every Terraform root and mock plan, strict Helm/Kustomize/CRD schemas and rendered configuration scan |
+| Controller | Actual pinned v3.5.0 controller with bootstrap templates, real Kubernetes RBAC/admission/readiness/lifecycle and rejected unauthorized operations; local fake AWS endpoints only |
+| Repository/history | Dependency/config/secret scan and full fetched Git-history scan with fully redacted findings |
+| CI policy | Immutable action pins, read-only identity, mandatory dependencies, cloud holds and positive/negative eligibility tests |
+
+Trivy retains the existing policy: block fixable HIGH/CRITICAL dependency/image vulnerabilities (`--ignore-unfixed`); configuration checks block HIGH/CRITICAL findings without that filter. Unfixed or lower-severity advisories are not a clean bill of health. Advisory databases are refreshed by the pinned scanner; a failed download or scanner failure fails CI. npm audit blocks high/critical advisories; pip-audit remains strict. No KSV-0056 exception is active.
+
+The [CycloneDX Maven plugin](https://cyclonedx.github.io/cyclonedx-maven-plugin/) supplies the resolved Java inventory. [Trivy's SBOM support](https://trivy.dev/docs/latest/target/sbom/) audits it; image SBOMs describe packaged runtime dependencies separately. Java test dependencies are intentionally included in its build inventory. Required PostgreSQL/Redis report names and zero-skip checks prevent a superficially green build from omitting database coverage.
+
+## Pins and trust boundary
+
+`infra/validation/ci-actions.json` records upstream action tag resolutions to full commit SHAs. Active CI and its reusable controller workflow use those SHAs. `toolchain.json` records archive SHA-256 checksums for Terraform, Helm, kubeconform, Trivy 0.70.0 and Gitleaks 8.30.1. The installer extracts only the named binary after verifying the archive. The Maven Wrapper and production image bases are already checksum/digest pinned; test services, Java/Python/Node versions and Buildx are explicitly versioned. Ubuntu runner images, compiler distribution delivery and upstream package repositories remain external trust dependencies and receive security updates.
+
+CI has only `contents: read`, never requests OIDC tokens or deployment environments, and does not persist checkout credentials. It uses `pull_request`, never `pull_request_target` or privileged `workflow_run` code execution. Fork code runs in isolated hosted jobs without deployment secrets. Repository administrators and changes to the workflow/pin policy remain trusted; static policy tests do not replace branch protection and human review. GitHub recommends [full-length action commit pins and least-privilege permissions](https://docs.github.com/en/actions/reference/security/secure-use).
+
+## History findings
+
+Gitleaks runs its unmodified default rules across `git log --all` after a full-history checkout. The command explicitly ignores inline allow comments and uses an empty ignore list. Raw findings remain in a 100%-redacted report; scanner errors or disagreement between exit status and report fail the job.
+
+The initial scan of 171 commits found ten matches: nine documented local placeholder seed keys in historical curl examples and one unsigned `alg=none` JWT used to assert HTTP 401. Each was checked against its historical source. `history-synthetic-findings.json` records only those exact commit/path/rule/line fingerprints, the SHA-256 of the matched source lines and the review reason. No whole path, rule, commit or token pattern is excluded from detection. New matches or changed source fail review, including newly introduced copies of a fixture. The raw scan is accurately reported as ten reviewed synthetic findings, not zero detections. No credential rotation or history rewrite was needed.
+
+This review is separate from the inactive Trivy controller-permission proposal, which remains untouched. Future unknown findings require review before eligibility; actual secrets require the existing owner/rotation approval gates, never plaintext reports or a suppression to get a green build. [Gitleaks documentation](https://github.com/gitleaks/gitleaks/tree/v8.30.1) describes its history scanning and redaction controls.
+
+## Exact-revision eligibility
+
+The `Release eligibility` job runs even when a dependency fails and requires every declared check to finish successfully. Pull requests receive this aggregate pass/fail check but never a release candidate artifact. Only a push to this repository's `main` can record a candidate with repository, full SHA, workflow path, run ID/attempt, required checks and hashes of the Java/image SBOM and audit evidence.
+
+Artifact names include the attempt. Rerun **all jobs** for a new attempt: a partial rerun cannot borrow successful jobs or SBOMs from an earlier attempt. Evidence expires after 14 days; expired or missing evidence is ineligible and needs a fresh full CI run. Artifacts alone are insufficient: the final job cannot know its own eventual workflow conclusion.
+
+After the run completes, verify it read-only:
+
+```powershell
+python scripts/release_eligibility.py verify --sha <full-40-character-commit> --run-id <CI-run-id>
 ```
 
-The short version:
+The verifier uses authenticated `gh api` reads, checks the exact successful completed main-push run in this repository and workflow, paginates every current-attempt job, and rejects missing/duplicate/unexpected/failed/skipped jobs, other SHAs, forks, other workflows, stale attempts, incomplete evidence and expired/ambiguous artifacts. It rereads run state to detect a rerun during verification. It does not grant AWS access, publish images or deploy anything.
 
-```text
-git push / pull request
-  -> GitHub Actions starts temporary Ubuntu runners
-  -> backend, frontend, image, dependency, repository, and infrastructure checks run
-  -> CI passes or fails before deployment workflows should be trusted
+This phase establishes **source revision eligibility**, not a registry image digest or deployable release. Phase 61 must bind the verified revision to immutable built/scanned image artifacts, verify their bytes/digests, and preserve the protected environment, migration-owner and infrastructure approval gates. Rebuilding a tag is not evidence that it is the scanned image.
+
+## Local validation and limits
+
+```powershell
+python scripts/validate_ci_policy.py
+python -m unittest discover -s scripts/tests -p test_supply_chain.py -v
+python scripts/install_validation_tools.py --tools gitleaks
+python scripts/validate_supply_chain.py history --gitleaks .maven-cache/tools/pinned/gitleaks.exe
 ```
 
-CI runs on **GitHub-hosted machines**, not on the local developer machine. **Local Docker Compose** is for running the application locally; **GitHub Actions** is for proving that committed code builds, tests, and scans cleanly in a fresh environment.
+Maven `clean verify` requires an available real Redis test endpoint and starts isolated PostgreSQL test instances; CI additionally supplies PostgreSQL for the packaged smoke. Missing services fail, not skip. The current Windows workstation cannot run the Linux Docker engine; hosted CI supplies the required real container and Kubernetes evidence. Trivy's reviewed package is currently Linux amd64; the history scanner supports Windows amd64 too.
 
-## Useful Links
-
-GitHub Actions:
-
-- [GitHub Actions documentation](https://docs.github.com/en/actions)
-- [GitHub-hosted runners](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners)
-- [Service containers](https://docs.github.com/en/actions/use-cases-and-examples/using-containerized-services/about-service-containers)
-- [Workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
-
-Actions used by this repository:
-
-- [actions/checkout](https://github.com/actions/checkout)
-- [actions/setup-python](https://github.com/actions/setup-python)
-- [actions/setup-node](https://github.com/actions/setup-node)
-- [docker/setup-buildx-action](https://github.com/docker/setup-buildx-action)
-- [docker/build-push-action](https://github.com/docker/build-push-action)
-- [Build and push Docker images marketplace page](https://github.com/marketplace/actions/build-and-push-docker-images)
-- [aquasecurity/trivy-action](https://github.com/aquasecurity/trivy-action)
-- [hashicorp/setup-terraform](https://github.com/hashicorp/setup-terraform)
-
-Tools run inside CI:
-
-- [Ruff](https://docs.astral.sh/ruff/)
-- [pytest](https://docs.pytest.org/)
-- [Alembic](https://alembic.sqlalchemy.org/)
-- [npm audit](https://docs.npmjs.com/cli/commands/npm-audit)
-- [pip-audit](https://github.com/pypa/pip-audit)
-- [Trivy](https://trivy.dev/)
-- [Helm](https://helm.sh/docs/)
-- [Terraform](https://developer.hashicorp.com/terraform/docs)
-
-## CI Versus Local Development
-
-Local development:
-
-```text
-docker compose up --build
-```
-
-This starts the **API**, **web app**, **PostgreSQL**, and **Redis** on the developer machine.
-
-CI:
-
-```text
-GitHub Actions runner
-```
-
-This checks out the repository into a **clean temporary machine** and runs validation commands. It does not use the local Docker Compose stack and does not use local files that were not committed.
-
-That difference is important:
-
-```text
-Local can pass because your machine has state.
-CI proves the repo works from a clean checkout.
-```
-
-## When CI Runs
-
-The CI workflow runs on:
-
-```yaml
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-```
-
-That means CI runs when:
-
-- code is pushed to `main`
-- a pull request targets `main`
-
-This keeps the **main branch** and proposed changes under the same quality gate.
-
-## Permissions
-
-The workflow uses:
-
-```yaml
-permissions:
-  contents: read
-```
-
-That gives the workflow **read access** to repository contents. The CI workflow does not need write access because it does not publish releases, push images, create pull requests, or mutate infrastructure.
-
-Deployment workflows need broader cloud permissions through **GitHub OIDC**, but CI intentionally stays **read-only**.
-
-## Backend Job
-
-The backend job validates the **FastAPI application**:
-
-```text
-Backend lint and tests
-```
-
-It runs on:
-
-```yaml
-runs-on: ubuntu-latest
-```
-
-That tells GitHub to start a **temporary Ubuntu runner**.
-
-### PostgreSQL Service
-
-The backend job starts a temporary **PostgreSQL service container**:
-
-```yaml
-services:
-  postgres:
-    image: postgres:16-alpine
-```
-
-This database exists **only for the job**. It is not the local database and not a cloud database.
-
-The service maps:
-
-```yaml
-ports:
-  - 55432:5432
-```
-
-So backend commands running on the GitHub runner can connect to:
-
-```text
-localhost:55432
-```
-
-while the Postgres container itself listens on:
-
-```text
-5432
-```
-
-### Backend Environment Variables
-
-The backend job sets:
-
-```yaml
-env:
-  DATABASE_URL: postgresql+psycopg://ai_platform:local_dev_password@localhost:55432/ai_platform
-  REDIS_URL: redis://localhost:6379/0
-  API_CORS_ORIGINS: http://localhost:3000
-```
-
-These variables configure the **FastAPI application** during CI.
-
-The important one is **`DATABASE_URL`**: it points the app and Alembic migrations at the temporary PostgreSQL service container.
-
-**`REDIS_URL`** is present because the app config expects Redis configuration. The current CI backend tests do not require a live Redis service for the normal gateway test path. If future tests need Redis-backed behavior, add a Redis service container and point `REDIS_URL` at it.
-
-### Backend Steps
-
-The backend job does this:
-
-```text
-checkout repo
-setup Python
-install backend dependencies
-run Ruff lint
-run Ruff format check
-run Alembic migrations
-run pytest
-```
-
-The migration step matters because it catches **schema drift**:
-
-```text
-SQLAlchemy models changed, but migration did not
-```
-
-or:
-
-```text
-migration is invalid against a fresh database
-```
-
-That kind of failure is easier to catch in **CI** than after deployment.
-
-## Frontend Job
-
-The frontend job validates the **Next.js dashboard**:
-
-```text
-Frontend lint, typecheck, tests, and audit
-```
-
-It runs all commands from:
-
-```text
-apps/web
-```
-
-The job does:
-
-```text
-checkout repo
-setup Node.js
-npm ci
-npm run lint
-npm run typecheck
-npm run test
-npm audit --audit-level=high
-```
-
-**`npm ci`** is used instead of `npm install` because CI should install exactly what is in `package-lock.json`.
-
-The frontend checks answer:
-
-```text
-Does the dashboard lint?
-Does TypeScript compile?
-Do component tests pass?
-Do high/critical npm audit findings block the build?
-```
-
-## Production Image Build And Scan Job
-
-The Docker job validates **production container images**:
-
-```text
-Production image build and scan
-```
-
-This job is **not** using `Dockerfile.dev`. It builds **production images**:
-
-```text
-apps/api/Dockerfile
-apps/web/Dockerfile
-```
-
-The important action is:
-
-```yaml
-uses: docker/build-push-action@v7
-```
-
-That comes from:
-
-```text
-https://github.com/docker/build-push-action
-```
-
-The pattern is:
-
-```text
-uses: owner/repository@version
-```
-
-So:
-
-```text
-docker/build-push-action@v7
-```
-
-means:
-
-```text
-owner = docker
-repository = build-push-action
-version = v7
-```
-
-The CI workflow uses:
-
-```yaml
-load: true
-push: false
-```
-
-That means:
-
-```text
-Build the image and load it into the CI runner's Docker engine.
-Do not push it to a registry.
-```
-
-The images are tagged locally inside CI:
-
-```text
-production-ai-platform-api:ci
-production-ai-platform-web:ci
-```
-
-Then **Trivy** scans those images:
-
-```yaml
-severity: HIGH,CRITICAL
-exit-code: "1"
-ignore-unfixed: true
-```
-
-That means **high** or **critical** findings fail the job, while unfixed findings without available patches are ignored.
-
-This job answers:
-
-```text
-Can the production images build?
-Do the production images have blocking high/critical known vulnerabilities?
-```
-
-## Python Dependency Scan Job
-
-The **Python dependency scan** uses:
-
-```text
-pip-audit
-```
-
-It audits:
-
-```text
-apps/api/requirements.prod.txt
-```
-
-That is intentionally the **production dependency file**, not the development dependency file.
-
-The command is:
-
-```bash
-python -m pip_audit -r apps/api/requirements.prod.txt --strict
-```
-
-**`--strict`** means audit errors are treated as failures. This prevents the scan from silently passing when the audit itself cannot complete correctly.
-
-This job answers:
-
-```text
-Do production Python dependencies contain blocking known vulnerabilities?
-```
-
-## Repository Vulnerability Scan Job
-
-The **repository scan** uses Trivy in filesystem mode:
-
-```yaml
-scan-type: fs
-scan-ref: .
-scanners: vuln,config,secret
-```
-
-It scans more than just Python or Node dependencies:
-
-```text
-vulnerabilities
-infrastructure/config issues
-secret patterns
-```
-
-This is useful for a **cloud portfolio project** because risk can appear in **Terraform**, **Kubernetes**, **Helm**, Dockerfiles, or accidentally committed secrets.
-
-This job answers:
-
-```text
-Does the repository contain high/critical dependency, config, or secret findings?
-```
-
-## Infrastructure Static Checks Job
-
-The infrastructure job runs **checks only**:
-
-```text
-Infrastructure static checks
-```
-
-It **does not create AWS resources**.
-
-It runs Terraform formatting:
-
-```bash
-terraform fmt -check -recursive infra/terraform
-```
-
-and Helm lint:
-
-```bash
-helm lint infra/helm/ai-platform
-```
-
-These are **safe checks**. They validate code and chart shape, but they do not run:
-
-```text
-terraform apply
-helm upgrade
-kubectl apply
-```
-
-That distinction matters because applying infrastructure can create **real cloud cost** or mutate environments. This repository keeps those actions in approved deployment workflows or explicit human-gated operations.
-
-## Why There Are Separate Jobs
-
-The workflow could be one large job, but separate jobs make failures easier to understand.
-
-For example:
-
-```text
-Backend lint and tests failed
-```
-
-is different from:
-
-```text
-Production image scan failed
-```
-
-Separate jobs also let GitHub run checks **in parallel**, so the total CI time is shorter.
-
-## What CI Does Not Do
-
-The main CI workflow **does not**:
-
-- deploy to AWS
-- create EKS clusters
-- apply Terraform
-- push images to ECR
-- rotate secrets
-- run production migrations
-- change DNS or TLS
-
-Those actions are intentionally separated because they can create **cost**, **downtime**, or **production impact**.
-
-## How This Fits The Project
-
-The application proves the **gateway** and **dashboard** work.
-
-CI proves the project is **shippable**:
-
-```text
-backend quality
-frontend quality
-production image builds
-supply-chain checks
-repository/config/secret scans
-infrastructure static checks
-```
-
-That is why CI matters in this project. It is part of the production story, not just a test runner.
+History detection, SBOMs and advisory scans reduce known supply-chain risks; they cannot prove absence of all secrets or vulnerabilities. Cloud IAM, ALB data plane, EKS network enforcement, backups and deployment health retain their separate approved validation phases.

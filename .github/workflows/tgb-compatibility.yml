@@ -1,36 +1,20 @@
 name: TargetGroupBinding compatibility
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - scripts/validate_tgb_controller.py
-      - scripts/validate_aws_manifests.py
-      - infra/validation/charts.json
-      - infra/validation/tgb/**
-      - infra/bootstrap/**
-      - infra/terraform/modules/load-balancing/**
-      - .github/workflows/tgb-compatibility.yml
-  push:
-    branches: [main]
-    paths:
-      - scripts/validate_tgb_controller.py
-      - scripts/validate_aws_manifests.py
-      - infra/validation/charts.json
-      - infra/validation/tgb/**
-      - infra/bootstrap/**
-      - infra/terraform/modules/load-balancing/**
-      - .github/workflows/tgb-compatibility.yml
+  workflow_call:
 permissions:
   contents: read
 jobs:
   compatibility:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          python-version: "3.12"
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12.14"
       - name: Install validation tools
         run: |
           python scripts/install_validation_tools.py
@@ -45,11 +29,12 @@ jobs:
         run: python scripts/validate_tgb_controller.py
       - name: Retain synthetic compatibility evidence
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: tgb-compatibility
+          name: tgb-compatibility-${{ github.run_attempt }}
           path: |
             .maven-cache/tgb-compatibility/evidence.json
             .maven-cache/tgb-compatibility/controller.log
             .maven-cache/tgb-compatibility/aws-calls.json
-          retention-days: 7
+          include-hidden-files: true
+          retention-days: 14

@@ -1,0 +1,3 @@
+# Keep upstream detection rules; findings are retained and reviewed by exact historical identity.
+[extend]
+useDefault = true

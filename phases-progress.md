@@ -327,6 +327,13 @@ Implementation plan:
 - Add positive/negative gate tests and validate the real clean CI pipeline, document evidence/limits, commit/push, review and fix separately before advancing to Phase 61.
 
 
+Implementation and local validation (in progress):
+
+- Added pinned action commits, checksum-verified Trivy/Gitleaks, explicit CI tool/service versions, resolved Java and runtime-image SBOM/audit artifacts, and a zero-skip PostgreSQL/Redis report gate.
+- Integrated actual controller compatibility into every CI run and added a mandatory aggregate eligibility job. Candidate artifacts bind repository/SHA/run/attempt and evidence hashes; a read-only GitHub verifier rejects unfinished, failed, fork, mismatched or stale evidence. Deployment workflows remain held for Phase 61.
+- Full-history scan retained ten redacted detections across 171 commits. Reviewed exact historical source: nine documented synthetic local seed keys and one unsigned JWT rejection fixture. Exact fingerprints/source hashes classify those fixtures without disabling detection; new/changed matches fail. No real credential or Trivy exception was changed.
+- Local eligibility/security regressions (11 tests), CI policy, Java SBOM generation (192 components) and resolved Java fixable HIGH/CRITICAL audit passed. Full clean Maven verification, image SBOMs and the changed pipeline must still pass on the pushed revision; prior test reports are not new execution evidence.
+
 ### Phase 1: Project specification and architecture
 
 Status: Completed

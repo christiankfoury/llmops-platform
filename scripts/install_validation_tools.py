@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import io
 import json
@@ -22,8 +23,19 @@ def main() -> None:
         raise RuntimeError("Validation toolchain currently supports Windows/Linux x86_64 only")
     key = system + "_amd64"
     definitions = json.loads((ROOT / "infra/validation/toolchain.json").read_text(encoding="utf-8"))
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--tools",
+        nargs="+",
+        choices=list(definitions),
+        default=["terraform", "helm", "kubeconform"],
+    )
+    names = parser.parse_args().tools
     BIN.mkdir(parents=True, exist_ok=True)
-    for name, definition in definitions.items():
+    for name in names:
+        definition = definitions[name]
+        if key not in definition["platforms"]:
+            raise RuntimeError(f"{name} has no reviewed package for {key}")
         artifact = definition["platforms"][key]
         archive = BIN / (name + "-" + definition["version"] + ".archive")
         if archive.exists():

@@ -1,0 +1,52 @@
+[
+  {
+    "fingerprint": "3cdefbf15378b0695bbff0c50477242f08689477:apps/api-java/src/test/java/dev/christiankfoury/aiplatform/OperatorJwtHttpTest.java:jwt:160",
+    "source_sha256": "c1a7d0f29718e102dc78e9020195226b7cce58fbeec526d1fdd6a413cc14e008",
+    "reason": "Unsigned alg=none JWT rejected by the authorization test."
+  },
+  {
+    "fingerprint": "42b4749a7a613ff6b3fc424a476bfe32af3b3345:docs/deployment.md:curl-auth-header:121",
+    "source_sha256": "8a4c48e08c0300523c8305e5465896e94641b8c58a80e9cce8a089d85804dc5f",
+    "reason": "Documented synthetic local seed key; never a hosted credential."
+  },
+  {
+    "fingerprint": "42b4749a7a613ff6b3fc424a476bfe32af3b3345:docs/gateway-flow.md:curl-auth-header:434",
+    "source_sha256": "8a4c48e08c0300523c8305e5465896e94641b8c58a80e9cce8a089d85804dc5f",
+    "reason": "Documented synthetic local seed key; never a hosted credential."
+  },
+  {
+    "fingerprint": "d656b447537b7af5654ea652d3c0f581f388855c:docs/gateway-flow.md:curl-auth-header:394",
+    "source_sha256": "5f63b301a82da3f439a8f3a5b406e42490e2e004e7cb49c88936c1dd330ffe1a",
+    "reason": "Documented synthetic local seed key; never a hosted credential."
+  },
+  {
+    "fingerprint": "d656b447537b7af5654ea652d3c0f581f388855c:docs/gateway-flow.md:curl-auth-header:403",
+    "source_sha256": "5f63b301a82da3f439a8f3a5b406e42490e2e004e7cb49c88936c1dd330ffe1a",
+    "reason": "Documented synthetic local seed key; never a hosted credential."
+  },
+  {
+    "fingerprint": "68a98fb11c2e365062549bf4ccd39b9491d25ce7:docs/dashboard-screenshots.md:curl-auth-header:51",
+    "source_sha256": "7d282bd18ecec975def98e92ad8c6c70ce310bf542c1f77792a836660bc9688f",
+    "reason": "Documented synthetic local seed key; never a hosted credential."
+  },
+  {
+    "fingerprint": "68a98fb11c2e365062549bf4ccd39b9491d25ce7:docs/incident-simulation.md:curl-auth-header:54",
+    "source_sha256": "5f63b301a82da3f439a8f3a5b406e42490e2e004e7cb49c88936c1dd330ffe1a",
+    "reason": "Documented synthetic local seed key; never a hosted credential."
+  },
+  {
+    "fingerprint": "68a98fb11c2e365062549bf4ccd39b9491d25ce7:docs/incident-simulation.md:curl-auth-header:63",
+    "source_sha256": "5f63b301a82da3f439a8f3a5b406e42490e2e004e7cb49c88936c1dd330ffe1a",
+    "reason": "Documented synthetic local seed key; never a hosted credential."
+  },
+  {
+    "fingerprint": "8bf06940fecc216f73d1c055df1ecbe386d7f6d0:README.md:curl-auth-header:77",
+    "source_sha256": "5f63b301a82da3f439a8f3a5b406e42490e2e004e7cb49c88936c1dd330ffe1a",
+    "reason": "Documented synthetic local seed key; never a hosted credential."
+  },
+  {
+    "fingerprint": "8bf06940fecc216f73d1c055df1ecbe386d7f6d0:docs/deployment.md:curl-auth-header:60",
+    "source_sha256": "5f63b301a82da3f439a8f3a5b406e42490e2e004e7cb49c88936c1dd330ffe1a",
+    "reason": "Documented synthetic local seed key; never a hosted credential."
+  }
+]
