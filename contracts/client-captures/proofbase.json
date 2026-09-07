@@ -1,0 +1,137 @@
+{
+  "client": "proofbase",
+  "events": {
+    "embedding_generation": {
+      "currency": "USD",
+      "environment": "local",
+      "event_id": "evt_proofbase_embedding_generation_00000000000000000000000000000035",
+      "external_request_id": "proofbase_aux_00000000000000000000000000000035",
+      "input_tokens": 70,
+      "metadata": {
+        "cache_hit": false,
+        "document_external_id": "synthetic-document",
+        "embedding_count": 2,
+        "question_hash": "ef89a70f9214cc0ac37581d82c9cd5ac"
+      },
+      "model": "synthetic-model",
+      "occurred_at": "2026-01-02T03:04:05.123456+00:00",
+      "operation_type": "embedding_generation",
+      "pricing_status": "unpriced",
+      "provider": "openai",
+      "source_app": "proofbase",
+      "status": "succeeded"
+    },
+    "markdown_cleanup": {
+      "currency": "USD",
+      "environment": "local",
+      "event_id": "evt_proofbase_markdown_cleanup_00000000000000000000000000000035",
+      "external_request_id": "proofbase_aux_00000000000000000000000000000035",
+      "input_tokens": 70,
+      "metadata": {
+        "cache_hit": false,
+        "document_external_id": "synthetic-document",
+        "embedding_count": 2,
+        "question_hash": "ef89a70f9214cc0ac37581d82c9cd5ac"
+      },
+      "model": "synthetic-model",
+      "occurred_at": "2026-01-02T03:04:05.123456+00:00",
+      "operation_type": "markdown_cleanup",
+      "pricing_status": "unpriced",
+      "provider": "openai",
+      "source_app": "proofbase",
+      "status": "succeeded"
+    },
+    "query_decomposition": {
+      "currency": "USD",
+      "environment": "local",
+      "event_id": "evt_proofbase_query_decomposition_00000000000000000000000000000035",
+      "external_request_id": "proofbase_aux_00000000000000000000000000000035",
+      "input_tokens": 70,
+      "metadata": {
+        "cache_hit": false,
+        "document_external_id": "synthetic-document",
+        "embedding_count": 2,
+        "question_hash": "ef89a70f9214cc0ac37581d82c9cd5ac"
+      },
+      "model": "synthetic-model",
+      "occurred_at": "2026-01-02T03:04:05.123456+00:00",
+      "operation_type": "query_decomposition",
+      "pricing_status": "unpriced",
+      "provider": "openai",
+      "source_app": "proofbase",
+      "status": "succeeded"
+    },
+    "rag_query": {
+      "currency": "USD",
+      "environment": "local",
+      "estimated_cost_usd": "0.000072",
+      "event_id": "evt_proofbase_rag_query_syntheticquery53",
+      "external_request_id": "synthetic-query-53",
+      "generation_latency_ms": 10,
+      "input_tokens": 100,
+      "latency_ms": 16,
+      "metadata": {
+        "chunk_count": 0,
+        "chunking_strategy": "section_based",
+        "citation_count": 0,
+        "document_count": 0,
+        "question_hash": "ef89a70f9214cc0ac37581d82c9cd5ac",
+        "retrieval_mode": "hybrid",
+        "session_external_id": "synthetic-session",
+        "streaming": false,
+        "top_k": 5
+      },
+      "model": "gpt-4.1-mini",
+      "occurred_at": "2026-01-02T03:04:05.123456+00:00",
+      "operation_type": "rag_query",
+      "output_tokens": 20,
+      "pricing_status": "estimated",
+      "prompt_name": "answer_generation",
+      "prompt_version": "unknown",
+      "provider": "openai",
+      "retrieval_latency_ms": 5,
+      "source_app": "proofbase",
+      "status": "succeeded",
+      "total_tokens": 120
+    },
+    "rag_query_stream": {
+      "currency": "USD",
+      "environment": "local",
+      "estimated_cost_usd": "0.000072",
+      "event_id": "evt_proofbase_rag_query_stream_syntheticquery53",
+      "external_request_id": "synthetic-query-53",
+      "generation_latency_ms": 10,
+      "input_tokens": 100,
+      "latency_ms": 16,
+      "metadata": {
+        "chunk_count": 0,
+        "chunking_strategy": "section_based",
+        "citation_count": 0,
+        "document_count": 0,
+        "question_hash": "ef89a70f9214cc0ac37581d82c9cd5ac",
+        "retrieval_mode": "hybrid",
+        "session_external_id": "synthetic-session",
+        "streaming": true,
+        "top_k": 5
+      },
+      "model": "gpt-4.1-mini",
+      "occurred_at": "2026-01-02T03:04:05.123456+00:00",
+      "operation_type": "rag_query_stream",
+      "output_tokens": 20,
+      "pricing_status": "estimated",
+      "prompt_name": "answer_generation",
+      "prompt_version": "unknown",
+      "provider": "openai",
+      "retrieval_latency_ms": 5,
+      "source_app": "proofbase",
+      "status": "succeeded",
+      "total_tokens": 120
+    }
+  },
+  "sources": {
+    "apps/api/app/observability/auxiliary_telemetry.py": "246737aa45e01a32ec92620b0da0b93d3fa3adac1c232dfa8506099fc2c732ad",
+    "apps/api/app/observability/platform_telemetry.py": "e1c3b808972718b6ece6b3599aed7a444fa0b74b52c9d148bcf5f750cbb8b631",
+    "apps/api/app/observability/query_telemetry.py": "d2b127ca00ab923b608cd36c8aed0a43171f4e15e3b72de208b1447b190c27f0"
+  },
+  "synthetic": true
+}

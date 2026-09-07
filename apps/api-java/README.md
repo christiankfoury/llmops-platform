@@ -35,3 +35,5 @@ The packaged service was smoke-tested locally with that setting. CI also starts 
 JSON uses snake_case, explicit nulls, ISO date strings and decimal strings. Unknown JSON properties are rejected. Validation uses 422 with a safe detail array; malformed bodies use 400; unexpected errors use a generic 500 without payload/exception text. Synthetic test endpoints exist only in the test classpath. The [migration contract](../../docs/java-migration-contract.md) records the compatibility rules and planned intentional changes.
 
 References: [Spring Boot requirements](https://docs.spring.io/spring-boot/system-requirements.html), [Jackson integration](https://docs.spring.io/spring-boot/reference/features/json.html), [Maven Wrapper verification](https://maven.apache.org/tools/wrapper/).
+
+Phase 53 ports Proofbase/AgentOps ingestion; see [Java telemetry](../../docs/java-telemetry.md) for source registration, replay compatibility, limits, transactions and client-capture validation.

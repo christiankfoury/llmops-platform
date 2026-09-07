@@ -188,3 +188,7 @@ Then open `http://localhost:3000`, filter **Source App** to `agentops`, and conf
 See [agentops-browser-telemetry-demo.md](agentops-browser-telemetry-demo.md) for the full browser checklist, AgentOps port guidance, screenshot rules, and troubleshooting notes.
 
 Phase 52 adds required Java gateway HTTP/persistence tests, provider deadline/cancellation/overload tests and authenticated packaged-JAR smoke checks. Each HTTP test uses its own synthetic project/application; the gateway test schema is isolated from migration/seeding regressions. No real provider is called. See [Java gateway behavior](java-gateway.md).
+
+## Java telemetry compatibility
+
+Phase 53 adds real PostgreSQL tests for both client fixture sets, concurrent retries/conflicts, atomic cost rollback, source attribution and bounded metrics. The packaged-service CI smoke sends and replays all eight events captured through the actual client builders/sanitizers. See [Java telemetry](java-telemetry.md) for capture provenance and reproduction commands.

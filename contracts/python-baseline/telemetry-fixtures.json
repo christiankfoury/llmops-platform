@@ -64,14 +64,6 @@
     "estimated_cost_usd": "1.00E-7", "latency_ms": 1,
     "metadata": {"top_k": 3.0, "response_type": "synthetic caf\u00e9 \u2603", "cache_hit": null}
   },
-  "proofbase_normalization_edges": {
-    "event_id": "contract_proofbase_normalization", "external_request_id": "contract_normalization_1",
-    "source_app": "proofbase", "operation_type": "rag_query_stream", "environment": "local",
-    "occurred_at": "2026-01-02T08:34:13.123456+05:30", "status": "succeeded",
-    "provider": "mock", "model": "synthetic-model", "pricing_status": "estimated",
-    "estimated_cost_usd": "1.00E-7", "latency_ms": 1,
-    "metadata": {"top_k": 3.0, "response_type": "synthetic caf\u00e9 \u2603", "cache_hit": null}
-  },
   "agentops_summary": {
     "event_id": "contract_agentops_summary", "external_request_id": "contract_workflow_1",
     "source_app": "agentops", "operation_type": "workflow_summary", "environment": "local",

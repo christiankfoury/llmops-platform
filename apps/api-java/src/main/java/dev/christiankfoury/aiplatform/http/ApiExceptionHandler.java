@@ -57,6 +57,24 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     return ResponseEntity.status(status).headers(headers).body(Map.of("detail", detail));
   }
 
+  @ExceptionHandler(ValidationFailure.class)
+  public ResponseEntity<Map<String, Object>> telemetryValidation(ValidationFailure failure) {
+    List<String> location =
+        failure.field() == null ? List.of("body") : List.of("body", failure.field());
+    return ResponseEntity.status(422)
+        .body(
+            Map.of(
+                "detail",
+                List.of(
+                    Map.of(
+                        "loc",
+                        location,
+                        "msg",
+                        "Invalid telemetry event",
+                        "type",
+                        "validation_error"))));
+  }
+
   @ExceptionHandler(ApiFailure.class)
   public ResponseEntity<Map<String, String>> applicationFailure(ApiFailure failure) {
     return ResponseEntity.status(failure.status()).body(Map.of("detail", failure.getMessage()));

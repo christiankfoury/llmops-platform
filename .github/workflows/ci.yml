@@ -65,6 +65,7 @@ jobs:
           import time
           import urllib.error
           import urllib.request
+          from pathlib import Path
 
           with open("target/packaged-smoke.log", "w") as log:
               process = subprocess.Popen([
@@ -102,7 +103,20 @@ jobs:
                       result = json.load(response)
                       assert response.status == 200 and result["status"] == "succeeded"
                       assert result["estimated_cost_usd"] == "0.000005"
-                  print("Packaged Java health, exposure and authenticated gateway checks passed")
+                  for client in ("proofbase", "agentops"):
+                      captured = json.loads(Path(f"../../contracts/client-captures/{client}.json").read_text())
+                      for event in captured["events"].values():
+                          for duplicate in (False, True):
+                              telemetry = urllib.request.Request(
+                                  "http://127.0.0.1:18080/v1/usage/llm-events",
+                                  data=json.dumps(event).encode(),
+                                  headers={"Content-Type": "application/json", "X-API-Key": f"{client}-local-placeholder-key-not-a-secret"},
+                              )
+                              with urllib.request.urlopen(telemetry, timeout=5) as response:
+                                  result = json.load(response)
+                                  assert response.status == 202 and result["accepted"] is True
+                                  assert result["duplicate"] is duplicate
+                  print("Packaged Java health, exposure, gateway and both client telemetry/replay checks passed")
               finally:
                   process.terminate()
                   try:
@@ -162,8 +176,8 @@ jobs:
 
       - name: Verify Python migration contract baseline
         run: |
-          python -m ruff check scripts/export_backend_contract.py
-          python -m ruff format --check scripts/export_backend_contract.py
+          python -m ruff check scripts/export_backend_contract.py scripts/capture_client_telemetry_contract.py
+          python -m ruff format --check scripts/export_backend_contract.py scripts/capture_client_telemetry_contract.py
           python scripts/export_backend_contract.py --check
 
       # Running migrations before tests catches schema drift that unit tests

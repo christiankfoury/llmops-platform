@@ -5,7 +5,10 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import math
 import os
+import random
+import struct
 import subprocess
 import sys
 from pathlib import Path
@@ -16,6 +19,42 @@ BASELINE = ROOT / "contracts" / "python-baseline"
 
 def json_text(value: object) -> str:
     return json.dumps(value, indent=2, sort_keys=True, ensure_ascii=True) + "\n"
+
+
+def unique_json_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    value = {}
+    for key, item in pairs:
+        if key in value:
+            raise ValueError("Contract JSON contains duplicate keys")
+        value[key] = item
+    return value
+
+
+def python_json_vectors() -> list[dict[str, object]]:
+    values: list[object] = [
+        0.0,
+        -0.0,
+        1.0,
+        1e-4,
+        1e-5,
+        1e15,
+        1e16,
+        1e20,
+        5e-324,
+        -5e-324,
+        1.7976931348623157e308,
+        {"text": "synthetic café \u2603 \U0001f600\n\t\u007f", "null": None, "bool": True},
+        {"\U0001f600": 1, "\ue000": 2},
+    ]
+    randomizer = random.Random(53)
+    while len(values) < 141:
+        number = struct.unpack("!d", randomizer.getrandbits(64).to_bytes(8, "big"))[0]
+        if math.isfinite(number):
+            values.append(number)
+    return [
+        {"value": value, "encoded": json.dumps(value, sort_keys=True, separators=(",", ":"))}
+        for value in values
+    ]
 
 
 def export() -> dict[str, str]:
@@ -103,7 +142,10 @@ def export() -> dict[str, str]:
         capture_output=True,
         text=True,
     ).stdout
-    fixtures = json.loads((BASELINE / "telemetry-fixtures.json").read_text(encoding="utf-8"))
+    fixtures = json.loads(
+        (BASELINE / "telemetry-fixtures.json").read_text(encoding="utf-8"),
+        object_pairs_hook=unique_json_object,
+    )
     telemetry = {}
     for name, raw in fixtures.items():
         payload = ExternalLlmEventRequest.model_validate(raw)
@@ -126,6 +168,7 @@ def export() -> dict[str, str]:
         + "\n",
         "metrics.json": json_text(sorted(metrics, key=lambda item: item["name"])),
         "telemetry-golden.json": json_text(telemetry),
+        "python-json-vectors.json": json_text(python_json_vectors()),
     }
 
 

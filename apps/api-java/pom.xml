@@ -79,7 +79,12 @@
       <testResource>
         <directory>../../contracts/python-baseline</directory>
         <targetPath>contracts</targetPath>
-        <includes><include>alembic-schema.sql</include></includes>
+        <includes><include>alembic-schema.sql</include><include>telemetry-fixtures.json</include><include>telemetry-golden.json</include><include>python-json-vectors.json</include></includes>
+      </testResource>
+      <testResource>
+        <directory>../../contracts/client-captures</directory>
+        <targetPath>client-captures</targetPath>
+        <includes><include>*.json</include></includes>
       </testResource>
     </testResources>
     <resources>

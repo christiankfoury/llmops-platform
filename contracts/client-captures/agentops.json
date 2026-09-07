@@ -1,0 +1,90 @@
+{
+  "client": "agentops",
+  "events": {
+    "structured_json": {
+      "currency": "USD",
+      "environment": "development",
+      "estimated_cost_usd": "0.000120",
+      "event_id": "evt_agentops_step_00000000-0000-0000-0000-000000000214_succeeded",
+      "external_request_id": "00000000-0000-0000-0000-000000000212",
+      "input_tokens": 100,
+      "latency_ms": 250,
+      "metadata": {
+        "agent_name": "Synthetic analyst",
+        "agent_step_external_id": "00000000-0000-0000-0000-000000000214",
+        "agent_type": "analyst",
+        "response_type": "structured_json",
+        "retry_count": 0,
+        "step_order": 2,
+        "step_status": "completed",
+        "workflow_external_id": "00000000-0000-0000-0000-000000000212",
+        "workflow_status": "completed"
+      },
+      "model": "gpt-4.1-mini",
+      "occurred_at": "2026-01-02T03:04:05.123456+00:00",
+      "operation_type": "agent_step",
+      "output_tokens": 50,
+      "pricing_status": "estimated",
+      "prompt_name": "Synthetic analyst",
+      "provider": "openai",
+      "source_app": "agentops",
+      "status": "succeeded",
+      "total_tokens": 150
+    },
+    "text": {
+      "currency": "USD",
+      "environment": "development",
+      "estimated_cost_usd": "0.000120",
+      "event_id": "evt_agentops_step_00000000-0000-0000-0000-000000000213_succeeded",
+      "external_request_id": "00000000-0000-0000-0000-000000000212",
+      "input_tokens": 100,
+      "latency_ms": 250,
+      "metadata": {
+        "agent_name": "Synthetic analyst",
+        "agent_step_external_id": "00000000-0000-0000-0000-000000000213",
+        "agent_type": "analyst",
+        "response_type": "text",
+        "retry_count": 0,
+        "step_order": 1,
+        "step_status": "completed",
+        "workflow_external_id": "00000000-0000-0000-0000-000000000212",
+        "workflow_status": "completed"
+      },
+      "model": "gpt-4.1-mini",
+      "occurred_at": "2026-01-02T03:04:05.123456+00:00",
+      "operation_type": "agent_step",
+      "output_tokens": 50,
+      "pricing_status": "estimated",
+      "prompt_name": "Synthetic analyst",
+      "provider": "openai",
+      "source_app": "agentops",
+      "status": "succeeded",
+      "total_tokens": 150
+    },
+    "workflow_summary": {
+      "environment": "development",
+      "event_id": "evt_agentops_workflow_00000000-0000-0000-0000-000000000212_completed",
+      "external_request_id": "00000000-0000-0000-0000-000000000212",
+      "latency_ms": 9000,
+      "metadata": {
+        "response_type": "aggregate_summary",
+        "retry_count": 1,
+        "workflow_external_id": "00000000-0000-0000-0000-000000000212",
+        "workflow_status": "completed"
+      },
+      "model": "unknown",
+      "occurred_at": "2026-01-02T03:04:05.123456+00:00",
+      "operation_type": "workflow_summary",
+      "pricing_status": "unknown",
+      "provider": "unknown",
+      "source_app": "agentops",
+      "status": "succeeded"
+    }
+  },
+  "sources": {
+    "apps/api/src/models/agent_step.py": "9d882595807c86dfcbae6ea8304820c9f27259efb5ddcd67e588595823172e17",
+    "apps/api/src/models/workflow_run.py": "d72de2a6ab69e28f3ccfecd349c4364b4e0d2b11530be328a79c8bc1a02c2f0e",
+    "apps/api/src/observability/platform_telemetry.py": "637e0e4344bb4b9074cf6e161649143be4dce26c4f23f6561bc4e792213db01d"
+  },
+  "synthetic": true
+}
