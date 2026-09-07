@@ -159,6 +159,25 @@ Implementation notes:
 - Pushed fix 4e4b49e75e0d606e2a073adf0b819bdef6f61a9b and all seven jobs in CI run 34070545375 passed; no remaining top actionable review findings.
 - Next phase: Phase 52, Java gateway and model routing.
 
+### Phase 52: Java gateway and model routing
+
+Status: In Progress
+
+Implementation plan:
+
+- Port the completion contract, SHA-256 application authentication, active scope checks and deterministic prompt/default-route selection.
+- Implement the local mock provider with bounded attempts, real per-attempt timeouts, cancellation and bounded concurrency.
+- Keep database transactions outside provider waits; atomically persist success/cost and retain operational failure records without input/output bodies.
+- Add PostgreSQL HTTP and service tests for auth, configuration, validation, retries, timeout, cost, isolation and failure rollback; then validate, commit, push and review before continuing.
+- Keep AWS, Python deployment, telemetry port, operator authorization, Redis limits and full instrumentation in their scheduled phases.
+
+Implementation and validation:
+
+- Gateway/auth/routing/provider/persistence implementation complete; local clean Maven verify passes all 32 tests without skips.
+- PostgreSQL HTTP tests prove scoped authentication, prompt/route behavior, durable failures, decimal costs, atomic rollback, input privacy and released database connections during provider waits.
+- Real deadline/cancellation and bounded overload tests pass; workflow YAML/embedded Python, frozen Python contract and whitespace checks pass.
+- Pushed CI/review pending; evidence and limitations are recorded in docs/phase-reviews/phase-52.md.
+
 ### Phase 1: Project specification and architecture
 
 Status: Completed

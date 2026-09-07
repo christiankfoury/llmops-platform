@@ -1,6 +1,6 @@
 # Java API migration
 
-Phases 50-51 add the Spring Boot foundation and PostgreSQL persistence. The active Docker Compose, Helm, and deployment runtime remains the Python API in `apps/api` until Phase 58. This service currently provides lifecycle health and shared JSON/error handling; gateway, telemetry, authorization and dependency readiness follow in their own phases. AWS remains the target.
+Phases 50-52 add the Spring Boot foundation, PostgreSQL persistence and the mock LLM gateway. The active Docker Compose, Helm, and deployment runtime remains the Python API in `apps/api` until Phase 58. This service provides lifecycle health, shared JSON/errors, persistence and the authenticated completion gateway. Telemetry, operator authorization and dependency readiness follow in their own phases. See the [gateway guide](../../docs/java-gateway.md) for request contracts, execution bounds and validation. AWS remains the target.
 
 The build uses Java 21, Spring Boot 4.1.1, Maven 3.9.16, Maven Wrapper 3.3.4, Spotless 3.10.2 and Google Java Format 1.28.0. The Spring Boot BOM pins library versions; the build rejects snapshot dependencies, checks Java/Maven versions, treats compiler warnings as errors, checks formatting and runs tests. Distribution downloads have a pinned SHA-256 checksum and CI checks the committed wrapper files before executing them. Dependency vulnerability and release SBOM gates are expanded in Phase 60; checksum validation alone is not a vulnerability scan.
 

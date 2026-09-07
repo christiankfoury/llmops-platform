@@ -186,3 +186,5 @@ docker compose exec api python -m scripts.seed_dev_data
 Then open `http://localhost:3000`, filter **Source App** to `agentops`, and confirm the dashboard shows the `AgentOps Workflow Platform / AgentOps Workflow Platform` request.
 
 See [agentops-browser-telemetry-demo.md](agentops-browser-telemetry-demo.md) for the full browser checklist, AgentOps port guidance, screenshot rules, and troubleshooting notes.
+
+Phase 52 adds required Java gateway HTTP/persistence tests, provider deadline/cancellation/overload tests and authenticated packaged-JAR smoke checks. Each HTTP test uses its own synthetic project/application; the gateway test schema is isolated from migration/seeding regressions. No real provider is called. See [Java gateway behavior](java-gateway.md).

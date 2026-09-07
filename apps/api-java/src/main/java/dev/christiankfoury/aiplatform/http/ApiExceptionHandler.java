@@ -30,7 +30,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 error ->
                     Map.<String, Object>of(
                         "loc",
-                        List.of("body", error.getField()),
+                        List.of(
+                            "body",
+                            error
+                                .getField()
+                                .replaceAll("([a-z0-9])([A-Z])", "$1_$2")
+                                .toLowerCase(java.util.Locale.ROOT)),
                         "msg",
                         "Invalid value",
                         "type",
@@ -50,6 +55,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     String detail = known == null ? "Request failed" : known.getReasonPhrase();
     // Never forward framework bodies: they can contain rejected values, URIs or exception text.
     return ResponseEntity.status(status).headers(headers).body(Map.of("detail", detail));
+  }
+
+  @ExceptionHandler(ApiFailure.class)
+  public ResponseEntity<Map<String, String>> applicationFailure(ApiFailure failure) {
+    return ResponseEntity.status(failure.status()).body(Map.of("detail", failure.getMessage()));
   }
 
   @ExceptionHandler(Exception.class)

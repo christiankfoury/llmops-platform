@@ -69,7 +69,7 @@ jobs:
           with open("target/packaged-smoke.log", "w") as log:
               process = subprocess.Popen([
                   "java", "-jar", "target/production-ai-platform-api-0.1.0-SNAPSHOT.jar",
-                  "--server.port=18080",
+                  "--server.port=18080", "--platform.seed.enabled=true", "--platform.environment=local",
               ], stdout=log, stderr=subprocess.STDOUT)
               try:
                   for attempt in range(30):
@@ -93,7 +93,16 @@ jobs:
                           assert error.code == 404
                       else:
                           raise RuntimeError("Unexpected exposed endpoint: " + path)
-                  print("Packaged Java health and endpoint exposure checks passed")
+                  completion = urllib.request.Request(
+                      "http://127.0.0.1:18080/v1/gateway/completions",
+                      data=json.dumps({"input": "synthetic hello"}).encode(),
+                      headers={"Content-Type": "application/json", "X-API-Key": "local-dev-placeholder-key-not-a-secret"},
+                  )
+                  with urllib.request.urlopen(completion, timeout=5) as response:
+                      result = json.load(response)
+                      assert response.status == 200 and result["status"] == "succeeded"
+                      assert result["estimated_cost_usd"] == "0.000005"
+                  print("Packaged Java health, exposure and authenticated gateway checks passed")
               finally:
                   process.terminate()
                   try:
