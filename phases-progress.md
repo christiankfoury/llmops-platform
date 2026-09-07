@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 54: Java usage and operator configuration APIs - In Progress. Phase 53 review and all seven CI jobs passed, including 214 Java tests and both-client packaged telemetry/replay checks. Phases 1-47 remain the completed historical baseline.
+Phase 55: Operator authorization and application key lifecycle - In Progress. Phase 54 review and all seven CI jobs passed, including 232 Java tests and packaged usage/operator checks. Phases 1-47 remain the completed historical baseline.
 
 ## Phase table
 
@@ -82,8 +82,8 @@ Phase 54: Java usage and operator configuration APIs - In Progress. Phase 53 rev
 | 51 | PostgreSQL persistence and migration handover | Completed |
 | 52 | Java gateway and model routing | Completed |
 | 53 | Java Proofbase and AgentOps telemetry ingestion | Completed | main | 7eb7473 | 2026-09-06 | Client captures, Python-compatible replay fingerprints, atomic deduplication/costs, bounds and active-project fix; 214 Java tests and all CI jobs passed. |
-| 54 | Java usage and operator configuration APIs | In Progress |
-| 55 | Operator authorization and application key lifecycle | Not Started |
+| 54 | Java usage and operator configuration APIs | Completed | main | 24b040b | 2026-09-06 | Dashboard contracts, parameterized queries, local access boundary, serialized configuration and audits; 232 Java tests, frontend checks and all CI jobs passed. |
+| 55 | Operator authorization and application key lifecycle | In Progress |
 | 56 | Distributed limits and dependency-aware readiness | Not Started |
 | 57 | Java metrics logs and traces | Not Started |
 | 58 | Java Docker Compose and Helm runtime cutover | Not Started |
@@ -201,7 +201,7 @@ Implementation and validation:
 
 ### Phase 54: Java usage and operator configuration APIs
 
-Status: In Progress
+Status: Completed
 
 Implementation plan:
 
@@ -215,7 +215,20 @@ Implementation and validation:
 - Ported parameterized usage queries, scoped prompt/model configuration, project-serialized version/default changes and atomic local audit records.
 - Enforced temporary local bind/client/host/origin boundaries; preserved dashboard fields and added bounded payloads, pagination and microsecond date filters.
 - Final Java clean verify passes 232 tests with no failures/skips. Frontend lint/typecheck and all six tests pass. Packaged migration/app smoke validates gateway, telemetry/replays, all dashboard reads and local prompt creation.
-- Frozen Python contract, workflow syntax and whitespace checks pass. Commit/push and pushed-commit review are next before advancing.
+- Frozen Python contract, workflow syntax and whitespace checks pass. Implementation 24b040bb6f9abb09f61c68dc0ff6c699aa09b07c is pushed to main; all seven CI jobs in run 34076012162 passed.
+- Pushed-commit review found no top actionable issues; no fix commit was needed. See docs/phase-reviews/phase-54.md. Next phase: Phase 55.
+
+### Phase 55: Operator authorization and application key lifecycle
+
+Status: In Progress
+
+Implementation plan:
+
+- Replace temporary local operator access with fail-closed Spring Security JWT/OIDC validation and database-backed viewer/operator project grants; ignore caller-supplied actors and role/project claims.
+- Apply project authorization to every usage/configuration query and mutation, and implement scoped key creation/listing/revocation with verified audit actors and one-time raw-key responses.
+- Add dashboard OIDC authorization-code sign-in with PKCE/state/nonce, protected server-side API forwarding, HTTP-only encrypted session cookies and CSRF protections. Keep tokens out of browser JavaScript.
+- Provide an explicit read-only synthetic dashboard mode whose responses cannot query real platform data; use local cryptographic fixtures for identity/permission/session tests without a cloud account.
+- Validate existing contracts, migrations, negative authorization, frontend auth, key lifecycle and packaged behavior; commit, push, review and fix before advancing. Real identity-provider provisioning/secrets and AWS changes remain gated deployment work.
 
 ### Phase 1: Project specification and architecture
 
