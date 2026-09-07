@@ -192,3 +192,7 @@ Phase 52 adds required Java gateway HTTP/persistence tests, provider deadline/ca
 ## Java telemetry compatibility
 
 Phase 53 adds real PostgreSQL tests for both client fixture sets, concurrent retries/conflicts, atomic cost rollback, source attribution and bounded metrics. The packaged-service CI smoke sends and replays all eight events captured through the actual client builders/sanitizers. See [Java telemetry](java-telemetry.md) for capture provenance and reproduction commands.
+
+## Java usage and configuration APIs
+
+Phase 54 validates filtered summaries/lists, decimal/null/timestamp fidelity, active scopes, local operator access, prompt/route activation races, cross-application isolation, audit rollback and gateway use of newly configured resources against required PostgreSQL. The packaged smoke exercises all dashboard reads and a local configuration write. Frontend lint, type checks and all six existing tests pass without frontend source changes. See [Java operator APIs](java-operator-apis.md).

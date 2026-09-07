@@ -75,6 +75,21 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                         "validation_error"))));
   }
 
+  @ExceptionHandler(dev.christiankfoury.aiplatform.operator.OperatorValidationFailure.class)
+  public ResponseEntity<Map<String, Object>> operatorValidation(
+      dev.christiankfoury.aiplatform.operator.OperatorValidationFailure failure) {
+    List<String> location =
+        failure.field() == null
+            ? List.of(failure.location())
+            : List.of(failure.location(), failure.field());
+    return ResponseEntity.status(422)
+        .body(
+            Map.of(
+                "detail",
+                List.of(
+                    Map.of("loc", location, "msg", "Invalid value", "type", "validation_error"))));
+  }
+
   @ExceptionHandler(ApiFailure.class)
   public ResponseEntity<Map<String, String>> applicationFailure(ApiFailure failure) {
     return ResponseEntity.status(failure.status()).body(Map.of("detail", failure.getMessage()));

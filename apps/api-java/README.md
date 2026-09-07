@@ -37,3 +37,5 @@ JSON uses snake_case, explicit nulls, ISO date strings and decimal strings. Unkn
 References: [Spring Boot requirements](https://docs.spring.io/spring-boot/system-requirements.html), [Jackson integration](https://docs.spring.io/spring-boot/reference/features/json.html), [Maven Wrapper verification](https://maven.apache.org/tools/wrapper/).
 
 Phase 53 ports Proofbase/AgentOps ingestion; see [Java telemetry](../../docs/java-telemetry.md) for source registration, replay compatibility, limits, transactions and client-capture validation.
+
+Phase 54 ports usage and local configuration controls; see [Java operator APIs](../../docs/java-operator-apis.md) for response contracts, access boundaries, audit behavior and concurrency.
