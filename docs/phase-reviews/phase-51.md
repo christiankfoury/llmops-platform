@@ -46,9 +46,9 @@
 - Java product endpoints are still future phases; Python remains the deployed runtime.
 
 ### Post-Commit Review
-- Pushed commit: pending.
-- Top findings: pending review of pushed diff and CI.
-- Fix commits: pending, each actionable finding receives its own follow-up commit.
+- Pushed commit: 32ea19db92c5bbda84c985a2c3ad1ff0a7a63925, verified by GitHub main readback.
+- Top findings: Flyway configuration could override the history table or schema selection while the ownership guard assumed standard naming and one schema. This could hide adopted ownership from Alembic. A separate fix rejects unsupported configurations before any migration/history writes and adds a real PostgreSQL regression.
+- Fix commits: ownership configuration fix pending validation/push.
 
 ### Next Phase
 - Phase 52: Java gateway and model routing, after pushed validation and review closure.

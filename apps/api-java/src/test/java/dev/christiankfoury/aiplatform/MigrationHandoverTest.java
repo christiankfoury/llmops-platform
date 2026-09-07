@@ -109,6 +109,33 @@ class MigrationHandoverTest extends PostgresTestSupport {
     }
   }
 
+  @Test
+  void historyAndSchemaOverridesCannotBypassOwnership() throws Exception {
+    String legacy = createSchema(true);
+    var base = flyway(legacy).getConfiguration();
+    for (Flyway unsupported :
+        List.of(
+            Flyway.configure().configuration(base).table("alternate_history").load(),
+            Flyway.configure().configuration(base).schemas(legacy, "unowned").load(),
+            Flyway.configure().configuration(base).defaultSchema((String) null).load())) {
+      assertThatThrownBy(() -> DatabaseMigrations.adoptAlembic(unsupported))
+          .hasMessageContaining("Migration ownership");
+      assertThatThrownBy(() -> DatabaseMigrations.migrate(unsupported))
+          .hasMessageContaining("Migration ownership");
+    }
+    try (Connection connection = connection(legacy);
+        var statement = connection.createStatement();
+        var rows =
+            statement.executeQuery(
+                "SELECT count(*) FROM information_schema.tables WHERE table_schema='"
+                    + legacy
+                    + "'")) {
+      rows.next();
+      assertThat(rows.getInt(1)).isEqualTo(9);
+      assertNoFlywayHistory(connection, legacy);
+    }
+  }
+
   private String createSchema(boolean legacy) throws Exception {
     String schema = "contract_" + UUID.randomUUID().toString().replace("-", "");
     try (Connection connection = POSTGRES.getPostgresDatabase().getConnection();

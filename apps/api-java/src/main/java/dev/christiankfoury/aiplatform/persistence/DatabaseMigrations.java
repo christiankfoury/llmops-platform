@@ -72,6 +72,15 @@ public final class DatabaseMigrations {
   }
 
   private static void locked(Flyway flyway, SqlAction action) {
+    var configuration = flyway.getConfiguration();
+    String[] schemas = configuration.getSchemas();
+    if (!"flyway_schema_history".equals(configuration.getTable())
+        || configuration.getDefaultSchema() == null
+        || schemas.length != 1
+        || !configuration.getDefaultSchema().equals(schemas[0])) {
+      throw new IllegalStateException(
+          "Migration ownership requires the standard history table and one explicit schema");
+    }
     if (flyway.getConfiguration().isBaselineOnMigrate()
         || !flyway.getConfiguration().isCleanDisabled()) {
       throw new IllegalStateException("Unsafe Flyway baseline or clean configuration");

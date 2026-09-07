@@ -22,7 +22,7 @@ java -jar target/production-ai-platform-api-0.1.0-SNAPSHOT-migration.jar migrate
 java -jar target/production-ai-platform-api-0.1.0-SNAPSHOT.jar
 ```
 
-The application and CLI share `DATABASE_SCHEMA`. Starting the app against an unmigrated database fails validation. Never add `ddl-auto=update`, `baseline-on-migrate=true`, Flyway clean, or an automatic downgrade to work around a failure. The migration entrypoint holds a PostgreSQL session advisory lock matching the guarded Python Alembic runner. Lock acquisition times out after five seconds and restores its connection settings afterward. Runtime migration requires a pool with at least two connections; the default Hikari pool supplies ten. Release jobs will use the separate command in Phase 61.
+The application and CLI share `DATABASE_SCHEMA`. Both Java entrypoints require exactly one explicit schema and the standard `flyway_schema_history` table; custom history names, extra managed schemas or an implicit default schema are refused so the Python guard cannot miss ownership. Starting the app against an unmigrated database fails validation. Never add `ddl-auto=update`, `baseline-on-migrate=true`, Flyway clean, or an automatic downgrade to work around a failure. The migration entrypoint holds a PostgreSQL session advisory lock matching the guarded Python Alembic runner. Lock acquisition times out after five seconds and restores its connection settings afterward. Runtime migration requires a pool with at least two connections; the default Hikari pool supplies ten. Release jobs will use the separate command in Phase 61.
 
 ## Adopting an existing Alembic database
 
