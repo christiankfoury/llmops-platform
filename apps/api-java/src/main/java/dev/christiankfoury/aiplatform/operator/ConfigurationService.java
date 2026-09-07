@@ -18,16 +18,26 @@ import org.springframework.transaction.annotation.Transactional;
 public class ConfigurationService {
   private final EntityManager entities;
   private final AuditLogRepository audits;
+  private final dev.christiankfoury.aiplatform.security.OperatorAuthorization authorization;
 
-  public ConfigurationService(EntityManager entities, AuditLogRepository audits) {
+  public ConfigurationService(
+      EntityManager entities,
+      AuditLogRepository audits,
+      dev.christiankfoury.aiplatform.security.OperatorAuthorization authorization) {
     this.entities = entities;
     this.audits = audits;
+    this.authorization = authorization;
   }
 
   @Transactional(readOnly = true, timeout = 5)
   public List<ConfigurationViews.Prompt> prompts(int limit) {
+    var allowed = authorization.projects(false);
+    if (allowed.isEmpty()) return List.of();
     return entities
-        .createQuery("from PromptVersion order by createdAt desc, id desc", PromptVersion.class)
+        .createQuery(
+            "from PromptVersion where projectId IN :allowed order by createdAt desc, id desc",
+            PromptVersion.class)
+        .setParameter("allowed", allowed)
         .setMaxResults(limit)
         .getResultList()
         .stream()
@@ -37,8 +47,13 @@ public class ConfigurationService {
 
   @Transactional(readOnly = true, timeout = 5)
   public List<ConfigurationViews.Route> routes(int limit) {
+    var allowed = authorization.projects(false);
+    if (allowed.isEmpty()) return List.of();
     return entities
-        .createQuery("from ModelRoute order by createdAt desc, id desc", ModelRoute.class)
+        .createQuery(
+            "from ModelRoute where projectId IN :allowed order by createdAt desc, id desc",
+            ModelRoute.class)
+        .setParameter("allowed", allowed)
         .setMaxResults(limit)
         .getResultList()
         .stream()
@@ -187,10 +202,13 @@ public class ConfigurationService {
   }
 
   private ClientApplication scope(String projectSlug, String applicationSlug) {
+    var allowed = authorization.projects(true);
+    if (allowed.isEmpty()) throw new ApiFailure(404, "Resource not found");
     UUID projectId =
         entities
-            .createQuery("select id from Project where slug=:slug", UUID.class)
+            .createQuery("select id from Project where slug=:slug and id IN :allowed", UUID.class)
             .setParameter("slug", projectSlug)
+            .setParameter("allowed", allowed)
             .getSingleResultOrNull();
     if (projectId == null) throw new ApiFailure(404, "Project not found");
     lockProject(projectId);
@@ -207,8 +225,10 @@ public class ConfigurationService {
   }
 
   private void lockProject(UUID id) {
+    authorization.requireResource(id, true);
     // A shared parent lock also serializes the initially empty prompt/default-route scopes.
     Project project = entities.find(Project.class, id, LockModeType.PESSIMISTIC_WRITE);
+    authorization.requireResource(id, true);
     if (project == null || !Boolean.TRUE.equals(project.getIsActive()))
       throw new ApiFailure(404, "Project not found");
   }
@@ -268,8 +288,8 @@ public class ConfigurationService {
       audit.setProjectId(route.getProjectId());
       audit.setApplicationId(route.getApplicationId());
     }
-    audit.setActorType("admin");
-    audit.setActorId("local-admin");
+    audit.setActorType("operator");
+    audit.setActorId(dev.christiankfoury.aiplatform.security.OperatorIdentity.current().actorId());
     audit.setAction(action);
     audit.setResourceType(type);
     audit.setResourceId(resource.getId().toString());

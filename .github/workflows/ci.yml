@@ -61,6 +61,7 @@ jobs:
           java -jar target/production-ai-platform-api-0.1.0-SNAPSHOT-migration.jar migrate
           python3 - <<'PY'
           import json
+          import os
           import subprocess
           import time
           import urllib.error
@@ -68,80 +69,114 @@ jobs:
           from pathlib import Path
 
           with open("target/packaged-smoke.log", "w") as log:
-              process = subprocess.Popen([
-                  "java", "-jar", "target/production-ai-platform-api-0.1.0-SNAPSHOT.jar",
-                  "--server.port=18080", "--platform.seed.enabled=true", "--platform.environment=local",
-              ], stdout=log, stderr=subprocess.STDOUT)
+              fixture_file = Path("target/operator-fixture.json")
+              fixture_file.unlink(missing_ok=True)
+              fixture = subprocess.Popen(["java", "../../scripts/fixtures/OperatorIdentityFixture.java", str(fixture_file)], stdout=log, stderr=subprocess.STDOUT)
               try:
                   for attempt in range(30):
-                      if process.poll() is not None:
-                          raise RuntimeError("Packaged service exited during startup")
-                      try:
-                          with urllib.request.urlopen("http://127.0.0.1:18080/health/ready", timeout=1) as response:
-                              if json.load(response)["status"] == "ready":
-                                  break
-                      except (OSError, urllib.error.HTTPError):
-                          time.sleep(1)
+                      if fixture_file.exists():
+                          identity = json.loads(fixture_file.read_text())
+                          break
+                      if fixture.poll() is not None:
+                          raise RuntimeError("Synthetic issuer failed")
+                      time.sleep(1)
                   else:
-                      raise RuntimeError("Packaged service never became ready")
-                  for path in ("/health", "/health/live", "/actuator/health"):
-                      with urllib.request.urlopen("http://127.0.0.1:18080" + path, timeout=2) as response:
-                          assert response.status == 200
-                  for path in ("/actuator/env", "/contract-test/validate"):
-                      try:
-                          urllib.request.urlopen("http://127.0.0.1:18080" + path, timeout=2)
-                      except urllib.error.HTTPError as error:
-                          assert error.code == 404
-                      else:
-                          raise RuntimeError("Unexpected exposed endpoint: " + path)
-                  completion = urllib.request.Request(
-                      "http://127.0.0.1:18080/v1/gateway/completions",
-                      data=json.dumps({"input": "synthetic hello"}).encode(),
-                      headers={"Content-Type": "application/json", "X-API-Key": "local-dev-placeholder-key-not-a-secret"},
-                  )
-                  with urllib.request.urlopen(completion, timeout=5) as response:
-                      result = json.load(response)
-                      assert response.status == 200 and result["status"] == "succeeded"
-                      assert result["estimated_cost_usd"] == "0.000005"
-                  for client in ("proofbase", "agentops"):
-                      captured = json.loads(Path(f"../../contracts/client-captures/{client}.json").read_text())
-                      for event in captured["events"].values():
-                          for duplicate in (False, True):
-                              telemetry = urllib.request.Request(
-                                  "http://127.0.0.1:18080/v1/usage/llm-events",
-                                  data=json.dumps(event).encode(),
-                                  headers={"Content-Type": "application/json", "X-API-Key": f"{client}-local-placeholder-key-not-a-secret"},
-                              )
-                              with urllib.request.urlopen(telemetry, timeout=5) as response:
-                                  result = json.load(response)
-                                  assert response.status == 202 and result["accepted"] is True
-                                  assert result["duplicate"] is duplicate
-                  with urllib.request.urlopen("http://127.0.0.1:18080/v1/usage/summary", timeout=5) as response:
-                      summary = json.load(response)
-                      assert summary["request_count"] == 9 and summary["error_count"] == 0
-                      assert summary["estimated_cost_usd"] == "0.000389"
-                  for path, count in (("/v1/usage/requests", 9), ("/v1/usage/errors", 0),
-                                      ("/v1/usage/scopes", 3), ("/v1/admin/prompt-versions", 3),
-                                      ("/v1/admin/model-routes", 3)):
-                      with urllib.request.urlopen("http://127.0.0.1:18080" + path, timeout=5) as response:
-                          assert len(json.load(response)) == count
-                  operator = urllib.request.Request(
-                      "http://127.0.0.1:18080/v1/admin/prompt-versions",
-                      data=json.dumps({"project_slug": "demo-project", "application_slug": "demo-app",
-                                       "name": "packaged-operator", "content": "Synthetic packaged prompt."}).encode(),
-                      headers={"Content-Type": "application/json"},
-                  )
-                  with urllib.request.urlopen(operator, timeout=5) as response:
-                      prompt = json.load(response)
-                      assert response.status == 201 and prompt["version"] == 1 and prompt["is_active"] is True
-                  print("Packaged Java health, gateway, telemetry/replay, usage and local operator checks passed")
-              finally:
-                  process.terminate()
+                      fixture.terminate()
+                      fixture.wait(timeout=10)
+                      raise RuntimeError("Synthetic issuer never became ready")
+                  operator_headers = {"Authorization": "Bearer " + identity["token"]}
+                  app_env = {**os.environ, "OPERATOR_AUTH_MODE": "oidc", "OIDC_ISSUER": "https://operator.fixture.invalid",
+                             "OIDC_AUDIENCE": "https://api.fixture.invalid", "OIDC_JWKS_URI": identity["jwks_uri"]}
+                  process = subprocess.Popen([
+                      "java", "-jar", "target/production-ai-platform-api-0.1.0-SNAPSHOT.jar",
+                      "--server.port=18080", "--platform.seed.enabled=true", "--platform.environment=local",
+                  ], env=app_env, stdout=log, stderr=subprocess.STDOUT)
                   try:
-                      process.wait(timeout=25)
-                  except subprocess.TimeoutExpired:
-                      process.kill()
-                      process.wait(timeout=5)
+                      for attempt in range(30):
+                          if process.poll() is not None:
+                              raise RuntimeError("Packaged service exited during startup")
+                          try:
+                              with urllib.request.urlopen("http://127.0.0.1:18080/health/ready", timeout=1) as response:
+                                  if json.load(response)["status"] == "ready":
+                                      break
+                          except (OSError, urllib.error.HTTPError):
+                              time.sleep(1)
+                      else:
+                          raise RuntimeError("Packaged service never became ready")
+                      for slug in ("demo-project", "proofbase", "agentops"):
+                          subprocess.run(["java", "-jar", "target/production-ai-platform-api-0.1.0-SNAPSHOT-migration.jar", "grant-operator"],
+                                         env={**app_env, "OPERATOR_SUBJECT": "packaged-smoke", "OPERATOR_PROJECT_SLUG": slug, "OPERATOR_ROLE": "operator"},
+                                         stdout=log, stderr=subprocess.STDOUT, check=True, timeout=15)
+                      for path in ("/v1/usage/summary", "/v1/admin/prompt-versions", "/v1/operator/me"):
+                          try:
+                              urllib.request.urlopen("http://127.0.0.1:18080" + path, timeout=2)
+                          except urllib.error.HTTPError as error:
+                              assert error.code == 401
+                          else:
+                              raise RuntimeError("Anonymous operator endpoint exposed")
+                      for path in ("/health", "/health/live", "/actuator/health"):
+                          with urllib.request.urlopen("http://127.0.0.1:18080" + path, timeout=2) as response:
+                              assert response.status == 200
+                      for path in ("/actuator/env", "/contract-test/validate"):
+                          try:
+                              urllib.request.urlopen("http://127.0.0.1:18080" + path, timeout=2)
+                          except urllib.error.HTTPError as error:
+                              assert error.code == 404
+                          else:
+                              raise RuntimeError("Unexpected exposed endpoint: " + path)
+                      completion = urllib.request.Request(
+                          "http://127.0.0.1:18080/v1/gateway/completions",
+                          data=json.dumps({"input": "synthetic hello"}).encode(),
+                          headers={"Content-Type": "application/json", "X-API-Key": "local-dev-placeholder-key-not-a-secret"},
+                      )
+                      with urllib.request.urlopen(completion, timeout=5) as response:
+                          result = json.load(response)
+                          assert response.status == 200 and result["status"] == "succeeded"
+                          assert result["estimated_cost_usd"] == "0.000005"
+                      for client in ("proofbase", "agentops"):
+                          captured = json.loads(Path(f"../../contracts/client-captures/{client}.json").read_text())
+                          for event in captured["events"].values():
+                              for duplicate in (False, True):
+                                  telemetry = urllib.request.Request(
+                                      "http://127.0.0.1:18080/v1/usage/llm-events",
+                                      data=json.dumps(event).encode(),
+                                      headers={"Content-Type": "application/json", "X-API-Key": f"{client}-local-placeholder-key-not-a-secret"},
+                                  )
+                                  with urllib.request.urlopen(telemetry, timeout=5) as response:
+                                      result = json.load(response)
+                                      assert response.status == 202 and result["accepted"] is True
+                                      assert result["duplicate"] is duplicate
+                      with urllib.request.urlopen(urllib.request.Request("http://127.0.0.1:18080/v1/usage/summary", headers=operator_headers), timeout=5) as response:
+                          summary = json.load(response)
+                          assert summary["request_count"] == 9 and summary["error_count"] == 0
+                          assert summary["estimated_cost_usd"] == "0.000389"
+                      for path, count in (("/v1/usage/requests", 9), ("/v1/usage/errors", 0),
+                                          ("/v1/usage/scopes", 3), ("/v1/admin/prompt-versions", 3),
+                                          ("/v1/admin/model-routes", 3)):
+                          with urllib.request.urlopen(urllib.request.Request("http://127.0.0.1:18080" + path, headers=operator_headers), timeout=5) as response:
+                              assert len(json.load(response)) == count
+                      operator = urllib.request.Request(
+                          "http://127.0.0.1:18080/v1/admin/prompt-versions",
+                          data=json.dumps({"project_slug": "demo-project", "application_slug": "demo-app",
+                                           "name": "packaged-operator", "content": "Synthetic packaged prompt."}).encode(),
+                          headers={"Content-Type": "application/json", **operator_headers},
+                      )
+                      with urllib.request.urlopen(operator, timeout=5) as response:
+                          prompt = json.load(response)
+                          assert response.status == 201 and prompt["version"] == 1 and prompt["is_active"] is True
+                      print("Packaged Java health, gateway, telemetry/replay, usage, OIDC authorization and operator checks passed")
+                  finally:
+                      process.terminate()
+                      try:
+                          process.wait(timeout=25)
+                      except subprocess.TimeoutExpired:
+                          process.kill()
+                          process.wait(timeout=5)
+              finally:
+                  if fixture.poll() is None:
+                      fixture.terminate()
+                      fixture.wait(timeout=10)
+                  fixture_file.unlink(missing_ok=True)
           PY
 
   # Backend validation proves the FastAPI service can lint, format-check,

@@ -111,6 +111,21 @@ public record UsageFilter(String where, MapSqlParameterSource parameters, int li
     }
   }
 
+  public UsageFilter authorized(Set<UUID> projects) {
+    Object requested = parameters.getValues().get("project_id");
+    if (requested != null && !projects.contains(requested))
+      throw new dev.christiankfoury.aiplatform.http.ApiFailure(403, "Project access denied");
+    var scoped = new MapSqlParameterSource().addValues(parameters.getValues());
+    String restriction;
+    if (projects.isEmpty()) restriction = "1 = 0";
+    else {
+      restriction = "r.project_id IN (:authorized_projects)";
+      scoped.addValue("authorized_projects", projects);
+    }
+    return new UsageFilter(
+        where + (where.isEmpty() ? " WHERE " : " AND ") + restriction, scoped, limit);
+  }
+
   private static String single(Map<String, String[]> query, String name) {
     return query.containsKey(name) ? query.get(name)[0] : null;
   }

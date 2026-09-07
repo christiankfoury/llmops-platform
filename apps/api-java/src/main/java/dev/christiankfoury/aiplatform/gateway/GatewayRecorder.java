@@ -12,13 +12,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class GatewayRecorder {
   private final GatewayRequestRepository requests;
   private final CostRecordRepository costs;
+  private final dev.christiankfoury.aiplatform.security.KeyUsageRecorder keyUsage;
 
-  public GatewayRecorder(GatewayRequestRepository requests, CostRecordRepository costs) {
+  public GatewayRecorder(
+      GatewayRequestRepository requests,
+      CostRecordRepository costs,
+      dev.christiankfoury.aiplatform.security.KeyUsageRecorder keyUsage) {
     this.requests = requests;
     this.costs = costs;
+    this.keyUsage = keyUsage;
   }
 
-  @Transactional
+  @Transactional(timeout = 5)
   public void success(
       GatewayContext context,
       String requestId,
@@ -31,6 +36,7 @@ public class GatewayRecorder {
     request.setEstimatedOutputTokens(result.outputTokens());
     request.setEstimatedCostUsd(cost);
     requests.saveAndFlush(request);
+    keyUsage.record(context.scope().keyId());
     CostRecord record = new CostRecord();
     record.setGatewayRequestId(request.getId());
     record.setProjectId(context.scope().projectId());
@@ -43,12 +49,13 @@ public class GatewayRecorder {
     costs.saveAndFlush(record);
   }
 
-  @Transactional
+  @Transactional(timeout = 5)
   public void failure(GatewayContext context, String requestId, int latency, String category) {
     GatewayRequest request = base(context, requestId, latency);
     request.setStatus("failed");
     request.setErrorCategory(category);
     requests.saveAndFlush(request);
+    keyUsage.record(context.scope().keyId());
   }
 
   private GatewayRequest base(GatewayContext context, String requestId, int latency) {

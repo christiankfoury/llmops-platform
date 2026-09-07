@@ -22,14 +22,14 @@ After running migrations and seed data locally, inspect recent audit activity wi
 
 ```bash
 docker compose exec -T postgres psql -U ai_platform -d ai_platform \
-  -c "select created_at, actor_type, actor_id, action, target_type, target_id from audit_logs order by created_at desc limit 20;"
+  -c "select created_at, actor_type, actor_id, action, resource_type, resource_id from audit_logs order by created_at desc limit 20;"
 ```
 
 Filter by actor:
 
 ```bash
 docker compose exec -T postgres psql -U ai_platform -d ai_platform \
-  -c "select created_at, action, target_type, target_id from audit_logs where actor_id = 'local-admin' order by created_at desc limit 20;"
+  -c "select created_at, action, resource_type, resource_id from audit_logs where actor_id = 'local-admin' order by created_at desc limit 20;"
 ```
 
 ## Production review path
@@ -57,3 +57,7 @@ Escalate to incident response if audit review shows:
 - audit gaps where a known configuration change has no corresponding record
 
 Use `docs/incident-response.md` for severity assignment and `docs/runbook.md` for service triage.
+
+## Java verified actors (Phase 55)
+
+Configuration/key mutations record `actor_type=operator` with a hash of the verified issuer and subject, ignoring `X-Actor-ID`. The explicit database grant command records `actor_type=database_owner`, the database session user and role/activity metadata. Grant/key changes and audits are atomic. Neither path logs tokens, raw keys or prompt content. Use `resource_type`/`resource_id` when querying the current schema. See [operator security](java-operator-security.md) for grant provisioning, authorization and audit limitations.

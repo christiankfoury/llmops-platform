@@ -196,3 +196,7 @@ Phase 53 adds real PostgreSQL tests for both client fixture sets, concurrent ret
 ## Java usage and configuration APIs
 
 Phase 54 validates filtered summaries/lists, decimal/null/timestamp fidelity, active scopes, local operator access, prompt/route activation races, cross-application isolation, audit rollback and gateway use of newly configured resources against required PostgreSQL. The packaged smoke exercises all dashboard reads and a local configuration write. Frontend lint, type checks and all six existing tests pass without frontend source changes. See [Java operator APIs](java-operator-apis.md).
+
+## Java operator authorization and dashboard sessions
+
+Phase 55 adds a real local RSA/JWKS fixture and PostgreSQL tests for operator JWT claims/signatures, project grants, scoped key lifecycle and audit rollback. Frontend tests run an actual local OIDC authorization-code exchange with PKCE/state/nonce and ID signature verification, plus encrypted-session, CSRF, proxy and synthetic-demo negative tests. `npm run build` checks server-only modules and route packaging. The packaged Java smoke provisions grants through its migration artifact and verifies both anonymous refusal and authenticated dashboard operations; its test issuer/private key require no cloud account and are not included in the service JAR. See [operator security](java-operator-security.md).

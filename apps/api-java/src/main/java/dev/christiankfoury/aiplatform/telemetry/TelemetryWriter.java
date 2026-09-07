@@ -19,16 +19,19 @@ public class TelemetryWriter {
   private final GatewayRequestRepository requests;
   private final CostRecordRepository costs;
   private final JsonMapper json;
+  private final dev.christiankfoury.aiplatform.security.KeyUsageRecorder keyUsage;
 
   public TelemetryWriter(
       NamedParameterJdbcTemplate jdbc,
       GatewayRequestRepository requests,
       CostRecordRepository costs,
-      JsonMapper json) {
+      JsonMapper json,
+      dev.christiankfoury.aiplatform.security.KeyUsageRecorder keyUsage) {
     this.jdbc = jdbc;
     this.requests = requests;
     this.costs = costs;
     this.json = json;
+    this.keyUsage = keyUsage;
   }
 
   @Transactional(timeout = 5)
@@ -76,6 +79,7 @@ public class TelemetryWriter {
         requests
             .findByApplicationIdAndExternalEventId(scope.applicationId(), event.text("event_id"))
             .orElseThrow(() -> new IllegalStateException("Telemetry write could not be read"));
+    keyUsage.record(scope.keyId());
     if (inserted == 0) {
       var metadata = request.getExternalMetadataJson();
       if (metadata == null || !event.fingerprint().equals(metadata.get("payload_fingerprint")))

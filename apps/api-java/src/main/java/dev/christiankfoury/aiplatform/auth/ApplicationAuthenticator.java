@@ -17,10 +17,15 @@ public class ApplicationAuthenticator {
 
   private final ApiKeyRepository keys;
   private final ClientApplicationRepository applications;
+  private final dev.christiankfoury.aiplatform.persistence.repository.ProjectRepository projects;
 
-  public ApplicationAuthenticator(ApiKeyRepository keys, ClientApplicationRepository applications) {
+  public ApplicationAuthenticator(
+      ApiKeyRepository keys,
+      ClientApplicationRepository applications,
+      dev.christiankfoury.aiplatform.persistence.repository.ProjectRepository projects) {
     this.keys = keys;
     this.applications = applications;
+    this.projects = projects;
   }
 
   @Transactional(readOnly = true)
@@ -37,6 +42,10 @@ public class ApplicationAuthenticator {
             .filter(item -> Boolean.TRUE.equals(item.getIsActive()))
             .orElseThrow(
                 () -> new ApiFailure(401, "API key is not attached to an active application"));
+    projects
+        .findById(application.getProjectId())
+        .filter(project -> Boolean.TRUE.equals(project.getIsActive()))
+        .orElseThrow(() -> new ApiFailure(401, "API key is not attached to an active project"));
     return new Scope(key.getId(), application.getId(), application.getProjectId());
   }
 

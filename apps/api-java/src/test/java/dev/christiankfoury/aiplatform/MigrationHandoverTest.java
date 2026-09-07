@@ -53,6 +53,40 @@ class MigrationHandoverTest extends PostgresTestSupport {
   }
 
   @Test
+  void additiveGrantMigrationPreservesLegacyRowsAndEnforcesRoleConstraints() throws Exception {
+    String legacy = createSchema(true);
+    try (Connection connection = connection(legacy)) {
+      try (var input = getClass().getResourceAsStream("/legacy-fixture.sql");
+          var statement = connection.createStatement()) {
+        if (input == null) throw new IllegalStateException("Legacy fixture is missing");
+        statement.execute(new String(input.readAllBytes(), StandardCharsets.UTF_8));
+      }
+      var before = rows(connection, legacy);
+      Flyway latest =
+          Flyway.configure().configuration(flyway(legacy).getConfiguration()).target("2").load();
+      DatabaseMigrations.adoptAlembic(latest);
+      assertThat(rows(connection, legacy)).isEqualTo(before);
+      try (var statement = connection.createStatement();
+          var count = statement.executeQuery("SELECT count(*) FROM operator_project_grants")) {
+        count.next();
+        assertThat(count.getInt(1)).isZero();
+      }
+      try (var insert =
+          connection.prepareStatement(
+              "INSERT INTO operator_project_grants (id,issuer,subject,project_id,role,is_active,created_at,updated_at) SELECT ?, 'https://fixture.invalid', 'synthetic-subject', id, ?, true, now(), now() FROM projects LIMIT 1")) {
+        insert.setObject(1, UUID.randomUUID());
+        insert.setString(2, "viewer");
+        assertThat(insert.executeUpdate()).isOne();
+        insert.setObject(1, UUID.randomUUID());
+        insert.setString(2, "admin");
+        assertThatThrownBy(insert::executeUpdate).isInstanceOf(java.sql.SQLException.class);
+      }
+      DatabaseMigrations.migrate(latest);
+      assertThat(rows(connection, legacy)).isEqualTo(before);
+    }
+  }
+
+  @Test
   void implicitAdoptionAndWrongVersionAreRefusedWithoutHistoryWrites() throws Exception {
     String legacy = createSchema(true);
     assertThatThrownBy(() -> DatabaseMigrations.migrate(flyway(legacy)))
@@ -164,6 +198,7 @@ class MigrationHandoverTest extends PostgresTestSupport {
         .schemas(schema)
         .defaultSchema(schema)
         .baselineVersion("1")
+        .target("1")
         .baselineOnMigrate(false)
         .cleanDisabled(true)
         .load();
@@ -171,7 +206,17 @@ class MigrationHandoverTest extends PostgresTestSupport {
 
   private Map<String, List<String>> rows(Connection connection, String schema) throws Exception {
     Map<String, List<String>> result = new TreeMap<>();
-    for (String table : verifier.inspect(connection, schema).keySet()) {
+    // Compare only the eight preserved legacy tables; later Java migrations add their own tables.
+    for (String table :
+        List.of(
+            "applications",
+            "api_keys",
+            "audit_logs",
+            "cost_records",
+            "gateway_requests",
+            "model_routes",
+            "projects",
+            "prompt_versions")) {
       List<String> rows = new ArrayList<>();
       try (var statement = connection.createStatement();
           var data =

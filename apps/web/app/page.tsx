@@ -1,5 +1,2 @@
-import { Dashboard } from "../components/dashboard";
-
-export default function Home() {
-  return <Dashboard />;
-}
+import { OperatorDashboard } from "../components/operator-dashboard";
+export default function Home() { return <OperatorDashboard />; }

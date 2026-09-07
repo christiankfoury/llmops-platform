@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import dev.christiankfoury.aiplatform.http.ApiFailure;
-import dev.christiankfoury.aiplatform.operator.LocalOperatorAccess;
 import dev.christiankfoury.aiplatform.persistence.model.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -13,8 +11,6 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 import tools.jackson.core.type.TypeReference;
 
 @SpringBootTest
@@ -254,38 +250,25 @@ class UsageHttpTest extends OperatorTestSupport {
   }
 
   @Test
-  void operatorBoundariesRejectRemoteOriginsHostsAndWildcardBind() throws Exception {
+  void operatorCredentialsAreRequiredAndBrowserCorsIsClosed() throws Exception {
     http.perform(
             get("/v1/usage/summary")
+                .with(
+                    org.springframework.security.test.web.servlet.request
+                        .SecurityMockMvcRequestPostProcessors.anonymous())
+                .header("Cookie", "JSESSIONID=synthetic-cookie")
+                .header("X-API-Key", "synthetic-machine-key"))
+        .andExpect(status().isUnauthorized());
+    http.perform(
+            get("/v1/usage/scopes")
                 .with(
                     request -> {
                       request.setRemoteAddr("203.0.113.10");
                       return request;
                     }))
-        .andExpect(status().isForbidden());
-    http.perform(get("/v1/usage/scopes").header("Host", "rebinding.example.invalid:8080"))
-        .andExpect(status().isForbidden());
-    http.perform(get("/v1/usage/scopes").header("Origin", "https://untrusted.example.invalid"))
-        .andExpect(status().isForbidden());
-    http.perform(
-            options("/v1/admin/prompt-versions")
-                .header("Origin", "http://localhost:3000")
-                .header("Access-Control-Request-Method", "POST")
-                .header("Access-Control-Request-Headers", "content-type"))
-        .andExpect(status().isOk())
-        .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:3000"));
-    http.perform(get("/v1/usage/scopes").header("Origin", "http://localhost:3000"))
         .andExpect(status().isOk());
-    for (var access :
-        List.of(
-            new LocalOperatorAccess("0.0.0.0", "local", 8080),
-            new LocalOperatorAccess("127.0.0.1", "production", 8080))) {
-      MockHttpServletRequest request = new MockHttpServletRequest();
-      request.setRemoteAddr("127.0.0.1");
-      request.setServerName("localhost");
-      assertThatThrownBy(
-              () -> access.preHandle(request, new MockHttpServletResponse(), new Object()))
-          .isInstanceOf(ApiFailure.class);
-    }
+    http.perform(get("/v1/usage/scopes").header("Origin", "https://untrusted.example.invalid"))
+        .andExpect(status().isOk())
+        .andExpect(header().doesNotExist("Access-Control-Allow-Origin"));
   }
 }

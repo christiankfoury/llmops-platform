@@ -237,7 +237,7 @@ class TelemetryHttpTest extends PostgresTestSupport {
     try {
       project.setIsActive(false);
       projects.saveAndFlush(project);
-      submit(body).andExpect(status().isForbidden());
+      submit(body).andExpect(status().isUnauthorized());
       assertThat(
               requests.findAll().stream()
                   .filter(item -> Objects.equals(item.getExternalEventId(), body.get("event_id"))))

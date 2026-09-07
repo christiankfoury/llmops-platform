@@ -8,12 +8,32 @@ import org.flywaydb.core.Flyway;
 public final class MigrationCommand {
   private MigrationCommand() {}
 
-  public static void main(String[] args) {
-    if (args.length != 1 || !(args[0].equals("migrate") || args[0].equals("adopt-alembic"))) {
-      throw new IllegalArgumentException("Choose migrate or adopt-alembic explicitly");
+  public static void main(String[] args) throws java.sql.SQLException {
+    if (args.length != 1
+        || !java.util.Set.of("migrate", "adopt-alembic", "grant-operator", "revoke-operator-grant")
+            .contains(args[0])) {
+      throw new IllegalArgumentException(
+          "Choose migrate, adopt-alembic, grant-operator, or revoke-operator-grant explicitly");
     }
     String schema = System.getenv().getOrDefault("DATABASE_SCHEMA", "public");
     SchemaContractVerifier.checkSchemaName(schema);
+    if (args[0].equals("grant-operator") || args[0].equals("revoke-operator-grant")) {
+      try (var connection =
+          java.sql.DriverManager.getConnection(
+              required("JDBC_DATABASE_URL"),
+              required("DATABASE_USERNAME"),
+              required("DATABASE_PASSWORD"))) {
+        dev.christiankfoury.aiplatform.security.OperatorGrantCommand.execute(
+            connection,
+            schema,
+            required("OIDC_ISSUER"),
+            required("OPERATOR_SUBJECT"),
+            required("OPERATOR_PROJECT_SLUG"),
+            required("OPERATOR_ROLE"),
+            args[0].equals("revoke-operator-grant"));
+      }
+      return;
+    }
     Flyway flyway =
         Flyway.configure()
             .dataSource(

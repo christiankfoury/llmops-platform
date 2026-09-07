@@ -100,8 +100,12 @@ class ConfigurationHttpTest extends OperatorTestSupport {
         .hasSize(5)
         .allSatisfy(
             audit -> {
-              assertThat(audit.getActorId()).isEqualTo("local-admin");
-              assertThat(audit.getActorType()).isEqualTo("admin");
+              assertThat(audit.getActorId())
+                  .isEqualTo(
+                      new dev.christiankfoury.aiplatform.security.OperatorIdentity(
+                              OPERATOR_ISSUER, OPERATOR_SUBJECT)
+                          .actorId());
+              assertThat(audit.getActorType()).isEqualTo("operator");
               assertThat(audit.getApplicationId()).isEqualTo(application.getId());
               assertThat(audit.getMetadataJson().toString())
                   .doesNotContain("Updated synthetic prompt.", "Synthetic gateway prompt.");
@@ -335,16 +339,16 @@ class ConfigurationHttpTest extends OperatorTestSupport {
   }
 
   @Test
-  void crossOriginActivationCannotBypassLocalWriteBoundary() throws Exception {
+  void machineHeadersCannotAuthorizeOperatorActivation() throws Exception {
     var created = response(create(PROMPTS, promptBody()).andExpect(status().isCreated()));
     http.perform(
             post(PROMPTS + "/" + created.get("id") + "/activate")
-                .header("Origin", "https://untrusted.example.invalid"))
-        .andExpect(status().isForbidden());
-    http.perform(
-            post(PROMPTS + "/" + created.get("id") + "/activate")
-                .header("Host", "rebinding.example.invalid"))
-        .andExpect(status().isForbidden());
+                .with(
+                    org.springframework.security.test.web.servlet.request
+                        .SecurityMockMvcRequestPostProcessors.anonymous())
+                .header("X-API-Key", "synthetic-machine-key")
+                .header("X-Actor-ID", "spoofed-operator"))
+        .andExpect(status().isUnauthorized());
     assertThat(projectAudits()).hasSize(1);
   }
 }

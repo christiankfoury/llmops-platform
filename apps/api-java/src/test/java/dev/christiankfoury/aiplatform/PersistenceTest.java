@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import dev.christiankfoury.aiplatform.persistence.DevelopmentSeeder;
-import dev.christiankfoury.aiplatform.persistence.SchemaContractVerifier;
 import dev.christiankfoury.aiplatform.persistence.model.GatewayRequest;
 import dev.christiankfoury.aiplatform.persistence.repository.ApiKeyRepository;
 import dev.christiankfoury.aiplatform.persistence.repository.ClientApplicationRepository;
@@ -49,8 +48,11 @@ class PersistenceTest extends PostgresTestSupport {
     assertThat(keys.findById(key.getId()).orElseThrow().getRevokedAt()).isNotNull();
     assertThat(keys.findAll())
         .allSatisfy(item -> assertThat(item.getKeyHash()).matches("[a-f0-9]{64}"));
-    try (var connection = dataSource.getConnection()) {
-      new SchemaContractVerifier().verify(connection, "public");
+    try (var connection = dataSource.getConnection();
+        var statement = connection.createStatement();
+        var rows = statement.executeQuery("SELECT count(*) FROM operator_project_grants")) {
+      rows.next();
+      assertThat(rows.getInt(1)).isZero();
     }
   }
 

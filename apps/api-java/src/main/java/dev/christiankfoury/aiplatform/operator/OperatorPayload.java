@@ -19,7 +19,8 @@ public final class OperatorPayload {
     PROMPT_CREATE,
     PROMPT_UPDATE,
     ROUTE_CREATE,
-    ROUTE_UPDATE
+    ROUTE_UPDATE,
+    KEY_CREATE
   }
 
   public static final int MAX_BYTES = 262144;
@@ -51,7 +52,9 @@ public final class OperatorPayload {
           "provider",
           80,
           "model_name",
-          160);
+          160,
+          "description",
+          240);
   private final Map<String, Object> values;
 
   private OperatorPayload(Map<String, Object> values, Kind kind) {
@@ -72,6 +75,7 @@ public final class OperatorPayload {
                   "priority",
                   "is_default",
                   "is_active");
+          case KEY_CREATE -> Set.of("description");
           case ROUTE_UPDATE ->
               Set.of("provider", "model_name", "priority", "is_default", "is_active");
         };

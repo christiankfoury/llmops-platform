@@ -23,12 +23,17 @@ public class UsageQueries {
       UUID id, String name, String slug, List<ApplicationScope> applications) {}
 
   private final NamedParameterJdbcTemplate jdbc;
+  private final dev.christiankfoury.aiplatform.security.OperatorAuthorization authorization;
 
-  public UsageQueries(NamedParameterJdbcTemplate jdbc) {
+  public UsageQueries(
+      NamedParameterJdbcTemplate jdbc,
+      dev.christiankfoury.aiplatform.security.OperatorAuthorization authorization) {
     this.jdbc = jdbc;
+    this.authorization = authorization;
   }
 
   public Summary summary(UsageFilter filter) {
+    filter = filter.authorized(authorization.projects(false));
     return jdbc.queryForObject(
         """
         SELECT count(*) AS request_count, count(*) FILTER (WHERE r.status = 'failed') AS error_count,
@@ -47,6 +52,7 @@ public class UsageQueries {
   }
 
   public List<Map<String, Object>> requests(UsageFilter filter) {
+    filter = filter.authorized(authorization.projects(false));
     return jdbc.query(
         """
         SELECT r.id, r.request_id, r.project_id, p.name AS project_name, p.slug AS project_slug,
@@ -77,14 +83,16 @@ public class UsageQueries {
   }
 
   public List<ProjectScope> scopes() {
+    var allowed = authorization.projects(false);
+    if (allowed.isEmpty()) return List.of();
     return jdbc.query(
         """
         SELECT p.id, p.name, p.slug, a.id AS app_id, a.name AS app_name,
           a.slug AS app_slug, a.environment
         FROM projects p LEFT JOIN applications a ON a.project_id = p.id AND a.is_active = true
-        WHERE p.is_active = true ORDER BY p.name, p.id, a.name, a.id
+        WHERE p.is_active = true AND p.id IN (:allowed) ORDER BY p.name, p.id, a.name, a.id
         """,
-        Map.of(),
+        Map.of("allowed", allowed),
         rows -> {
           Map<UUID, ProjectScope> projects = new LinkedHashMap<>();
           while (rows.next()) {

@@ -453,7 +453,7 @@ function FilterToolbar({
           <p>
             {isRefreshing
               ? "Refreshing filtered platform data"
-              : "Backend-backed usage view, auto-refreshes every 5 seconds"}
+              : "Usage view, refreshes every 5 seconds"}
           </p>
         </div>
         <button className={styles.resetButton} type="button" onClick={onReset}>
@@ -636,7 +636,7 @@ function RequestTable({
         description={
           hasFilters
             ? "Reset filters or widen the date range to inspect more gateway or telemetry traffic."
-            : "Send a local gateway request or external telemetry event to populate this operational view."
+            : "There are no records in this view."
         }
       />
     );
@@ -694,7 +694,7 @@ function ConfigList({
   emptyLabel?: string;
 }) {
   if (rows.length === 0) {
-    return <EmptyState title={emptyLabel} description="Configuration will appear here once seeded." />;
+    return <EmptyState title={emptyLabel} description="No configuration is available for this view." />;
   }
 
   return (

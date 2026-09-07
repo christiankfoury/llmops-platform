@@ -46,3 +46,7 @@ Opt-in Java seeding creates the same local demo, Proofbase and AgentOps scopes a
 Java tests start actual disposable PostgreSQL 16.15 through pinned embedded PostgreSQL tooling. Startup failures fail the suite; there is no database skip or H2 substitute. Tests compare a fresh Flyway schema with an imported Alembic schema containing synthetic rows across all eight tables, verify unchanged rows after adoption, exercise schema drift refusals, JPA round trips, transactional uniqueness rollback and seed idempotency. Python CI requires its ownership-lock regression against PostgreSQL. CI also runs the packaged migration JAR against a separate service database before starting the application JAR.
 
 No existing local application database or AWS RDS database was migrated during this phase. Cloud handover evidence belongs to the approved deployment phases.
+
+## Additive operator migration (Phase 55)
+
+Flyway V2 adds `operator_project_grants` with a unique identity/project grant and constrained viewer/operator roles. Fresh installation and explicit Alembic adoption now apply V2 after the verified V1 baseline; all eight legacy tables and rows remain unchanged. The strict eight-table verifier still applies before adoption and is not weakened to ignore unknown tables. Tests separately freeze V1 parity and verify additive V2 adoption/data preservation. Runtime Hibernate validates the ninth entity; grants are never seeded automatically. Grant provisioning is an explicit command documented in [operator security](java-operator-security.md).

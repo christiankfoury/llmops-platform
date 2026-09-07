@@ -215,3 +215,7 @@ AgentOps redaction boundary:
 - Workflow summary events must remain aggregate-only and non-billable in the platform to avoid double-counting per-step cost.
 
 - Screenshots should show aggregate operational data, short request ids, source app, operation type, model, latency, and estimated cost only.
+
+## Java operator boundary (Phase 55)
+
+The Java service replaces local operator identity with RS256 OIDC verification and explicit viewer/operator project grants. The dashboard uses a server-side OIDC code flow, encrypted HttpOnly sessions and origin/CSRF checks; machine keys remain separate. Application keys are generated with 256 bits of entropy, returned once, stored hashed and revoked with atomic verified audit records. Default access is closed. The explicit frontend synthetic demo never queries platform data. See [Java operator security](java-operator-security.md) for exact settings, tests and stateless-session revocation limits. These controls apply to Java; the historical Python deployment remains a reference until Phase 58.

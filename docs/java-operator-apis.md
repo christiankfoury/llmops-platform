@@ -1,12 +1,10 @@
-# Java usage and local operator APIs
+# Java usage and operator APIs
 
-Phase 54 ports the dashboard query contract and prompt/model configuration to Java. AWS remains the target. Python is still the Docker/Helm reference until Phase 58; these local APIs are not public-ready operator authentication. Phase 55 supplies OIDC roles and server-side project grants.
+Phase 54 ports the dashboard query contract and prompt/model configuration to Java. AWS remains the target. Python is still the Docker/Helm reference until Phase 58; Phase 55 supplies OIDC roles and server-side project grants. Live AWS deployment evidence remains a later phase.
 
-## Local access boundary
+## Operator access
 
-Usage reads and `/v1/admin/**` require all of: `ENVIRONMENT=local`, an API bind address of localhost or a loopback literal, a loopback client address, a loopback Host, and an allowed Origin when present. Wildcard binds, nonlocal environments, remote clients, rebinding hosts, untrusted origins and the literal null origin are refused. The only browser origins allowed are localhost/127.0.0.1 on dashboard port 3000 and loopback origins on the configured API port. Approved JSON preflights support GET/HEAD/POST/PATCH; browser credentials are disabled. Command-line calls without Origin remain possible on the isolated local service.
-
-The telemetry POST is excluded from the operator interceptor and retains its machine-key authentication. Gateway authentication is unchanged. Operator writes always use the explicitly local `local-admin` audit actor; caller-supplied X-Actor-ID headers are ignored. This avoids treating a header as a verified identity. Do not expose these endpoints through a proxy, port tunnel or public ingress before the Phase 55 authorization controls exist; forwarding traffic onto loopback is outside this temporary boundary.
+Phase 55 replaces the temporary loopback-only identity with OIDC and server-side project grants. Every usage/configuration read requires an authenticated viewer/operator grant for the project; writes require operator. Machine API keys and caller actor headers cannot grant operator access. Access defaults to disabled when identity is unconfigured. See [operator security and setup](java-operator-security.md) for dashboard sessions, grant provisioning, key management and the isolated synthetic demo.
 
 ## Usage responses
 
@@ -37,6 +35,6 @@ Payloads are flat, strict JSON objects with known fields. Duplicate keys, traili
 
 ## Validation and next step
 
-Required PostgreSQL tests cover summary/list field sets, decimal/null fidelity, filter combinations, time boundaries, injection-shaped input, stable pagination, active scopes, local host/origin/client/bind checks, configuration creation/update/activation, concurrency, cross-application isolation, audit rollback and gateway use of newly configured resources. Existing dashboard lint, type checks and all six frontend tests pass without frontend source changes.
+Required PostgreSQL tests cover summary/list field sets, decimal/null fidelity, filters, stable pagination, active scopes, configuration concurrency, cross-application isolation, audit rollback and gateway use of configured resources. Phase 55 adds project authorization and verified audit identity. Existing dashboard contract tests remain in place alongside session/OIDC tests.
 
-The packaged-service CI smoke validates the synthetic nine-request summary after gateway and client telemetry ingestion, all six dashboard reads, and local prompt creation. Phase 55 replaces the temporary local identity boundary with authenticated operator roles/project grants and integrates dashboard authentication. Runtime cutover and real AWS deployment remain subsequent phases.
+The packaged-service smoke uses a temporary signed identity and explicitly provisioned grants. It validates anonymous refusal, the synthetic nine-request summary after gateway/client telemetry ingestion, all six dashboard reads and authenticated prompt creation. Redis readiness/limits, observability and runtime cutover follow in Phases 56-58.

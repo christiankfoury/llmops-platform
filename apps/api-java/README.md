@@ -1,6 +1,6 @@
 # Java API migration
 
-Phases 50-52 add the Spring Boot foundation, PostgreSQL persistence and the mock LLM gateway. The active Docker Compose, Helm, and deployment runtime remains the Python API in `apps/api` until Phase 58. This service provides lifecycle health, shared JSON/errors, persistence and the authenticated completion gateway. Telemetry, operator authorization and dependency readiness follow in their own phases. See the [gateway guide](../../docs/java-gateway.md) for request contracts, execution bounds and validation. AWS remains the target.
+Phases 50-55 implement the Java 21/Spring Boot service, PostgreSQL/Flyway, mock gateway, both clients' telemetry, dashboard/configuration APIs, OIDC project authorization and key lifecycle. Docker Compose, Helm and deployment remain on the Python reference until Phase 58. AWS remains the cloud target. See [operator setup](../../docs/java-operator-security.md), [gateway behavior](../../docs/java-gateway.md) and [telemetry contracts](../../docs/java-telemetry.md). Dependency readiness and full monitoring follow in Phases 56-57.
 
 The build uses Java 21, Spring Boot 4.1.1, Maven 3.9.16, Maven Wrapper 3.3.4, Spotless 3.10.2 and Google Java Format 1.28.0. The Spring Boot BOM pins library versions; the build rejects snapshot dependencies, checks Java/Maven versions, treats compiler warnings as errors, checks formatting and runs tests. Distribution downloads have a pinned SHA-256 checksum and CI checks the committed wrapper files before executing them. Dependency vulnerability and release SBOM gates are expanded in Phase 60; checksum validation alone is not a vulnerability scan.
 
@@ -39,3 +39,5 @@ References: [Spring Boot requirements](https://docs.spring.io/spring-boot/system
 Phase 53 ports Proofbase/AgentOps ingestion; see [Java telemetry](../../docs/java-telemetry.md) for source registration, replay compatibility, limits, transactions and client-capture validation.
 
 Phase 54 ports usage and local configuration controls; see [Java operator APIs](../../docs/java-operator-apis.md) for response contracts, access boundaries, audit behavior and concurrency.
+
+Phase 55 replaces the temporary local operator identity with OIDC/project grants. The default operator mode is closed; configure identity or select the frontend-only synthetic demo explicitly.
