@@ -129,7 +129,16 @@
           <skipAttach>true</skipAttach>
         </configuration>
         <executions>
-          <execution><phase>verify</phase><goals><goal>makeBom</goal></goals></execution>
+          <!-- Override Boot's default execution; keep this build/test inventory outside the runtime JAR. -->
+          <execution>
+            <id>default</id>
+            <phase>verify</phase>
+            <goals><goal>makeAggregateBom</goal></goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}</outputDirectory>
+              <outputName>bom</outputName>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>
