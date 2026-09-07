@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 51: PostgreSQL persistence and migration handover — In Progress after Phase 50 pushed validation and review. The Java service foundation passes local Maven verification and packaged-JAR smoke checks. Phases 1-47 remain the completed historical baseline.
+Phase 51: PostgreSQL persistence and migration handover — In Progress. Phase 50 review and all seven CI jobs passed, including Java verification and packaged-JAR smoke checks. Phases 1-47 remain the completed historical baseline.
 
 ## Phase table
 
@@ -137,7 +137,7 @@ Implementation notes:
 
 - Added Java 21/Spring Boot MVC foundation with pinned Maven Wrapper and integrity checks, formatting/static build gates, health endpoints and safe JSON/errors.
 - Added separate Java CI verification and packaged-service smoke test while Python remains the active runtime.
-- Validation: clean Maven verify passed locally (four tests, no skips); packaged health/exposure checks passed with the documented Windows socket-directory setting.
+- Validation: final clean Maven verify passed locally and in CI (five tests, no skips); packaged health/exposure checks passed locally and on Linux. CI run 34068363166 passed all seven jobs.
 - Security: localhost default bind, hidden Actuator diagnostics, safe error bodies, checksummed tooling; no credentials or cloud changes.
 - Reliability: lifecycle readiness and independent liveness; database readiness follows in Phase 56.
 - Observability: no live exporter; broader Java instrumentation remains Phase 57.

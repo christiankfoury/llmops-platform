@@ -17,7 +17,7 @@
 - Wrapper integrity: Maven distribution matched upstream SHA512 and its SHA256 is pinned. Wrapper archive matched the published SHA1 (upstream SHA512 unavailable); committed wrapper scripts/properties have a verified SHA256 manifest and explicit cross-platform line endings.
 - Packaged JAR: local health/live/ready and Actuator health returned 200; Actuator env and test-only routes returned 404. Temporary process stopped after verification.
 - Local environment: default Windows socket temp location failed with a Java PipeImpl loopback error; using a repository-local jdk.net.unixdomain.tmpdir resolved startup. Workaround is documented without changing production JVM defaults.
-- CI result: recorded after push; existing Python/frontend/image/infrastructure jobs remain enabled.
+- CI result: [run 34068363166](https://github.com/christiankfoury/production-ai-platform/actions/runs/34068363166) passed all seven jobs on 1c38e8908bc74f0de0b2b81c649902f3c62e4fdc, including wrapper integrity, clean Java verification (five tests, no skips), packaged-JAR smoke checks on Linux, all Python tests, frontend checks, scans and infrastructure validation. Deploy Dev was skipped.
 
 ### Security Review
 - Secrets: no real credentials or payloads introduced.
@@ -45,7 +45,7 @@
 ### Post-Commit Review
 - Pushed commit: 59d943d724dae102ae6c303b9ccc834c1b3b5cb4, verified through GitHub main readback.
 - Top findings: inspection of the resolved Spring Boot 4.1.1 configuration metadata showed server.error.* settings were retired in 4.0. Replace them with spring.web.error.*, disable fallback path disclosure, and add a servlet fallback-error privacy regression in a separate fix.
-- Fix commits: fallback-error configuration follow-up pending validation/push; no security gate disabled.
+- Fix commits: 1c38e8908bc74f0de0b2b81c649902f3c62e4fdc corrects fallback-error properties and passes the new privacy regression locally and in CI. GitHub main readback matched the fix. Follow-up review checked property metadata, fallback/advice coverage, wrapper line endings and hashes, production artifact exposure and retained Python runtime. No remaining top actionable findings for this phase; no security gate disabled.
 
 ### Next Phase
 - Phase 51: PostgreSQL persistence and migration handover, after pushed validation and review.
