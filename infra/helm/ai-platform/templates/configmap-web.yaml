@@ -13,3 +13,4 @@ data:
   WEB_ORIGIN: {{ .Values.web.config.origin | quote }}
   OIDC_ISSUER: {{ .Values.web.config.oidcIssuer | quote }}
   OIDC_CLIENT_ID: {{ .Values.web.config.oidcClientId | quote }}
+  OIDC_AUDIENCE: {{ .Values.api.config.oidcAudience | quote }}

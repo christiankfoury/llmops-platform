@@ -50,9 +50,9 @@
 - Historical deployment/browser docs retain clearly marked Python context; Java cutover guide is authoritative.
 
 ### Post-Commit Review
-- Pushed commit: pending.
-- Top findings: pending pushed diff and CI review.
-- Fix commits: pending if needed.
+- Pushed commit: 7d9bb448f0fc36ccb17c662abbdcd6c808b6d832.
+- Top findings: Kubernetes web configuration omitted the required OIDC audience; minimal JDK image lacked unzip and caused Maven Wrapper to select a tarball against the pinned ZIP checksum. Both are being fixed separately; required CI remains pending.
+- Fix commits: separate OIDC audience wiring and Maven archive extraction fixes; final identifiers/CI evidence follow.
 
 ### Next Phase
 - Phase 59: AWS infrastructure validation and bootstrap boundaries, after Phase 58 checks/review pass.

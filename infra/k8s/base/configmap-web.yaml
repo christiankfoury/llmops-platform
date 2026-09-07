@@ -14,3 +14,4 @@ data:
   WEB_ORIGIN: https://ai-platform.example.com
   OIDC_ISSUER: ''
   OIDC_CLIENT_ID: ''
+  OIDC_AUDIENCE: ''

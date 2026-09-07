@@ -74,6 +74,10 @@ def check(output: str, expected_environment: str) -> None:
             assert "/app/.next/cache" in mounts
             assert config["API_BASE_URL"].startswith("http://")
             assert "NEXT_PUBLIC_API_BASE_URL" not in config
+            assert "OIDC_AUDIENCE" in config
+            if config["WEB_AUTH_MODE"] == "oidc":
+                assert config["OIDC_AUDIENCE"] == "https://api.fixture.invalid"
+                assert config["OIDC_ISSUER"] and config["OIDC_CLIENT_ID"] and config["WEB_ORIGIN"]
             assert SECRET_KEYS.isdisjoint(config)
             assert all(e["name"] not in SECRET_KEYS for e in container.get("env", []))
     metrics = next(
@@ -129,7 +133,7 @@ def main() -> None:
             "--set",
             "migration.enabled=true",
             "--set",
-            "web.config.authMode=oidc",
+            "web.config.authMode=oidc,api.config.oidcAudience=https://api.fixture.invalid,web.config.oidcIssuer=https://identity.fixture.invalid,web.config.oidcClientId=fixture-client",
         ),
         "dev",
     )
