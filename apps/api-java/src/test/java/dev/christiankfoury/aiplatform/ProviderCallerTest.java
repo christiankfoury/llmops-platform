@@ -91,6 +91,54 @@ class ProviderCallerTest {
   }
 
   @Test
+  void shutdownCancelsQueuedCallsWithoutWaitingForTheirDeadline() throws Exception {
+    CountDownLatch entered = new CountDownLatch(1);
+    CountDownLatch release = new CountDownLatch(1);
+    CountDownLatch rejected = new CountDownLatch(1);
+    var caller =
+        new ProviderCaller(
+            (context, input, attempt) -> {
+              entered.countDown();
+              try {
+                release.await(5, TimeUnit.SECONDS);
+              } catch (InterruptedException stopped) {
+                Thread.currentThread().interrupt();
+              }
+              return new CompletionProvider.Result("synthetic", 1, 1);
+            },
+            new ProviderSettings(1, Duration.ofSeconds(5), Duration.ZERO, 1));
+    try (var senders = Executors.newVirtualThreadPerTaskExecutor()) {
+      var results = new ArrayList<Future<ProviderFailure.Kind>>();
+      try {
+        for (int index = 0; index < 16; index++)
+          results.add(
+              senders.submit(
+                  () -> {
+                    try {
+                      caller.complete(null, "synthetic");
+                      return null;
+                    } catch (ProviderFailure failure) {
+                      if (failure.kind() == ProviderFailure.Kind.BUSY) rejected.countDown();
+                      return failure.kind();
+                    }
+                  }));
+        assertThat(entered.await(2, TimeUnit.SECONDS)).isTrue();
+        // Rejection proves the one worker and one queue slot are both occupied.
+        assertThat(rejected.await(2, TimeUnit.SECONDS)).isTrue();
+        caller.shutdown();
+        boolean canceled = false;
+        for (var result : results) {
+          if (result.get(2, TimeUnit.SECONDS) == ProviderFailure.Kind.INTERRUPTED) canceled = true;
+        }
+        assertThat(canceled).isTrue();
+      } finally {
+        release.countDown();
+        caller.shutdown();
+      }
+    }
+  }
+
+  @Test
   void pricingUsesDecimalHalfUpAndSettingsRejectUnboundedValues() {
     assertThat(MockPricing.cost(5, 0)).isEqualByComparingTo("0.000001");
     assertThat(MockPricing.cost(0, 0).toPlainString()).isEqualTo("0.000000");

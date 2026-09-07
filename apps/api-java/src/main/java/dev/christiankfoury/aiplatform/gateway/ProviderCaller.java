@@ -2,7 +2,9 @@ package dev.christiankfoury.aiplatform.gateway;
 
 import jakarta.annotation.PreDestroy;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -66,6 +68,8 @@ public class ProviderCaller {
       workers.purge();
       Thread.currentThread().interrupt();
       throw new ProviderFailure(ProviderFailure.Kind.INTERRUPTED);
+    } catch (CancellationException canceled) {
+      throw new ProviderFailure(ProviderFailure.Kind.INTERRUPTED);
     } catch (ExecutionException failed) {
       if (failed.getCause() instanceof ProviderFailure known) throw known;
       throw new ProviderFailure(ProviderFailure.Kind.ERROR);
@@ -74,6 +78,8 @@ public class ProviderCaller {
 
   @PreDestroy
   public void shutdown() {
-    workers.shutdownNow();
+    for (Runnable waiting : workers.shutdownNow()) {
+      if (waiting instanceof Future<?> task) task.cancel(false);
+    }
   }
 }

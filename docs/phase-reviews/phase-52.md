@@ -45,9 +45,9 @@
 - In-flight process-crash recovery and public operational evidence remain later reliability/deployment work.
 
 ### Post-Commit Review
-- Pushed commit: pending.
-- Top findings: pending pushed diff and CI review.
-- Fix commits: pending if needed, each finding in a separate commit.
+- Pushed commit: 3cfce5d1024fc39abac876d1ce4c051316fb4f57, verified by GitHub main readback.
+- Top findings: ThreadPoolExecutor.shutdownNow removes queued FutureTasks without canceling their futures. Waiting callers could remain blocked until their provider deadline and miss controlled failure recording. A separate fix cancels returned queued futures, maps cancellation to the safe interrupted-provider failure and adds a real queued-shutdown regression.
+- Fix commits: queued cancellation fix pending validation/push.
 
 ### Next Phase
 - Phase 53: Java Proofbase and AgentOps telemetry ingestion, after review closure.
