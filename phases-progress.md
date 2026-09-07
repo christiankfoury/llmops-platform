@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 56: Distributed limits and dependency-aware readiness - In Progress. Phase 55 review and all seven CI jobs passed, including 256 Java tests, 19 frontend tests and signed packaged operator checks. Phases 1-47 remain the completed historical baseline.
+Phase 57: Java metrics logs and traces - In Progress. Phase 56 review and all seven CI jobs passed, including 269 Java tests and packaged bounded/slow-body checks. Phases 1-47 remain the completed historical baseline.
 
 ## Phase table
 
@@ -84,8 +84,8 @@ Phase 56: Distributed limits and dependency-aware readiness - In Progress. Phase
 | 53 | Java Proofbase and AgentOps telemetry ingestion | Completed | main | 7eb7473 | 2026-09-06 | Client captures, Python-compatible replay fingerprints, atomic deduplication/costs, bounds and active-project fix; 214 Java tests and all CI jobs passed. |
 | 54 | Java usage and operator configuration APIs | Completed | main | 24b040b | 2026-09-06 | Dashboard contracts, parameterized queries, local access boundary, serialized configuration and audits; 232 Java tests, frontend checks and all CI jobs passed. |
 | 55 | Operator authorization and application key lifecycle | Completed | main | 3cdefbf | 2026-09-06 | OIDC/project grants, key lifecycle, protected dashboard and synthetic isolation; 256 Java/19 frontend tests and all CI jobs passed. |
-| 56 | Distributed limits and dependency-aware readiness | In Progress |
-| 57 | Java metrics logs and traces | Not Started |
+| 56 | Distributed limits and dependency-aware readiness | Completed |
+| 57 | Java metrics logs and traces | In Progress |
 | 58 | Java Docker Compose and Helm runtime cutover | Not Started |
 | 59 | AWS infrastructure validation and bootstrap boundaries | Not Started |
 | 60 | Java supply chain and CI release eligibility | Not Started |
@@ -241,7 +241,7 @@ Implementation and validation:
 
 ### Phase 56: Distributed limits and dependency-aware readiness
 
-Status: In Progress
+Status: Completed
 
 Implementation plan:
 
@@ -257,7 +257,19 @@ Implementation and validation:
 - Added cached dependency readiness, independent liveness and graceful draining, verified through actual Redis/PostgreSQL network fault proxies.
 - Local Java clean verification passes 269 tests with no failures or skips. Packaged service passes authenticated gateway/client replay/operator checks plus actual chunked/idle/trickle body checks. CI now supplies a pinned real Redis fixture.
 - AWS, real secrets, production and publication remain gated. No accepted client data contract or Python runtime changed. Docker/Helm cutover remains Phase 58.
-- Commit/push and pushed-commit review pending; detailed evidence is in docs/phase-reviews/phase-56.md.
+- Implementation 6b5ebaac3a0957c3a9e7b37e0741e066659ecea3 is pushed; all seven jobs in CI run 34082283396 passed. Pushed review found no top actionable findings, so no fix commit was required. Evidence is in docs/phase-reviews/phase-56.md. Next: Phase 57.
+
+### Phase 57: Java metrics logs and traces
+
+Status: In Progress
+
+Implementation plan:
+
+- Preserve gateway/HTTP dashboard metric names using Micrometer/Prometheus, with finite labels, accepted-only cost/token accounting and readiness gauges.
+- Add explicit OpenTelemetry server and gateway lifecycle spans, bounded W3C propagation and provider-worker context transfer. Bound sampling, attributes, exporter queues and network waits; collector failure must not fail application requests.
+- Emit structured operational logs through a strict field allowlist, correlate request/business/trace IDs, and omit request bodies, queries, credentials, raw exceptions and database/provider diagnostics.
+- Separate Actuator health/Prometheus onto a loopback management listener; keep diagnostic endpoints disabled and validate real listener separation.
+- Test span relationships, propagation, async cleanup, redaction on error paths, metric label/cardinality bounds and actual Prometheus/OTLP output against existing dashboard queries. Commit, push, review and fix before runtime cutover in Phase 58.
 
 ### Phase 1: Project specification and architecture
 
