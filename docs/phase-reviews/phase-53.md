@@ -15,12 +15,13 @@
 
 ### Validation
 - Command: Maven Wrapper strict-checksum spotless:apply clean verify.
-- Result: 213 tests passed with no failures/errors/skips against required real PostgreSQL, including the final check after the missing-cost reporting correction.
+- Result: 214 tests passed with no failures/errors/skips against required real PostgreSQL, including the final check after the missing-cost reporting correction.
 - Command: actual-client capture --check for Proofbase/AgentOps; frozen Python exporter --check; Ruff lint/format; workflow YAML/embedded Python parse; git diff --check.
 - Result: passed. Five Proofbase and three AgentOps captured events reproduce exactly; no client payload/source changes required.
 - Command: packaged migration/application JAR smoke extracted from CI, against a disposable native PostgreSQL instance.
 - Result: health/exposure, authenticated gateway, eight client captures and all replays passed. The temporary server was stopped after validation. Windows required a local ignored-directory JDK socket-path setting; production JVM configuration is unchanged.
-- Pushed CI: pending initial commit and review.
+- CI: [run 34074526874](https://github.com/christiankfoury/production-ai-platform/actions/runs/34074526874) passed all seven jobs on fix 7eb7473e27f6f3bccb661c4594a257112830b015, including 214 Java tests and packaged client/replay checks. Initial run 34074339981 also passed all seven jobs. Deploy Dev was skipped.
+- Both unchanged client mocked-receiver suites passed their combined six tests, including timeout isolation.
 
 ### Security Review
 - Secrets: synthetic fixtures only; raw keys, bodies and rejected values are excluded from application logs and errors.
@@ -49,7 +50,7 @@
 ### Post-Commit Review
 - Pushed commit: b3a58dc59d9500517bdcffd678f4e4f30bcf35a2, verified by GitHub main readback.
 - Top findings: source attribution checked application activity but omitted project activity. A disabled project could keep accepting telemetry through an otherwise active key/application. The separate fix checks the project flag and proves refusal without persistence, followed by successful ingestion after reactivation.
-- Fix commits: inactive-project refusal fix being validated for a separate commit.
+- Fix commits: 7eb7473e27f6f3bccb661c4594a257112830b015, verified by GitHub main readback. Follow-up review checked active registration, normalized fingerprints, input bounds/privacy, summary/cost semantics, concurrent transaction behavior and CI/package evidence. No remaining top actionable findings for this phase.
 
 ### Next Phase
-- Phase 54: Java usage and operator configuration APIs, after review closure.
+- Phase 54: Java usage and operator configuration APIs.

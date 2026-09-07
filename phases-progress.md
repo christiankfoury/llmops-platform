@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 53: Java Proofbase and AgentOps telemetry ingestion - In Progress. Phase 52 review and all seven CI jobs passed, including 33 Java tests and the authenticated packaged-gateway smoke check. Phases 1-47 remain the completed historical baseline.
+Phase 54: Java usage and operator configuration APIs - In Progress. Phase 53 review and all seven CI jobs passed, including 214 Java tests and both-client packaged telemetry/replay checks. Phases 1-47 remain the completed historical baseline.
 
 ## Phase table
 
@@ -81,8 +81,8 @@ Phase 53: Java Proofbase and AgentOps telemetry ingestion - In Progress. Phase 5
 | 50 | Spring Boot build and service foundation | Completed |
 | 51 | PostgreSQL persistence and migration handover | Completed |
 | 52 | Java gateway and model routing | Completed |
-| 53 | Java Proofbase and AgentOps telemetry ingestion | In Progress |
-| 54 | Java usage and operator configuration APIs | Not Started |
+| 53 | Java Proofbase and AgentOps telemetry ingestion | Completed | main | 7eb7473 | 2026-09-06 | Client captures, Python-compatible replay fingerprints, atomic deduplication/costs, bounds and active-project fix; 214 Java tests and all CI jobs passed. |
+| 54 | Java usage and operator configuration APIs | In Progress |
 | 55 | Operator authorization and application key lifecycle | Not Started |
 | 56 | Distributed limits and dependency-aware readiness | Not Started |
 | 57 | Java metrics logs and traces | Not Started |
@@ -181,7 +181,7 @@ Implementation and validation:
 
 ### Phase 53: Java Proofbase and AgentOps telemetry ingestion
 
-Status: In Progress
+Status: Completed
 
 Implementation plan:
 
@@ -194,8 +194,21 @@ Implementation plan:
 Implementation and validation:
 
 - Ported bounded, authenticated telemetry ingestion with source registration checks, Python-compatible replay fingerprints, atomic PostgreSQL event/cost writes, conflict detection and nonbillable summaries.
-- Added actual-client captures and bounded metric labels. Full Java verification passes 213 tests with no failures/skips; both client captures and frozen Python contracts reproduce exactly.
-- Packaged-service smoke, final commit/push and pushed-commit review are being completed before the next phase.
+- Added actual-client captures and bounded metric labels. Full Java verification passes 214 tests with no failures/skips; both client captures and frozen Python contracts reproduce exactly.
+- Packaged-service smoke passed locally and in CI. Implementation b3a58dc and separate inactive-project fix 7eb7473 are pushed to main; all seven jobs in runs 34074339981 and 34074526874 passed.
+- Both clients' existing mocked-receiver suites passed six tests, including timeout isolation. No client sources changed.
+- Follow-up review found no remaining top actionable issues; see docs/phase-reviews/phase-53.md. Next phase: Phase 54.
+
+### Phase 54: Java usage and operator configuration APIs
+
+Status: In Progress
+
+Implementation plan:
+
+- Preserve summary/request/error/scope responses and filters with parameterized queries, bounded limits, deterministic ordering and decimal/null fidelity.
+- Port prompt/model create/update/activation with serialized configuration changes and atomic audit records; keep client-owned prompts/workflows outside scope.
+- Restrict operator APIs to local bind/client/origin/host boundaries until Phase 55 OIDC/project authorization; use an explicit local audit actor.
+- Validate PostgreSQL query/configuration behavior and concurrency, exact frontend field contracts, local access boundaries, existing frontend checks and packaged routes; commit, push, review and fix before advancing.
 
 ### Phase 1: Project specification and architecture
 
