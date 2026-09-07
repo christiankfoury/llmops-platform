@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 59: AWS infrastructure validation and bootstrap boundaries - In Progress. The user directed removal of the flagged Ingress permission instead of a scanner exception. Investigating Terraform-owned load balancing and restricted TargetGroupBinding reconciliation with the pinned v3.5.0 controller; functional and negative authorization tests must pass before adoption. The exception is inactive and unapproved. Phases 1-47 remain the completed historical baseline; 48-58 are completed Java conversion phases.
+Phase 60: Java supply chain and CI release eligibility - In Progress. Phase 59 removed Ingress mutation permissions and adopted validated Terraform-owned load balancing with restricted TargetGroupBinding registration. Both full CI and actual-controller authorization/lifecycle tests passed on 67d3bec. The scanner exception remains inactive and unapproved. Phases 1-47 remain historical completion evidence; Java conversion phases 48-58 are completed.
 
 ## Phase table
 
@@ -87,8 +87,8 @@ Phase 59: AWS infrastructure validation and bootstrap boundaries - In Progress. 
 | 56 | Distributed limits and dependency-aware readiness | Completed |
 | 57 | Java metrics logs and traces | Completed |
 | 58 | Java Docker Compose and Helm runtime cutover | Completed | main | 287a81e | 2026-09-07 | docs/phase-reviews/phase-58.md |
-| 59 | AWS infrastructure validation and bootstrap boundaries | In Progress |
-| 60 | Java supply chain and CI release eligibility | Not Started |
+| 59 | AWS infrastructure validation and bootstrap boundaries | Completed |
+| 60 | Java supply chain and CI release eligibility | In Progress |
 | 61 | AWS immutable promotion migrations and rollback | Not Started |
 | 62 | Runnable monitoring stack and supported log collection | Not Started |
 | 63 | Local resilience recovery and cost rehearsal | Not Started |
@@ -302,43 +302,29 @@ Implementation and validation:
 
 ### Phase 59: AWS infrastructure validation and bootstrap boundaries
 
+Status: Completed
+
+Implementation and validation:
+
+- Separated cluster bootstrap, app networking, migration-owner Jobs, secret stores/readers and normal app release permissions. Pinned tools, provider locks, charts and strict built-in/CRD schemas; made EKS access, managed add-ons and NetworkPolicy enforcement explicit.
+- Followed the user-directed permission-removal plan after inspecting unmodified v3.5.0 source and running an initial compatibility experiment. Terraform owns the optional ALB, TLS listener, host rules, security groups and IP target groups; the controller only registers/deregisters targets in exact approved ARNs, with four necessary Describe APIs as discovery reads.
+- Removed all Ingress mutation permissions and manifests. Native admission approves exact binding tuples, freezes specs and forbids watched-namespace Ingress creation. Named TGB updates/status remain; controller create/delete and app-deployer TGB writes are denied. Pod readiness injection fails closed.
+- Final code 67d3becbfb85c79edd7465561d7145789604754e passed full CI 34142470828 and actual-template controller compatibility CI 34142470972. The latter verifies real EndpointSlices, registration/readiness, endpoint removal, temporary AWS failure/recovery, restart/deletion/finalizer cleanup, actual forbidden mutations and absent pods during webhook outage.
+- All Terraform roots passed readonly-lock/backend-disabled init, validate and ten total mock plans; 712 rendered resource instances passed strict schemas with zero skips. Both HIGH/CRITICAL security scans and all three image scans passed without an exception. Java reported 277 tests with no skips; frontend and retained Python reference checks passed.
+- Separate review fixes corrected false-positive denial detection, generated EndpointSlice handling, fail-closed readiness admission, duplicate values, outage deadline assertions/evidence capture, CI path triggers and existing-resource handoff documentation. Initial experiment evidence is superseded by the final actual-template tests.
+- No AWS resources, production, real secrets, DNS, destructive migrations or scanner exceptions changed. Existing Ingress/finalizers, other target-group owners or old controller-marked SG rules require an approved ownership handoff before restrictions are installed. Local fixtures do not prove live IAM or ALB traffic/health.
+- Full phase review, commits and limitations: docs/phase-reviews/phase-59.md. Design: docs/targetgroupbinding-design.md. Next: Phase 60.
+
+### Phase 60: Java supply chain and CI release eligibility
+
 Status: In Progress
-
-Revised plan (2026-09-07, user-directed):
-
-- Validate unmodified controller v3.5.0 against disposable Kubernetes 1.36 before adopting the proposed ownership change. Source inspection found unconditional Ingress reconciler startup and security-group cleanup even without TGB networking; simply removing permissions is not sufficient evidence.
-- Test real RBAC/admission rejections, approved pod target registration/deregistration, readiness updates, temporary provider failures and restart/delete finalizer recovery. Use only local AWS protocol fixtures and fake credentials; retain the distinction from live AWS IAM and ALB health/traffic.
-- If compatible, move ALB/listeners/rules/security groups/target groups into Terraform, approve exact binding names/ARN/service/ports through bootstrap admission, remove Ingress writes and AWS management actions, and rerun all required infrastructure scans/checks.
-- The earlier scanner-exception approval request is superseded by this investigation, not approved. No exception activation or future phase work is authorized by this plan. Local Docker startup was attempted but the Linux engine remains unavailable; execute the disposable runtime test in ordinary CI.
-
-TargetGroupBinding implementation evidence:
-
-- Initial unmodified v3.5.0 lifecycle/RBAC/admission experiment passed in CI 34139653787 on 46c88e0 before adoption. Setup fixes were separate commits 4983838, 4140ca4 and fa77438; observed leader Event permission was fixed separately in 46c88e0. Registration, readiness/status, endpoint removal, transient AWS recovery, restart/finalizer cleanup and Kubernetes mutation denials passed with local AWS protocol fixtures.
-- Terraform now owns the opt-in ALB, TLS listener/host rules, security groups and IP target groups. Exact-ARN registration IAM replaces the attached upstream management policy; only four required Describe APIs remain wildcard reads. Bootstrap pins TGB tuples, freezes specs, forbids Ingress creation and writes, scopes controller TGB patches by name and restricts the leader lease. Helm/raw networking no longer emit Ingress.
-- All roots passed validate and nine mock plans. An additional ALB/TLS/health/security-group/exact-ARN contract passed after normalizing the provider's string-typed drain timeout. Strict rendering validated 712 resources, zero skipped; unchanged HIGH/CRITICAL rendered scan passed without exceptions. Actual-template regression and exact-revision CI remain pending; Phase 59 is not completed.
-- Source findings, bootstrap ordering, remaining target/IP and pod/status risks, and gated live AWS IAM/data-plane checks are in docs/targetgroupbinding-design.md. No AWS resources, production, secrets, DNS or scanner exceptions changed.
 
 Implementation plan:
 
-- Validate each AWS Terraform root with pinned/checksummed tooling, committed provider locks and backend-disabled initialization; add mocked planning checks for dependency ordering and computed resource IDs without AWS calls.
-- Make EKS access mode, supported Linux nodes, required networking/DNS/proxy/storage add-ons and NetworkPolicy enforcement explicit. Review private data-service authentication, environment separation and migration registry/secret prerequisites.
-- Move namespaces, secret stores, controller/bootstrap identities and permissions out of normal app releases. Keep migration-owner credentials outside the app deployer's namespace access where required by the release design.
-- Pin and validate Kubernetes/External Secrets schemas; render/lint/schema-check all Helm and Kustomize environments and bootstrap manifests. Fail on missing schemas instead of ignoring unknown resources.
-- Document state initialization, private EKS runner/DNS/endpoint connectivity, public CA delivery and ordered bootstrap/release responsibilities. Keep cloud apply, resources, real secrets and deployment gated.
-- Run static checks, commit/push, review the pushed change, fix top findings separately and record evidence before Phase 60.
-
-Implementation and local validation (2026-09-07):
-
-- Pinned Terraform 1.16.1/Helm 3.21.4/kubeconform 0.8.0, AWS 6.63.0/TLS 4.3.0 locks for Linux/Windows, checksum-verified upstream charts/policies/public CA and Kubernetes/CRD schemas.
-- Explicit EKS API access, AL2023/1.36 target, strict CNI, separate add-on IRSA, two-stage DNS/storage/metrics bootstrap, private authenticated Redis write-only secret input and app/migration registries/readers.
-- Moved namespaces, controllers, stores, trust and RBAC to bootstrap ownership. Owner Jobs are rendered separately in the migration namespace. GitHub provider is looked up once per account; role trust requires exact environment subjects.
-- All three roots passed readonly-lock backend-disabled init/validate and both mocked plan stages (six total); Terraform format passed. 394 rendered resources passed strict schema validation, zero skipped; unknown CRD property/resource kind and invalid built-in type were rejected. Java runtime manifest boundaries, Ruff, workflow YAML, duplicate-key/converter regressions and diff checks passed.
-- Added current ordered AWS bootstrap/state/private-runner/DNS/CA instructions and fresh-install versus existing-ownership handoff limitations. No real cloud calls/apply/deployment, secrets or DNS changes.
-- Implementation `dd125e66df161df7be2c768ed04a2dd705c3a372` pushed. CI 34091679445 passed six jobs (including infrastructure, Java and all three image/TLS checks) and flagged app network mutation plus upstream ESO default privileges. Separate fix `a1e48c541119c99127fc28d60defe7ade36d2248` transfers networking to bootstrap.
-- The controller follow-up uses namespace-scoped ESO controllers/v1 stores, read-only ALB cluster discovery and a namespace-scoped Ingress reconciler. Every configured controller is scanned; 506 resource instances validate with zero skipped.
-- The only remaining local rendered HIGH/CRITICAL finding is KSV-0056 on the ALB controller's required Ingress patch/update permission. No exception is active; the concrete approval proposal is `docs/security-proposals/phase59-controller-permission.md`. Phase 59 remains In Progress until pushed review and the security-policy gate are resolved.
-- Final code review: controller fix `9133c2d9ba94dce41464ea1241ec8ecda9e8432c`; distinct leader IDs fixed in separate commit `acc02366d2a35c4a41e3275b39cbcc3060a9c6d9`. CI 34094603109 completed with five passing jobs and only the two documented security-policy failures. Its infrastructure job passed all six mock plans and 506 schema/resource checks before the blocking scan. All three images, fresh TLS/client replay, negative certificate and graceful-shutdown checks passed.
-- User approval was requested for the exact, expiring policy proposal under AGENTS.md's security-check gate; no response or approval has been received. No Phase 60 work, exception activation or cloud operation began. Resume Phase 59 by resolving this decision, running the gated scans and closing its review before advancing.
+- Inspect existing Java/frontend/container/contract checks and retain meaningful regression gates after cutover; keep cloud workflows held for Phase 61.
+- Pin CI actions and security tooling, audit resolved Java dependencies, generate Java and runtime-image SBOMs, and scan full Git history without exposing matched secrets.
+- Produce release-eligibility evidence only for an exact successful main push after every required job, including controller compatibility, passes. Reject missing, failed, skipped, mismatched, fork or unverified evidence; keep CI credentials read-only with no deployment identity.
+- Add positive/negative gate tests and validate the real clean CI pipeline, document evidence/limits, commit/push, review and fix separately before advancing to Phase 61.
 
 
 ### Phase 1: Project specification and architecture

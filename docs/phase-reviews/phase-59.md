@@ -1,71 +1,70 @@
 # Phase 59 Review
 
-Status: In Progress. The user directed permission removal instead of an exception. Initial controller compatibility passed; adopted Terraform/TGB implementation is being validated. The earlier exception request is superseded, not approved or activated.
+Status: Completed. The user-directed permission removal passed functional and security checks; the scanner proposal remains inactive and unapproved.
 
 ## Summary
 
-AWS bootstrap is separated from namespace-scoped Java application releases. Pinned offline validation now checks every Terraform root, both bootstrap graph stages, Kubernetes built-ins and controller CRDs.
+Terraform owns the optional ALB, TLS listener, host routing, security groups and IP target groups. The pinned unmodified AWS Load Balancer Controller v3.5.0 only reconciles approved TargetGroupBindings with exact-ARN registration writes. Ingress writes were removed. Cluster bootstrap, application networking, migration ownership and namespace app releases have separate permissions.
 
 ## Scope Check
 
-- In scope: Terraform planning correctness, explicit EKS add-ons/policy enforcement, authenticated private data, migration registry/identity/namespace prerequisites, reproducible all-environment validation and bootstrap documentation.
-- Out of scope avoided: real AWS calls/resources, paid deployment, secret creation/rotation, DNS, application features, Java supply-chain eligibility and immutable promotion execution (Phases 60/61), running monitoring (62).
+- In scope: AWS static planning, explicit EKS add-ons, authenticated private data, bootstrap identities/networking, strict all-environment validation, pinned-controller compatibility and rejected unauthorized operations.
+- Out of scope avoided: real AWS resources or deployment, secrets, DNS, destructive migrations, Java supply-chain eligibility (60), immutable promotion (61), running monitoring (62).
 
 ## Files Changed
 
-- Terraform environment roots/provider locks, cluster/add-ons/controllers, IAM, Redis, security-group iteration and split secret-reader modules.
-- Bootstrap chart/controller values; namespace-only app chart/raw overlays; separate migration chart.
-- Pinned tools/charts/schemas/public trust/provenance, validation scripts, CI, bootstrap/deployment/cutover docs and phase progress.
+- Terraform roots/provider locks and cluster/add-on, IAM, Redis, secret-reader and new load-balancing modules; shared exact-ARN registration policy template.
+- Bootstrap chart/controller values/RBAC/admission/bindings, application network chart/raw overlays and separate migration release.
+- Pinned validation tools/charts/schemas/public trust, manifest and controller validation scripts, main CI and disposable compatibility workflow.
+- AWS bootstrap, Terraform, architecture, deployment/security/design documentation, roadmap, specification and progress.
 
 ## Validation
 
-- Command: pinned Terraform `fmt -check`, backend-disabled `init -lockfile=readonly`, `validate`, mocked `test` for dev/staging/prod.
-- Result: all passed, six mock plans with no AWS calls. Computed security-group keys and secret-reader counts are plan-safe. Both Windows/Linux provider package hashes are locked.
-- Command: `python scripts/validate_java_manifests.py`; `python scripts/validate_aws_manifests.py`.
-- Result: runtime checks and 506 schema-validated resource instances passed, zero skipped. Three deliberately invalid resources failed as required. Duplicate YAML and CRD property-name conversion regressions passed. Terraform/bootstrap default CIDRs agree.
-- Command: Ruff for changed scripts, CI YAML parsing and `git diff --check`.
-- Result: passed. No application runtime/Docker source changes required repeated local Java or image tests; the full pushed CI remains required.
+- Command: pinned Terraform fmt, backend-disabled readonly-lock init, validate and mocked test in dev/staging/prod.
+- Result: all roots passed; ten mock plans including ALB/TLS/health/SG/exact-ARN assertions. No AWS calls.
+- Command: validate_java_manifests.py and validate_aws_manifests.py, Ruff lint/format, policy-only checks and git diff --check.
+- Result: all environments passed; 712 strict resource instances, zero schema skips. Invalid built-in type, unknown CRD kind/property and duplicate YAML are rejected.
+- Command: full [CI 34142470828](https://github.com/christiankfoury/production-ai-platform/actions/runs/34142470828) on 67d3becbfb85c79edd7465561d7145789604754e.
+- Result: all seven jobs passed. Java 277 tests with no failures/errors/skips; packaged gateway/client replay/operator/metrics/log checks; frontend and Python reference/audit; fresh three-image stack with PostgreSQL/Redis TLS, negative certificate and shutdown checks; repository and rendered HIGH/CRITICAL scans; three image scans. No exception used.
+- Command: validate_tgb_controller.py in [compatibility CI 34142470972](https://github.com/christiankfoury/production-ai-platform/actions/runs/34142470972) on the same revision.
+- Result: actual templates and IAM policy with unmodified v3.5.0 on disposable Kubernetes 1.36.4 passed real webhook injection, EndpointSlice registration, readiness/status/checkpoints, endpoint removal, transient AWS recovery, restart, binding deletion/finalizer cleanup and fail-closed pod admission during webhook outage. Real forbidden operations cover Ingress/status, Service, EndpointSlice, binding creation/deletion/spec mutation, unauthorized app-deployer writes, alternate tuples/capabilities and lease scope. Local AWS fixture accepts approved calls and rejects management/other-group calls.
+- Local limitation: Docker Linux engine unavailable. Real Kubernetes/container execution evidence is from hosted CI. A Windows whole-workspace source scan hit Helm path/cache issues and is not counted; clean Linux repository and exact-render scans passed.
 
 ## Security Review
 
-- Secrets: no real values; public RDS certificates only. Redis token is ephemeral/write-only. Owner credentials are outside app namespace and runtime reader permissions.
-- Auth: GitHub subjects require exact app/migration environments and STS audience; no implicit EKS creator-admin access.
-- IAM/RBAC: dedicated CNI/CSI/LB/secret-reader roles; cluster-bootstrap principal separated from app and migration Kubernetes groups. ESO now uses separate namespace-scoped controllers and stores; each may request tokens only for its own named reader SA. Its runtime has no ClusterRole or webhook-management permissions. The ALB controller has read-only cluster discovery and an app-namespace Ingress-only reconciler. Upstream LB policy wildcard statements are preserved with provenance and tag conditions.
-- Network: private EKS/data defaults; strict CNI bootstrap sequence and policies; metrics-server ports support HPA. NAT egress and its cost/failure dependency are explicit.
-- Supply chain: checksummed tool archives, signed provider locks, pinned charts/schema commit/public CA/policy with byte-stable Git attributes. Missing schemas fail.
+- Secrets: fake fixture credentials only, no real values; public RDS CA pinned. Separate app/migration secret readers and namespaces; Redis token write-only input.
+- Auth: exact GitHub environment subjects/STS audience; explicit EKS access without implicit creator-admin. CI holds no cloud credentials.
+- IAM/RBAC: no Ingress writes or controller AWS management permissions. Exact generated TG ARNs for RegisterTargets/DeregisterTargets; four necessary Describe APIs use wildcard read scope. TGB patches/status are name-scoped, no create/delete; admission freezes approved specs. Separate namespace-scoped ESO reconcilers and named token requests.
+- Network: private defaults and explicit CNI enforcement; Terraform SGs expose only reviewed 443 clients and app ports 8000/3000, excluding private management 9000. No TGB networking or shared-rule ownership. Watched namespace rejects Ingress creation.
+- Supply chain: checksum-pinned tools/charts/schemas and provider locks; missing schemas and duplicate YAML fail. KSV-0056 is resolved by permission removal; proposed suppression untouched.
 
 ## Reliability Review
 
-- Health checks: existing Java checks unchanged; managed DNS/CSI/metrics and controller readiness must pass the later live bootstrap checks.
-- Rollback: application releases do not own cluster resources or owner Jobs. Existing Helm ownership/state changes require a reviewed transfer; no blind upgrade/deletion.
-- Failure handling: default-disabled second add-on stage avoids strict-CNI bootstrap ordering deadlock. Invalid schema/config fails offline; no AWS call is needed.
+- Health checks: API TG uses /health/ready; real pod target-health readiness tested. Webhook admission fails closed; controller outage blocks new pods while existing targets remain.
+- Rollback: applications do not own bootstrap/network/migration resources. Terraform deletion protection and 30-second target drain are explicit; live draining and traffic remain gated.
+- Failure handling: controller transient AWS recovery and restart/finalizer cleanup tested. Two-stage strict-CNI bootstrap retained. Existing Ingress finalizers, shared target groups or old LBC-marked SG rules require a reviewed, approved ownership transfer before restrictions; never force finalizers or restore broad privileges as a workaround.
 
 ## Observability Review
 
-- Logs: EKS control-plane logging retained; no secret dumps in validation.
-- Metrics: private Java scrape policy retained; required metrics-server defined for HPA.
-- Traces: Java tracing unaffected.
-- Dashboards: running monitoring stack and selectors remain Phase 62.
+- Logs: EKS control-plane logs retained; compatibility artifacts include safe controller logs and fake AWS calls with denial/lifecycle evidence, including before controller shutdown.
+- Metrics: private Java scrape policy and metrics-server retained; actual controller leader-event authorization verified.
+- Traces: Java tracing unchanged and packaged checks passed.
+- Dashboards: running stack and new health/registration alert evidence remain Phase 62 and approved cloud validation.
 
 ## Risks / Follow-ups
 
-- Regional add-on build IDs and engine availability must be verified at Phase 65 preflight; test build values are synthetic. No live capacity, admission, IAM or network enforcement evidence claimed.
-- One NAT is currently an AZ dependency and recurring cost; finalize budget/topology in Phases 63/65. Private runner/DNS and account-wide state/OIDC prerequisites are documented, not provisioned.
-- Cluster CEL/admission and actual managed add-on labels/ports require gated live checks. Current resources target fresh clusters; old ownership or Terraform state needs a reviewed handoff.
+- The controller can register arbitrary reachable IPs or remove every target within approved groups. IAM cannot constrain each target to a Kubernetes pod. It can affect watched-namespace pod status; the app deployer remains a trusted code publisher. Cluster administrators can change admission.
+- Fixture authorization is not AWS IAM evaluation. EKS CNI, ALB health/traffic/TLS/DNS, zonal behavior and real-role denials require later approved cloud evidence. Target groups must be dedicated, without Terraform target attachments or another controller owner.
+- Existing-resource adoption is not tested or authorized. Add-on regional build availability, state/private runner/DNS, log bucket/ACM inputs, and the single NAT cost/AZ dependency remain preflight items.
 
 ## Post-Commit Review
 
-- Pushed commit: `dd125e66df161df7be2c768ed04a2dd705c3a372`.
-- Top findings: CI 34091679445 passed infrastructure checks but flagged app-deployer network mutations (KSV-0056) and upstream ESO archive default permissions/security context. First fix transfers Services/Ingress/NetworkPolicy ownership to a separate bootstrap network release and makes these objects read-only to the app deployer; ESO broad privileges are removed by separate namespace-scoped reconcilers and v1 stores. Configured-source scans now cover the actual deployment; the only remaining finding is KSV-0056 on the ALB controller's required Ingress finalizer permission.
-- Fix commits: `a1e48c541119c99127fc28d60defe7ade36d2248` removes app-deployer network mutations. `5ab54f3d33be4bfa3c4400eed133d37e2a0d54e7` fixes the network chart's namespace fallback and adds cross-release namespace checks. `9133c2d9ba94dce41464ea1241ec8ecda9e8432c` scopes controllers, verifies configured deployment scans and records the inactive permission proposal. Its post-push review identified shared default ESO leader-election IDs; a separate fix assigns each reconciler its own ID and verifies rendered arguments. No scan suppression has been enabled; the sole remaining capability exception is documented for approval.
-
-Final pushed-code evidence:
-
-- Reviewed code head: `acc02366d2a35c4a41e3275b39cbcc3060a9c6d9`.
-- [CI 34094603109](https://github.com/christiankfoury/production-ai-platform/actions/runs/34094603109): Java, frontend, Python reference, Python dependency audit and production images passed. The Java job reports 277 tests, zero failures/errors/skips; packaged gateway/telemetry/operator/request-bound/metrics/log checks passed. The image job built/scanned all three targets and passed the fresh PostgreSQL/Redis TLS, eight client captures/replays, negative certificate and bounded SIGTERM checks.
-- Infrastructure initialization, six mocked plans and 506 strict resource checks passed. Repository and configured-resource scans remain failed solely for KSV-0056 on the namespace-scoped `load-balancer-reconciler` Ingress rule. One source finding and eight equivalent rendered instances were inspected; no other HIGH/CRITICAL configuration findings remain.
-- The inactive proposal's exact paths match the scan results. Local documentation links and proposal non-activation were checked. Approval was requested; none has been received. This is an explicit stop under AGENTS.md's security-check gate, not a completed phase or a bypassed CI result.
+- Pushed implementation: dd125e6 bootstrap foundation; 3fe8334 compatibility experiment; 6464383 adopts validated Terraform/TGB design.
+- Earlier separate fixes: a1e48c5 removes app network mutations; 5ab54f3 fixes release namespace fallback; 9133c2d scopes controllers; acc0236 separates ESO leader IDs.
+- Experiment/setup fixes: 4983838 Docker gateway routing; 4140ca4 namespace RBAC; fa77438 full CRD name; 46c88e0 leader Event permission.
+- Review findings and separate fixes: 817ee1d requires actual Forbidden/admission errors against existing objects and follows generated EndpointSlice names; 5a32446 makes pod readiness admission fail closed; 14d4962 removes duplicate values and validates source keys before Helm merges; a0e2937 accepts legitimate webhook timeout only while confirming the pod was not persisted and preserves controller logs; 67d3bec covers controller pins/shared-validator changes and relevant PRs; b677ba5 documents mandatory existing-ownership handoff.
+- Initial experiment assertions were strengthened; final actual-template evidence above supersedes earlier results. Pushed code reviewed with no remaining top actionable findings. No security check or approval gate bypassed.
 
 ## Next Phase
 
-- Phase 60: Java supply chain and CI release eligibility, after the required review/fix loop.
+- Phase 60: Java supply chain and CI release eligibility. Cloud operations remain approval-gated.

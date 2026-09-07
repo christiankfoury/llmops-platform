@@ -1,8 +1,10 @@
 # Terraform-owned load balancing: Phase 59 investigation
 
-Status: initial v3.5.0 compatibility passed in [CI 34139653787](https://github.com/christiankfoury/production-ai-platform/actions/runs/34139653787).
-The adopted templates receive the same regression test, extended to real
-EndpointSlices and webhook readiness-gate injection. No deployment or cloud
+Status: adopted after v3.5.0 source review and initial compatibility testing.
+The final actual-template regression passed in [CI 34142470972](https://github.com/christiankfoury/production-ai-platform/actions/runs/34142470972)
+on `67d3becbfb85c79edd7465561d7145789604754e`, including real EndpointSlices,
+webhook readiness-gate injection and outage rejection. The [full CI suite](https://github.com/christiankfoury/production-ai-platform/actions/runs/34142470828)
+passed on that same revision, including both security scans. No deployment or cloud
 change is approved by this document. The KSV-0056 exception under
 `security-proposals/` remains inactive and unapproved.
 
@@ -48,7 +50,7 @@ The deployed chart pin remains the checksum-recorded 3.5.0 archive in
   alternate service names/ports and spec mutation. Disable Service, Gateway,
   Global Accelerator, WAF/Shield and shared backend-security-group management.
 
-## Proposed ownership and authorization
+## Adopted ownership and authorization
 
 Terraform owns the ALB, TLS listener, explicit host routing rules, security groups
 and IP target groups. Bootstrap owns Services, EndpointSlice administration,
