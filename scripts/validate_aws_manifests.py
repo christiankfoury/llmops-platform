@@ -167,7 +167,11 @@ def validate(name, docs, generated, valid=True):
             metadata = doc["metadata"]
             filename = (
                 "-".join(
-                    (doc["kind"].lower(), (metadata.get("namespace") or "cluster"), metadata["name"])
+                    (
+                        doc["kind"].lower(),
+                        (metadata.get("namespace") or "cluster"),
+                        metadata["name"],
+                    )
                 )
                 + ".yaml"
             )
@@ -398,7 +402,12 @@ def main():
                 "external-secrets",
                 "infra/bootstrap/controllers/external-secrets.yaml",
                 "--set",
-                "scopedNamespace=" + namespace + ",serviceAccount.name=" + name,
+                "scopedNamespace="
+                + namespace
+                + ",serviceAccount.name="
+                + name
+                + ",leaderElectionID="
+                + name,
             )
             assert all(
                 d["kind"]
@@ -416,6 +425,7 @@ def main():
                     pod = doc["spec"]["template"]["spec"]
                     assert pod["securityContext"]["runAsNonRoot"]
                     assert "--namespace=" + namespace in pod["containers"][0]["args"]
+                    assert "--leader-election-id=" + name in pod["containers"][0]["args"]
             controllers[name + "-" + environment] = docs
         controllers["load-balancer-" + environment] = render_controller(
             "aws-load-balancer-controller",

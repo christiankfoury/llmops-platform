@@ -55,7 +55,7 @@ AWS bootstrap is separated from namespace-scoped Java application releases. Pinn
 
 - Pushed commit: `dd125e66df161df7be2c768ed04a2dd705c3a372`.
 - Top findings: CI 34091679445 passed infrastructure checks but flagged app-deployer network mutations (KSV-0056) and upstream ESO archive default permissions/security context. First fix transfers Services/Ingress/NetworkPolicy ownership to a separate bootstrap network release and makes these objects read-only to the app deployer; ESO broad privileges are removed by separate namespace-scoped reconcilers and v1 stores. Configured-source scans now cover the actual deployment; the only remaining finding is KSV-0056 on the ALB controller's required Ingress finalizer permission.
-- Fix commits: `a1e48c541119c99127fc28d60defe7ade36d2248` removes app-deployer network mutations. `5ab54f3d33be4bfa3c4400eed133d37e2a0d54e7` fixes the network chart's namespace fallback and adds cross-release namespace checks. Scoped-controller/configured-scan fix pending push. No scan suppression has been enabled; the sole remaining capability exception is documented for approval.
+- Fix commits: `a1e48c541119c99127fc28d60defe7ade36d2248` removes app-deployer network mutations. `5ab54f3d33be4bfa3c4400eed133d37e2a0d54e7` fixes the network chart's namespace fallback and adds cross-release namespace checks. `9133c2d9ba94dce41464ea1241ec8ecda9e8432c` scopes controllers, verifies configured deployment scans and records the inactive permission proposal. Its post-push review identified shared default ESO leader-election IDs; a separate fix assigns each reconciler its own ID and verifies rendered arguments. No scan suppression has been enabled; the sole remaining capability exception is documented for approval.
 
 ## Next Phase
 
