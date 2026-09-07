@@ -1,5 +1,9 @@
 # Build context is the repository root; .dockerignore excludes credentials/caches.
 FROM eclipse-temurin:21-jdk-noble@sha256:75ce56643243c3db632be2ef259625fb42ee3be1334389659f7a1a61acb78783 AS build
+# Wrapper pins the ZIP checksum; without unzip it switches to a different tarball.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends unzip \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /workspace/apps/api-java
 COPY apps/api-java/ ./
 COPY contracts/ /workspace/contracts/
