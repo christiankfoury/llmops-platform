@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 55: Operator authorization and application key lifecycle - In Progress. Phase 54 review and all seven CI jobs passed, including 232 Java tests and packaged usage/operator checks. Phases 1-47 remain the completed historical baseline.
+Phase 56: Distributed limits and dependency-aware readiness - In Progress. Phase 55 review and all seven CI jobs passed, including 256 Java tests, 19 frontend tests and signed packaged operator checks. Phases 1-47 remain the completed historical baseline.
 
 ## Phase table
 
@@ -83,8 +83,8 @@ Phase 55: Operator authorization and application key lifecycle - In Progress. Ph
 | 52 | Java gateway and model routing | Completed |
 | 53 | Java Proofbase and AgentOps telemetry ingestion | Completed | main | 7eb7473 | 2026-09-06 | Client captures, Python-compatible replay fingerprints, atomic deduplication/costs, bounds and active-project fix; 214 Java tests and all CI jobs passed. |
 | 54 | Java usage and operator configuration APIs | Completed | main | 24b040b | 2026-09-06 | Dashboard contracts, parameterized queries, local access boundary, serialized configuration and audits; 232 Java tests, frontend checks and all CI jobs passed. |
-| 55 | Operator authorization and application key lifecycle | In Progress |
-| 56 | Distributed limits and dependency-aware readiness | Not Started |
+| 55 | Operator authorization and application key lifecycle | Completed | main | 3cdefbf | 2026-09-06 | OIDC/project grants, key lifecycle, protected dashboard and synthetic isolation; 256 Java/19 frontend tests and all CI jobs passed. |
+| 56 | Distributed limits and dependency-aware readiness | In Progress |
 | 57 | Java metrics logs and traces | Not Started |
 | 58 | Java Docker Compose and Helm runtime cutover | Not Started |
 | 59 | AWS infrastructure validation and bootstrap boundaries | Not Started |
@@ -220,7 +220,7 @@ Implementation and validation:
 
 ### Phase 55: Operator authorization and application key lifecycle
 
-Status: In Progress
+Status: Completed
 
 Implementation plan:
 
@@ -237,7 +237,7 @@ Implementation and validation:
 - Java clean verification passes 256 tests with no skips, including signature/project/key and atomic audit failure checks. Frontend lint/type checks, all 19 tests, production build, built frontend mode checks and the signed packaged-service smoke pass; evidence is recorded in docs/phase-reviews/phase-55.md.
 - Security: real identity accounts/secrets, AWS infrastructure and publication remain unchanged. Key hashes only are stored; operator actors are verified. Stateless logout limitations are documented.
 - Reliability: V2 preserves legacy rows; key/grant/audit changes are atomic and grant checks share the project lock. Full readiness/limits and metrics remain the next phases.
-- Commit/push/post-commit review: pending; Phase 56 begins after review closure.
+- Commit/push/post-commit review: 3cdefbf15378b0695bbff0c50477242f08689477 pushed; all seven jobs in CI run 34079493775 passed. Review found no remaining top actionable findings; no fix commit was needed. Next: Phase 56.
 
 ### Phase 1: Project specification and architecture
 
