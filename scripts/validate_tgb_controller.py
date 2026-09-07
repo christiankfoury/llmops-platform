@@ -299,7 +299,9 @@ def serve_aws(state):
 
 def rejected(label, result):
     assert result.returncode != 0 and (
-        "forbidden" in result.stderr.lower() or "denied" in result.stderr.lower()
+        "Error from server (Forbidden):" in result.stderr
+        or "denied the request:" in result.stderr
+        or "denied request:" in result.stderr
     ), result.stderr
     print("PASS: rejected " + label, flush=True)
 
@@ -399,6 +401,14 @@ def main():
             "180s",
             timeout=210,
         )
+        seed_ingress = obj(
+            "networking.k8s.io/v1",
+            "Ingress",
+            "fixture-ingress",
+            {"defaultBackend": {"service": {"name": "ai-platform-api", "port": {"number": 8000}}}},
+        )
+        seed_ingress["metadata"]["annotations"] = {"kubernetes.io/ingress.class": "ignored-fixture"}
+        apply([seed_ingress])
         apply(admission())
         for name in (
             NS + "-no-ingress",
@@ -501,10 +511,23 @@ def main():
             ),
         )
         # Real Kubernetes authorizer denials, not just can-i or YAML assertions.
+        slices = json.loads(
+            kube(
+                "get",
+                "endpointslices",
+                "-n",
+                NS,
+                "-l",
+                "kubernetes.io/service-name=ai-platform-api",
+                "-o",
+                "json",
+            ).stdout
+        )["items"]
+        assert slices
         for resource, name in [
-            ("ingresses", "forbidden"),
+            ("ingresses", "fixture-ingress"),
             ("services", "ai-platform-api"),
-            ("endpointslices.discovery.k8s.io", "ai-platform-api"),
+            ("endpointslices.discovery.k8s.io", slices[0]["metadata"]["name"]),
         ]:
             rejected(
                 "controller patch " + resource,
@@ -698,6 +721,18 @@ def main():
 
 
 def policy_checks():
+    # An object name or a diagnostic mentioning forbidden must never count as authorization evidence.
+    try:
+        rejected(
+            "nonexistent fixture",
+            subprocess.CompletedProcess(
+                [], 1, "", 'Error from server (NotFound): ingresses "forbidden" not found'
+            ),
+        )
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError("A missing resource was mistaken for an authorization denial")
     fixture = AWSFixture()
     for action in ("RegisterTargets", "DeregisterTargets"):
         assert fixture.authorized("elasticloadbalancing:" + action, ARN)
