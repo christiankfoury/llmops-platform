@@ -10,10 +10,29 @@ public final class MigrationCommand {
 
   public static void main(String[] args) throws java.sql.SQLException {
     if (args.length != 1
-        || !java.util.Set.of("migrate", "adopt-alembic", "grant-operator", "revoke-operator-grant")
+        || !java.util.Set.of(
+                "migrate", "adopt-alembic", "grant-operator", "revoke-operator-grant", "seed-local")
             .contains(args[0])) {
       throw new IllegalArgumentException(
-          "Choose migrate, adopt-alembic, grant-operator, or revoke-operator-grant explicitly");
+          "Choose migrate, adopt-alembic, grant-operator, revoke-operator-grant, or seed-local explicitly");
+    }
+    String url = required("JDBC_DATABASE_URL");
+    String environment = System.getenv().getOrDefault("ENVIRONMENT", "local");
+    DatabaseTransport.require(url, environment);
+    if (args[0].equals("seed-local")) {
+      LocalSeedBoundary.require(
+          environment,
+          url,
+          Boolean.parseBoolean(
+              System.getenv().getOrDefault("SEED_ALLOW_COMPOSE_NETWORK", "false")));
+      var application =
+          new org.springframework.boot.SpringApplication(
+              dev.christiankfoury.aiplatform.PlatformApplication.class);
+      application.setWebApplicationType(org.springframework.boot.WebApplicationType.NONE);
+      var context =
+          application.run("--platform.seed.enabled=true", "--spring.flyway.enabled=false");
+      context.close();
+      return;
     }
     String schema = System.getenv().getOrDefault("DATABASE_SCHEMA", "public");
     SchemaContractVerifier.checkSchemaName(schema);

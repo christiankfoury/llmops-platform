@@ -1,4 +1,4 @@
-FROM node:20-alpine AS deps
+FROM node:24-alpine@sha256:e67514e5d0f6c46656005e1b693b2ec9d52e80b641307de684d4a015ba7a4eaf AS deps
 
 WORKDIR /app
 
@@ -7,7 +7,7 @@ RUN apk upgrade --no-cache
 COPY package*.json ./
 RUN npm ci
 
-FROM node:20-alpine AS builder
+FROM node:24-alpine@sha256:e67514e5d0f6c46656005e1b693b2ec9d52e80b641307de684d4a015ba7a4eaf AS builder
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ RUN npm run build
 RUN node -e "const fs = require('fs'); for (const file of ['./.next/standalone/package.json', './.next/standalone/node_modules/next/package.json']) { const pkg = JSON.parse(fs.readFileSync(file, 'utf8')); delete pkg.devDependencies; delete pkg.scripts; fs.writeFileSync(file, JSON.stringify(pkg, null, 2)); }" \
     && rm -rf .next/standalone/node_modules/next/dist/compiled/@vercel/nft .next/standalone/node_modules/next/dist/compiled/cross-spawn .next/standalone/node_modules/next/dist/compiled/tar
 
-FROM node:20-alpine AS runner
+FROM node:24-alpine@sha256:e67514e5d0f6c46656005e1b693b2ec9d52e80b641307de684d4a015ba7a4eaf AS runner
 
 WORKDIR /app
 
@@ -30,7 +30,7 @@ ENV NODE_ENV=production \
     HOSTNAME=0.0.0.0 \
     PORT=3000
 
-RUN addgroup -S nodejs \
+RUN addgroup -g 10001 -S nodejs \
     && adduser -S nextjs -G nodejs -u 10001 \
     && apk upgrade --no-cache
 

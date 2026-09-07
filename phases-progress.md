@@ -3978,6 +3978,15 @@ Next phase:
 
 - None. All phases are completed.
 
+Implementation and validation in progress:
+
+- Java API/migration images, fresh Compose migration/seed ordering, Node 24 web runtime, new local volume and explicit Python reference are implemented.
+- Added verified hosted JDBC transport, isolated private management, bounded JVM/probes/shutdown, read-only mounts, separate Kubernetes runtime/migration/session secret references and optional migration Job.
+- All 277 Java tests passed without skips; the packaged migration/seed/gateway/both-client/operator/body/metrics/log smoke passed. Strict Helm lint and runtime boundary checks pass for every Helm/Kustomize environment, plus optional OIDC/migration and unsafe metrics refusal. Compose configurations and fixture scripts validate.
+- New required CI builds/scans all three images and runs an isolated fresh TLS Compose stack with positive/replay/accounting and negative certificate checks. Linux Docker is unavailable locally; container evidence is pending CI and is not claimed as passed.
+- AWS release/rollback jobs are held during the runtime transition until Phase 61 replaces the historical Python scaffold. No cloud, identity, real secrets, databases, visibility or licensing changed.
+- Pushed review and CI evidence will be recorded in docs/phase-reviews/phase-58.md before advancing.
+
 ## Update template
 
 Use this template when completing a phase:

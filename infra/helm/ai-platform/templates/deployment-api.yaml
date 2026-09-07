@@ -42,6 +42,8 @@ spec:
           ports:
             - name: http
               containerPort: 8000
+            - name: metrics
+              containerPort: 9080
           lifecycle:
             preStop:
               exec:
@@ -53,16 +55,26 @@ spec:
             - configMapRef:
                 name: {{ include "ai-platform.apiName" . }}-config
           env:
-            - name: DATABASE_URL
+            {{- range $environment, $key := .Values.runtimeSecret.keys }}
+            - name: {{ $environment }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.runtimeSecret.name }}
-                  key: {{ .Values.runtimeSecret.databaseUrlKey }}
-            - name: REDIS_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.runtimeSecret.name }}
-                  key: {{ .Values.runtimeSecret.redisUrlKey }}
+                  name: {{ $.Values.runtimeSecret.name }}
+                  key: {{ $key }}
+            {{- end }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.api.probes.startup.path }}
+              port: http
+            periodSeconds: {{ .Values.api.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.api.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.api.probes.startup.failureThreshold }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: database-ca
+              mountPath: /certificates
+              readOnly: true
           readinessProbe:
             httpGet:
               path: {{ .Values.api.probes.readiness.path }}
@@ -85,3 +97,14 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
             runAsUser: 10001
             runAsGroup: 10001
+      volumes:
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 128Mi
+        - name: database-ca
+          configMap:
+            name: {{ .Values.databaseTrust.configMapName }}
+            items:
+              - key: {{ .Values.databaseTrust.key }}
+                path: postgres-root.pem

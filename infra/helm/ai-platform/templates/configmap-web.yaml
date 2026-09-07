@@ -7,4 +7,9 @@ metadata:
     {{- include "ai-platform.labels" . | nindent 4 }}
     app.kubernetes.io/component: web
 data:
-  API_BASE_URL: {{ .Values.web.config.apiBaseUrl | quote }}
+  ENVIRONMENT: {{ .Values.api.config.environment | quote }}
+  API_BASE_URL: {{ .Values.web.config.apiBaseUrl | default (printf "http://%s:%v" (include "ai-platform.apiName" .) .Values.api.service.port) | quote }}
+  WEB_AUTH_MODE: {{ .Values.web.config.authMode | quote }}
+  WEB_ORIGIN: {{ .Values.web.config.origin | quote }}
+  OIDC_ISSUER: {{ .Values.web.config.oidcIssuer | quote }}
+  OIDC_CLIENT_ID: {{ .Values.web.config.oidcClientId | quote }}

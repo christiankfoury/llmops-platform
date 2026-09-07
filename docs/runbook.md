@@ -1,5 +1,7 @@
 # Runbook
 
+Java runtime operations now follow [the cutover guide](java-runtime-cutover.md), [migration ownership](database-migration-handover.md) and [operator security](java-operator-security.md). Historical Python commands below require the explicit Python reference stack. Keep cloud deployment disabled until the Java release pipeline and approved environment checks pass.
+
 ## Purpose
 
 This runbook documents common operational tasks for the Production AI Platform.

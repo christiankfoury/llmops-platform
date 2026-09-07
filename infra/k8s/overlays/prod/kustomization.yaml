@@ -1,130 +1,72 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
 namespace: ai-platform-prod
-
 resources:
-  - ../../base
-
+- ../../base
 images:
-  - name: replace-with-ecr/production-ai-platform/api
-    newName: replace-with-prod-ecr/production-ai-platform/api
-    newTag: prod
-  - name: replace-with-ecr/production-ai-platform/web
-    newName: replace-with-prod-ecr/production-ai-platform/web
-    newTag: prod
-
+- name: replace-with-ecr/production-ai-platform/api
+  newName: replace-with-prod-ecr/production-ai-platform/api
+  newTag: prod
+- name: replace-with-ecr/production-ai-platform/web
+  newName: replace-with-prod-ecr/production-ai-platform/web
+  newTag: prod
 patches:
-  - target:
-      kind: Namespace
-      name: ai-platform
-    patch: |-
-      - op: replace
-        path: /metadata/name
-        value: ai-platform-prod
-  - target:
-      kind: Deployment
-      name: ai-platform-api
-    patch: |-
-      - op: replace
-        path: /spec/replicas
-        value: 3
-  - target:
-      kind: Deployment
-      name: ai-platform-web
-    patch: |-
-      - op: replace
-        path: /spec/replicas
-        value: 3
-  - target:
-      kind: HorizontalPodAutoscaler
-      name: ai-platform-api
-    patch: |-
-      - op: replace
-        path: /spec/minReplicas
-        value: 3
-      - op: replace
-        path: /spec/maxReplicas
-        value: 8
-      - op: replace
-        path: /spec/metrics/0/resource/target/averageUtilization
-        value: 65
-      - op: replace
-        path: /spec/behavior/scaleUp/stabilizationWindowSeconds
-        value: 30
-  - target:
-      kind: HorizontalPodAutoscaler
-      name: ai-platform-web
-    patch: |-
-      - op: replace
-        path: /spec/minReplicas
-        value: 3
-      - op: replace
-        path: /spec/maxReplicas
-        value: 8
-      - op: replace
-        path: /spec/metrics/0/resource/target/averageUtilization
-        value: 65
-      - op: replace
-        path: /spec/behavior/scaleUp/stabilizationWindowSeconds
-        value: 30
-  - target:
-      kind: PodDisruptionBudget
-      name: ai-platform-api
-    patch: |-
-      - op: replace
-        path: /spec/minAvailable
-        value: 2
-  - target:
-      kind: PodDisruptionBudget
-      name: ai-platform-web
-    patch: |-
-      - op: replace
-        path: /spec/minAvailable
-        value: 2
-  - target:
-      kind: ConfigMap
-      name: ai-platform-api-config
-    patch: |-
-      - op: replace
-        path: /data/ENVIRONMENT
-        value: prod
-      - op: replace
-        path: /data/API_CORS_ORIGINS
-        value: https://ai-platform.example.com
-      - op: replace
-        path: /data/OTEL_SERVICE_NAME
-        value: production-ai-platform-api-prod
-      - op: replace
-        path: /data/OTEL_TRACES_EXPORTER
-        value: otlp
-      - op: add
-        path: /data/OTEL_EXPORTER_OTLP_ENDPOINT
-        value: http://otel-collector.observability.svc.cluster.local:4318/v1/traces
-  - target:
-      kind: ExternalSecret
-      name: ai-platform-runtime
-    patch: |-
-      - op: replace
-        path: /spec/data/0/remoteRef/key
-        value: production-ai-platform-prod/runtime
-      - op: replace
-        path: /spec/data/1/remoteRef/key
-        value: production-ai-platform-prod/runtime
-  - target:
-      kind: ConfigMap
-      name: ai-platform-web-config
-    patch: |-
-      - op: replace
-        path: /data/API_BASE_URL
-        value: https://api.ai-platform.example.com
-  - target:
-      kind: Ingress
-      name: ai-platform
-    patch: |-
-      - op: replace
-        path: /spec/rules/0/host
-        value: ai-platform.example.com
-      - op: replace
-        path: /spec/rules/1/host
-        value: api.ai-platform.example.com
+- target:
+    kind: Namespace
+    name: ai-platform
+  patch: "- op: replace\n  path: /metadata/name\n  value: ai-platform-prod"
+- target:
+    kind: Deployment
+    name: ai-platform-api
+  patch: "- op: replace\n  path: /spec/replicas\n  value: 3"
+- target:
+    kind: Deployment
+    name: ai-platform-web
+  patch: "- op: replace\n  path: /spec/replicas\n  value: 3"
+- target:
+    kind: HorizontalPodAutoscaler
+    name: ai-platform-api
+  patch: "- op: replace\n  path: /spec/minReplicas\n  value: 3\n- op: replace\n  path:\
+    \ /spec/maxReplicas\n  value: 8\n- op: replace\n  path: /spec/metrics/0/resource/target/averageUtilization\n\
+    \  value: 65\n- op: replace\n  path: /spec/behavior/scaleUp/stabilizationWindowSeconds\n\
+    \  value: 30"
+- target:
+    kind: HorizontalPodAutoscaler
+    name: ai-platform-web
+  patch: "- op: replace\n  path: /spec/minReplicas\n  value: 3\n- op: replace\n  path:\
+    \ /spec/maxReplicas\n  value: 8\n- op: replace\n  path: /spec/metrics/0/resource/target/averageUtilization\n\
+    \  value: 65\n- op: replace\n  path: /spec/behavior/scaleUp/stabilizationWindowSeconds\n\
+    \  value: 30"
+- target:
+    kind: PodDisruptionBudget
+    name: ai-platform-api
+  patch: "- op: replace\n  path: /spec/minAvailable\n  value: 2"
+- target:
+    kind: PodDisruptionBudget
+    name: ai-platform-web
+  patch: "- op: replace\n  path: /spec/minAvailable\n  value: 2"
+- target:
+    kind: ConfigMap
+    name: ai-platform-api-config
+  patch: "- op: replace\n  path: /data/ENVIRONMENT\n  value: prod\n- op: replace\n\
+    \  path: /data/LIMITS_NAMESPACE\n  value: ai-platform-prod"
+- target:
+    kind: ExternalSecret
+    name: ai-platform-runtime
+  patch: "- op: replace\n  path: /spec/data/0/remoteRef/key\n  value: production-ai-platform-prod/runtime\n\
+    - op: replace\n  path: /spec/data/1/remoteRef/key\n  value: production-ai-platform-prod/runtime\n\
+    - op: replace\n  path: /spec/data/2/remoteRef/key\n  value: production-ai-platform-prod/runtime\n\
+    - op: replace\n  path: /spec/data/3/remoteRef/key\n  value: production-ai-platform-prod/runtime\n\
+    - op: replace\n  path: /spec/data/4/remoteRef/key\n  value: production-ai-platform-prod/runtime\n\
+    - op: replace\n  path: /spec/data/5/remoteRef/key\n  value: production-ai-platform-prod/runtime\n\
+    - op: replace\n  path: /spec/data/6/remoteRef/key\n  value: production-ai-platform-prod/runtime"
+- target:
+    kind: ConfigMap
+    name: ai-platform-web-config
+  patch: "- op: replace\n  path: /data/ENVIRONMENT\n  value: prod\n- op: replace\n\
+    \  path: /data/WEB_ORIGIN\n  value: https://ai-platform.example.com"
+- target:
+    kind: Ingress
+    name: ai-platform
+  patch: "- op: replace\n  path: /spec/rules/0/host\n  value: ai-platform.example.com\n\
+    - op: replace\n  path: /spec/rules/1/host\n  value: api.ai-platform.example.com"

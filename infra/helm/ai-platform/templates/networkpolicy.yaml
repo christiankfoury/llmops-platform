@@ -40,7 +40,19 @@ spec:
         {{- end }}
       ports:
         - protocol: TCP
-          port: {{ .Values.api.service.port }}
+          port: 8000
+    {{- if .Values.metrics.enabled }}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              {{- toYaml .Values.metrics.namespaceSelector | nindent 14 }}
+          podSelector:
+            matchLabels:
+              {{- toYaml .Values.metrics.podSelector | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: 9080
+    {{- end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -67,7 +79,7 @@ spec:
         {{- end }}
       ports:
         - protocol: TCP
-          port: {{ .Values.web.service.port }}
+          port: 3000
   {{- else }}
   ingress: []
   {{- end }}

@@ -1,6 +1,6 @@
 # PostgreSQL migration ownership
 
-Phase 51 introduces Java JPA mappings and a Flyway V1 schema equivalent to the Python Alembic head `0002_external_telemetry`. Python remains the deployed runtime until Phase 58. The eight application tables keep their names, UUID identifiers, JSONB data, `numeric(12,6)` money, timestamp precision, foreign keys, indexes and uniqueness rules. Hibernate uses `validate`, never schema creation/update. Runtime Flyway execution is disabled by default; a separate executable migration JAR owns explicit changes.
+Phase 51 introduces Java JPA mappings and a Flyway V1 schema equivalent to the Python Alembic head `0002_external_telemetry`. Phase 58 switches default local/Kubernetes packaging to Java while retaining an explicit Python reference. The eight application tables keep their names, UUID identifiers, JSONB data, `numeric(12,6)` money, timestamp precision, foreign keys, indexes and uniqueness rules. Hibernate uses `validate`, never schema creation/update. Runtime Flyway execution is disabled by default; a separate executable migration JAR owns explicit changes.
 
 ## Fresh disposable database
 
@@ -13,7 +13,7 @@ Build from `apps/api-java` with `./mvnw --batch-mode --no-transfer-progress --st
 | `DATABASE_SCHEMA` | Dedicated lowercase application schema, default `public` |
 | `DATABASE_MIGRATIONS_ENABLED` | Runtime migration switch; defaults to `false`, tests explicitly enable it |
 | `ENVIRONMENT` | Defaults to `local`; cloud environments use their explicit name |
-| `SEED_LOCAL_DATA` | Defaults to `false`; synthetic startup seeds require explicit opt-in, `local`, and a loopback JDBC host |
+| `SEED_LOCAL_DATA` | Defaults to `false`; synthetic startup seeds require explicit opt-in, `local`, and a loopback JDBC host, or the exact `postgres` Compose host with `SEED_ALLOW_COMPOSE_NETWORK=true` |
 
 For a new, empty, disposable schema, run:
 

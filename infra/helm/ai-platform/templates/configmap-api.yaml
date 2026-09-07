@@ -7,17 +7,29 @@ metadata:
     {{- include "ai-platform.labels" . | nindent 4 }}
     app.kubernetes.io/component: api
 data:
+  PORT: "8000"
+  API_BIND_ADDRESS: "0.0.0.0"
+  MANAGEMENT_PORT: "9080"
+  DATABASE_MIGRATIONS_ENABLED: "false"
+  SEED_LOCAL_DATA: "false"
+  SEED_ALLOW_COMPOSE_NETWORK: "false"
+  REDIS_TLS_ENABLED: "true"
+  JAVA_TOOL_OPTIONS: "-Xms128m -Xmx512m -XX:MaxDirectMemorySize=128m -XX:+ExitOnOutOfMemoryError -Djava.io.tmpdir=/tmp"
+  MANAGEMENT_BIND_ADDRESS: {{ ternary "0.0.0.0" "127.0.0.1" .Values.metrics.enabled | quote }}
+  LIMITS_NAMESPACE: {{ printf "ai-platform-%s" .Values.api.config.environment | quote }}
   ENVIRONMENT: {{ .Values.api.config.environment | quote }}
-  API_CORS_ORIGINS: {{ .Values.api.config.corsOrigins | quote }}
-  OTEL_TRACING_ENABLED: {{ .Values.api.config.tracingEnabled | quote }}
-  OTEL_SERVICE_NAME: {{ .Values.api.config.otelServiceName | quote }}
-  OTEL_TRACES_EXPORTER: {{ .Values.api.config.otelTracesExporter | quote }}
-  RATE_LIMIT_ENABLED: {{ .Values.api.config.rateLimitEnabled | quote }}
-  RATE_LIMIT_REQUESTS_PER_MINUTE: {{ .Values.api.config.rateLimitRequestsPerMinute | quote }}
+  OPERATOR_AUTH_MODE: {{ .Values.api.config.operatorAuthMode | quote }}
+  OIDC_ISSUER: {{ .Values.api.config.oidcIssuer | quote }}
+  OIDC_AUDIENCE: {{ .Values.api.config.oidcAudience | quote }}
+  OIDC_JWKS_URI: {{ .Values.api.config.oidcJwksUri | quote }}
+  OTLP_TRACES_ENDPOINT: {{ .Values.api.config.otlpTracesEndpoint | quote }}
+  TRACE_SAMPLE_PROBABILITY: {{ .Values.api.config.traceSampleProbability | quote }}
+  GLOBAL_REQUEST_LIMIT: {{ .Values.api.config.globalRequestLimit | quote }}
+  GATEWAY_KEY_REQUEST_LIMIT: {{ .Values.api.config.gatewayKeyRequestLimit | quote }}
+  TELEMETRY_KEY_REQUEST_LIMIT: {{ .Values.api.config.telemetryKeyRequestLimit | quote }}
   RATE_LIMIT_WINDOW_SECONDS: {{ .Values.api.config.rateLimitWindowSeconds | quote }}
+  MAX_CONCURRENT_REQUESTS: {{ .Values.api.config.maxConcurrentRequests | quote }}
   PROVIDER_MAX_ATTEMPTS: {{ .Values.api.config.providerMaxAttempts | quote }}
   PROVIDER_RETRY_BACKOFF_MS: {{ .Values.api.config.providerRetryBackoffMs | quote }}
   PROVIDER_TIMEOUT_SECONDS: {{ .Values.api.config.providerTimeoutSeconds | quote }}
-  {{- if .Values.api.config.otelExporterOtlpEndpoint }}
-  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.api.config.otelExporterOtlpEndpoint | quote }}
-  {{- end }}
+  PROVIDER_CONCURRENCY: {{ .Values.api.config.providerConcurrency | quote }}

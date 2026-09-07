@@ -72,6 +72,7 @@ jobs:
       - name: Smoke-test the packaged Java service
         run: |
           java -jar target/production-ai-platform-api-0.1.0-SNAPSHOT-migration.jar migrate
+          java -jar target/production-ai-platform-api-0.1.0-SNAPSHOT-migration.jar seed-local
           python3 - <<'PY'
           import http.client
           import json
@@ -327,7 +328,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          node-version: "24.20.0"
           cache: npm
           cache-dependency-path: apps/web/package-lock.json
 
@@ -362,11 +363,26 @@ jobs:
       - name: Build API image
         uses: docker/build-push-action@v7
         with:
-          context: apps/api
-          file: apps/api/Dockerfile
+          context: .
+          file: apps/api-java/Dockerfile
+          target: api
           load: true
           push: false
-          tags: production-ai-platform-api:ci
+          tags: |
+            production-ai-platform-api:ci
+            production-ai-platform-api:local
+
+      - name: Build migration image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: apps/api-java/Dockerfile
+          target: migration
+          load: true
+          push: false
+          tags: |
+            production-ai-platform-migration:ci
+            production-ai-platform-migration:local
 
       - name: Build web image
         uses: docker/build-push-action@v7
@@ -375,7 +391,21 @@ jobs:
           file: apps/web/Dockerfile
           load: true
           push: false
-          tags: production-ai-platform-web:ci
+          tags: |
+            production-ai-platform-web:ci
+            production-ai-platform-web:local
+
+      - name: Fresh Java Compose stack and verified data TLS
+        run: python3 scripts/validate_java_container_stack.py
+
+      - name: Scan migration image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: production-ai-platform-migration:ci
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
 
       # Trivy fails the job on high/critical vulnerabilities in the built image.
       - name: Scan API image
@@ -479,3 +509,8 @@ jobs:
           else
             echo "No Helm chart yet; Phase 15 introduces Helm."
           fi
+
+      - name: Render and validate Java runtime boundaries in all environments
+        run: |
+          python3 -m pip install PyYAML==6.0.3
+          python3 scripts/validate_java_manifests.py

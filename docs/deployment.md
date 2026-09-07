@@ -1,5 +1,9 @@
 # Deployment
 
+Current runtime: Java 21/Spring Boot, explicit Flyway migration image and Next.js/Node 24. The [Java runtime cutover guide](java-runtime-cutover.md) is authoritative for Compose, Kubernetes settings, TLS, secrets, probes and verification. Default Compose migrates/seeds a fresh local volume and serves isolated synthetic dashboard data. Real usage requires OIDC/project grants. AWS workflows below remain the historical scaffold until phases 59-61; keep deployment disabled during that transition.
+
+The following sections retain historical implementation context. Old Python image, Alembic, direct-browser API, anonymous usage and `/metrics` commands are not Java cutover instructions.
+
 ## Environments
 
 The project targets four environments:

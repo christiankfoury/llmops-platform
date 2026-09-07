@@ -1,88 +1,50 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
 namespace: ai-platform-dev
-
 resources:
-  - ../../base
-
+- ../../base
 images:
-  - name: replace-with-ecr/production-ai-platform/api
-    newName: replace-with-dev-ecr/production-ai-platform/api
-    newTag: dev
-  - name: replace-with-ecr/production-ai-platform/web
-    newName: replace-with-dev-ecr/production-ai-platform/web
-    newTag: dev
-
+- name: replace-with-ecr/production-ai-platform/api
+  newName: replace-with-dev-ecr/production-ai-platform/api
+  newTag: dev
+- name: replace-with-ecr/production-ai-platform/web
+  newName: replace-with-dev-ecr/production-ai-platform/web
+  newTag: dev
 patches:
-  - target:
-      kind: Namespace
-      name: ai-platform
-    patch: |-
-      - op: replace
-        path: /metadata/name
-        value: ai-platform-dev
-  - target:
-      kind: Deployment
-      name: ai-platform-api
-    patch: |-
-      - op: replace
-        path: /spec/replicas
-        value: 1
-  - target:
-      kind: Deployment
-      name: ai-platform-web
-    patch: |-
-      - op: replace
-        path: /spec/replicas
-        value: 1
-  - target:
-      kind: HorizontalPodAutoscaler
-      name: ai-platform-api
-    patch: |-
-      - op: replace
-        path: /spec/minReplicas
-        value: 1
-      - op: replace
-        path: /spec/maxReplicas
-        value: 2
-  - target:
-      kind: HorizontalPodAutoscaler
-      name: ai-platform-web
-    patch: |-
-      - op: replace
-        path: /spec/minReplicas
-        value: 1
-      - op: replace
-        path: /spec/maxReplicas
-        value: 2
-  - target:
-      kind: ConfigMap
-      name: ai-platform-api-config
-    patch: |-
-      - op: replace
-        path: /data/ENVIRONMENT
-        value: dev
-      - op: replace
-        path: /data/API_CORS_ORIGINS
-        value: https://dev.ai-platform.example.com
-      - op: replace
-        path: /data/OTEL_SERVICE_NAME
-        value: production-ai-platform-api-dev
-  - target:
-      kind: ConfigMap
-      name: ai-platform-web-config
-    patch: |-
-      - op: replace
-        path: /data/API_BASE_URL
-        value: https://api.dev.ai-platform.example.com
-  - target:
-      kind: Ingress
-      name: ai-platform
-    patch: |-
-      - op: replace
-        path: /spec/rules/0/host
-        value: dev.ai-platform.example.com
-      - op: replace
-        path: /spec/rules/1/host
-        value: api.dev.ai-platform.example.com
+- target:
+    kind: Namespace
+    name: ai-platform
+  patch: "- op: replace\n  path: /metadata/name\n  value: ai-platform-dev"
+- target:
+    kind: Deployment
+    name: ai-platform-api
+  patch: "- op: replace\n  path: /spec/replicas\n  value: 1"
+- target:
+    kind: Deployment
+    name: ai-platform-web
+  patch: "- op: replace\n  path: /spec/replicas\n  value: 1"
+- target:
+    kind: HorizontalPodAutoscaler
+    name: ai-platform-api
+  patch: "- op: replace\n  path: /spec/minReplicas\n  value: 1\n- op: replace\n  path:\
+    \ /spec/maxReplicas\n  value: 2"
+- target:
+    kind: HorizontalPodAutoscaler
+    name: ai-platform-web
+  patch: "- op: replace\n  path: /spec/minReplicas\n  value: 1\n- op: replace\n  path:\
+    \ /spec/maxReplicas\n  value: 2"
+- target:
+    kind: ConfigMap
+    name: ai-platform-api-config
+  patch: "- op: replace\n  path: /data/ENVIRONMENT\n  value: dev\n- op: replace\n\
+    \  path: /data/LIMITS_NAMESPACE\n  value: ai-platform-dev"
+- target:
+    kind: ConfigMap
+    name: ai-platform-web-config
+  patch: "- op: replace\n  path: /data/ENVIRONMENT\n  value: dev\n- op: replace\n\
+    \  path: /data/WEB_ORIGIN\n  value: https://dev.ai-platform.example.com"
+- target:
+    kind: Ingress
+    name: ai-platform
+  patch: "- op: replace\n  path: /spec/rules/0/host\n  value: dev.ai-platform.example.com\n\
+    - op: replace\n  path: /spec/rules/1/host\n  value: api.dev.ai-platform.example.com"

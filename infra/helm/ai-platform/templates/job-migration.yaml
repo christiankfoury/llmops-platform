@@ -1,0 +1,67 @@
+{{- if .Values.migration.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.migration.jobName }}
+  namespace: {{ include "ai-platform.namespace" . }}
+  labels:
+    {{- include "ai-platform.labels" . | nindent 4 }}
+    app.kubernetes.io/component: migration
+spec:
+  activeDeadlineSeconds: {{ .Values.migration.activeDeadlineSeconds }}
+  backoffLimit: {{ .Values.migration.backoffLimit }}
+  template:
+    metadata:
+      labels:
+        {{- include "ai-platform.labels" . | nindent 8 }}
+        app.kubernetes.io/component: migration
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: migration
+          image: "{{ .Values.migration.image.repository }}:{{ .Values.migration.image.tag }}"
+          imagePullPolicy: {{ .Values.migration.image.pullPolicy }}
+          args: ["java", "-jar", "/app/migration.jar", "migrate"]
+          env:
+            - name: ENVIRONMENT
+              value: {{ .Values.api.config.environment | quote }}
+            {{- range $environment, $key := .Values.runtimeSecret.keys }}
+            {{- if has $environment (list "JDBC_DATABASE_URL" "DATABASE_USERNAME" "DATABASE_PASSWORD") }}
+            - name: {{ $environment }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.migration.secretName }}
+                  key: {{ $key }}
+            {{- end }}
+            {{- end }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: database-ca
+              mountPath: /certificates
+              readOnly: true
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+            runAsUser: 10001
+            runAsGroup: 10001
+      volumes:
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 128Mi
+        - name: database-ca
+          configMap:
+            name: {{ .Values.databaseTrust.configMapName }}
+            items:
+              - key: {{ .Values.databaseTrust.key }}
+                path: postgres-root.pem
+{{- end }}

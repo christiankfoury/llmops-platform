@@ -1,0 +1,9 @@
+**
+!apps/
+!apps/api-java/
+!apps/api-java/**
+!contracts/
+!contracts/**
+apps/api-java/target/
+apps/api-java/.env*
+!apps/api-java/.env.example

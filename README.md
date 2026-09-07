@@ -34,21 +34,21 @@ AgentOps Workflow Platform is connected as the second telemetry client path: Age
 
 ## What Is Implemented
 
-The existing implementation below is the Python baseline. The active [Java Spring Boot and AWS release plan](docs/java-aws-implementation-plan.md) extends the roadmap with phases 48-69: backend conversion, access controls, distributed limits, verified deployment, monitoring, recovery, and gated publication. AWS remains the cloud target; Java becomes the default runtime only after its cutover checks pass.
+The default backend is Java 21 / Spring Boot. The [Java and AWS release plan](docs/java-aws-implementation-plan.md) tracks the conversion and remaining deployment, monitoring, recovery and publication work. The Python code remains an explicit local compatibility reference. [Runtime cutover and verification](docs/java-runtime-cutover.md) distinguish tested behavior from cloud work still pending; AWS remains the target.
 
 Application:
 
-- FastAPI LLM gateway
+- Java 21 / Spring Boot LLM gateway
 - Next.js usage dashboard
-- PostgreSQL schema and Alembic migrations
-- hashed API key authentication
+- PostgreSQL/JPA schema, Flyway migrations and verified Alembic handover
+- hashed application keys, OIDC operator sign-in and scoped project grants
 - prompt versioning
 - model routing
 - mock LLM provider
 - request logging
 - cost, latency, token, and error tracking
 - audit logs for prompt/model route changes
-- rate limiting
+- atomic Redis rate limits and dependency-aware readiness
 
 Platform:
 
@@ -76,7 +76,7 @@ flowchart LR
   ingress --> api["LLM Gateway API"]
   api --> auth["API key auth"]
   api --> routing["Prompt + model routing"]
-  routing --> provider["Mock or real LLM provider"]
+  routing --> provider["Mock LLM provider"]
   api --> postgres[("RDS PostgreSQL")]
   api --> redis[("Redis")]
   api --> metrics["Prometheus metrics"]
@@ -99,7 +99,7 @@ Start the local stack:
 docker compose up --build
 ```
 
-Run migrations and seed demo data:
+Compose runs Flyway before API startup and seeds the local placeholder scopes. To repeat those explicit local commands:
 
 ```bash
 make api-migrate
@@ -122,21 +122,21 @@ curl -X POST http://localhost:8000/v1/gateway/completions \
 
 The seed key is intentionally non-secret demo data and is stored only as a hash.
 
-Send a safe Proofbase-shaped telemetry event and inspect it in the dashboard:
+Send a safe Proofbase-shaped telemetry event:
 
 ```bash
 python scripts/send_proofbase_browser_demo_event.py
 ```
 
-Open `http://localhost:3000`, filter **Source App** to `proofbase`, and confirm the request appears under `Proofbase / Enterprise Knowledge Agent`. See [docs/proofbase-browser-telemetry-demo.md](docs/proofbase-browser-telemetry-demo.md) for the full browser checklist and redaction rules.
+The default dashboard uses isolated synthetic fixtures. To inspect newly ingested data, configure [OIDC sign-in and project grants](docs/java-operator-security.md); anonymous usage/configuration APIs are closed.
 
-Send a safe AgentOps-shaped telemetry event and inspect it in the dashboard:
+Send a safe AgentOps-shaped telemetry event:
 
 ```bash
 python scripts/send_agentops_browser_demo_event.py
 ```
 
-Open `http://localhost:3000`, filter **Source App** to `agentops`, and confirm the request appears under `AgentOps Workflow Platform / AgentOps Workflow Platform`. See [docs/agentops-browser-telemetry-demo.md](docs/agentops-browser-telemetry-demo.md) for the full browser checklist and redaction rules.
+The Java API preserves both clients' event/replay contracts. The older browser demo documents describe the historical Python demo; use the Java operator setup for real usage views.
 
 Useful commands:
 
@@ -156,7 +156,9 @@ python scripts/smoke_load.py --requests 20 --concurrency 4
 
 ## Deployment Story
 
-Default path:
+The workflows below are the historical AWS scaffold. Keep automated deployment disabled until phases 59-61 validate infrastructure, Java image eligibility and migration-aware promotion. No successful AWS deployment is claimed.
+
+Target path:
 
 1. CI runs backend lint/tests, frontend lint/typecheck/tests/audit, production image builds, dependency scans, image scans, repository scan, and infrastructure static checks.
 2. Dev deploy can run automatically from `main` only when explicit repository variables enable it.

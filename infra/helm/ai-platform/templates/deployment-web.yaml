@@ -52,6 +52,25 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "ai-platform.webName" . }}-config
+          {{- if eq .Values.web.config.authMode "oidc" }}
+          env:
+            - name: WEB_SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.web.sessionSecretName }}
+                  key: session-secret
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.web.sessionSecretName }}
+                  key: oidc-client-secret
+                  optional: true
+          {{- end }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: next-cache
+              mountPath: /app/.next/cache
           readinessProbe:
             httpGet:
               path: {{ .Values.web.probes.readiness.path }}
@@ -73,4 +92,13 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
             runAsUser: 10001
-            runAsGroup: 101
+            runAsGroup: 10001
+      volumes:
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 64Mi
+        - name: next-cache
+          emptyDir:
+            medium: Memory
+            sizeLimit: 64Mi

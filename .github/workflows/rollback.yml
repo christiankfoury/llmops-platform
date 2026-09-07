@@ -36,6 +36,8 @@ jobs:
   rollback:
     name: Roll back ${{ github.event.inputs.environment }}
     runs-on: ubuntu-latest
+    # Phase 58 cutover hold: Phase 61 replaces the Python release/rollback scaffold.
+    if: ${{ false }}
     environment: ${{ github.event.inputs.environment }}
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}

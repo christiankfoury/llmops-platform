@@ -1,20 +1,21 @@
-nameOverride: ""
-fullnameOverride: ""
-
+nameOverride: ''
+fullnameOverride: ''
 namespace:
   create: false
-  name: ""
-
+  name: ''
 imagePullSecrets: []
-
 commonLabels:
   app.kubernetes.io/part-of: production-ai-platform
-
 runtimeSecret:
   name: ai-platform-runtime-secrets
-  databaseUrlKey: database-url
-  redisUrlKey: redis-url
-
+  keys:
+    JDBC_DATABASE_URL: jdbc-database-url
+    DATABASE_USERNAME: database-username
+    DATABASE_PASSWORD: database-password
+    REDIS_HOST: redis-host
+    REDIS_PORT: redis-port
+    REDIS_USERNAME: redis-username
+    REDIS_PASSWORD: redis-password
 externalSecrets:
   enabled: true
   refreshInterval: 1h
@@ -28,14 +29,10 @@ externalSecrets:
     controllerServiceAccountNamespace: external-secrets
   runtime:
     remoteKey: production-ai-platform-dev/runtime
-    databaseUrlProperty: database-url
-    redisUrlProperty: redis-url
-
 networkPolicy:
   enabled: true
   ingressCidrs:
-    - 10.0.0.0/8
-
+  - 10.0.0.0/8
 api:
   replicaCount: 2
   image:
@@ -44,36 +41,37 @@ api:
     pullPolicy: IfNotPresent
   serviceAccount:
     create: true
-    name: ""
+    name: ''
     automountServiceAccountToken: false
     annotations: {}
   config:
     environment: dev
-    corsOrigins: https://ai-platform.example.com
-    tracingEnabled: "false"
-    otelServiceName: production-ai-platform-api
-    otelTracesExporter: console
-    otelExporterOtlpEndpoint: ""
-    rateLimitEnabled: "true"
-    rateLimitRequestsPerMinute: "60"
-    rateLimitWindowSeconds: "60"
-    providerMaxAttempts: "2"
-    providerRetryBackoffMs: "100"
-    providerTimeoutSeconds: "15"
+    operatorAuthMode: disabled
+    oidcIssuer: ''
+    oidcAudience: ''
+    oidcJwksUri: ''
+    otlpTracesEndpoint: ''
+    traceSampleProbability: '0.1'
+    globalRequestLimit: '600'
+    gatewayKeyRequestLimit: '60'
+    telemetryKeyRequestLimit: '300'
+    rateLimitWindowSeconds: '60'
+    maxConcurrentRequests: '32'
+    providerMaxAttempts: '2'
+    providerRetryBackoffMs: '100'
+    providerTimeoutSeconds: '15'
+    providerConcurrency: '8'
   service:
     type: ClusterIP
     port: 8000
-    annotations:
-      prometheus.io/scrape: "true"
-      prometheus.io/path: /metrics
-      prometheus.io/port: "8000"
+    annotations: {}
   resources:
     requests:
-      cpu: 100m
-      memory: 256Mi
-    limits:
-      cpu: 500m
+      cpu: 250m
       memory: 512Mi
+    limits:
+      cpu: '1'
+      memory: 1Gi
   probes:
     readiness:
       path: /health/ready
@@ -87,8 +85,13 @@ api:
       periodSeconds: 20
       timeoutSeconds: 3
       failureThreshold: 3
+    startup:
+      path: /health/live
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 36
   lifecycle:
-    terminationGracePeriodSeconds: 30
+    terminationGracePeriodSeconds: 60
     preStopSleepSeconds: 5
   autoscaling:
     enabled: false
@@ -100,7 +103,6 @@ api:
   podDisruptionBudget:
     enabled: true
     minAvailable: 1
-
 web:
   replicaCount: 2
   image:
@@ -109,11 +111,15 @@ web:
     pullPolicy: IfNotPresent
   serviceAccount:
     create: true
-    name: ""
+    name: ''
     automountServiceAccountToken: false
     annotations: {}
   config:
-    apiBaseUrl: https://api.ai-platform.example.com
+    apiBaseUrl: ''
+    authMode: disabled
+    origin: https://ai-platform.example.com
+    oidcIssuer: ''
+    oidcClientId: ''
   service:
     type: ClusterIP
     port: 3000
@@ -150,7 +156,7 @@ web:
   podDisruptionBudget:
     enabled: true
     minAvailable: 1
-
+  sessionSecretName: ai-platform-web-session
 ingress:
   enabled: true
   className: alb
@@ -160,15 +166,34 @@ ingress:
   webHost: ai-platform.example.com
   apiHost: api.ai-platform.example.com
   tls: []
-
 podSecurityContext:
   runAsNonRoot: true
   seccompProfile:
     type: RuntimeDefault
-
+  fsGroup: 10001
+  fsGroupChangePolicy: OnRootMismatch
 securityContext:
   allowPrivilegeEscalation: false
   capabilities:
     drop:
-      - ALL
+    - ALL
   readOnlyRootFilesystem: true
+databaseTrust:
+  configMapName: ai-platform-database-ca
+  key: postgres-root.pem
+metrics:
+  enabled: true
+  namespaceSelector:
+    kubernetes.io/metadata.name: observability
+  podSelector:
+    app.kubernetes.io/name: prometheus
+migration:
+  enabled: false
+  jobName: ai-platform-migrate
+  image:
+    repository: production-ai-platform-migration
+    tag: latest
+    pullPolicy: IfNotPresent
+  secretName: ai-platform-migration-secrets
+  activeDeadlineSeconds: 180
+  backoffLimit: 0

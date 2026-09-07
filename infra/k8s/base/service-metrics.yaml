@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-platform-api-metrics
+  namespace: ai-platform
+  labels:
+    app.kubernetes.io/name: ai-platform-api-metrics
+    app.kubernetes.io/component: api-metrics
+    app.kubernetes.io/part-of: production-ai-platform
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/path: /actuator/prometheus
+    prometheus.io/port: '9080'
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: ai-platform-api
+    app.kubernetes.io/component: api
+  ports:
+  - name: metrics
+    port: 9080
+    targetPort: metrics

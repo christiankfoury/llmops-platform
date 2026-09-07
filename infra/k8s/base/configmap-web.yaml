@@ -8,4 +8,9 @@ metadata:
     app.kubernetes.io/component: web
     app.kubernetes.io/part-of: production-ai-platform
 data:
-  API_BASE_URL: https://api.ai-platform.example.com
+  ENVIRONMENT: dev
+  API_BASE_URL: http://ai-platform-api:8000
+  WEB_AUTH_MODE: disabled
+  WEB_ORIGIN: https://ai-platform.example.com
+  OIDC_ISSUER: ''
+  OIDC_CLIENT_ID: ''

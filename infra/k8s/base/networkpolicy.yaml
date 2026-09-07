@@ -9,7 +9,7 @@ metadata:
 spec:
   podSelector: {}
   policyTypes:
-    - Ingress
+  - Ingress
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -26,18 +26,28 @@ spec:
       app.kubernetes.io/name: ai-platform-api
       app.kubernetes.io/component: api
   policyTypes:
-    - Ingress
+  - Ingress
   ingress:
-    - from:
-        - podSelector:
-            matchLabels:
-              app.kubernetes.io/name: ai-platform-web
-              app.kubernetes.io/component: web
-        - ipBlock:
-            cidr: 10.0.0.0/8
-      ports:
-        - protocol: TCP
-          port: 8000
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: ai-platform-web
+          app.kubernetes.io/component: web
+    - ipBlock:
+        cidr: 10.0.0.0/8
+    ports:
+    - protocol: TCP
+      port: 8000
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: observability
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: prometheus
+    ports:
+    - protocol: TCP
+      port: 9080
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -54,11 +64,11 @@ spec:
       app.kubernetes.io/name: ai-platform-web
       app.kubernetes.io/component: web
   policyTypes:
-    - Ingress
+  - Ingress
   ingress:
-    - from:
-        - ipBlock:
-            cidr: 10.0.0.0/8
-      ports:
-        - protocol: TCP
-          port: 3000
+  - from:
+    - ipBlock:
+        cidr: 10.0.0.0/8
+    ports:
+    - protocol: TCP
+      port: 3000

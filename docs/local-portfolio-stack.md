@@ -8,12 +8,14 @@ This runbook starts the three portfolio applications together on one Windows dev
 | Proofbase | `http://localhost:3001` | `http://localhost:8001` | PostgreSQL `5432` |
 | AgentOps Workflow Platform | `http://127.0.0.1:3002` | `http://127.0.0.1:8002` | PostgreSQL `55433` |
 
+The platform now uses Java and automatically migrates/seeds its new local volume. Its default dashboard is an isolated read-only fixture; real ingested usage needs [OIDC/project grants](java-operator-security.md). The other apps retain their own implementations. See [Java cutover](java-runtime-cutover.md) before using historical browser verification instructions below.
+
 Run the applications in this order so Proofbase and AgentOps can send telemetry to Production AI Platform.
 
 ## Prerequisites
 
 - Docker Desktop is running.
-- Python 3.12, Node.js 20+, `pnpm`, and `uv` are installed.
+- Java 21 (native API work), Python 3.12, Node.js 24 LTS, `pnpm`, and `uv` are installed.
 - The repositories exist at:
   - `S:\github-repos\production-ai-platform`
   - `S:\github-repos\enterprise-knowledge-agent`
@@ -84,12 +86,10 @@ docker stop agentops-verify-postgres
 ```powershell
 cd S:\github-repos\production-ai-platform
 
-docker compose up -d --build postgres redis api web
-docker compose exec api alembic upgrade head
-docker compose exec api python -m scripts.seed_dev_data
+docker compose up -d --build --wait
 
 docker compose ps
-curl.exe --fail http://localhost:8000/health
+curl.exe --fail http://localhost:8000/health/ready
 ```
 
 Open `http://localhost:3000`.
@@ -178,7 +178,7 @@ Open `http://127.0.0.1:3002/demo`.
 ## Verify The Running Stack
 
 ```powershell
-curl.exe --fail http://localhost:8000/health
+curl.exe --fail http://localhost:8000/health/ready
 curl.exe --fail http://localhost:8001/health
 curl.exe --fail http://localhost:8001/ready
 curl.exe --fail http://127.0.0.1:8002/health

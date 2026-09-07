@@ -26,67 +26,120 @@ spec:
         app.kubernetes.io/part-of: production-ai-platform
     spec:
       serviceAccountName: ai-platform-api
-      terminationGracePeriodSeconds: 30
+      terminationGracePeriodSeconds: 60
       securityContext:
+        fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
       containers:
-        - name: api
-          image: production-ai-platform-api
-          imagePullPolicy: IfNotPresent
-          ports:
-            - name: http
-              containerPort: 8000
-          lifecycle:
-            preStop:
-              exec:
-                command:
-                  - /bin/sh
-                  - -c
-                  - sleep 5
-          envFrom:
-            - configMapRef:
-                name: ai-platform-api-config
-          env:
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: ai-platform-runtime-secrets
-                  key: database-url
-            - name: REDIS_URL
-              valueFrom:
-                secretKeyRef:
-                  name: ai-platform-runtime-secrets
-                  key: redis-url
-          readinessProbe:
-            httpGet:
-              path: /health/ready
-              port: http
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            timeoutSeconds: 3
-            failureThreshold: 3
-          livenessProbe:
-            httpGet:
-              path: /health/live
-              port: http
-            initialDelaySeconds: 20
-            periodSeconds: 20
-            timeoutSeconds: 3
-            failureThreshold: 3
-          resources:
-            requests:
-              cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: 500m
-              memory: 512Mi
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-            readOnlyRootFilesystem: true
-            runAsUser: 10001
-            runAsGroup: 10001
+      - name: api
+        image: production-ai-platform-api
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8000
+        - name: metrics
+          containerPort: 9080
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 5
+        envFrom:
+        - configMapRef:
+            name: ai-platform-api-config
+        env:
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ai-platform-runtime-secrets
+              key: database-password
+        - name: DATABASE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: ai-platform-runtime-secrets
+              key: database-username
+        - name: JDBC_DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: ai-platform-runtime-secrets
+              key: jdbc-database-url
+        - name: REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: ai-platform-runtime-secrets
+              key: redis-host
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ai-platform-runtime-secrets
+              key: redis-password
+        - name: REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: ai-platform-runtime-secrets
+              key: redis-port
+        - name: REDIS_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: ai-platform-runtime-secrets
+              key: redis-username
+        startupProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 36
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: database-ca
+          mountPath: /certificates
+          readOnly: true
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          initialDelaySeconds: 20
+          periodSeconds: 20
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          limits:
+            cpu: '1'
+            memory: 1Gi
+          requests:
+            cpu: 250m
+            memory: 512Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsUser: 10001
+          runAsGroup: 10001
+      volumes:
+      - name: tmp
+        emptyDir:
+          medium: Memory
+          sizeLimit: 128Mi
+      - name: database-ca
+        configMap:
+          name: ai-platform-database-ca
+          items:
+          - key: postgres-root.pem
+            path: postgres-root.pem

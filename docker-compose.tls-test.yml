@@ -1,0 +1,47 @@
+# Disposable CI/local validation only; certificates are generated into an ignored new directory.
+x-tls-java: &tls-java
+  JDBC_DATABASE_URL: jdbc:postgresql://postgres:5432/ai_platform?sslmode=verify-full&sslrootcert=/certificates/postgres-root.pem
+  REDIS_TLS_ENABLED: "true"
+  REDIS_PASSWORD: redis-ci-placeholder-not-a-secret
+  USE_SYSTEM_CA_CERTS: "1"
+
+services:
+  postgres:
+    entrypoint: [/bin/sh, -ec]
+    command:
+      - |
+        cp /fixtures/server.crt /tmp/server.crt
+        cp /fixtures/server.key /tmp/server.key
+        chown postgres:postgres /tmp/server.crt /tmp/server.key
+        chmod 0600 /tmp/server.key
+        exec /usr/local/bin/docker-entrypoint.sh postgres -c ssl=on -c ssl_cert_file=/tmp/server.crt -c ssl_key_file=/tmp/server.key
+    volumes:
+      - ${TEST_CERTS_DIR:?Generate disposable test certificates}/postgres:/fixtures:ro
+    networks:
+      default:
+        aliases: [postgres-wrong]
+
+  redis:
+    entrypoint: [/bin/sh, -ec]
+    command:
+      - |
+        cp /fixtures/server.key /tmp/server.key
+        chown redis:redis /tmp/server.key
+        chmod 0600 /tmp/server.key
+        exec /usr/local/bin/docker-entrypoint.sh redis-server --port 0 --tls-port 6379 --tls-cert-file /fixtures/server.crt --tls-key-file /tmp/server.key --tls-ca-cert-file /fixtures/redis-root.crt --tls-auth-clients no --requirepass redis-ci-placeholder-not-a-secret --save '' --appendonly no --maxmemory 64mb --maxmemory-policy noeviction
+    environment:
+      REDISCLI_AUTH: redis-ci-placeholder-not-a-secret
+    volumes:
+      - ${TEST_CERTS_DIR:?Generate disposable test certificates}/redis:/fixtures:ro
+    healthcheck:
+      test: [CMD, redis-cli, --tls, --cacert, /fixtures/redis-root.crt, -h, localhost, ping]
+
+  migration:
+    environment: *tls-java
+    volumes:
+      - ${TEST_CERTS_DIR:?Generate disposable test certificates}/public:/certificates:ro
+
+  api:
+    environment: *tls-java
+    volumes:
+      - ${TEST_CERTS_DIR:?Generate disposable test certificates}/public:/certificates:ro

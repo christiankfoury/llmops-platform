@@ -1,0 +1,27 @@
+{{- if .Values.metrics.enabled }}
+{{- if or (not .Values.networkPolicy.enabled) (empty .Values.metrics.namespaceSelector) (empty .Values.metrics.podSelector) }}
+{{- fail "Remote metrics require NetworkPolicy and explicit namespace/pod selectors" }}
+{{- end }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ai-platform.apiName" . }}-metrics
+  namespace: {{ include "ai-platform.namespace" . }}
+  labels:
+    {{- include "ai-platform.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api-metrics
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /actuator/prometheus
+    prometheus.io/port: "9080"
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: {{ include "ai-platform.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: api
+  ports:
+    - name: metrics
+      port: 9080
+      targetPort: metrics
+{{- end }}

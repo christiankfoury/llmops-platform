@@ -51,6 +51,9 @@ public class OperatorSecurityConfiguration {
   }
 
   @Bean
+  @org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication(
+      type =
+          org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET)
   SecurityFilterChain platformSecurity(
       HttpSecurity http, OperatorSecuritySettings settings, ObjectProvider<JwtDecoder> decoders)
       throws Exception {
