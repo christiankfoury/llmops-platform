@@ -1,0 +1,5 @@
+{
+  "migration_target": "2",
+  "api_accepts": ["2"],
+  "rollback_accepts": ["2"]
+}

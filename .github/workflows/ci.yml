@@ -408,6 +408,9 @@ jobs:
         with:
           version: v0.37.0
 
+      - name: Prepare immutable image outputs
+        run: mkdir -p .maven-cache/release-images
+
       - name: Build API image
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
         with:
@@ -416,6 +419,8 @@ jobs:
           target: api
           load: true
           push: false
+          platforms: linux/amd64
+          outputs: type=oci,dest=.maven-cache/release-images/api.oci.tar,compression=gzip
           tags: |
             production-ai-platform-api:ci
             production-ai-platform-api:local
@@ -428,6 +433,8 @@ jobs:
           target: migration
           load: true
           push: false
+          platforms: linux/amd64
+          outputs: type=oci,dest=.maven-cache/release-images/migration.oci.tar,compression=gzip
           tags: |
             production-ai-platform-migration:ci
             production-ai-platform-migration:local
@@ -439,6 +446,8 @@ jobs:
           file: apps/web/Dockerfile
           load: true
           push: false
+          platforms: linux/amd64
+          outputs: type=oci,dest=.maven-cache/release-images/web.oci.tar,compression=gzip
           tags: |
             production-ai-platform-web:ci
             production-ai-platform-web:local
@@ -457,6 +466,32 @@ jobs:
             trivy image --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed --scanners vuln,secret --format json --output ".maven-cache/supply-chain/images/$image-audit.json" "production-ai-platform-$image:ci"
           done
           python3 scripts/validate_supply_chain.py images
+
+      - name: Package immutable images/charts and rehearse registry promotion
+        run: |
+          python3 scripts/install_validation_tools.py --tools helm
+          export PATH="$GITHUB_WORKSPACE/.maven-cache/tools/pinned:$PATH"
+          python3 scripts/release_bundle.py build
+          python3 scripts/release_bundle.py rehearse
+
+      - name: Retain immutable image bytes
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: release-images-${{ github.run_attempt }}
+          path: .maven-cache/release-images/*.oci.tar
+          include-hidden-files: true
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Retain immutable release manifest and charts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: release-supply-chain-${{ github.run_attempt }}
+          path: .maven-cache/supply-chain/release
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Retain runtime image supply-chain evidence
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -595,9 +630,9 @@ jobs:
       - name: Enforce CI boundaries and test rejected evidence
         run: |
           python scripts/validate_ci_policy.py
-          python -m unittest discover -s scripts/tests -p 'test_supply_chain.py' -v
-          python -m ruff check scripts/validate_supply_chain.py scripts/release_eligibility.py scripts/validate_ci_policy.py scripts/tests/test_supply_chain.py scripts/install_validation_tools.py
-          python -m ruff format --check scripts/validate_supply_chain.py scripts/release_eligibility.py scripts/validate_ci_policy.py scripts/tests/test_supply_chain.py scripts/install_validation_tools.py
+          python -m unittest discover -s scripts/tests -p 'test_*.py' -v
+          python -m ruff check scripts/validate_supply_chain.py scripts/release_eligibility.py scripts/validate_ci_policy.py scripts/tests/test_supply_chain.py scripts/tests/test_release_bundle.py scripts/release_bundle.py scripts/install_validation_tools.py
+          python -m ruff format --check scripts/validate_supply_chain.py scripts/release_eligibility.py scripts/validate_ci_policy.py scripts/tests/test_supply_chain.py scripts/tests/test_release_bundle.py scripts/release_bundle.py scripts/install_validation_tools.py
 
   release-eligibility:
     name: Release eligibility

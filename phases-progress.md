@@ -340,6 +340,12 @@ Implementation plan:
 - Test invalid refs/digests, substituted artifacts, migration ownership and incompatible rollback inputs through static/dry-run checks; run required CI, document, commit/push, review and fix separately before Phase 62.
 
 
+Implementation notes (in progress):
+
+- Added same-build OCI exports, bounded descriptor/blob/archive validation and identity comparison with the tested/scanned Docker image; package app/migration charts and bind the release manifest into exact-revision eligibility.
+- Added a digest-pinned Skopeo/disposable-registry rehearsal to verify manifest preservation and pulled-image identity without AWS. Compatibility is pending on CI before promotion workflow adoption.
+- Eighteen local eligibility/archive security tests, Ruff and CI policy checks passed. Existing cloud workflows remain held. Design and remaining work: docs/immutable-release-design.md.
+
 ### Phase 1: Project specification and architecture
 
 Status: Completed

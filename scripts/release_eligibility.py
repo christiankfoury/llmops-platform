@@ -22,6 +22,8 @@ POLICY_FILES = (
     "infra/validation/ci-actions.json",
     "infra/validation/ci-java.json",
     "infra/validation/gitleaks.toml",
+    "infra/release/toolchain.json",
+    "infra/release/schema-compatibility.json",
     "infra/validation/history-synthetic-findings.json",
 ) + tuple(sorted(path.relative_to(ROOT).as_posix() for path in (ROOT / "scripts").rglob("*.py")))
 REQUIRED = {
@@ -37,6 +39,7 @@ REQUIRED = {
     "tgb": "tgb / compatibility",
 }
 EVIDENCE_FILES = (
+    "release-supply-chain/manifest.json",
     "java-supply-chain/bom.json",
     "java-supply-chain/tests.json",
     "java-supply-chain/audit.json",
