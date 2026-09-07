@@ -8,6 +8,8 @@ import json
 import os
 import re
 import subprocess
+import tempfile
+import urllib.request
 from pathlib import Path
 
 import yaml
@@ -58,6 +60,7 @@ def verify_sources():
     for directory in [
         ROOT / BOOTSTRAP / "files",
         ROOT / "infra/terraform/modules/cluster/policies",
+        ROOT / "infra/validation/licenses",
     ]:
         for name, source in json.loads(
             (directory / "sources.json").read_text(encoding="utf-8")
@@ -71,7 +74,16 @@ def verify_sources():
     verify(ROOT / source["path"], source["sha256"])
     charts = json.loads((ROOT / "infra/validation/charts.json").read_text(encoding="utf-8"))
     for chart in charts.values():
-        verify(ROOT / chart["path"], chart["sha256"])
+        path = ROOT / chart["path"]
+        assert path.resolve().is_relative_to((ROOT / ".maven-cache/controller-charts").resolve())
+        if not path.exists():
+            with urllib.request.urlopen(chart["url"], timeout=60) as response:
+                archive = response.read(20_000_001)
+            if len(archive) > 20_000_000 or hashlib.sha256(archive).hexdigest() != chart["sha256"]:
+                raise ValueError("Controller chart checksum mismatch")
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(archive)
+        verify(path, chart["sha256"])
     return charts
 
 
@@ -98,8 +110,9 @@ def convert(schema):
 
 
 def prepare_schemas(controller_docs):
-    generated = CACHE / "schemas"
-    generated.mkdir(parents=True, exist_ok=True)
+    # A new directory per run prevents stale CRD schemas from validating removed APIs.
+    generated = Path(tempfile.mkdtemp(prefix="schemas-", dir=CACHE))
+    assert generated.resolve().is_relative_to(CACHE.resolve())
     source = json.loads((SCHEMAS / "crd-openapi-v1.36.0.json").read_text(encoding="utf-8"))
     crd = {
         "$schema": "http://json-schema.org/draft-04/schema#",
@@ -144,7 +157,24 @@ def prepare_schemas(controller_docs):
 
 
 def validate(name, docs, generated, valid=True):
-    path = CACHE / (name + ".yaml")
+    directory = CACHE / ("bundles" if valid else "negative")
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / (name + ".yaml")
+    if valid:
+        rendered = CACHE / "rendered" / name
+        rendered.mkdir(parents=True, exist_ok=True)
+        for doc in docs:
+            metadata = doc["metadata"]
+            filename = (
+                "-".join(
+                    (doc["kind"].lower(), (metadata.get("namespace") or "cluster"), metadata["name"])
+                )
+                + ".yaml"
+            )
+            assert re.fullmatch(r"[a-z0-9_.-]+", filename)
+            (rendered / filename).write_text(
+                yaml.safe_dump(doc, sort_keys=False), encoding="utf-8", newline="\n"
+            )
     path.write_text(yaml.safe_dump_all(docs, sort_keys=False), encoding="utf-8", newline="\n")
     result = subprocess.run(
         [
@@ -180,16 +210,16 @@ def validate(name, docs, generated, valid=True):
 def bootstrap_boundaries(docs, environment):
     app = "ai-platform-" + environment
     migration = app + "-migration"
-    stores = [doc for doc in docs if doc["kind"] == "ClusterSecretStore"]
+    stores = [doc for doc in docs if doc["kind"] == "SecretStore"]
     assert len(stores) == 2
     for store in stores:
         reader = store["metadata"]["name"].rsplit("-", 1)[1]
         expected = migration if reader == "migration" else app
-        assert store["spec"]["conditions"] == [{"namespaces": [expected]}]
+        assert store["metadata"]["namespace"] == expected
+        assert "conditions" not in store["spec"]
         sa = store["spec"]["provider"]["aws"]["auth"]["jwt"]["serviceAccountRef"]
         assert sa == {
             "name": "ai-platform-" + reader + "-secrets",
-            "namespace": "external-secrets",
             "audiences": ["sts.amazonaws.com"],
         }
     for doc in docs:
@@ -227,6 +257,39 @@ def bootstrap_boundaries(docs, environment):
                         "endpointslices",
                     }:
                         assert set(rule["verbs"]) <= {"get", "list", "watch"}
+    for doc in docs:
+        if doc["kind"] in {"Role", "ClusterRole"}:
+            for rule in doc["rules"]:
+                if set(rule["resources"]) & {
+                    "services",
+                    "endpoints",
+                    "endpointslices",
+                    "networkpolicies",
+                    "ingresses",
+                } and set(rule["verbs"]) - {"get", "list", "watch"}:
+                    assert (
+                        doc["kind"] == "Role"
+                        and doc["metadata"]["name"] == "load-balancer-reconciler"
+                    )
+                    assert doc["metadata"]["namespace"] == app
+                    assert rule == {
+                        "apiGroups": ["networking.k8s.io"],
+                        "resources": ["ingresses"],
+                        "verbs": ["get", "list", "watch", "patch", "update"],
+                    }
+        if doc["kind"] == "ClusterRole":
+            assert all(set(rule["verbs"]) <= {"get", "list", "watch"} for rule in doc["rules"])
+        if doc["kind"] == "Role" and doc["metadata"]["name"] == "load-balancer-reconciler":
+            assert doc["metadata"]["namespace"] == app
+            assert all("secrets" not in rule["resources"] for rule in doc["rules"])
+            for rule in doc["rules"]:
+                if set(rule["resources"]) & {
+                    "services",
+                    "endpoints",
+                    "endpointslices",
+                    "networkpolicies",
+                }:
+                    assert set(rule["verbs"]) <= {"get", "list", "watch"}
     assert not any(doc["kind"] == "Secret" for doc in docs)
 
 
@@ -287,12 +350,17 @@ def validator_regressions():
 def main():
     validator_regressions()
     CACHE.mkdir(parents=True, exist_ok=True)
+    # Only this validator's generated YAML files are cleared, each resolved inside its owned cache.
+    rendered_root = (CACHE / "rendered").resolve()
+    assert rendered_root.is_relative_to((ROOT / ".maven-cache").resolve())
+    for old in rendered_root.rglob("*.yaml"):
+        assert not old.is_symlink() and old.resolve().is_relative_to(rendered_root)
+        old.unlink()
     charts = verify_sources()
     controllers = {}
-    for name, chart in charts.items():
-        namespace = "external-secrets" if name == "external-secrets" else "kube-system"
-        values = "infra/bootstrap/controllers/" + name + ".yaml"
-        controllers[name] = documents(
+
+    def render_controller(name, chart, namespace, values, *extra):
+        return documents(
             run(
                 HELM,
                 "template",
@@ -305,7 +373,57 @@ def main():
                 "--include-crds",
                 "-f",
                 values,
+                *extra,
             )
+        )
+
+    controllers["external-secrets-crds"] = render_controller(
+        "external-secrets-crds",
+        charts["external-secrets"],
+        "external-secrets",
+        "infra/bootstrap/controllers/external-secrets-crds.yaml",
+    )
+    assert all(
+        d["kind"] == "CustomResourceDefinition" for d in controllers["external-secrets-crds"]
+    )
+    for environment in ("dev", "staging", "prod"):
+        for reader in ("runtime", "migration"):
+            namespace = (
+                "ai-platform-" + environment + ("-migration" if reader == "migration" else "")
+            )
+            name = "external-secrets-" + reader
+            docs = render_controller(
+                name,
+                charts["external-secrets"],
+                "external-secrets",
+                "infra/bootstrap/controllers/external-secrets.yaml",
+                "--set",
+                "scopedNamespace=" + namespace + ",serviceAccount.name=" + name,
+            )
+            assert all(
+                d["kind"]
+                not in {
+                    "ClusterRole",
+                    "ClusterRoleBinding",
+                    "ValidatingWebhookConfiguration",
+                    "MutatingWebhookConfiguration",
+                    "CustomResourceDefinition",
+                }
+                for d in docs
+            )
+            for doc in docs:
+                if doc["kind"] == "Deployment":
+                    pod = doc["spec"]["template"]["spec"]
+                    assert pod["securityContext"]["runAsNonRoot"]
+                    assert "--namespace=" + namespace in pod["containers"][0]["args"]
+            controllers[name + "-" + environment] = docs
+        controllers["load-balancer-" + environment] = render_controller(
+            "aws-load-balancer-controller",
+            charts["aws-load-balancer-controller"],
+            "kube-system",
+            "infra/bootstrap/controllers/aws-load-balancer-controller.yaml",
+            "--set",
+            "watchNamespace=ai-platform-" + environment,
         )
     generated = prepare_schemas([doc for docs in controllers.values() for doc in docs])
     for name, docs in controllers.items():

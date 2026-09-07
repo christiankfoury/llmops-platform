@@ -43,8 +43,7 @@ variable "eks_oidc_issuer_url" {
   default     = null
 }
 
-variable "external_secrets_namespace" {
-  description = "Namespace containing the External Secrets Operator service account."
+variable "application_namespace" {
+  description = "Application namespace; migration reader is isolated in the -migration namespace."
   type        = string
-  default     = "external-secrets"
 }

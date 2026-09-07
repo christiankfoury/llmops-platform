@@ -3,3 +3,4 @@ infra/validation/charts/*.tgz binary
 infra/validation/schemas/** -text
 infra/terraform/modules/cluster/policies/*.json -text
 infra/bootstrap/ai-platform-bootstrap/files/** -text
+infra/validation/licenses/** -text

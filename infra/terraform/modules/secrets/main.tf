@@ -16,10 +16,12 @@ locals {
   readers = var.enable_external_secrets_irsa ? {
     runtime = {
       service_account = "ai-platform-runtime-secrets"
+      namespace       = var.application_namespace
       secret_names    = ["runtime", "web-session"]
     }
     migration = {
       service_account = "ai-platform-migration-secrets"
+      namespace       = "${var.application_namespace}-migration"
       secret_names    = ["migration"]
     }
   } : {}
@@ -41,7 +43,7 @@ data "aws_iam_policy_document" "external_secrets_assume" {
     condition {
       test     = "StringEquals"
       variable = "${local.external_secrets_oidc_issuer}:sub"
-      values   = ["system:serviceaccount:${var.external_secrets_namespace}:${each.value.service_account}"]
+      values   = ["system:serviceaccount:${each.value.namespace}:${each.value.service_account}"]
     }
   }
 }

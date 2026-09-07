@@ -1,39 +1,40 @@
 {{- range $reader := list "runtime" "migration" }}
+{{- $namespace := printf "ai-platform-%s%s" $.Values.environment (ternary "-migration" "" (eq $reader "migration")) }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: ai-platform-{{ $reader }}-secrets
-  namespace: external-secrets
+  namespace: {{ $namespace }}
   annotations:
     eks.amazonaws.com/role-arn: {{ index $.Values.roles $reader | quote }}
 automountServiceAccountToken: false
-{{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: external-secrets-reader-tokens
-  namespace: external-secrets
+  name: external-secrets-reader-token
+  namespace: {{ $namespace }}
 rules:
   - apiGroups: [""]
     resources: ["serviceaccounts/token"]
-    resourceNames: ["ai-platform-runtime-secrets", "ai-platform-migration-secrets"]
+    resourceNames: ["ai-platform-{{ $reader }}-secrets"]
     verbs: ["create"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: external-secrets-reader-tokens
-  namespace: external-secrets
+  name: external-secrets-reader-token
+  namespace: {{ $namespace }}
 subjects:
   - kind: ServiceAccount
-    name: external-secrets
+    name: external-secrets-{{ $reader }}
     namespace: external-secrets
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: external-secrets-reader-tokens
+  name: external-secrets-reader-token
+{{- end }}
 ---
 apiVersion: v1
 kind: ServiceAccount

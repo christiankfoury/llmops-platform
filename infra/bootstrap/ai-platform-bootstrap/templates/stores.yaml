@@ -2,13 +2,11 @@
 {{- range $reader := list "runtime" "migration" }}
 ---
 apiVersion: external-secrets.io/v1
-kind: ClusterSecretStore
+kind: SecretStore
 metadata:
   name: ai-platform-{{ $.Values.environment }}-{{ $reader }}
+  namespace: ai-platform-{{ $.Values.environment }}{{ if eq $reader "migration" }}-migration{{ end }}
 spec:
-  conditions:
-    - namespaces:
-        - ai-platform-{{ $.Values.environment }}{{ if eq $reader "migration" }}-migration{{ end }}
   provider:
     aws:
       service: SecretsManager
@@ -17,7 +15,6 @@ spec:
         jwt:
           serviceAccountRef:
             name: ai-platform-{{ $reader }}-secrets
-            namespace: external-secrets
             audiences: ["sts.amazonaws.com"]
 {{- end }}
 {{- $databaseKeys := list "jdbc-database-url" "database-username" "database-password" }}
@@ -33,7 +30,7 @@ spec:
   refreshInterval: 1h
   secretStoreRef:
     name: ai-platform-{{ $.Values.environment }}-{{ $secret.reader }}
-    kind: ClusterSecretStore
+    kind: SecretStore
   target:
     name: ai-platform-{{ $secret.name }}
     creationPolicy: Owner

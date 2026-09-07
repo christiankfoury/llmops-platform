@@ -1,0 +1,18 @@
+# Inactive proposal. CI does not read this file. Approval required before activation.
+misconfigurations:
+- id: KSV-0056
+  paths:
+  - infra/bootstrap/ai-platform-bootstrap/templates/load-balancer-rbac.yaml
+  - ai-platform-bootstrap-base-foundation/role-ai-platform-dev-load-balancer-reconciler.yaml
+  - ai-platform-bootstrap-base/role-ai-platform-dev-load-balancer-reconciler.yaml
+  - ai-platform-bootstrap-dev-foundation/role-ai-platform-dev-load-balancer-reconciler.yaml
+  - ai-platform-bootstrap-dev/role-ai-platform-dev-load-balancer-reconciler.yaml
+  - ai-platform-bootstrap-prod-foundation/role-ai-platform-prod-load-balancer-reconciler.yaml
+  - ai-platform-bootstrap-prod/role-ai-platform-prod-load-balancer-reconciler.yaml
+  - ai-platform-bootstrap-staging-foundation/role-ai-platform-staging-load-balancer-reconciler.yaml
+  - ai-platform-bootstrap-staging/role-ai-platform-staging-load-balancer-reconciler.yaml
+  expired_at: '2026-10-07'
+  statement: PROPOSED ONLY; requires user approval. ALB Ingress finalizer reconciliation
+    by kube-system/aws-load-balancer-controller in the application namespace. Other
+    Role/network mutation permissions remain rejected by schema/RBAC boundary validation
+    and all other scans.

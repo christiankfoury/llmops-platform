@@ -320,7 +320,9 @@ Implementation and local validation (2026-09-07):
 - Moved namespaces, controllers, stores, trust and RBAC to bootstrap ownership. Owner Jobs are rendered separately in the migration namespace. GitHub provider is looked up once per account; role trust requires exact environment subjects.
 - All three roots passed readonly-lock backend-disabled init/validate and both mocked plan stages (six total); Terraform format passed. 394 rendered resources passed strict schema validation, zero skipped; unknown CRD property/resource kind and invalid built-in type were rejected. Java runtime manifest boundaries, Ruff, workflow YAML, duplicate-key/converter regressions and diff checks passed.
 - Added current ordered AWS bootstrap/state/private-runner/DNS/CA instructions and fresh-install versus existing-ownership handoff limitations. No real cloud calls/apply/deployment, secrets or DNS changes.
-- Implementation commit, pushed CI and post-commit review pending; Phase 59 remains In Progress until that loop completes.
+- Implementation `dd125e66df161df7be2c768ed04a2dd705c3a372` pushed. CI 34091679445 passed six jobs (including infrastructure, Java and all three image/TLS checks) and flagged app network mutation plus upstream ESO default privileges. Separate fix `a1e48c541119c99127fc28d60defe7ade36d2248` transfers networking to bootstrap.
+- The controller follow-up uses namespace-scoped ESO controllers/v1 stores, read-only ALB cluster discovery and a namespace-scoped Ingress reconciler. Every configured controller is scanned; 506 resource instances validate with zero skipped.
+- The only remaining local rendered HIGH/CRITICAL finding is KSV-0056 on the ALB controller's required Ingress patch/update permission. No exception is active; the concrete approval proposal is `docs/security-proposals/phase59-controller-permission.md`. Phase 59 remains In Progress until pushed review and the security-policy gate are resolved.
 
 ### Phase 1: Project specification and architecture
 

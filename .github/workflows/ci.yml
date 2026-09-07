@@ -506,3 +506,13 @@ jobs:
         run: |
           python scripts/validate_java_manifests.py
           python scripts/validate_aws_manifests.py
+
+      # Scan the exact reviewed controller/bootstrap configuration, not unused archive defaults.
+      - name: Scan rendered deployment configuration
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: .maven-cache/aws-manifest-validation/rendered
+          format: table
+          exit-code: "1"
+          severity: HIGH,CRITICAL

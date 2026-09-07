@@ -117,6 +117,7 @@ module "secrets" {
   eks_oidc_provider_arn        = module.cluster.oidc_provider_arn
   eks_oidc_issuer_url          = module.cluster.oidc_issuer_url
   tags                         = local.common_tags
+  application_namespace        = "ai-platform-${local.environment}"
 }
 
 module "budget" {
