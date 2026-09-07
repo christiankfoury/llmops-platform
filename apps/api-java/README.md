@@ -1,6 +1,6 @@
 # Java API migration
 
-Phase 50 adds the Spring Boot foundation. The active Docker Compose, Helm, and deployment runtime remains the Python API in `apps/api` until Phase 58. This service currently provides lifecycle health and shared JSON/error handling; gateway, persistence, telemetry, authorization and dependency readiness follow in their own phases. AWS remains the target.
+Phases 50-51 add the Spring Boot foundation and PostgreSQL persistence. The active Docker Compose, Helm, and deployment runtime remains the Python API in `apps/api` until Phase 58. This service currently provides lifecycle health and shared JSON/error handling; gateway, telemetry, authorization and dependency readiness follow in their own phases. AWS remains the target.
 
 The build uses Java 21, Spring Boot 4.1.1, Maven 3.9.16, Maven Wrapper 3.3.4, Spotless 3.10.2 and Google Java Format 1.28.0. The Spring Boot BOM pins library versions; the build rejects snapshot dependencies, checks Java/Maven versions, treats compiler warnings as errors, checks formatting and runs tests. Distribution downloads have a pinned SHA-256 checksum and CI checks the committed wrapper files before executing them. Dependency vulnerability and release SBOM gates are expanded in Phase 60; checksum validation alone is not a vulnerability scan.
 
@@ -9,7 +9,6 @@ From this directory:
 ```powershell
 .\mvnw.cmd --batch-mode --no-transfer-progress --strict-checksums clean verify
 .\mvnw.cmd --batch-mode --no-transfer-progress spotless:apply
-.\mvnw.cmd spring-boot:run
 ```
 
 On Linux/macOS, use `./mvnw` with the same arguments. Maven does not need to be installed separately. A Java 21 JDK and network access to Maven Central are needed for the first build. Set `JAVA_HOME` if Java 21 is not the default. For an isolated Windows workspace cache:
@@ -19,7 +18,9 @@ $env:MAVEN_USER_HOME = (Resolve-Path ..\..).Path + '\.maven-cache'
 .\mvnw.cmd --batch-mode --no-transfer-progress --strict-checksums "-Dmaven.repo.local=$env:MAVEN_USER_HOME\repository" clean verify
 ```
 
-The skeleton listens on `127.0.0.1:8080`; `API_BIND_ADDRESS` and `PORT` control the bind address and port. `/health` identifies the service, `/health/live` checks lifecycle liveness, and `/health/ready` reports whether the process accepts traffic. Readiness does not claim PostgreSQL/Redis health yet. Only Actuator health is exposed, with details hidden; diagnostic/configuration/dump endpoints and JMX exposure are disabled.
+Before starting the service, configure and explicitly migrate a disposable PostgreSQL database using the [migration handover guide](../../docs/database-migration-handover.md). Runtime migrations and synthetic seeds are disabled by default. Hibernate validates the existing schema. Maven tests start an isolated PostgreSQL 16.15 server automatically and fail if it cannot start.
+
+The service listens on `127.0.0.1:8080`; `API_BIND_ADDRESS` and `PORT` control the bind address and port. `/health` identifies the service, `/health/live` checks lifecycle liveness, and `/health/ready` reports whether the process accepts traffic. Readiness does not claim PostgreSQL/Redis health yet. Only Actuator health is exposed, with details hidden; diagnostic/configuration/dump endpoints and JMX exposure are disabled.
 
 If a Windows launch fails inside `PipeImpl` with `Unable to establish loopback connection`, use an existing workspace directory for temporary sockets. This was required by the local desktop launch environment during Phase 50; it is not a production JVM setting:
 

@@ -144,6 +144,20 @@ Implementation notes:
 - Commit/push/review evidence: docs/phase-reviews/phase-50.md.
 - Next phase: Phase 51, PostgreSQL persistence and migration handover.
 
+### Phase 51: PostgreSQL persistence and migration handover
+
+Status: In Progress — implementation and local validation complete; pushed CI/review pending.
+
+Implementation notes:
+
+- Added matching JPA/Flyway schema, verified explicit Alembic adoption, a shared migration-owner lock, separate migration JAR and deterministic opt-in local seeds.
+- Validation: Java clean verify passed (14 tests, no skips); full Python suite passed against disposable PostgreSQL (81 tests, no skips); Ruff, frozen contract check and whitespace validation passed.
+- Security: no real credentials, existing database changes or cloud operations; seed startup requires explicit local/loopback settings.
+- Reliability: unchanged legacy rows/schema, guarded single migration owner, no automatic DDL/baselining/downgrade; transaction uniqueness and precision verified.
+- Observability: migration status only; no provider or telemetry exporter.
+- Commit/push/review evidence: docs/phase-reviews/phase-51.md.
+- Next phase: Phase 52 after review closure.
+
 ### Phase 1: Project specification and architecture
 
 Status: Completed

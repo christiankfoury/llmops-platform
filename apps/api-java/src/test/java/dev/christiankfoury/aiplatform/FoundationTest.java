@@ -31,7 +31,7 @@ import tools.jackson.databind.json.JsonMapper;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(FoundationTest.TestRoutes.class)
-class FoundationTest {
+class FoundationTest extends PostgresTestSupport {
   @Autowired private MockMvc mvc;
   @Autowired private JsonMapper mapper;
   @Autowired private ApplicationContext context;

@@ -6,9 +6,11 @@ import os
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
+from uuid import uuid4
 
 import pytest
 from app.api import gateway
+from app.db.migration_ownership import alembic_ownership
 from app.db.session import SessionLocal, get_db
 from app.main import app
 from app.schemas.gateway import CompletionResponse
@@ -276,3 +278,48 @@ def test_postgresql_fixture_lifecycle_and_usage_filters() -> None:
             listed = client.get(path)
             assert listed.status_code == 200
             assert any(row["id"] == record_id for row in listed.json())
+
+
+def test_alembic_refuses_flyway_owned_schema_and_releases_lock() -> None:
+    try:
+        with SessionLocal() as db:
+            db.execute(text("select 1"))
+    except SQLAlchemyError:
+        if os.environ.get("REQUIRE_DATABASE_TESTS") == "true":
+            pytest.fail("PostgreSQL ownership validation is required but unavailable")
+        pytest.skip("PostgreSQL unavailable; CI requires this ownership test")
+    schema = "ownership_" + uuid4().hex
+    with SessionLocal().bind.connect() as connection:
+        connection.execute(text(f"CREATE SCHEMA {schema}"))
+        connection.execute(text(f"SET search_path TO {schema}"))
+        connection.execute(text("SET lock_timeout='2s'"))
+        connection.commit()
+        with alembic_ownership(connection):
+            connection.execute(text("CREATE TABLE legacy_marker (id integer)"))
+            connection.commit()
+        assert connection.scalar(text("SHOW lock_timeout")) == "2s"
+        connection.execute(text("CREATE TABLE flyway_schema_history (installed_rank integer)"))
+        connection.commit()
+        with pytest.raises(RuntimeError, match="Flyway owns this schema"):
+            with alembic_ownership(connection):
+                pytest.fail("Adopted schema must never enter the Alembic migration body")
+        assert connection.scalar(text("SHOW lock_timeout")) == "2s"
+        connection.commit()
+        with SessionLocal().bind.connect() as competitor:
+            assert (
+                competitor.scalar(
+                    text(
+                        "SELECT pg_try_advisory_lock(hashtext(current_database()), hashtext(:schema))"
+                    ),
+                    {"schema": schema},
+                )
+                is True
+            )
+            competitor.execute(
+                text("SELECT pg_advisory_unlock(hashtext(current_database()), hashtext(:schema))"),
+                {"schema": schema},
+            )
+            competitor.commit()
+        connection.execute(text("SET search_path TO public"))
+        connection.execute(text("RESET lock_timeout"))
+        connection.commit()

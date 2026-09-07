@@ -17,6 +17,24 @@ jobs:
   java:
     name: Java build and contract foundation
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16.15-alpine
+        env:
+          POSTGRES_DB: ai_platform
+          POSTGRES_USER: ai_platform
+          POSTGRES_PASSWORD: local_dev_password
+        ports:
+          - 55433:5432
+        options: >-
+          --health-cmd "pg_isready -U ai_platform -d ai_platform"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      JDBC_DATABASE_URL: jdbc:postgresql://localhost:55433/ai_platform
+      DATABASE_USERNAME: ai_platform
+      DATABASE_PASSWORD: local_dev_password
     defaults:
       run:
         working-directory: apps/api-java
@@ -40,6 +58,7 @@ jobs:
 
       - name: Smoke-test the packaged Java service
         run: |
+          java -jar target/production-ai-platform-api-0.1.0-SNAPSHOT-migration.jar migrate
           python3 - <<'PY'
           import json
           import subprocess
