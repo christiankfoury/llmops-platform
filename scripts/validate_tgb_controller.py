@@ -568,13 +568,13 @@ def main():
         )
         rejected(
             "controller delete TGB",
-            kube("delete", "tgb", "approved-api", "-n", NS, "--as", SA, ok=False),
+            kube("delete", "targetgroupbindings", "approved-api", "-n", NS, "--as", SA, ok=False),
         )
         rejected(
             "app deployer mutate TGB",
             kube(
                 "patch",
-                "tgb",
+                "targetgroupbindings",
                 "approved-api",
                 "-n",
                 NS,
@@ -592,7 +592,7 @@ def main():
             "controller retarget binding",
             kube(
                 "patch",
-                "tgb",
+                "targetgroupbindings",
                 "approved-api",
                 "-n",
                 NS,
@@ -615,7 +615,7 @@ def main():
                 "bootstrap unauthorized " + key,
                 kube(
                     "patch",
-                    "tgb",
+                    "targetgroupbindings",
                     "approved-api",
                     "-n",
                     NS,
@@ -673,7 +673,7 @@ def main():
             "delete cleans targets and removes finalizer after restart",
             lambda: (
                 not state.targets
-                and not json.loads(kube("get", "tgb", "-n", NS, "-o", "json").stdout)["items"]
+                and not json.loads(kube("get", "targetgroupbindings", "-n", NS, "-o", "json").stdout)["items"]
             ),
         )
         assert not state.denied, (
