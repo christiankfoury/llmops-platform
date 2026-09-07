@@ -33,20 +33,28 @@ module "cluster" {
   public_access_cidrs       = var.eks_public_access_cidrs
   enabled_cluster_log_types = var.eks_enabled_cluster_log_types
   node_groups               = var.eks_node_groups
-  access_entries = var.create_github_actions_role ? {
-    github_actions_staging_deployer = {
-      principal_arn = module.iam.github_actions_role_arn
+  addon_versions            = var.eks_addon_versions
+  bootstrap_addons_enabled  = var.bootstrap_addons_enabled
+  access_entries = merge({
+    bootstrap = {
+      principal_arn = var.bootstrap_principal_arn
       policy_associations = {
-        staging_namespace_edit = {
-          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
-          access_scope = {
-            type       = "namespace"
-            namespaces = ["ai-platform-staging"]
-          }
+        bootstrap_admin = {
+          policy_arn   = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = { type = "cluster" }
         }
       }
     }
-  } : {}
+    }, var.create_github_actions_role ? {
+    app_deployer = {
+      principal_arn     = module.iam.github_actions_role_arn
+      kubernetes_groups = ["ai-platform-app-deployers"]
+    }
+    migration_runner = {
+      principal_arn     = module.iam.github_migration_role_arn
+      kubernetes_groups = ["ai-platform-migration-runners"]
+    }
+  } : {})
   tags = local.common_tags
 }
 
@@ -77,6 +85,8 @@ module "redis" {
   vpc_id                     = module.network.vpc_id
   private_subnet_ids         = module.network.private_subnet_ids
   allowed_security_group_ids = [module.cluster.cluster_security_group_id]
+  auth_token                 = var.redis_auth_token
+  auth_token_version         = var.redis_auth_token_version
   engine_version             = var.redis_engine_version
   node_type                  = var.redis_node_type
   num_cache_clusters         = var.redis_num_cache_clusters

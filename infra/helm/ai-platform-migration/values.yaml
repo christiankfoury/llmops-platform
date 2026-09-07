@@ -1,0 +1,40 @@
+imagePullSecrets: []
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+  fsGroup: 10001
+  fsGroupChangePolicy: OnRootMismatch
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+databaseTrust:
+  configMapName: ai-platform-database-ca
+  key: postgres-root.pem
+api:
+  config:
+    environment: dev
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: '1'
+      memory: 1Gi
+runtimeSecret:
+  keys:
+    JDBC_DATABASE_URL: jdbc-database-url
+    DATABASE_USERNAME: database-username
+    DATABASE_PASSWORD: database-password
+migration:
+  jobName: ai-platform-migrate
+  image:
+    repository: production-ai-platform-migration
+    tag: local
+    pullPolicy: IfNotPresent
+  secretName: ai-platform-migration-secrets
+  activeDeadlineSeconds: 180
+  backoffLimit: 0

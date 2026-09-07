@@ -1,0 +1,7 @@
+api:
+  config:
+    environment: dev
+migration:
+  image:
+    repository: replace-with-dev-ecr/production-ai-platform/migration
+    tag: dev

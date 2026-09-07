@@ -4,15 +4,13 @@ variable "name_prefix" {
 }
 
 variable "secret_names" {
-  description = "Logical secret placeholders to create without committing secret values."
+  description = "Separate app/runtime, web-session and migration-owner containers without secret values."
   type        = list(string)
-  default = [
-    "runtime",
-    "database-password",
-    "redis-auth-token",
-    "openai-api-key",
-    "gateway-signing-secret"
-  ]
+  default     = ["runtime", "web-session", "migration"]
+  validation {
+    condition     = alltrue([for name in ["runtime", "web-session", "migration"] : contains(var.secret_names, name)])
+    error_message = "Provide runtime, web-session and migration secret containers."
+  }
 }
 
 variable "recovery_window_in_days" {
@@ -47,12 +45,6 @@ variable "eks_oidc_issuer_url" {
 
 variable "external_secrets_namespace" {
   description = "Namespace containing the External Secrets Operator service account."
-  type        = string
-  default     = "external-secrets"
-}
-
-variable "external_secrets_service_account" {
-  description = "External Secrets Operator Kubernetes service account name."
   type        = string
   default     = "external-secrets"
 }

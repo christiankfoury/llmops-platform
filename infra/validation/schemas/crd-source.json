@@ -1,0 +1,5 @@
+{
+  "path": "infra/validation/schemas/crd-openapi-v1.36.0.json",
+  "url": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.36.0/api/openapi-spec/v3/apis__apiextensions.k8s.io__v1_openapi.json",
+  "sha256": "1c7dd621bece6661867bcc29471f774a46b36c02567d59815c7c72f6d08aa512"
+}

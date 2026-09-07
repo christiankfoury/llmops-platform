@@ -1,0 +1,18 @@
+{
+  "external-secrets": {
+    "chartVersion": "2.10.0",
+    "appVersion": "v2.10.0",
+    "url": "https://github.com/external-secrets/external-secrets/releases/download/helm-chart-2.10.0/external-secrets-2.10.0.tgz",
+    "sha256": "b96e948fff3674638b5d3f9e43886f3796e04739c4b4127929aed2ddac7d1418",
+    "path": "infra/validation/charts/external-secrets-2.10.0.tgz",
+    "sourceIndex": "https://charts.external-secrets.io/index.yaml"
+  },
+  "aws-load-balancer-controller": {
+    "chartVersion": "3.5.0",
+    "appVersion": "v3.5.0",
+    "url": "https://aws.github.io/eks-charts/aws-load-balancer-controller-3.5.0.tgz",
+    "sha256": "45051f634b33e10baccb3354d0681b7de787c60445e599fa276e0c9aedd4ccd5",
+    "path": "infra/validation/charts/aws-load-balancer-controller-3.5.0.tgz",
+    "sourceIndex": "https://aws.github.io/eks-charts/index.yaml"
+  }
+}

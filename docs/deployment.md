@@ -1,3 +1,5 @@
+> Current AWS bootstrap and ownership: [aws-bootstrap.md](aws-bootstrap.md). Cluster resources and owner Jobs are no longer part of the normal app chart. The historical commands below must not be used as a current Java release procedure.
+
 # Deployment
 
 Current runtime: Java 21/Spring Boot, explicit Flyway migration image and Next.js/Node 24. The [Java runtime cutover guide](java-runtime-cutover.md) is authoritative for Compose, Kubernetes settings, TLS, secrets, probes and verification. Default Compose migrates/seeds a fresh local volume and serves isolated synthetic dashboard data. Real usage requires OIDC/project grants. AWS workflows below remain the historical scaffold until phases 59-61; keep deployment disabled during that transition.

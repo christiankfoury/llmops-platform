@@ -33,6 +33,18 @@ def run(*args: str, success: bool = True) -> str:
 
 def check(output: str, expected_environment: str) -> None:
     docs = [doc for doc in yaml.safe_load_all(output) if doc]
+    assert all(
+        d["kind"]
+        not in {
+            "Namespace",
+            "ClusterSecretStore",
+            "ExternalSecret",
+            "ClusterRole",
+            "ClusterRoleBinding",
+            "Job",
+        }
+        for d in docs
+    ), "App releases must remain namespace-scoped and cannot own migration jobs"
     indexed = {(d["kind"], d["metadata"]["name"]): d for d in docs}
     assert len(indexed) == len(docs), "Duplicate rendered resource identity"
     for component in ("api", "web"):
@@ -106,16 +118,6 @@ def check(output: str, expected_environment: str) -> None:
                 service = path["backend"]["service"]
                 assert service["name"] != metrics["metadata"]["name"]
                 assert service["port"].get("number") != 9080
-    for job in (d for d in docs if d["kind"] == "Job"):
-        pod = job["spec"]["template"]["spec"]
-        assert pod["restartPolicy"] == "Never" and pod["automountServiceAccountToken"] is False
-        assert job["spec"]["backoffLimit"] == 0 and job["spec"]["activeDeadlineSeconds"] <= 180
-        container = pod["containers"][0]
-        assert container["args"] == ["java", "-jar", "/app/migration.jar", "migrate"]
-        keys = {
-            e["valueFrom"]["secretKeyRef"]["name"] for e in container["env"] if "valueFrom" in e
-        }
-        assert keys == {"ai-platform-migration-secrets"}
 
 
 def main() -> None:
@@ -130,8 +132,6 @@ def main() -> None:
             "template",
             "ai-platform",
             CHART,
-            "--set",
-            "migration.enabled=true",
             "--set",
             "web.config.authMode=oidc,api.config.oidcAudience=https://api.fixture.invalid,web.config.oidcIssuer=https://identity.fixture.invalid,web.config.oidcClientId=fixture-client",
         ),
@@ -150,7 +150,7 @@ def main() -> None:
         path = "infra/k8s/" + ("base" if environment is None else "overlays/" + environment)
         check(run("kubectl", "kustomize", path), environment or "dev")
         print("Kustomize Java runtime boundaries:", environment or "base")
-    print("Optional migration/OIDC configuration and refusal of unprotected metrics passed")
+    print("Optional OIDC configuration and refusal of unprotected metrics passed")
 
 
 if __name__ == "__main__":

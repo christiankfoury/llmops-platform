@@ -1,0 +1,5 @@
+# Pinned third-party bytes must survive Windows checkout unchanged.
+infra/validation/charts/*.tgz binary
+infra/validation/schemas/** -text
+infra/terraform/modules/cluster/policies/*.json -text
+infra/bootstrap/ai-platform-bootstrap/files/** -text

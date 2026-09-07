@@ -1,11 +1,10 @@
-{{- if .Values.migration.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ .Values.migration.jobName }}
-  namespace: {{ include "ai-platform.namespace" . }}
+  namespace: ai-platform-{{ .Values.api.config.environment }}-migration
   labels:
-    {{- include "ai-platform.labels" . | nindent 4 }}
+    app.kubernetes.io/name: ai-platform-migration
     app.kubernetes.io/component: migration
 spec:
   activeDeadlineSeconds: {{ .Values.migration.activeDeadlineSeconds }}
@@ -13,7 +12,7 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "ai-platform.labels" . | nindent 8 }}
+        app.kubernetes.io/name: ai-platform-migration
         app.kubernetes.io/component: migration
     spec:
       restartPolicy: Never
@@ -64,4 +63,3 @@ spec:
             items:
               - key: {{ .Values.databaseTrust.key }}
                 path: postgres-root.pem
-{{- end }}

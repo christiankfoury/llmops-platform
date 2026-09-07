@@ -1,5 +1,5 @@
 bucket         = "replace-with-prod-terraform-state-bucket"
 key            = "production-ai-platform/prod/terraform.tfstate"
 region         = "us-east-1"
-dynamodb_table = "replace-with-prod-terraform-lock-table"
 encrypt        = true
+use_lockfile   = true

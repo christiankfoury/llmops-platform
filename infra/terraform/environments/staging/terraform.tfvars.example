@@ -2,7 +2,7 @@ aws_region                = "us-east-1"
 vpc_cidr                  = "10.30.0.0/16"
 az_count                  = 2
 enable_nat_gateway        = true
-kubernetes_version        = null
+kubernetes_version = "1.36"
 eks_endpoint_public_access = false
 eks_endpoint_private_access = true
 database_instance_class = "db.t4g.small"
@@ -17,3 +17,12 @@ budget_monthly_limit_usd  = "250"
 budget_alert_subscriber_emails = []
 create_github_actions_role = false
 github_repository         = "christiankfoury/production-ai-platform"
+
+# Resolve actual role and add-on versions through read-only AWS preflight before any plan/apply.
+bootstrap_principal_arn = "arn:aws:iam::000000000000:role/replace-with-bootstrap-role"
+# eks_addon_versions = { vpc_cni = "<verified-build>", coredns = "<verified-build>", kube_proxy = "<verified-build>", ebs_csi = "<verified-build>", metrics_server = "<verified-build>" }
+# Supply TF_VAR_redis_auth_token through approved secret delivery, never a tfvars file or logs.
+redis_auth_token_version = 1
+
+# First stage false; enable only after approved bootstrap policies are installed.
+bootstrap_addons_enabled = false

@@ -1,0 +1,3 @@
+{{- if eq .Values.roles.runtime .Values.roles.migration }}
+{{- fail "Runtime and migration secret readers must use different IAM roles" }}
+{{- end }}

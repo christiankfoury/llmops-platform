@@ -12,10 +12,6 @@ images:
   newTag: dev
 patches:
 - target:
-    kind: Namespace
-    name: ai-platform
-  patch: "- op: replace\n  path: /metadata/name\n  value: ai-platform-dev"
-- target:
     kind: Deployment
     name: ai-platform-api
   patch: "- op: replace\n  path: /spec/replicas\n  value: 1"

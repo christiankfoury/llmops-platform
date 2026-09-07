@@ -1,9 +1,5 @@
 namespace:
-  create: true
   name: ai-platform-staging
-externalSecrets:
-  runtime:
-    remoteKey: production-ai-platform-staging/runtime
 api:
   replicaCount: 2
   image:
@@ -35,7 +31,3 @@ web:
 ingress:
   webHost: staging.ai-platform.example.com
   apiHost: api.staging.ai-platform.example.com
-migration:
-  image:
-    repository: replace-with-staging-ecr/production-ai-platform/migration
-    tag: staging

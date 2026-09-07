@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: ai-platform
-  labels:
-    app.kubernetes.io/name: production-ai-platform
-    app.kubernetes.io/part-of: production-ai-platform

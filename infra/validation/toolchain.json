@@ -1,0 +1,47 @@
+{
+  "terraform": {
+    "version": "1.16.1",
+    "platforms": {
+      "windows_amd64": {
+        "url": "https://releases.hashicorp.com/terraform/1.16.1/terraform_1.16.1_windows_amd64.zip",
+        "sha256": "5c6c6d8fedf56ce29c55f0c1fc91de3c259f42c2d220a28e827b5b60fd47bfa1",
+        "member": "terraform.exe"
+      },
+      "linux_amd64": {
+        "url": "https://releases.hashicorp.com/terraform/1.16.1/terraform_1.16.1_linux_amd64.zip",
+        "sha256": "745d33b4b02b7980c62a38ec1beea24ee084ea8caf3f503c200554bd9a0cbe49",
+        "member": "terraform"
+      }
+    }
+  },
+  "kubeconform": {
+    "version": "0.8.0",
+    "platforms": {
+      "windows_amd64": {
+        "url": "https://github.com/yannh/kubeconform/releases/download/v0.8.0/kubeconform-windows-amd64.zip",
+        "sha256": "e3f56102bcf4f50b034a567e2482a1c5330799983ddd655952310211aef73d93",
+        "member": "kubeconform.exe"
+      },
+      "linux_amd64": {
+        "url": "https://github.com/yannh/kubeconform/releases/download/v0.8.0/kubeconform-linux-amd64.tar.gz",
+        "sha256": "9bc2bffbf71f261128533edaf912153948b7ff238f9a531ae6d34466ec287883",
+        "member": "kubeconform"
+      }
+    }
+  },
+  "helm": {
+    "version": "3.21.4",
+    "platforms": {
+      "windows_amd64": {
+        "url": "https://get.helm.sh/helm-v3.21.4-windows-amd64.zip",
+        "sha256": "268a7b98b313403055e4f31807aeaac529c90e1188acd7857ae3e960b0f67cce",
+        "member": "windows-amd64/helm.exe"
+      },
+      "linux_amd64": {
+        "url": "https://get.helm.sh/helm-v3.21.4-linux-amd64.tar.gz",
+        "sha256": "61f88ab166748cb19604d7884cb100ae9ccb13804ddeb98e08af167eacbb6a14",
+        "member": "linux-amd64/helm"
+      }
+    }
+  }
+}

@@ -20,12 +20,6 @@ variable "github_repository" {
   default     = ""
 }
 
-variable "github_oidc_thumbprints" {
-  description = "Thumbprints for GitHub Actions OIDC provider."
-  type        = list(string)
-  default     = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
-}
-
 variable "ecr_repository_arns" {
   description = "ECR repository ARNs the optional GitHub Actions role can publish to."
   type        = list(string)

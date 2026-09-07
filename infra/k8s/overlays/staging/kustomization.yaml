@@ -12,10 +12,6 @@ images:
   newTag: staging
 patches:
 - target:
-    kind: Namespace
-    name: ai-platform
-  patch: "- op: replace\n  path: /metadata/name\n  value: ai-platform-staging"
-- target:
     kind: Deployment
     name: ai-platform-api
   patch: "- op: replace\n  path: /spec/replicas\n  value: 2"

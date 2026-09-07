@@ -1,0 +1,44 @@
+{{- range $reader := list "runtime" "migration" }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ai-platform-{{ $reader }}-secrets
+  namespace: external-secrets
+  annotations:
+    eks.amazonaws.com/role-arn: {{ index $.Values.roles $reader | quote }}
+automountServiceAccountToken: false
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: external-secrets-reader-tokens
+  namespace: external-secrets
+rules:
+  - apiGroups: [""]
+    resources: ["serviceaccounts/token"]
+    resourceNames: ["ai-platform-runtime-secrets", "ai-platform-migration-secrets"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: external-secrets-reader-tokens
+  namespace: external-secrets
+subjects:
+  - kind: ServiceAccount
+    name: external-secrets
+    namespace: external-secrets
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: external-secrets-reader-tokens
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: aws-load-balancer-controller
+  namespace: kube-system
+  annotations:
+    eks.amazonaws.com/role-arn: {{ .Values.roles.loadBalancer | quote }}

@@ -1,0 +1,3 @@
+environment: staging
+vpcCidr: 10.30.0.0/16
+secretPrefix: production-ai-platform-staging

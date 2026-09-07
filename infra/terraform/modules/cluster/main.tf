@@ -83,9 +83,19 @@ resource "aws_kms_alias" "cluster_secrets" {
 }
 
 resource "aws_eks_cluster" "this" {
-  name     = "${var.name_prefix}-eks"
-  role_arn = aws_iam_role.cluster.arn
-  version  = var.kubernetes_version
+  name                          = "${var.name_prefix}-eks"
+  role_arn                      = aws_iam_role.cluster.arn
+  version                       = var.kubernetes_version
+  bootstrap_self_managed_addons = false
+
+  access_config {
+    authentication_mode                         = "API"
+    bootstrap_cluster_creator_admin_permissions = false
+  }
+
+  upgrade_policy {
+    support_type = "STANDARD"
+  }
 
   enabled_cluster_log_types = var.enabled_cluster_log_types
 
@@ -152,7 +162,6 @@ resource "aws_iam_role" "node" {
 resource "aws_iam_role_policy_attachment" "node" {
   for_each = toset([
     "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
-    "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
     "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   ])
 
@@ -192,7 +201,7 @@ resource "aws_eks_node_group" "managed" {
     Name = "${var.name_prefix}-${each.key}"
   })
 
-  depends_on = [aws_iam_role_policy_attachment.node]
+  depends_on = [aws_iam_role_policy_attachment.node, aws_eks_addon.vpc_cni, aws_eks_addon.kube_proxy]
 }
 
 locals {
@@ -217,7 +226,7 @@ resource "aws_eks_access_entry" "this" {
   kubernetes_groups = each.value.kubernetes_groups
   type              = each.value.type
 
-  depends_on = [aws_eks_node_group.managed]
+  depends_on = [aws_eks_cluster.this]
 }
 
 resource "aws_eks_access_policy_association" "this" {

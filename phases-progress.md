@@ -313,6 +313,15 @@ Implementation plan:
 - Document state initialization, private EKS runner/DNS/endpoint connectivity, public CA delivery and ordered bootstrap/release responsibilities. Keep cloud apply, resources, real secrets and deployment gated.
 - Run static checks, commit/push, review the pushed change, fix top findings separately and record evidence before Phase 60.
 
+Implementation and local validation (2026-09-07):
+
+- Pinned Terraform 1.16.1/Helm 3.21.4/kubeconform 0.8.0, AWS 6.63.0/TLS 4.3.0 locks for Linux/Windows, checksum-verified upstream charts/policies/public CA and Kubernetes/CRD schemas.
+- Explicit EKS API access, AL2023/1.36 target, strict CNI, separate add-on IRSA, two-stage DNS/storage/metrics bootstrap, private authenticated Redis write-only secret input and app/migration registries/readers.
+- Moved namespaces, controllers, stores, trust and RBAC to bootstrap ownership. Owner Jobs are rendered separately in the migration namespace. GitHub provider is looked up once per account; role trust requires exact environment subjects.
+- All three roots passed readonly-lock backend-disabled init/validate and both mocked plan stages (six total); Terraform format passed. 394 rendered resources passed strict schema validation, zero skipped; unknown CRD property/resource kind and invalid built-in type were rejected. Java runtime manifest boundaries, Ruff, workflow YAML, duplicate-key/converter regressions and diff checks passed.
+- Added current ordered AWS bootstrap/state/private-runner/DNS/CA instructions and fresh-install versus existing-ownership handoff limitations. No real cloud calls/apply/deployment, secrets or DNS changes.
+- Implementation commit, pushed CI and post-commit review pending; Phase 59 remains In Progress until that loop completes.
+
 ### Phase 1: Project specification and architecture
 
 Status: Completed

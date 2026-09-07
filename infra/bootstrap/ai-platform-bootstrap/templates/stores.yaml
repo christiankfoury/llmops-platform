@@ -1,0 +1,49 @@
+{{- if .Values.externalSecretsEnabled }}
+{{- range $reader := list "runtime" "migration" }}
+---
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: ai-platform-{{ $.Values.environment }}-{{ $reader }}
+spec:
+  conditions:
+    - namespaces:
+        - ai-platform-{{ $.Values.environment }}{{ if eq $reader "migration" }}-migration{{ end }}
+  provider:
+    aws:
+      service: SecretsManager
+      region: {{ $.Values.region }}
+      auth:
+        jwt:
+          serviceAccountRef:
+            name: ai-platform-{{ $reader }}-secrets
+            namespace: external-secrets
+            audiences: ["sts.amazonaws.com"]
+{{- end }}
+{{- $databaseKeys := list "jdbc-database-url" "database-username" "database-password" }}
+{{- $runtimeKeys := concat $databaseKeys (list "redis-host" "redis-port" "redis-username" "redis-password") }}
+{{- range $secret := list (dict "name" "runtime-secrets" "reader" "runtime" "remote" "runtime" "keys" $runtimeKeys) (dict "name" "web-session" "reader" "runtime" "remote" "web-session" "keys" (list "session-secret" "oidc-client-secret")) (dict "name" "migration-secrets" "reader" "migration" "remote" "migration" "keys" $databaseKeys) }}
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: ai-platform-{{ $secret.name }}
+  namespace: ai-platform-{{ $.Values.environment }}{{ if eq $secret.reader "migration" }}-migration{{ end }}
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: ai-platform-{{ $.Values.environment }}-{{ $secret.reader }}
+    kind: ClusterSecretStore
+  target:
+    name: ai-platform-{{ $secret.name }}
+    creationPolicy: Owner
+    deletionPolicy: Retain
+  data:
+    {{- range $key := $secret.keys }}
+    - secretKey: {{ $key }}
+      remoteRef:
+        key: {{ $.Values.secretPrefix }}/{{ $secret.remote }}
+        property: {{ $key }}
+    {{- end }}
+{{- end }}
+{{- end }}

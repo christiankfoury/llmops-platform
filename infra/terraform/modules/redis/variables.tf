@@ -72,3 +72,15 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "auth_token" {
+  description = "Ephemeral AUTH token; must only be used with auth_token_wo."
+  type        = string
+  sensitive   = true
+  ephemeral   = true
+}
+
+variable "auth_token_version" {
+  description = "Approved token change version; token is never recorded in state."
+  type        = number
+}

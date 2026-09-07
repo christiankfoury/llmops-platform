@@ -1,0 +1,7 @@
+api:
+  config:
+    environment: prod
+migration:
+  image:
+    repository: replace-with-prod-ecr/production-ai-platform/migration
+    tag: prod

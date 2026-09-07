@@ -14,9 +14,8 @@ variable "private_subnet_ids" {
 }
 
 variable "kubernetes_version" {
-  description = "Optional EKS Kubernetes version. Leave null to use the AWS default at creation time."
+  description = "Explicit supported EKS Kubernetes version."
   type        = string
-  default     = null
 }
 
 variable "endpoint_private_access" {
@@ -46,7 +45,7 @@ variable "enabled_cluster_log_types" {
 variable "node_groups" {
   description = "Managed node group definitions."
   type = map(object({
-    ami_type        = optional(string, "AL2_x86_64")
+    ami_type        = optional(string, "AL2023_x86_64_STANDARD")
     capacity_type   = optional(string, "ON_DEMAND")
     desired_size    = number
     disk_size       = optional(number, 40)
@@ -79,4 +78,21 @@ variable "tags" {
   description = "Common tags applied to all resources."
   type        = map(string)
   default     = {}
+}
+
+variable "addon_versions" {
+  description = "Exact preflight-reviewed regional EKS add-on builds."
+  type = object({
+    vpc_cni        = string
+    coredns        = string
+    kube_proxy     = string
+    ebs_csi        = string
+    metrics_server = string
+  })
+}
+
+variable "bootstrap_addons_enabled" {
+  description = "Enable CoreDNS/CSI only after strict-mode bootstrap policies exist; keep enabled after approved bootstrap."
+  type        = bool
+  default     = false
 }

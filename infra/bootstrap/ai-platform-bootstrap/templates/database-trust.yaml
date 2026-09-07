@@ -1,0 +1,11 @@
+{{- range $namespace := list (printf "ai-platform-%s" .Values.environment) (printf "ai-platform-%s-migration" .Values.environment) }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-platform-database-ca
+  namespace: {{ $namespace }}
+data:
+  postgres-root.pem: |
+{{ $.Files.Get "files/rds-global-bundle.pem" | indent 4 }}
+{{- end }}

@@ -1,0 +1,6 @@
+{
+  "aws-load-balancer-controller-v3.5.0.json": {
+    "url": "https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v3.5.0/docs/install/iam_policy.json",
+    "sha256": "16f232c9d9f79366fe949c4550ad517a202380058a9e48d45a4e215044a20a6a"
+  }
+}

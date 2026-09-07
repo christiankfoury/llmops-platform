@@ -10,7 +10,7 @@ resource "aws_security_group" "this" {
 }
 
 resource "aws_security_group_rule" "ingress" {
-  for_each = toset(var.allowed_security_group_ids)
+  for_each = { for index, id in var.allowed_security_group_ids : tostring(index) => id }
 
   type                     = "ingress"
   from_port                = 6379
@@ -45,6 +45,10 @@ resource "aws_elasticache_replication_group" "this" {
 
   at_rest_encryption_enabled = true
   transit_encryption_enabled = true
+  transit_encryption_mode    = "required"
+  auth_token_wo              = var.auth_token
+  auth_token_wo_version      = var.auth_token_version
+  auth_token_update_strategy = "SET"
 
   subnet_group_name  = aws_elasticache_subnet_group.this.name
   security_group_ids = [aws_security_group.this.id]

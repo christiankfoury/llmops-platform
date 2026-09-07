@@ -1,0 +1,13 @@
+{{- range $namespace := list (printf "ai-platform-%s" .Values.environment) (printf "ai-platform-%s-migration" .Values.environment) "external-secrets" "observability" }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $namespace }}
+  labels:
+    app.kubernetes.io/part-of: production-ai-platform
+    {{- if ne $namespace "observability" }}
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: v1.36
+    {{- end }}
+{{- end }}

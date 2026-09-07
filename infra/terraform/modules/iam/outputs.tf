@@ -5,5 +5,10 @@ output "github_actions_role_arn" {
 
 output "github_oidc_provider_arn" {
   description = "ARN of the optional GitHub OIDC provider."
-  value       = try(aws_iam_openid_connect_provider.github[0].arn, null)
+  value       = try(data.aws_iam_openid_connect_provider.github[0].arn, null)
+}
+
+output "github_migration_role_arn" {
+  description = "Separate approved migration runner role; no app namespace or cluster bootstrap access."
+  value       = try(aws_iam_role.github_migration[0].arn, null)
 }

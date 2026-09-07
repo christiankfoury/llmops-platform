@@ -48,3 +48,8 @@ output "node_group_names" {
   description = "Managed node group names."
   value       = [for node_group in aws_eks_node_group.managed : node_group.node_group_name]
 }
+
+output "load_balancer_role_arn" {
+  value       = aws_iam_role.load_balancer.arn
+  description = "Bootstrap-owned load balancer controller identity."
+}

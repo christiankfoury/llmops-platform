@@ -10,7 +10,7 @@ resource "aws_security_group" "this" {
 }
 
 resource "aws_security_group_rule" "ingress" {
-  for_each = toset(var.allowed_security_group_ids)
+  for_each = { for index, id in var.allowed_security_group_ids : tostring(index) => id }
 
   type                     = "ingress"
   from_port                = 5432

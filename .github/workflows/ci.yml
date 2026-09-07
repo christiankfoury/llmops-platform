@@ -468,49 +468,41 @@ jobs:
           ignore-unfixed: true
           severity: HIGH,CRITICAL
 
-  # Static infrastructure checks run without creating cloud resources.
-  # This job is safe for CI because it formats/lints code only; it never applies Terraform.
-  infrastructure-placeholders:
+  # No AWS credentials, backend initialization, real plans, apply or cluster mutation.
+  infrastructure:
     name: Infrastructure static checks
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v4
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
 
-      # Keep Terraform formatting enforced as modules evolve.
-      - name: Terraform format placeholder
+      - name: Install checksum-pinned Terraform, Helm and kubeconform
         run: |
-          if find infra/terraform -name '*.tf' | grep -q .; then
-            terraform fmt -check -recursive infra/terraform
-          else
-            echo "No Terraform files yet; Phase 11 introduces Terraform."
-          fi
+          python scripts/install_validation_tools.py
+          echo "$GITHUB_WORKSPACE/.maven-cache/tools/pinned" >> "$GITHUB_PATH"
+          python -m pip install PyYAML==6.0.3
 
-      - name: Install Helm
+      - name: Validate every Terraform environment and mocked bootstrap plan
         env:
-          HELM_VERSION: v3.18.4
+          AWS_EC2_METADATA_DISABLED: "true"
         run: |
           set -euo pipefail
-          curl --fail --location --silent --show-error \
-            "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" \
-            --output helm.tar.gz
-          tar --extract --gzip --file helm.tar.gz
-          sudo install -m 0755 linux-amd64/helm /usr/local/bin/helm
-          helm version --short
+          terraform fmt -check -recursive infra/terraform
+          mkdir -p "$GITHUB_WORKSPACE/.maven-cache/terraform-provider-cache"
+          export TF_PLUGIN_CACHE_DIR="$GITHUB_WORKSPACE/.maven-cache/terraform-provider-cache"
+          for environment in dev staging prod; do
+            export TF_DATA_DIR="$GITHUB_WORKSPACE/.maven-cache/terraform-$environment"
+            terraform -chdir="infra/terraform/environments/$environment" init -backend=false -input=false -lockfile=readonly
+            terraform -chdir="infra/terraform/environments/$environment" validate -no-color
+            terraform -chdir="infra/terraform/environments/$environment" test -no-color
+          done
 
-      # Helm lint validates the chart shape without deploying to a cluster.
-      - name: Helm lint placeholder
+      - name: Validate application runtime and Kubernetes bootstrap boundaries
         run: |
-          if [ -f infra/helm/ai-platform/Chart.yaml ]; then
-            helm lint infra/helm/ai-platform
-          else
-            echo "No Helm chart yet; Phase 15 introduces Helm."
-          fi
-
-      - name: Render and validate Java runtime boundaries in all environments
-        run: |
-          python3 -m pip install PyYAML==6.0.3
-          python3 scripts/validate_java_manifests.py
+          python scripts/validate_java_manifests.py
+          python scripts/validate_aws_manifests.py

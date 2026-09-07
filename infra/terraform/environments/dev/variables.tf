@@ -17,15 +17,15 @@ variable "az_count" {
 }
 
 variable "enable_nat_gateway" {
-  description = "Whether dev creates a NAT gateway. Disabled by default for cost control."
+  description = "Whether private nodes have the required outbound route through a NAT gateway; included in the approved cost estimate."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "kubernetes_version" {
-  description = "Optional EKS Kubernetes version. Null lets AWS choose the default at cluster creation."
+  description = "Reviewed EKS minor version; verify region/add-on compatibility before approved creation."
   type        = string
-  default     = null
+  default     = "1.36"
 }
 
 variable "eks_endpoint_private_access" {
@@ -55,7 +55,7 @@ variable "eks_enabled_cluster_log_types" {
 variable "eks_node_groups" {
   description = "Managed node groups for dev."
   type = map(object({
-    ami_type        = optional(string, "AL2_x86_64")
+    ami_type        = optional(string, "AL2023_x86_64_STANDARD")
     capacity_type   = optional(string, "ON_DEMAND")
     desired_size    = number
     disk_size       = optional(number, 40)
@@ -93,9 +93,9 @@ variable "database_master_username" {
 }
 
 variable "database_engine_version" {
-  description = "Optional PostgreSQL engine version. Null lets AWS choose the default."
+  description = "Reviewed PostgreSQL release candidate; verify RDS region availability during launch preflight."
   type        = string
-  default     = null
+  default     = "16.15"
 }
 
 variable "database_instance_class" {
@@ -141,9 +141,9 @@ variable "database_skip_final_snapshot" {
 }
 
 variable "redis_engine_version" {
-  description = "Optional Redis engine version. Null lets AWS choose the default."
+  description = "Managed Redis OSS 7.2 compatibility line; AWS supplies the patched engine build."
   type        = string
-  default     = null
+  default     = "7.2"
 }
 
 variable "redis_node_type" {
@@ -185,7 +185,7 @@ variable "redis_apply_immediately" {
 variable "ecr_repository_names" {
   description = "Application image repositories."
   type        = list(string)
-  default     = ["api", "web"]
+  default     = ["api", "migration", "web"]
 }
 
 variable "max_tagged_images" {
@@ -201,15 +201,9 @@ variable "ecr_force_delete" {
 }
 
 variable "secret_names" {
-  description = "Placeholder secrets to create without secret values."
+  description = "Distinct runtime, web-session and migration-owner containers; values stay outside Terraform state."
   type        = list(string)
-  default = [
-    "runtime",
-    "database-password",
-    "redis-auth-token",
-    "openai-api-key",
-    "gateway-signing-secret"
-  ]
+  default     = ["runtime", "web-session", "migration"]
 }
 
 variable "secret_recovery_window_in_days" {
@@ -252,4 +246,55 @@ variable "github_repository" {
   description = "GitHub repository in owner/name format allowed to assume the optional CI/CD role."
   type        = string
   default     = "christiankfoury/production-ai-platform"
+}
+
+variable "bootstrap_principal_arn" {
+  description = "Existing trusted AWS role for approved cluster/bootstrap operations; distinct from app release roles."
+  type        = string
+  validation {
+    condition     = can(regex("^arn:aws:iam::[0-9]{12}:role/.+$", var.bootstrap_principal_arn))
+    error_message = "Provide the existing bootstrap IAM role ARN."
+  }
+}
+
+variable "eks_addon_versions" {
+  description = "Exact region/Kubernetes-compatible EKS build versions, resolved and reviewed at launch preflight. No implicit latest selection."
+  type = object({
+    vpc_cni        = string
+    coredns        = string
+    kube_proxy     = string
+    ebs_csi        = string
+    metrics_server = string
+  })
+  validation {
+    condition     = alltrue([for version in values(var.eks_addon_versions) : can(regex("^v[0-9]+[.][0-9]+[.][0-9]+-eksbuild[.][0-9]+$", version))])
+    error_message = "Pin each add-on to an explicit EKS build version after checking regional compatibility."
+  }
+}
+
+variable "redis_auth_token" {
+  description = "Externally supplied Redis AUTH token; ephemeral input reaches only the provider write-only field."
+  type        = string
+  sensitive   = true
+  ephemeral   = true
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9!&#$^<>-]{16,128}$", var.redis_auth_token))
+    error_message = "Redis requires a supported 16-128 character authentication token."
+  }
+}
+
+variable "redis_auth_token_version" {
+  description = "Explicit token change version; increment only with approved credential change."
+  type        = number
+  default     = 1
+  validation {
+    condition     = var.redis_auth_token_version >= 1 && floor(var.redis_auth_token_version) == var.redis_auth_token_version
+    error_message = "Token version must be a positive integer."
+  }
+}
+
+variable "bootstrap_addons_enabled" {
+  description = "Enable CoreDNS/CSI only after strict-mode bootstrap policies exist; keep enabled after approved bootstrap."
+  type        = bool
+  default     = false
 }

@@ -73,3 +73,18 @@ output "budget_name" {
   description = "Optional dev AWS Budget name."
   value       = module.budget.budget_name
 }
+
+output "github_migration_role_arn" {
+  description = "Separate namespace-scoped migration runner role."
+  value       = module.iam.github_migration_role_arn
+}
+
+output "external_secrets_role_arns" {
+  description = "Distinct bootstrap reader identities; migration owner is excluded from the runtime role."
+  value       = module.secrets.external_secrets_role_arns
+}
+
+output "load_balancer_role_arn" {
+  value       = module.cluster.load_balancer_role_arn
+  description = "Bootstrap-owned load balancer controller identity."
+}

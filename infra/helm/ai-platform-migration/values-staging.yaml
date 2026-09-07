@@ -1,0 +1,7 @@
+api:
+  config:
+    environment: staging
+migration:
+  image:
+    repository: replace-with-staging-ecr/production-ai-platform/migration
+    tag: staging

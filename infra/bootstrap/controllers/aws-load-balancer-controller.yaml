@@ -1,0 +1,12 @@
+# Supply exact clusterName/region/vpcId/watchNamespace from the approved environment.
+clusterName: replace-with-approved-cluster
+region: us-east-1
+vpcId: vpc-00000000000000000
+watchNamespace: ai-platform-dev
+replicaCount: 2
+serviceAccount:
+  create: false
+  name: aws-load-balancer-controller
+resources:
+  requests: {cpu: 100m, memory: 128Mi}
+  limits: {cpu: 500m, memory: 256Mi}

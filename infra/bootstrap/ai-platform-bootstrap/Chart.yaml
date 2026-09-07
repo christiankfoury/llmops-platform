@@ -1,0 +1,7 @@
+apiVersion: v2
+name: ai-platform-bootstrap
+description: Cluster-owner namespaces, identity boundaries, trust and strict-CNI bootstrap policies.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+kubeVersion: ">=1.36.0-0 <1.37.0-0"
