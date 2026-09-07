@@ -271,6 +271,13 @@ Implementation plan:
 - Separate Actuator health/Prometheus onto a loopback management listener; keep diagnostic endpoints disabled and validate real listener separation.
 - Test span relationships, propagation, async cleanup, redaction on error paths, metric label/cardinality bounds and actual Prometheus/OTLP output against existing dashboard queries. Commit, push, review and fix before runtime cutover in Phase 58.
 
+Implementation and validation:
+
+- Added compatible gateway/HTTP/telemetry Prometheus output, cached dependency gauges, safe structured operational logs and explicit bounded OpenTelemetry spans/propagation/export.
+- Management health/Prometheus now use a separate loopback listener; diagnostic endpoints remain disabled. Actual private scrape/OTLP export, redaction, worker context and transaction/admission counters are tested.
+- Final Java clean verify passes 275 tests without skips, and packaged private metrics/log smoke passes. Commit/push and pushed review pending. Evidence is recorded in docs/phase-reviews/phase-57.md.
+- AWS, provider calls, real credentials and publication remain gated. Running Grafana/alerts are Phase 62; runtime Docker/Helm cutover is Phase 58.
+
 ### Phase 1: Project specification and architecture
 
 Status: Completed

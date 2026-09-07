@@ -42,6 +42,16 @@ public class DependencyReadiness {
         && System.nanoTime() - current.checkedAt < TimeUnit.SECONDS.toNanos(3);
   }
 
+  public boolean databaseHealthy() {
+    var current = snapshot;
+    return current.database && System.nanoTime() - current.checkedAt < TimeUnit.SECONDS.toNanos(3);
+  }
+
+  public boolean redisHealthy() {
+    var current = snapshot;
+    return current.redis && System.nanoTime() - current.checkedAt < TimeUnit.SECONDS.toNanos(3);
+  }
+
   public synchronized void refresh() {
     boolean databaseReady = false;
     boolean redisReady = false;

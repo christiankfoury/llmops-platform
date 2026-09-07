@@ -1,5 +1,7 @@
 # Observability
 
+Java migration status: Phase 57 now implements [Java metrics, safe structured logs and tracing](java-observability.md), including a separate loopback management listener. The historical sections below describe the Python reference and existing dashboard assets. Docker/Helm cutover is Phase 58; the runnable monitoring stack, Alloy replacement, screenshots and alert evidence are Phase 62.
+
 ## Prometheus metrics
 
 Phase 20 adds a Prometheus-compatible `/metrics` endpoint to the API.

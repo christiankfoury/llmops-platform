@@ -223,3 +223,7 @@ The Java service replaces local operator identity with RS256 OIDC verification a
 ## Java bounded admission (Phase 56)
 
 The Java service now bounds unauthenticated traffic with three fixed Redis counters, trusted-key quotas, in-flight requests, headers, paths, queries, body sizes and read deadlines. Hosted Redis requires authenticated TLS with certificate verification. Dependency loss fails closed; API errors omit credentials and diagnostic text. These admission controls do not replace ingress abuse controls or guarantee spending limits. See [Java reliability](java-reliability.md).
+
+## Java observability boundary (Phase 57)
+
+Actuator health/Prometheus run on a separate loopback management listener; detailed diagnostics stay disabled. Operational logs use a strict field allowlist and omit raw framework errors, payloads, arguments and arbitrary MDC. Traces omit content, SQL, exceptions and baggage, and use bounded sampling/export queues. Hosted collectors require HTTPS. Network access to a non-loopback monitoring port must be explicitly restricted during deployment. See [Java observability](java-observability.md).

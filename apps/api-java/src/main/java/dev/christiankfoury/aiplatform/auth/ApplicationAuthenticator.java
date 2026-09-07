@@ -15,14 +15,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class ApplicationAuthenticator {
   public record Scope(UUID keyId, UUID applicationId, UUID projectId) {}
 
+  private final dev.christiankfoury.aiplatform.observability.OperationsTracer tracing;
   private final ApiKeyRepository keys;
   private final ClientApplicationRepository applications;
   private final dev.christiankfoury.aiplatform.persistence.repository.ProjectRepository projects;
 
   public ApplicationAuthenticator(
+      dev.christiankfoury.aiplatform.observability.OperationsTracer tracing,
       ApiKeyRepository keys,
       ClientApplicationRepository applications,
       dev.christiankfoury.aiplatform.persistence.repository.ProjectRepository projects) {
+    this.tracing = tracing;
     this.keys = keys;
     this.applications = applications;
     this.projects = projects;
@@ -30,6 +33,10 @@ public class ApplicationAuthenticator {
 
   @Transactional(readOnly = true)
   public Scope authenticate(String value) {
+    return tracing.stage("gateway.authentication", () -> authenticateKey(value));
+  }
+
+  private Scope authenticateKey(String value) {
     if (value == null || value.isEmpty()) throw new ApiFailure(401, "Missing API key");
     if (value.length() > 512) throw new ApiFailure(401, "Invalid API key");
     var key =
@@ -46,6 +53,10 @@ public class ApplicationAuthenticator {
         .findById(application.getProjectId())
         .filter(project -> Boolean.TRUE.equals(project.getIsActive()))
         .orElseThrow(() -> new ApiFailure(401, "API key is not attached to an active project"));
+    dev.christiankfoury.aiplatform.observability.OperationalContext.put(
+        "project_id", application.getProjectId());
+    dev.christiankfoury.aiplatform.observability.OperationalContext.put(
+        "application_id", application.getId());
     return new Scope(key.getId(), application.getId(), application.getProjectId());
   }
 

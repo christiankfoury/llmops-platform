@@ -33,7 +33,7 @@ Authentication/configuration resolution uses a short read transaction. Provider 
 
 Queue wait and retry backoff count toward the single total deadline; retries never reset it. Timeout/interruption cancels the task and removes canceled queued work. Shutdown explicitly cancels futures removed from the queue so waiting callers receive a controlled 503 without waiting for their original deadline. A full worker/queue capacity returns 503; retries are bounded for provider errors/timeouts. Mock markers `[simulate_transient_failure]`, `[simulate_failure]` and `[simulate_timeout]` exercise success-after-retry, 502 and 504 behavior. Unexpected provider diagnostic text is discarded. Thread interruption cannot forcibly stop an adapter that ignores it; such work remains bounded by worker capacity. A future real adapter must supply its own network timeouts/cancellation and retry policy.
 
-Phase 56 adds [distributed Redis limits, 429/503 admission, dependency readiness and draining](java-reliability.md). Phase 55 supplies operator authorization; full metrics/logs/traces follow in Phase 57. Public deployment remains gated. Do not treat a passing local gateway test as cloud deployment evidence.
+Phase 56 adds [distributed Redis limits, 429/503 admission, dependency readiness and draining](java-reliability.md). Phase 55 supplies operator authorization; Phase 57 adds [metrics, safe logs and traces](java-observability.md). Public deployment remains gated. Do not treat a passing local gateway test as cloud deployment evidence.
 
 ## Validation
 

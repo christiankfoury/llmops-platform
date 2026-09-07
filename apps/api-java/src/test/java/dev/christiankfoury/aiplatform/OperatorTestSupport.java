@@ -75,6 +75,8 @@ abstract class OperatorTestSupport extends PostgresTestSupport {
             .addFilters(
                 webContext.getBean(dev.christiankfoury.aiplatform.http.RequestIdFilter.class),
                 webContext.getBean(
+                    dev.christiankfoury.aiplatform.observability.OperationsFilter.class),
+                webContext.getBean(
                     dev.christiankfoury.aiplatform.reliability.AdmissionFilter.class))
             .apply(
                 org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers

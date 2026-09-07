@@ -43,6 +43,7 @@ class GatewayHttpTest extends PostgresTestSupport {
   private static final String PROMPT =
       "You are the local mock provider for the Production AI Platform.";
   @Autowired private MockMvc http;
+  @Autowired private io.micrometer.core.instrument.MeterRegistry metrics;
   @Autowired private javax.sql.DataSource dataSource;
   @Autowired private JsonMapper json;
   @Autowired private EntityManager entities;
@@ -311,6 +312,11 @@ class GatewayHttpTest extends PostgresTestSupport {
 
   @Test
   void failedCostWriteRollsBackTheRequest(CapturedOutput output) throws Exception {
+    double before =
+        metrics
+            .counter(
+                "llm_gateway_estimated_cost_usd", "provider", "mock", "model", "mock-llm-small")
+            .count();
     doThrow(new IllegalStateException("synthetic-private-cost-diagnostic"))
         .when(costs)
         .saveAndFlush(any(CostRecord.class));
@@ -321,6 +327,12 @@ class GatewayHttpTest extends PostgresTestSupport {
             .getResponse()
             .getContentAsString();
     assertThat(requestCount()).isZero();
+    assertThat(
+            metrics
+                .counter(
+                    "llm_gateway_estimated_cost_usd", "provider", "mock", "model", "mock-llm-small")
+                .count())
+        .isEqualTo(before);
     assertThat(body + output.getAll())
         .doesNotContain("synthetic-private-cost-diagnostic", "synthetic-private-input", rawKey);
   }

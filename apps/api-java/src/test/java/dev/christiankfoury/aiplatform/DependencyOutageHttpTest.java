@@ -33,6 +33,10 @@ class DependencyOutageHttpTest {
   @Autowired javax.sql.DataSource webDatabase;
   @Autowired dev.christiankfoury.aiplatform.reliability.RedisSettings redisSettings;
   @Autowired DependencyReadiness readiness;
+
+  @Autowired
+  dev.christiankfoury.aiplatform.reliability.PlatformDependenciesHealth dependenciesHealth;
+
   @Autowired DrainState drain;
 
   @DynamicPropertySource
@@ -75,12 +79,9 @@ class DependencyOutageHttpTest {
         .andExpect(status().isServiceUnavailable())
         .andExpect(content().json("{\"status\":\"unavailable\"}"));
     http.perform(get("/health/live")).andExpect(status().isOk());
-    http.perform(get("/actuator/health/readiness"))
-        .andExpect(status().isServiceUnavailable())
-        .andExpect(content().json("{\"status\":\"DOWN\"}"));
-    http.perform(get("/actuator/health/liveness"))
-        .andExpect(status().isOk())
-        .andExpect(content().json("{\"status\":\"UP\"}"));
+    assertThat(dependenciesHealth.health().getStatus())
+        .isEqualTo(org.springframework.boot.health.contributor.Status.DOWN);
+    http.perform(get("/actuator/health/readiness")).andExpect(status().isNotFound());
     http.perform(
             post("/v1/gateway/completions")
                 .header("X-API-Key", "synthetic-outage-key")

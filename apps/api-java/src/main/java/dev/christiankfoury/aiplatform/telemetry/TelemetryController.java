@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TelemetryController {
+  private final dev.christiankfoury.aiplatform.observability.OperationsTracer tracing;
   private final ApplicationAuthenticator authenticator;
   private final TelemetryNormalizer normalizer;
   private final TelemetryAttribution attribution;
@@ -21,12 +22,14 @@ public class TelemetryController {
   private final dev.christiankfoury.aiplatform.reliability.RedisAdmission admission;
 
   public TelemetryController(
+      dev.christiankfoury.aiplatform.observability.OperationsTracer tracing,
       ApplicationAuthenticator authenticator,
       TelemetryNormalizer normalizer,
       TelemetryAttribution attribution,
       TelemetryWriter writer,
       TelemetryMetrics metrics,
       dev.christiankfoury.aiplatform.reliability.RedisAdmission admission) {
+    this.tracing = tracing;
     this.authenticator = authenticator;
     this.normalizer = normalizer;
     this.attribution = attribution;
@@ -47,11 +50,14 @@ public class TelemetryController {
           dev.christiankfoury.aiplatform.reliability.RedisAdmission.Traffic.TELEMETRY,
           scope.keyId());
       // Read at most one byte beyond the bound, including requests without Content-Length.
-      event =
-          normalizer.normalize(
-              request.getInputStream().readNBytes(TelemetryJson.MAX_BODY_BYTES + 1));
+      byte[] body = request.getInputStream().readNBytes(TelemetryJson.MAX_BODY_BYTES + 1);
+      event = tracing.stage("telemetry.validation", () -> normalizer.normalize(body));
       attribution.verify(scope, event);
-      var response = writer.write(scope, event);
+      TelemetryEvent validatedEvent = event;
+      var response =
+          tracing.stage("telemetry.database.write", () -> writer.write(scope, validatedEvent));
+      dev.christiankfoury.aiplatform.observability.OperationalContext.put(
+          "gateway_request_id", response.requestId());
       // The transaction has committed before cost/token counters are incremented.
       metrics.outcome(
           event,

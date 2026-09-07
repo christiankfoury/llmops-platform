@@ -10,10 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class GatewayConfiguration {
+  private final dev.christiankfoury.aiplatform.observability.OperationsTracer tracing;
   private final ApplicationAuthenticator authenticator;
   private final EntityManager entities;
 
-  public GatewayConfiguration(ApplicationAuthenticator authenticator, EntityManager entities) {
+  public GatewayConfiguration(
+      ApplicationAuthenticator authenticator,
+      EntityManager entities,
+      dev.christiankfoury.aiplatform.observability.OperationsTracer tracing) {
+    this.tracing = tracing;
     this.authenticator = authenticator;
     this.entities = entities;
   }
@@ -22,36 +27,42 @@ public class GatewayConfiguration {
   public GatewayContext resolve(String key, CompletionRequest request) {
     var scope = authenticator.authenticate(key);
     var prompt =
-        entities
-            .createQuery(
-                """
+        tracing.stage(
+            "gateway.prompt.lookup",
+            () ->
+                entities
+                    .createQuery(
+                        """
         from PromptVersion p where p.projectId=:project and p.applicationId=:app
           and p.name=:name and p.isActive=true order by p.version desc, p.id asc
         """,
-                PromptVersion.class)
-            .setParameter("project", scope.projectId())
-            .setParameter("app", scope.applicationId())
-            .setParameter("name", request.getPromptName())
-            .setMaxResults(1)
-            .getResultStream()
-            .findFirst()
-            .orElseThrow(() -> new ApiFailure(404, "No active prompt version found"));
+                        PromptVersion.class)
+                    .setParameter("project", scope.projectId())
+                    .setParameter("app", scope.applicationId())
+                    .setParameter("name", request.getPromptName())
+                    .setMaxResults(1)
+                    .getResultStream()
+                    .findFirst()
+                    .orElseThrow(() -> new ApiFailure(404, "No active prompt version found")));
     var route =
-        entities
-            .createQuery(
-                """
+        tracing.stage(
+            "gateway.model.routing",
+            () ->
+                entities
+                    .createQuery(
+                        """
         from ModelRoute r where r.projectId=:project and r.applicationId=:app
           and r.environment=:environment and r.isActive=true
           order by r.isDefault desc, r.priority asc, r.id asc
         """,
-                ModelRoute.class)
-            .setParameter("project", scope.projectId())
-            .setParameter("app", scope.applicationId())
-            .setParameter("environment", request.getEnvironment())
-            .setMaxResults(1)
-            .getResultStream()
-            .findFirst()
-            .orElseThrow(() -> new ApiFailure(404, "No active model route found"));
+                        ModelRoute.class)
+                    .setParameter("project", scope.projectId())
+                    .setParameter("app", scope.applicationId())
+                    .setParameter("environment", request.getEnvironment())
+                    .setMaxResults(1)
+                    .getResultStream()
+                    .findFirst()
+                    .orElseThrow(() -> new ApiFailure(404, "No active model route found")));
     if (!"mock".equals(route.getProvider()) || !"mock-llm-small".equals(route.getModelName())) {
       throw new ApiFailure(404, "Unsupported model route");
     }

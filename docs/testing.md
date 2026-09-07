@@ -204,3 +204,7 @@ Phase 55 adds a real local RSA/JWKS fixture and PostgreSQL tests for operator JW
 ## Java distributed admission and dependency faults
 
 Phase 56 adds real Redis concurrency/expiry tests, safe invalid-key admission, capacity/body/query bounds, actual PostgreSQL/Redis socket interruption and recovery, cached readiness versus liveness, draining and total retry deadlines. Packaged HTTP checks exercise chunked, stalled and slowly trickled request bodies. The final local suite passes 269 tests without skips. See [Java reliability](java-reliability.md) for fixture setup and exact controls.
+
+## Java metrics, logs and traces
+
+Phase 57 tests real management/business listener separation, gateway span parentage and worker propagation, real OTLP HTTP export/failure, bounded metric output against every existing application dashboard query, synthetic error redaction, cost-counter rollback and rate-limit counters. Separate listeners replace historical main-port Actuator assertions; actual dependency outages still verify readiness/liveness. See [Java observability](java-observability.md).

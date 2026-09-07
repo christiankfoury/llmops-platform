@@ -58,3 +58,7 @@ The logs dashboard maps to structured JSON log fields emitted by the API:
 - `status_code`
 - `latency_ms`
 - `error_category`
+
+## Java metric compatibility (Phase 57)
+
+The Java HTTP integration test emits real traffic and verifies every application metric name referenced by the overview, cost and reliability dashboards against `/actuator/prometheus` on its private management listener. Provider/model/error/status dimensions and histogram buckets remain compatible. Java logs retain the fields queried by the log dashboard; `method` and the fixed `route` replace the older informational `http_method`/raw `http_path` fields. These IDs remain fields, not stream labels. See [Java observability](../../../docs/java-observability.md). This is contract evidence; running dashboards and alerts follow in Phase 62.

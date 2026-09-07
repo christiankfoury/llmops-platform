@@ -42,6 +42,7 @@ class AdmissionHttpTest extends OperatorTestSupport {
   @Autowired StringRedisTemplate redis;
   @Autowired LimitsSettings limits;
   @Autowired AdmissionFilter filter;
+  @Autowired io.micrometer.core.instrument.MeterRegistry metrics;
 
   @BeforeEach
   void resetOwnedCounters() {
@@ -63,6 +64,7 @@ class AdmissionHttpTest extends OperatorTestSupport {
 
   @Test
   void randomInvalidKeysConsumeOneBoundedPreAuthCounter() throws Exception {
+    double before = metrics.get("llm_gateway_rate_limit_rejections").counter().count();
     var existingKeys = new java.util.HashSet<>(redis.keys(limits.namespace() + ":*"));
     for (int index = 0; index < 5; index++)
       http.perform(
@@ -82,6 +84,8 @@ class AdmissionHttpTest extends OperatorTestSupport {
     var createdKeys = new java.util.HashSet<>(redis.keys(limits.namespace() + ":*"));
     createdKeys.removeAll(existingKeys);
     assertThat(createdKeys).containsExactly(limits.namespace() + ":global:GATEWAY");
+    assertThat(metrics.get("llm_gateway_rate_limit_rejections").counter().count())
+        .isEqualTo(before + 1);
   }
 
   @Test

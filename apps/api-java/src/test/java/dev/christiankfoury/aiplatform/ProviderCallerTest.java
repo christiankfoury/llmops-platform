@@ -19,6 +19,8 @@ class ProviderCallerTest {
     CountDownLatch interrupted = new CountDownLatch(1);
     var caller =
         new ProviderCaller(
+            new dev.christiankfoury.aiplatform.observability.OperationsTracer(
+                io.opentelemetry.api.OpenTelemetry.noop()),
             (context, input, attempt) -> {
               try {
                 Thread.sleep(10000);
@@ -51,6 +53,8 @@ class ProviderCallerTest {
     AtomicInteger maxActive = new AtomicInteger();
     var caller =
         new ProviderCaller(
+            new dev.christiankfoury.aiplatform.observability.OperationsTracer(
+                io.opentelemetry.api.OpenTelemetry.noop()),
             (context, input, attempt) -> {
               maxActive.accumulateAndGet(active.incrementAndGet(), Math::max);
               entered.countDown();
@@ -97,6 +101,8 @@ class ProviderCallerTest {
     CountDownLatch rejected = new CountDownLatch(1);
     var caller =
         new ProviderCaller(
+            new dev.christiankfoury.aiplatform.observability.OperationsTracer(
+                io.opentelemetry.api.OpenTelemetry.noop()),
             (context, input, attempt) -> {
               entered.countDown();
               try {
@@ -157,6 +163,8 @@ class ProviderCallerTest {
     AtomicInteger attempts = new AtomicInteger();
     var caller =
         new ProviderCaller(
+            new dev.christiankfoury.aiplatform.observability.OperationsTracer(
+                io.opentelemetry.api.OpenTelemetry.noop()),
             (context, input, attempt) -> {
               attempts.incrementAndGet();
               try {

@@ -105,7 +105,7 @@ jobs:
                              "OIDC_AUDIENCE": "https://api.fixture.invalid", "OIDC_JWKS_URI": identity["jwks_uri"]}
                   process = subprocess.Popen([
                       "java", "-jar", "target/production-ai-platform-api-0.1.0-SNAPSHOT.jar",
-                      "--server.port=18080", "--platform.seed.enabled=true", "--platform.environment=local",
+                      "--server.port=18080", "--management.server.port=19080", "--platform.seed.enabled=true", "--platform.environment=local",
                   ], env=app_env, stdout=log, stderr=subprocess.STDOUT)
                   try:
                       for attempt in range(30):
@@ -130,16 +130,18 @@ jobs:
                               assert error.code == 401
                           else:
                               raise RuntimeError("Anonymous operator endpoint exposed")
-                      for path in ("/health", "/health/live", "/actuator/health"):
+                      for path in ("/health", "/health/live"):
                           with urllib.request.urlopen("http://127.0.0.1:18080" + path, timeout=2) as response:
                               assert response.status == 200
-                      for path in ("/actuator/env", "/contract-test/validate"):
+                      for path in ("/actuator/health", "/actuator/prometheus", "/actuator/env", "/contract-test/validate"):
                           try:
                               urllib.request.urlopen("http://127.0.0.1:18080" + path, timeout=2)
                           except urllib.error.HTTPError as error:
                               assert error.code == 404
                           else:
                               raise RuntimeError("Unexpected exposed endpoint: " + path)
+                      with urllib.request.urlopen("http://127.0.0.1:19080/actuator/health/readiness", timeout=2) as response:
+                          assert response.status == 200 and json.load(response) == {"status": "UP"}
                       completion = urllib.request.Request(
                           "http://127.0.0.1:18080/v1/gateway/completions",
                           data=json.dumps({"input": "synthetic hello"}).encode(),
@@ -148,6 +150,7 @@ jobs:
                       with urllib.request.urlopen(completion, timeout=5) as response:
                           result = json.load(response)
                           assert response.status == 200 and result["status"] == "succeeded"
+                          gateway_request_id = result["request_id"]
                           assert result["estimated_cost_usd"] == "0.000005"
                       for client in ("proofbase", "agentops"):
                           captured = json.loads(Path(f"../../contracts/client-captures/{client}.json").read_text())
@@ -220,7 +223,18 @@ jobs:
                               connection.close()
                               if sender is not None:
                                   sender.join(timeout=2)
-                      print("Packaged Java health, gateway, telemetry/replay, operator and bounded/slow-body checks passed")
+                      with urllib.request.urlopen("http://127.0.0.1:19080/actuator/prometheus", timeout=2) as response:
+                          metrics = response.read(2_000_000).decode()
+                      for name in ("http_requests_total", "llm_gateway_requests_total", "llm_gateway_request_duration_seconds_bucket",
+                                   "llm_gateway_estimated_cost_usd_total", "llm_external_telemetry_events_total", "platform_dependency_up"):
+                          assert name in metrics, name
+                      log.flush()
+                      records = [json.loads(line) for line in Path("target/packaged-smoke.log").read_text().splitlines() if line.startswith('{')]
+                      requests = [record for record in records if record.get("event") == "request_completed"]
+                      assert any(record.get("gateway_request_id") == gateway_request_id and len(record["trace_id"]) == 32 for record in requests)
+                      encoded = json.dumps(requests)
+                      assert "synthetic hello" not in encoded and "local-dev-placeholder-key-not-a-secret" not in encoded
+                      print("Packaged Java health, gateway, telemetry/replay, operator, bounded-body, private metrics and correlated log checks passed")
                   finally:
                       process.terminate()
                       try:

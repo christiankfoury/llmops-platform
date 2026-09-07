@@ -43,9 +43,8 @@ class FoundationTest extends PostgresTestSupport {
         .andExpect(jsonPath("$.service").value("api"));
     mvc.perform(get("/health/live")).andExpect(status().isOk());
     mvc.perform(get("/health/ready")).andExpect(status().isOk());
-    mvc.perform(get("/actuator/health"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.components").doesNotExist());
+    mvc.perform(get("/actuator/health")).andExpect(status().isNotFound());
+    mvc.perform(get("/actuator/prometheus")).andExpect(status().isNotFound());
     for (String endpoint :
         new String[] {"env", "configprops", "heapdump", "loggers", "mappings", "shutdown"}) {
       mvc.perform(get("/actuator/" + endpoint)).andExpect(status().isNotFound());

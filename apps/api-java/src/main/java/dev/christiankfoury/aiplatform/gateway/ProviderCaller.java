@@ -15,11 +15,16 @@ import org.springframework.stereotype.Service;
 @Service
 @EnableConfigurationProperties(ProviderSettings.class)
 public class ProviderCaller {
+  private final dev.christiankfoury.aiplatform.observability.OperationsTracer tracing;
   private final CompletionProvider provider;
   private final ProviderSettings settings;
   private final ThreadPoolExecutor workers;
 
-  public ProviderCaller(CompletionProvider provider, ProviderSettings settings) {
+  public ProviderCaller(
+      dev.christiankfoury.aiplatform.observability.OperationsTracer tracing,
+      CompletionProvider provider,
+      ProviderSettings settings) {
+    this.tracing = tracing;
     this.provider = provider;
     this.settings = settings;
     workers =
@@ -60,7 +65,15 @@ public class ProviderCaller {
     if (remaining <= 0) throw new ProviderFailure(ProviderFailure.Kind.TIMEOUT);
     java.util.concurrent.Future<CompletionProvider.Result> task;
     try {
-      task = workers.submit(() -> provider.complete(context, input, attempt));
+      task =
+          workers.submit(
+              io.opentelemetry.context.Context.current()
+                  .wrap(
+                      (java.util.concurrent.Callable<CompletionProvider.Result>)
+                          () ->
+                              tracing.stage(
+                                  "gateway.provider.call",
+                                  () -> provider.complete(context, input, attempt))));
     } catch (RejectedExecutionException busy) {
       throw new ProviderFailure(ProviderFailure.Kind.BUSY);
     }
