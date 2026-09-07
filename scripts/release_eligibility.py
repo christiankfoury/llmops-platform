@@ -14,6 +14,19 @@ from pathlib import Path
 
 REPOSITORY = "christiankfoury/production-ai-platform"
 WORKFLOW = ".github/workflows/ci.yml"
+ROOT = Path(__file__).resolve().parents[1]
+POLICY_FILES = (
+    WORKFLOW,
+    ".github/workflows/tgb-compatibility.yml",
+    "scripts/release_eligibility.py",
+    "scripts/validate_ci_policy.py",
+    "scripts/validate_supply_chain.py",
+    "infra/validation/toolchain.json",
+    "infra/validation/ci-actions.json",
+    "infra/validation/ci-java.json",
+    "infra/validation/gitleaks.toml",
+    "infra/validation/history-synthetic-findings.json",
+)
 REQUIRED = {
     "java": "Java build and contract foundation",
     "backend": "Backend lint and tests",
@@ -49,6 +62,14 @@ def identity(repository: str, sha: str, run_id: int, attempt: int) -> None:
         raise ValueError("Invalid repository/revision/run identity")
 
 
+def policy_hashes() -> dict:
+    # Normalize Git's platform-dependent text endings; these reviewed inputs are all text.
+    return {
+        name: hashlib.sha256((ROOT / name).read_text(encoding="utf-8").encode()).hexdigest()
+        for name in POLICY_FILES
+    }
+
+
 def candidate(context: dict, needs: dict, directory: Path) -> dict:
     identity(
         context["repository"], context["sha"], int(context["run_id"]), int(context["run_attempt"])
@@ -75,6 +96,7 @@ def candidate(context: dict, needs: dict, directory: Path) -> dict:
         "run_attempt": int(context["run_attempt"]),
         "workflow": WORKFLOW,
         "required_jobs": REQUIRED,
+        "policy_sha256": policy_hashes(),
         "evidence_sha256": hashes,
     }
 
@@ -116,6 +138,7 @@ def verify(run: dict, jobs: list, evidence: dict, sha: str, run_id: int) -> None
         "run_attempt": run["run_attempt"],
         "workflow": WORKFLOW,
         "required_jobs": REQUIRED,
+        "policy_sha256": policy_hashes(),
     }
     if any(evidence.get(k) != v for k, v in expected_evidence.items()):
         raise ValueError("Candidate evidence identity or required checks do not match")

@@ -138,6 +138,7 @@ class EligibilityTest(unittest.TestCase):
             ("run_id", 124),
             ("evidence_sha256", {}),
             ("required_jobs", {}),
+            ("policy_sha256", {}),
         ):
             with self.subTest(key=key), self.assertRaises(ValueError):
                 release.verify(self.run, self.jobs, {**self.evidence, key: value}, self.sha, 123)
