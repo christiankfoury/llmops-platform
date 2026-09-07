@@ -14,11 +14,11 @@
 
 ### Validation
 - Command: Maven Wrapper strict-checksum spotless:apply clean verify.
-- Result: 32 tests passed locally, no failures/errors/skips; real PostgreSQL exercises auth, route selection, request/cost persistence and rollback. Separate tests prove real timeout cancellation and bounded overload.
+- Result: final fix has 33 tests passed locally, no failures/errors/skips; real PostgreSQL exercises auth, route selection, request/cost persistence and rollback. Separate tests prove real timeout cancellation and bounded overload.
 - HTTP evidence: known seeded-style prompt/input has 13 input tokens, 16 output tokens and decimal string 0.000005; Unicode limits, safe errors and correlation validated.
 - Command: workflow YAML parse and embedded Python compile; backend contract exporter --check; git diff --check.
 - Result: passed; frozen Python contract unchanged.
-- CI: pending pushed verification, including explicitly seeded packaged gateway smoke test.
+- CI: [run 34071829977](https://github.com/christiankfoury/production-ai-platform/actions/runs/34071829977) passed all seven jobs on 571c87ccce1490c44d3cfaa140c675507e0d694a. Java passed 33 tests without skips and the packaged gateway smoke check; Python, frontend, scans and infrastructure checks passed. Initial implementation run 34071641796 also passed all seven jobs. Deploy Dev was skipped.
 
 ### Security Review
 - Secrets: key lookup uses SHA-256; raw key, request input and provider output are not logged/persisted in usage records. Privacy regressions cover provider/database diagnostics.
@@ -47,7 +47,7 @@
 ### Post-Commit Review
 - Pushed commit: 3cfce5d1024fc39abac876d1ce4c051316fb4f57, verified by GitHub main readback.
 - Top findings: ThreadPoolExecutor.shutdownNow removes queued FutureTasks without canceling their futures. Waiting callers could remain blocked until their provider deadline and miss controlled failure recording. A separate fix cancels returned queued futures, maps cancellation to the safe interrupted-provider failure and adds a real queued-shutdown regression.
-- Fix commits: queued cancellation fix pending validation/push.
+- Fix commits: 571c87ccce1490c44d3cfaa140c675507e0d694a fixes queued cancellation, verified by GitHub main readback. Follow-up review checked canceled/overloaded/deadline outcomes, short database transactions, atomic cost writes, HTTP typing/privacy, fixture isolation and packaged runtime behavior. No remaining top actionable findings for Phase 52.
 
 ### Next Phase
 - Phase 53: Java Proofbase and AgentOps telemetry ingestion, after review closure.

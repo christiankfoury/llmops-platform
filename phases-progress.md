@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 52: Java gateway and model routing - In Progress. Phase 51 review and all seven CI jobs passed, including real PostgreSQL parity/adoption tests and packaged migration/app smoke checks. Phases 1-47 remain the completed historical baseline.
+Phase 53: Java Proofbase and AgentOps telemetry ingestion - In Progress. Phase 52 review and all seven CI jobs passed, including 33 Java tests and the authenticated packaged-gateway smoke check. Phases 1-47 remain the completed historical baseline.
 
 ## Phase table
 
@@ -80,8 +80,8 @@ Phase 52: Java gateway and model routing - In Progress. Phase 51 review and all 
 | 49 | Backend compatibility contract baseline | Completed |
 | 50 | Spring Boot build and service foundation | Completed |
 | 51 | PostgreSQL persistence and migration handover | Completed |
-| 52 | Java gateway and model routing | In Progress |
-| 53 | Java Proofbase and AgentOps telemetry ingestion | Not Started |
+| 52 | Java gateway and model routing | Completed |
+| 53 | Java Proofbase and AgentOps telemetry ingestion | In Progress |
 | 54 | Java usage and operator configuration APIs | Not Started |
 | 55 | Operator authorization and application key lifecycle | Not Started |
 | 56 | Distributed limits and dependency-aware readiness | Not Started |
@@ -161,7 +161,7 @@ Implementation notes:
 
 ### Phase 52: Java gateway and model routing
 
-Status: In Progress
+Status: Completed
 
 Implementation plan:
 
@@ -173,10 +173,11 @@ Implementation plan:
 
 Implementation and validation:
 
-- Gateway/auth/routing/provider/persistence implementation complete; local clean Maven verify passes all 32 tests without skips.
+- Gateway/auth/routing/provider/persistence implementation complete; local clean Maven verify passes all 33 tests without skips.
 - PostgreSQL HTTP tests prove scoped authentication, prompt/route behavior, durable failures, decimal costs, atomic rollback, input privacy and released database connections during provider waits.
 - Real deadline/cancellation and bounded overload tests pass; workflow YAML/embedded Python, frozen Python contract and whitespace checks pass.
-- Pushed CI/review pending; evidence and limitations are recorded in docs/phase-reviews/phase-52.md.
+- Pushed fix 571c87ccce1490c44d3cfaa140c675507e0d694a and all seven jobs in CI run 34071829977 passed; no remaining top actionable review findings. Evidence and limitations are recorded in docs/phase-reviews/phase-52.md.
+- Next phase: Phase 53, Java Proofbase and AgentOps telemetry ingestion.
 
 ### Phase 1: Project specification and architecture
 
