@@ -97,6 +97,13 @@ def candidate_rbac():
     )
     allowed = []
     for doc in docs:
+        if not doc or doc["metadata"]["name"] not in {
+            "ai-platform-load-balancer-discovery",
+            "load-balancer-reconciler",
+            "load-balancer-leader-election",
+            "app-deployer",
+        }:
+            continue
         if doc and doc["kind"] in {"Role", "RoleBinding", "ClusterRole", "ClusterRoleBinding"}:
             if doc["metadata"]["name"] == "load-balancer-reconciler":
                 for rule in doc.get("rules", []):
