@@ -76,7 +76,7 @@ jobs:
 
   publish:
     # Phase 66+ approval must review and deliberately remove this hard hold.
-    if: ${{ false }}
+    if: ${{ github.ref == 'refs/heads/main' && false }}
     needs: [preflight]
     runs-on: [self-hosted, linux, x64, ai-platform-private-ephemeral]
     environment: ${{ inputs.environment }}-publish
@@ -88,7 +88,6 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       AWS_EC2_METADATA_DISABLED: 'true'
-      KUBECONFIG: ${{ runner.temp }}/release-kubeconfig
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -119,6 +118,7 @@ jobs:
       - name: Execute approved publish operation
         env:
           AWS_RELEASE_APPROVED: explicit-environment-approval
+          KUBECONFIG: ${{ runner.temp }}/release-kubeconfig
           RELEASE_ENV: ${{ inputs.environment }}
           PLAN_SHA256: ${{ needs.preflight.outputs.plan_sha256 }}
         run: >-
@@ -127,7 +127,7 @@ jobs:
 
   migrate:
     # Phase 66+ approval must review and deliberately remove this hard hold.
-    if: ${{ false }}
+    if: ${{ github.ref == 'refs/heads/main' && false }}
     needs: [preflight, publish]
     runs-on: [self-hosted, linux, x64, ai-platform-private-ephemeral]
     environment: ${{ inputs.environment }}-migration
@@ -139,7 +139,6 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       AWS_EC2_METADATA_DISABLED: 'true'
-      KUBECONFIG: ${{ runner.temp }}/release-kubeconfig
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -170,6 +169,7 @@ jobs:
       - name: Execute approved migrate operation
         env:
           AWS_RELEASE_APPROVED: explicit-environment-approval
+          KUBECONFIG: ${{ runner.temp }}/release-kubeconfig
           RELEASE_ENV: ${{ inputs.environment }}
           PLAN_SHA256: ${{ needs.preflight.outputs.plan_sha256 }}
         run: >-
@@ -178,7 +178,7 @@ jobs:
 
   deploy:
     # Phase 66+ approval must review and deliberately remove this hard hold.
-    if: ${{ false }}
+    if: ${{ github.ref == 'refs/heads/main' && false }}
     needs: [preflight, migrate]
     runs-on: [self-hosted, linux, x64, ai-platform-private-ephemeral]
     environment: ${{ inputs.environment }}
@@ -190,7 +190,6 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       AWS_EC2_METADATA_DISABLED: 'true'
-      KUBECONFIG: ${{ runner.temp }}/release-kubeconfig
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -221,6 +220,7 @@ jobs:
       - name: Execute approved deploy operation
         env:
           AWS_RELEASE_APPROVED: explicit-environment-approval
+          KUBECONFIG: ${{ runner.temp }}/release-kubeconfig
           RELEASE_ENV: ${{ inputs.environment }}
           PLAN_SHA256: ${{ needs.preflight.outputs.plan_sha256 }}
           RELEASE_SMOKE_API_KEY: ${{ secrets.RELEASE_SMOKE_API_KEY }}

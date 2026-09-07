@@ -1,6 +1,6 @@
 # Immutable AWS release procedure
 
-Phase 61 implements and tests the release control plane. Cloud jobs in `release.yml` are hard-held with `if: ${{ false }}`. Manual dispatch currently verifies artifacts without obtaining AWS credentials. Removing those holds, creating/configuring environments or runners, changing real secrets, deploying to AWS, and applying Terraform still require the environment-specific approvals in AGENTS.md. This document is not that approval.
+Phase 61 implements and tests the release control plane. Cloud jobs in `release.yml` are hard-held with `if: ${{ github.ref == 'refs/heads/main' && false }}`. Manual dispatch currently verifies artifacts without obtaining AWS credentials. Removing those holds, creating/configuring environments or runners, changing real secrets, deploying to AWS, and applying Terraform still require the environment-specific approvals in AGENTS.md. This document is not that approval.
 
 ## Verified artifact path
 

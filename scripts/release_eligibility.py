@@ -17,6 +17,7 @@ WORKFLOW = ".github/workflows/ci.yml"
 ROOT = Path(__file__).resolve().parents[1]
 POLICY_FILES = (
     WORKFLOW,
+    ".github/actionlint.yaml",
     ".github/workflows/tgb-compatibility.yml",
     ".github/workflows/release.yml",
     ".github/workflows/deploy-dev.yml",

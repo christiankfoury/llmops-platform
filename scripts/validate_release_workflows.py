@@ -46,7 +46,7 @@ def check_release_workflows(documents: dict, pins: dict) -> None:
         ("deploy", "", ["preflight", "migrate"]),
     ):
         job = jobs[stage]
-        if job.get("if") != "${{ false }}":
+        if job.get("if") != "${{ github.ref == 'refs/heads/main' && false }}":
             raise ValueError(
                 "AWS execution remains hard-held pending explicit environment approval"
             )
