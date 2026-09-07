@@ -4,6 +4,15 @@
 
 This project is a production-style LLMOps platform.
 
+Current implementation: Java 21/Spring Boot is the default API runtime after Phase
+58; Python remains a contract reference. AWS deployment remains gated. Terraform
+owns the ALB, TLS listener, host rules, security groups and IP target groups. A
+restricted v3.5.0 controller reads Kubernetes endpoints and registers targets via
+bootstrap-approved immutable TargetGroupBindings. It cannot write Ingress or
+manage AWS load-balancer resources. See [the tested ownership design](targetgroupbinding-design.md)
+for admission, bootstrap order and remaining risks. Later sections describing the
+original Python phases are historical implementation notes.
+
 The product surface is intentionally small:
 
 - Gateway API
@@ -33,7 +42,7 @@ The architecture is designed to support a recruiter-facing claim about productio
 Users / Client Apps
         |
         v
-    Ingress
+ Terraform-owned ALB
         |
         v
 +-------------------+
@@ -187,7 +196,7 @@ Workloads:
 - Web Deployment
 - optional Worker Deployment
 - Services
-- Ingress
+- Terraform-owned ALB and bootstrap-owned TargetGroupBindings
 - ExternalSecrets
 - ConfigMaps
 - ServiceAccounts

@@ -66,6 +66,17 @@ updates; granting patch without admission would leave a retargeting path.
 Trusted cluster administrators can change admission itself and remain part of
 the trust boundary.
 
+Before installing these restrictions on an existing cluster, stop if the watched
+namespace contains any Ingress, if another binding/controller uses the proposed
+target groups, or if cluster-tagged security groups contain the old LBC shared-rule
+markers. Inventory existing Ingress finalizers, ALB/listener/target-group ownership,
+registered targets, IAM attachments and security-group rules. Prepare a reviewed
+transfer/import/draining plan and obtain the required infrastructure/downtime
+approval before changing them. Applying restricted RBAC first can strand old
+Ingress finalizers; revocation of the old IAM policy can prevent legacy cleanup.
+This repository's fresh-cluster tests do not authorize that migration. Do not
+temporarily restore broad permissions or force-remove finalizers as a workaround.
+
 The module defaults to `load_balancing = null`: no ALB, target groups or registration
 policy is created until an approved cloud plan supplies configuration. Required
 inputs are distinct API/web hosts, an existing approved ACM certificate covering

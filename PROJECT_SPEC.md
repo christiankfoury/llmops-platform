@@ -280,7 +280,7 @@ The platform should eventually include:
 - namespaces per environment
 - deployments
 - services
-- ingress
+- Terraform-owned ALB routing and bootstrap-approved immutable TargetGroupBindings; the controller has no Ingress writes
 - ConfigMaps
 - ExternalSecrets
 - service accounts
