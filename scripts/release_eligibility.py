@@ -18,15 +18,12 @@ ROOT = Path(__file__).resolve().parents[1]
 POLICY_FILES = (
     WORKFLOW,
     ".github/workflows/tgb-compatibility.yml",
-    "scripts/release_eligibility.py",
-    "scripts/validate_ci_policy.py",
-    "scripts/validate_supply_chain.py",
     "infra/validation/toolchain.json",
     "infra/validation/ci-actions.json",
     "infra/validation/ci-java.json",
     "infra/validation/gitleaks.toml",
     "infra/validation/history-synthetic-findings.json",
-)
+) + tuple(sorted(path.relative_to(ROOT).as_posix() for path in (ROOT / "scripts").rglob("*.py")))
 REQUIRED = {
     "java": "Java build and contract foundation",
     "backend": "Backend lint and tests",
