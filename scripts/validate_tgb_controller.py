@@ -623,6 +623,23 @@ def main():
         )
         rejected("bootstrap create Ingress", apply([ingress], ok=False))
         rejected(
+            "controller Ingress status write",
+            kube(
+                "patch",
+                "ingresses",
+                "fixture-ingress",
+                "-n",
+                NS,
+                "--subresource=status",
+                "--type=merge",
+                "--as",
+                SA,
+                "-p",
+                '{"status":{"loadBalancer":{"ingress":[{"hostname":"invalid.example.com"}]}}}',
+                ok=False,
+            ),
+        )
+        rejected(
             "controller create unrelated leader lease",
             kube(
                 "create",
@@ -695,6 +712,29 @@ def main():
             "PASS: deny-by-default AWS fixture rejects other groups and AWS management actions",
             flush=True,
         )
+        kube(
+            "scale", "deployment/aws-load-balancer-controller", "-n", "kube-system", "--replicas=0"
+        )
+        kube(
+            "wait",
+            "pod",
+            "-n",
+            "kube-system",
+            "-l",
+            "app.kubernetes.io/name=aws-load-balancer-controller",
+            "--for=delete",
+            "--timeout=90s",
+        )
+        pod["metadata"]["name"] = "webhook-outage-probe"
+        unavailable = kube("create", "-f", "-", data=yaml.safe_dump(pod), ok=False)
+        assert unavailable.returncode != 0 and "failed calling webhook" in unavailable.stderr, (
+            unavailable.stderr
+        )
+        assert (
+            "no endpoints available" in unavailable.stderr
+            or "connection refused" in unavailable.stderr
+        ), unavailable.stderr
+        print("PASS: new pods rejected when readiness admission is unavailable", flush=True)
         (CACHE / "evidence.json").write_text(
             json.dumps(
                 {

@@ -47,3 +47,7 @@ enableWaf: false
 enableWafv2: false
 disableIngressClassAnnotation: true
 disableIngressGroupNameAnnotation: true
+podMutatorWebhookConfig:
+  failurePolicy: Fail
+podMutatorWebhookConfig:
+  failurePolicy: Fail

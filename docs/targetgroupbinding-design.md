@@ -82,6 +82,9 @@ and name-scoped RBAC first. Once Services and controller webhooks are ready, ena
 binding creation before creating app pods. The application namespace enables
 readiness-gate injection; verify the injected condition and ALB target health.
 Existing pods need a reviewed rollout to receive this immutable pod field.
+Pod mutation is fail-closed: a controller webhook outage blocks new pods instead
+of admitting them without target readiness gates. Existing registered targets
+continue to serve, but scaling/replacement needs controller recovery.
 
 AWS's [ELB authorization reference](https://docs.aws.amazon.com/service-authorization/latest/reference/list_elbv2.html)
 does not support resource-scoping DescribeTargetGroups/DescribeTargetHealth.
