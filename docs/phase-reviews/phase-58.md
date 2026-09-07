@@ -23,7 +23,7 @@
 - Result: strict lint/render and runtime/network/secret boundary checks pass for base/dev/staging/prod, optional OIDC/migration Job, and refusal of unprotected metrics.
 - Command: Compose config (base/TLS), Ruff checks for three fixture/validation scripts, direct Java 21 probe compilation, workflow/embedded Python parse and wrapper digest validation.
 - Result: passed. Linux Docker engine is unavailable locally; actual image/fresh TLS stack results must come from CI. General Kubernetes/CRD schema validation expands in Phase 59.
-- CI: pending pushed-run evidence.
+- CI: run 34086916719 built all images and passed the fresh TLS Compose checks, then correctly failed the image vulnerability gate on Tomcat 11.0.24. The 11.0.25 upstream patch is being validated; final successful pushed-run evidence is pending.
 
 ### Security Review
 - Secrets: only placeholders and ignored generated fixture keys; separate runtime, migration-owner and web session references; public trust bundle references.
@@ -51,7 +51,7 @@
 
 ### Post-Commit Review
 - Pushed commit: 7d9bb448f0fc36ccb17c662abbdcd6c808b6d832.
-- Top findings: Kubernetes web configuration omitted the required OIDC audience; minimal JDK image lacked unzip and caused Maven Wrapper to select a tarball against the pinned ZIP checksum. Both have separate fixes (eff07cc and 38962cc). Review also added an actual PID 1/SIGTERM check to cover the shipped entrypoint, beyond Java lifecycle and static grace-period tests; required CI remains pending.
+- Top findings: Kubernetes web configuration omitted the required OIDC audience; minimal JDK image lacked unzip and caused Maven Wrapper to select a tarball against the pinned ZIP checksum. Both have separate fixes (eff07cc and 38962cc). Review also added an actual PID 1/SIGTERM check to cover the shipped entrypoint, beyond Java lifecycle and static grace-period tests; the image scan then identified the Tomcat patch requirement (CVE-2026-65182, CVE-2026-65905, CVE-2026-68525). A separate dependency fix is being validated; required CI remains pending.
 - Fix commits: separate OIDC audience wiring and Maven archive extraction fixes; final identifiers/CI evidence follow.
 
 ### Next Phase
