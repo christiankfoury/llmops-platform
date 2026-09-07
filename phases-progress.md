@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 61: AWS immutable promotion migrations and rollback - In Progress. Phase 60 passed full CI and exact-revision/current-policy eligibility verification on b529a25. Phase 59 removed Ingress writes with validated Terraform-owned load balancing and restricted TargetGroupBinding registration; its scanner exception remains inactive. Phases 1-47 remain historical evidence; Java conversion phases 48-58 are completed. Cloud deployment remains held and approval-gated.
+Phase 62: Runnable monitoring stack and supported log collection - In Progress. Phase 61 passed all eleven CI gates and real immutable-artifact preflight on 35719e2, with every cloud job held. Phase 59 removed Ingress writes using the validated Terraform-owned load balancing and restricted TargetGroupBinding design; the scanner exception remains inactive. Phases 1-47 remain historical evidence; AWS execution and production/secrets/DNS changes retain explicit approval gates.
 
 ## Phase table
 
@@ -89,8 +89,8 @@ Phase 61: AWS immutable promotion migrations and rollback - In Progress. Phase 6
 | 58 | Java Docker Compose and Helm runtime cutover | Completed | main | 287a81e | 2026-09-07 | docs/phase-reviews/phase-58.md |
 | 59 | AWS infrastructure validation and bootstrap boundaries | Completed |
 | 60 | Java supply chain and CI release eligibility | Completed |
-| 61 | AWS immutable promotion migrations and rollback | In Progress |
-| 62 | Runnable monitoring stack and supported log collection | Not Started |
+| 61 | AWS immutable promotion migrations and rollback | Completed | main | 35719e2 | 2026-09-07 | docs/phase-reviews/phase-61.md |
+| 62 | Runnable monitoring stack and supported log collection | In Progress |
 | 63 | Local resilience recovery and cost rehearsal | Not Started |
 | 64 | Public repository and isolated demo preparation | Not Started |
 | 65 | AWS launch preflight and approval package | Not Started |
@@ -330,7 +330,7 @@ Implementation and validation:
 
 ### Phase 61: AWS immutable promotion migrations and rollback
 
-Status: In Progress
+Status: Completed
 
 Implementation plan:
 
@@ -340,12 +340,21 @@ Implementation plan:
 - Test invalid refs/digests, substituted artifacts, migration ownership and incompatible rollback inputs through static/dry-run checks; run required CI, document, commit/push, review and fix separately before Phase 62.
 
 
-Implementation notes (in progress):
+Implementation and validation:
 
 - Added same-build OCI exports, bounded descriptor/blob/archive validation and identity comparison with the tested/scanned Docker image; package app/migration charts and bind the release manifest into exact-revision eligibility.
 - Added a digest-pinned Skopeo/disposable-registry rehearsal to verify manifest preservation and pulled-image identity without AWS. Compatibility passed on 7aac16a in CI 34149204882 before promotion workflow adoption.
-- Added manual provenance/archive/receipt preflight and hard-held publisher, migration and application jobs; exact ECR digests, separate scoped OIDC roles, controlled schema owner and compatible application rollback. PostgreSQL schema-verification tests pass (3); current release/eligibility/archive tests pass (27). Full updated CI is pending.
-- Helm positive/negative digest renders and fixed Service/pod selector contract passed across three environments. Terraform dev has five passing mocked plans, including publisher/app separation. No AWS resources, deployments, real secrets or environment protection settings changed. Procedure: docs/immutable-release-runbook.md.
+- Added manual provenance/archive/receipt preflight and hard-held publisher, migration and application jobs; exact ECR digests, separate scoped OIDC roles, controlled schema owner and compatible application rollback. PostgreSQL schema-verification tests pass (3); current release/eligibility/archive tests pass (27). All eleven updated CI gates passed in 34151436779 on 35719e2, including 280 non-skipped Java tests and all image/security/controller checks.
+- Helm positive/negative digest renders and fixed Service/pod selector contract passed across three environments. All three Terraform roots validate and eleven mocked plans pass, including publisher/app separation. No AWS resources, deployments, real secrets or environment protection settings changed. Procedure: docs/immutable-release-runbook.md.
+
+- Manual negative preflight 34151488951 rejected a mutable ref; legitimate preflight 34151984454 verified full OCI/chart/value/provenance bytes and produced a hashed plan. All AWS jobs remained skipped; zero deployment environments exist.
+- Pushed review fixed explicit OCI alias selection in 7aac16a and unsupported job-level runner context in 35719e2, adding pinned actionlint. No remaining top findings. Full review: docs/phase-reviews/phase-61.md. Next: Phase 62.
+
+### Phase 62: Runnable monitoring stack and supported log collection
+
+Status: In Progress
+
+Implementation plan: pending the phase-start repository and monitoring inventory review. Cloud monitoring installation remains approval-gated.
 
 ### Phase 1: Project specification and architecture
 

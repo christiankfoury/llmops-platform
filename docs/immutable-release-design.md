@@ -1,6 +1,6 @@
 # Immutable Java releases — Phase 61
 
-Status: OCI export/copy compatibility passed in CI 34149204882 on 7aac16a before promotion workflow adoption. Phase 61 release validation is in progress. Manual preflight is read-only; cloud execution remains hard-held. The [release runbook](immutable-release-runbook.md) defines the implemented procedure and remaining approval gates.
+Status: OCI export/copy compatibility passed in CI 34149204882 on 7aac16a before promotion workflow adoption. Phase 61 validation completed on 35719e2 in CI 34151436779 and read-only preflight 34151984454. Manual preflight is read-only; cloud execution remains hard-held. The [release runbook](immutable-release-runbook.md) defines the implemented procedure and remaining approval gates.
 
 ## Build and artifact ownership
 
@@ -18,4 +18,4 @@ Before any cloud use, CI copies all three archives through a disposable loopback
 - Run one bounded, forward-only migration Job with the isolated migration identity. App deployment uses digest references and functional health checks. Bootstrap owns Services, TargetGroupBindings, NetworkPolicies and controllers.
 - Rollback selects an explicitly compatible previously verified release and confirms actual database compatibility. It never performs database downgrade, force-removes finalizers or grants app access to migration credentials.
 
-The initial compatibility declaration accepts schema V2 only. A future migration must deliberately update and test API/rollback compatibility rather than assuming every earlier image is safe. Phase 61 is not complete until invalid revisions/digests/artifacts and incompatible rollback inputs are rejected by tests and the real artifact/copy rehearsal passes.
+The initial compatibility declaration accepts schema V2 only. A future migration must deliberately update and test API/rollback compatibility rather than assuming every earlier image is safe. Negative revision/digest/artifact/schema tests and the real artifact/copy rehearsal passed; see the [Phase 61 review](phase-reviews/phase-61.md). Live AWS validation remains approval-gated.
