@@ -82,6 +82,11 @@ def inspect_oci(path: Path) -> dict:
         roots = index.get("manifests", [])
         if index.get("schemaVersion") != 2 or len({d.get("digest") for d in roots}) != 1:
             raise ValueError("Release archive must have exactly one immutable root")
+        reference = roots[0].get("annotations", {}).get("org.opencontainers.image.ref.name", "")
+        if (len(roots) > 1 and not reference) or (
+            reference and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:/@-]{0,255}", reference)
+        ):
+            raise ValueError("OCI aliases require an explicit safe reference")
         visited = set()
         runtime = {}
 
@@ -129,6 +134,7 @@ def inspect_oci(path: Path) -> dict:
             "config_digest": config,
             "runtime_manifest_digest": manifest,
             "platform": "linux/amd64",
+            "reference": reference,
         }
 
 
@@ -219,6 +225,9 @@ def registry_rehearsal() -> None:
         version = command(base + ["--version"]).decode().strip()
         for name in IMAGES:
             target = f"127.0.0.1:15000/platform/{name}:ci"
+            source = f"oci-archive:/images/{name}.oci.tar"
+            if manifest["images"][name]["reference"]:
+                source += ":" + manifest["images"][name]["reference"]
             command(
                 base
                 + [
@@ -226,7 +235,7 @@ def registry_rehearsal() -> None:
                     "--all",
                     "--preserve-digests",
                     "--dest-tls-verify=false",
-                    f"oci-archive:/images/{name}.oci.tar",
+                    source,
                     "docker://" + target,
                 ]
             )

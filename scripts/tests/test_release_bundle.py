@@ -63,6 +63,18 @@ class BundleTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             inspect_oci(self.archive())
 
+    def test_multiple_aliases_use_the_verified_root_reference(self):
+        self.members["index.json"] = json.dumps(
+            {
+                "schemaVersion": 2,
+                "manifests": [
+                    {**self.manifest, "annotations": {"org.opencontainers.image.ref.name": name}}
+                    for name in ("synthetic:ci", "synthetic:local")
+                ],
+            }
+        ).encode()
+        self.assertEqual(inspect_oci(self.archive())["reference"], "synthetic:ci")
+
     def test_missing_blob_is_rejected(self):
         del self.members["blobs/sha256/" + self.config["digest"].split(":")[1]]
         with self.assertRaises((ValueError, KeyError)):
