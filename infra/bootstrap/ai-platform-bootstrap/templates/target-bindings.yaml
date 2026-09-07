@@ -1,0 +1,34 @@
+{{- if and .Values.targetBindingsEnabled (empty .Values.targetBindings) }}
+{{- fail "targetBindingsEnabled requires exact Terraform-produced targetBindings" }}
+{{- end }}
+{{- range $name, $target := .Values.targetBindings }}
+{{- if not (regexMatch "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$" $name) }}
+{{- fail "Invalid target binding name" }}
+{{- end }}
+{{- if not (regexMatch "^arn:aws:elasticloadbalancing:[a-z0-9-]+:[0-9]{12}:targetgroup/[a-zA-Z0-9-]+/[a-f0-9]+$" $target.arn) }}
+{{- fail "Each binding requires an exact target group ARN" }}
+{{- end }}
+{{- if not (regexMatch "^vpc-[a-f0-9]+$" $target.vpcID) }}
+{{- fail "Each binding requires the Terraform VPC ID" }}
+{{- end }}
+{{- if not (or (and (eq $target.service "ai-platform-api") (eq (int $target.port) 8000)) (and (eq $target.service "ai-platform-web") (eq (int $target.port) 3000))) }}
+{{- fail "Bindings may expose only the approved API/web Service ports" }}
+{{- end }}
+{{- if $.Values.targetBindingsEnabled }}
+---
+apiVersion: elbv2.k8s.aws/v1beta1
+kind: TargetGroupBinding
+metadata:
+  name: {{ $name }}
+  namespace: ai-platform-{{ $.Values.environment }}
+spec:
+  targetGroupARN: {{ $target.arn | quote }}
+  targetType: ip
+  ipAddressType: ipv4
+  targetGroupProtocol: HTTP
+  vpcID: {{ $target.vpcID | quote }}
+  serviceRef:
+    name: {{ $target.service }}
+    port: {{ $target.port }}
+{{- end }}
+{{- end }}

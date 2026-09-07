@@ -1,7 +1,9 @@
 # TargetGroupBinding compatibility experiment
 
-Phase 59 candidate only. This directory does not change installed bootstrap
-resources or approve a deployment. The inactive scanner proposal is untouched.
+Initial compatibility passed in CI 34139653787 before design adoption. The
+regression now renders actual bootstrap RBAC/admission/bindings and reads the
+Terraform IAM template. No cloud operation is approved by this evidence.
+The inactive scanner proposal is untouched.
 
 `scripts/validate_tgb_controller.py` runs the pinned, unmodified v3.5.0 controller
 on disposable Kubernetes 1.36 with real RBAC, CRD admission and CEL policy

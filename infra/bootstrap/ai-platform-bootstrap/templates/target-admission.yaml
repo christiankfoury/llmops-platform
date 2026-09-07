@@ -1,0 +1,102 @@
+# v3.5.0 has an unconditional Ingress reconciler. Keep it idle and unprivileged.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: ai-platform-{{ .Values.environment }}-no-ingress
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [networking.k8s.io]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [ingresses]
+  validations:
+    - expression: "false"
+      message: Terraform owns platform routing; Ingress resources are forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: ai-platform-{{ .Values.environment }}-no-ingress
+spec:
+  policyName: ai-platform-{{ .Values.environment }}-no-ingress
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: ai-platform-{{ .Values.environment }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: ai-platform-{{ .Values.environment }}-approved-targets
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [elbv2.k8s.aws]
+        apiVersions: [v1beta1]
+        operations: [CREATE, UPDATE]
+        resources: [targetgroupbindings]
+  validations:
+    - expression: >-
+        {{- if empty .Values.targetBindings }}
+        false
+        {{- else }}
+        {{- $clauses := list }}
+        {{- range $name, $target := .Values.targetBindings }}
+        {{- $clause := printf "(object.metadata.name == %s && object.spec.targetGroupARN == %s && object.spec.serviceRef.name == %s && object.spec.serviceRef.port == %d && object.spec.vpcID == %s)" (toJson $name) (toJson $target.arn) (toJson $target.service) (int $target.port) (toJson $target.vpcID) }}
+        {{- $clauses = append $clauses $clause }}
+        {{- end }}
+        {{ join " || " $clauses }}
+        {{- end }}
+      message: Binding must match an exact Terraform-approved name, ARN, Service, port and VPC
+    - expression: >-
+        object.spec.targetType == 'ip' && object.spec.ipAddressType == 'ipv4' &&
+        object.spec.targetGroupProtocol == 'HTTP' && !has(object.spec.networking) &&
+        !has(object.spec.targetGroupName) && !has(object.spec.iamRoleArnToAssume) &&
+        !has(object.spec.assumeRoleExternalId) && !has(object.spec.nodeSelector) &&
+        (!has(object.spec.multiClusterTargetGroup) || !object.spec.multiClusterTargetGroup)
+      message: Only same-VPC single-cluster IP targets without controller networking or role assumption are supported
+    - expression: "request.operation != 'UPDATE' || object.spec == oldObject.spec"
+      message: Binding spec is immutable; replacement requires a reviewed bootstrap operation
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: ai-platform-{{ .Values.environment }}-approved-targets
+spec:
+  policyName: ai-platform-{{ .Values.environment }}-approved-targets
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: ai-platform-{{ .Values.environment }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: ai-platform-load-balancer-leader
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [coordination.k8s.io]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [leases]
+  matchConditions:
+    - name: controller-identity
+      expression: "request.userInfo.username == 'system:serviceaccount:kube-system:aws-load-balancer-controller'"
+  validations:
+    - expression: "object.metadata.namespace == 'kube-system' && object.metadata.name == 'aws-load-balancer-controller-leader'"
+      message: Controller may write only its own leader lease
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: ai-platform-load-balancer-leader
+spec:
+  policyName: ai-platform-load-balancer-leader
+  validationActions: [Deny]

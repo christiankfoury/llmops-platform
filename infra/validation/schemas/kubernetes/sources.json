@@ -85,6 +85,14 @@
     "validatingwebhookconfiguration-admissionregistration-v1.json": {
       "url": "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/7fca119d49e7885cffbf34a388944091d3548c6a/v1.36.0-standalone-strict/validatingwebhookconfiguration-admissionregistration-v1.json",
       "sha256": "e3119eb8530edcd3b114b653d2291f9c56bd62ba62349db23d6e4c8fc1eb8bda"
+    },
+    "validatingadmissionpolicy-admissionregistration-v1.json": {
+      "url": "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/7fca119d49e7885cffbf34a388944091d3548c6a/v1.36.0-standalone-strict/validatingadmissionpolicy-admissionregistration-v1.json",
+      "sha256": "6f694e5637b097f781139af4fc466afa63b992d3dc55d28808028c99746be35e"
+    },
+    "validatingadmissionpolicybinding-admissionregistration-v1.json": {
+      "url": "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/7fca119d49e7885cffbf34a388944091d3548c6a/v1.36.0-standalone-strict/validatingadmissionpolicybinding-admissionregistration-v1.json",
+      "sha256": "829b6a2fabcad663ba303c13e493a9b8c18a5737b0ca91c45dc0cf49a24c3927"
     }
   }
 }

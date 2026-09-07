@@ -506,6 +506,7 @@ jobs:
         run: |
           python scripts/validate_java_manifests.py
           python scripts/validate_aws_manifests.py
+          python scripts/validate_tgb_controller.py --policy-only
 
       # Scan the exact reviewed controller/bootstrap configuration, not unused archive defaults.
       - name: Scan rendered deployment configuration

@@ -311,6 +311,13 @@ Revised plan (2026-09-07, user-directed):
 - If compatible, move ALB/listeners/rules/security groups/target groups into Terraform, approve exact binding names/ARN/service/ports through bootstrap admission, remove Ingress writes and AWS management actions, and rerun all required infrastructure scans/checks.
 - The earlier scanner-exception approval request is superseded by this investigation, not approved. No exception activation or future phase work is authorized by this plan. Local Docker startup was attempted but the Linux engine remains unavailable; execute the disposable runtime test in ordinary CI.
 
+TargetGroupBinding implementation evidence:
+
+- Initial unmodified v3.5.0 lifecycle/RBAC/admission experiment passed in CI 34139653787 on 46c88e0 before adoption. Setup fixes were separate commits 4983838, 4140ca4 and fa77438; observed leader Event permission was fixed separately in 46c88e0. Registration, readiness/status, endpoint removal, transient AWS recovery, restart/finalizer cleanup and Kubernetes mutation denials passed with local AWS protocol fixtures.
+- Terraform now owns the opt-in ALB, TLS listener/host rules, security groups and IP target groups. Exact-ARN registration IAM replaces the attached upstream management policy; only four required Describe APIs remain wildcard reads. Bootstrap pins TGB tuples, freezes specs, forbids Ingress creation and writes, scopes controller TGB patches by name and restricts the leader lease. Helm/raw networking no longer emit Ingress.
+- All roots passed validate and nine mock plans. An additional ALB/TLS/health/security-group/exact-ARN contract passed after normalizing the provider's string-typed drain timeout. Strict rendering validated 712 resources, zero skipped; unchanged HIGH/CRITICAL rendered scan passed without exceptions. Actual-template regression and exact-revision CI remain pending; Phase 59 is not completed.
+- Source findings, bootstrap ordering, remaining target/IP and pod/status risks, and gated live AWS IAM/data-plane checks are in docs/targetgroupbinding-design.md. No AWS resources, production, secrets, DNS or scanner exceptions changed.
+
 Implementation plan:
 
 - Validate each AWS Terraform root with pinned/checksummed tooling, committed provider locks and backend-disabled initialization; add mocked planning checks for dependency ordering and computed resource IDs without AWS calls.

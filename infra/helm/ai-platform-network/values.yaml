@@ -12,15 +12,6 @@ metrics:
     kubernetes.io/metadata.name: observability
   podSelector:
     app.kubernetes.io/name: prometheus
-ingress:
-  enabled: true
-  className: alb
-  annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-  webHost: ai-platform.example.com
-  apiHost: api.ai-platform.example.com
-  tls: []
 api:
   service:
     type: ClusterIP

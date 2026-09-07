@@ -6,6 +6,9 @@ metadata:
   name: {{ $namespace }}
   labels:
     app.kubernetes.io/part-of: production-ai-platform
+    {{- if eq $namespace (printf "ai-platform-%s" $.Values.environment) }}
+    elbv2.k8s.aws/pod-readiness-gate-inject: enabled
+    {{- end }}
     {{- if ne $namespace "observability" }}
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/enforce-version: v1.36

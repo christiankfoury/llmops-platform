@@ -298,3 +298,17 @@ variable "bootstrap_addons_enabled" {
   type        = bool
   default     = false
 }
+
+
+variable "load_balancing" {
+  description = "Approved Terraform-owned ALB settings; null creates no ALB/targets or AWS registration permissions. Requires reviewed certificate/log bucket/exposure; apply remains gated."
+  type = object({
+    internal           = optional(bool, true)
+    certificate_arn    = string
+    access_logs_bucket = string
+    allowed_cidrs      = set(string)
+    api_hostname       = string
+    web_hostname       = string
+  })
+  default = null
+}

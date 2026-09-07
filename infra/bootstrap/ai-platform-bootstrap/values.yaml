@@ -3,6 +3,9 @@ region: us-east-1
 vpcCidr: 10.20.0.0/16
 # Install policies before ordinary-pod add-ons/controllers. Enable stores only after ESO CRDs exist.
 externalSecretsEnabled: false
+# Exact Terraform-produced tuples. Empty denies all; enable creation after CRD/controller readiness.
+targetBindingsEnabled: false
+targetBindings: {}
 secretPrefix: production-ai-platform-dev
 roles:
   runtime: arn:aws:iam::000000000000:role/replace-runtime-reader

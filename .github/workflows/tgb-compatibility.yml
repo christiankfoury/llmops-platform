@@ -6,6 +6,8 @@ on:
     paths:
       - scripts/validate_tgb_controller.py
       - infra/validation/tgb/**
+      - infra/bootstrap/**
+      - infra/terraform/modules/load-balancing/**
       - .github/workflows/tgb-compatibility.yml
 permissions:
   contents: read
@@ -24,9 +26,8 @@ jobs:
           echo "$GITHUB_WORKSPACE/.maven-cache/tools/pinned" >> "$GITHUB_PATH"
           python -m pip install PyYAML==6.0.3
           curl --fail --location https://github.com/kubernetes-sigs/kind/releases/download/v0.33.0/kind-linux-amd64 -o /tmp/kind
-          curl --fail --location https://github.com/kubernetes-sigs/kind/releases/download/v0.33.0/kind-linux-amd64.sha256sum -o /tmp/kind.sha256sum
           cd /tmp
-          sed 's/kind-linux-amd64/kind/' kind.sha256sum | sha256sum --check
+          echo 'aee6151561422756b764a4ae28e7f44cda5af5a9eead3cc9985112b1de8d8e0d  kind' | sha256sum --check
           chmod +x /tmp/kind
           echo /tmp >> "$GITHUB_PATH"
       - name: Test pinned controller lifecycle and denied operations without AWS

@@ -1,0 +1,20 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ApprovedTargetMembership",
+      "Effect": "Allow",
+      "Action": ["elasticloadbalancing:RegisterTargets", "elasticloadbalancing:DeregisterTargets"],
+      "Resource": ${targetgroup_arns}
+    },
+    {
+      "Sid": "RequiredReadOnlyDiscovery",
+      "Effect": "Allow",
+      "Action": [
+        "elasticloadbalancing:DescribeTargetGroups", "elasticloadbalancing:DescribeTargetHealth",
+        "ec2:DescribeVpcs", "ec2:DescribeSecurityGroups"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

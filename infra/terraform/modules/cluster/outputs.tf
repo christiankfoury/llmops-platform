@@ -53,3 +53,7 @@ output "load_balancer_role_arn" {
   value       = aws_iam_role.load_balancer.arn
   description = "Bootstrap-owned load balancer controller identity."
 }
+
+output "load_balancer_role_name" {
+  value = aws_iam_role.load_balancer.name
+}

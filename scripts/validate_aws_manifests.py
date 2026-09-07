@@ -270,23 +270,21 @@ def bootstrap_boundaries(docs, environment):
                     "endpointslices",
                     "networkpolicies",
                     "ingresses",
+                    "ingresses/status",
                 } and set(rule["verbs"]) - {"get", "list", "watch"}:
-                    assert (
-                        doc["kind"] == "Role"
-                        and doc["metadata"]["name"] == "load-balancer-reconciler"
-                    )
-                    assert doc["metadata"]["namespace"] == app
-                    assert rule == {
-                        "apiGroups": ["networking.k8s.io"],
-                        "resources": ["ingresses"],
-                        "verbs": ["get", "list", "watch", "patch", "update"],
-                    }
+                    raise AssertionError("Network mutation permission: " + doc["metadata"]["name"])
         if doc["kind"] == "ClusterRole":
             assert all(set(rule["verbs"]) <= {"get", "list", "watch"} for rule in doc["rules"])
         if doc["kind"] == "Role" and doc["metadata"]["name"] == "load-balancer-reconciler":
             assert doc["metadata"]["namespace"] == app
             assert all("secrets" not in rule["resources"] for rule in doc["rules"])
             for rule in doc["rules"]:
+                if "targetgroupbindings" in rule["resources"]:
+                    assert not set(rule["verbs"]) & {"create", "delete", "deletecollection"}
+                    if set(rule["verbs"]) & {"patch", "update"}:
+                        assert rule.get("resourceNames"), (
+                            "TGB writes require approved resourceNames"
+                        )
                 if set(rule["resources"]) & {
                     "services",
                     "endpoints",
@@ -465,6 +463,28 @@ def main():
             validate(name, docs, generated)
             if chart == BOOTSTRAP:
                 bootstrap_boundaries(docs, env)
+                targets = {
+                    "targetBindingsEnabled": True,
+                    "targetBindings": {
+                        "ai-platform-" + component: {
+                            "arn": "arn:aws:elasticloadbalancing:us-east-1:000000000000:targetgroup/"
+                            + component
+                            + "/0123456789abcdef",
+                            "service": "ai-platform-" + component,
+                            "port": port,
+                            "vpcID": "vpc-00000000000000000",
+                        }
+                        for component, port in (("api", 8000), ("web", 3000))
+                    },
+                }
+                fixture = CACHE / ("targets-" + env + ".yaml")
+                fixture.write_text(yaml.safe_dump(targets), encoding="utf-8")
+                target_docs = documents(
+                    run(HELM, "template", "bootstrap", chart, *values, *extra, "-f", str(fixture))
+                )
+                bootstrap_boundaries(target_docs, env)
+                validate(name + "-targets", target_docs, generated)
+                assert len([d for d in target_docs if d["kind"] == "TargetGroupBinding"]) == 2
                 foundation = documents(run(HELM, "template", "ai-platform", chart, *values))
                 assert all(d["apiVersion"] != "external-secrets.io/v1" for d in foundation)
                 validate(name + "-foundation", foundation, generated)

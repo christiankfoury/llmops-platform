@@ -141,3 +141,16 @@ module "iam" {
   eks_cluster_name           = "${local.name_prefix}-eks"
   tags                       = local.common_tags
 }
+
+
+module "load_balancing" {
+  source                = "../../modules/load-balancing"
+  name_prefix           = local.name_prefix
+  vpc_id                = module.network.vpc_id
+  private_subnet_ids    = module.network.private_subnet_ids
+  public_subnet_ids     = module.network.public_subnet_ids
+  pod_security_group_id = module.cluster.cluster_security_group_id
+  controller_role_name  = module.cluster.load_balancer_role_name
+  configuration         = var.load_balancing
+  tags                  = local.common_tags
+}

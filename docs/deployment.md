@@ -1,5 +1,7 @@
 > Current AWS bootstrap and ownership: [aws-bootstrap.md](aws-bootstrap.md). Cluster resources and owner Jobs are no longer part of the normal app chart. The historical commands below must not be used as a current Java release procedure.
 
+Current AWS load-balancing ownership is defined in [the TargetGroupBinding design](targetgroupbinding-design.md): Terraform owns ALB/listeners/rules/security groups/target groups; the pinned controller has no Ingress writes and only exact-group registration permissions. Bootstrap controls immutable bindings and readiness admission. Historical Ingress examples below do not supersede this approval-gated sequence.
+
 # Deployment
 
 Current runtime: Java 21/Spring Boot, explicit Flyway migration image and Next.js/Node 24. The [Java runtime cutover guide](java-runtime-cutover.md) is authoritative for Compose, Kubernetes settings, TLS, secrets, probes and verification. Default Compose migrates/seeds a fresh local volume and serves isolated synthetic dashboard data. Real usage requires OIDC/project grants. AWS workflows below remain the historical scaffold until phases 59-61; keep deployment disabled during that transition.

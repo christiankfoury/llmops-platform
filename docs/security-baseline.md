@@ -1,5 +1,7 @@
 # Security Baseline
 
+Current AWS load-balancing ownership is defined in [the TargetGroupBinding design](targetgroupbinding-design.md): Terraform owns ALB/listeners/rules/security groups/target groups; the pinned controller has no Ingress writes and only exact-group registration permissions. Bootstrap controls immutable bindings and readiness admission. Historical Ingress examples below do not supersede this approval-gated sequence.
+
 ## Core rules
 
 - Never commit secrets.

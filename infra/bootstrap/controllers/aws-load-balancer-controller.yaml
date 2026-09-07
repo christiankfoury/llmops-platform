@@ -34,3 +34,16 @@ controllerConfig:
     NLBGatewayAPI: false
     ALBGatewayAPI: false
     GlobalAcceleratorController: false
+    EndpointsFailOpen: false
+# v3.5.0 always starts the Ingress informer; RBAC and admission keep it read-only.
+ingressClass: tgb-unmanaged
+createIngressClassResource: false
+ingressClassParams:
+  create: false
+enableBackendSecurityGroup: false
+enableManageBackendSecurityGroupRules: false
+enableShield: false
+enableWaf: false
+enableWafv2: false
+disableIngressClassAnnotation: true
+disableIngressGroupNameAnnotation: true

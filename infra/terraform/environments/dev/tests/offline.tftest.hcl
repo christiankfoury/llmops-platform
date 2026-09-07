@@ -41,3 +41,22 @@ run "after_bootstrap_policies_exist" {
   command = plan
   variables { bootstrap_addons_enabled = true }
 }
+
+
+run "terraform_owned_load_balancing" {
+  command = plan
+  variables {
+    load_balancing = {
+      internal           = true
+      certificate_arn    = "arn:aws:acm:us-east-1:000000000000:certificate/00000000-0000-0000-0000-000000000000"
+      access_logs_bucket = "synthetic-approved-alb-logs"
+      allowed_cidrs      = ["10.0.0.0/8"]
+      api_hostname       = "api.platform.example.com"
+      web_hostname       = "platform.example.com"
+    }
+  }
+  assert {
+    condition     = toset(keys(output.load_balancing_bootstrap_values.targetBindings)) == toset(["ai-platform-api", "ai-platform-web"])
+    error_message = "Only API and web target groups may be exposed."
+  }
+}

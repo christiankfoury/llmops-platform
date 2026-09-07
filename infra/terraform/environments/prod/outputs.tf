@@ -88,3 +88,12 @@ output "load_balancer_role_arn" {
   value       = module.cluster.load_balancer_role_arn
   description = "Bootstrap-owned load balancer controller identity."
 }
+
+
+output "load_balancing_bootstrap_values" {
+  description = "Exact TargetGroupBinding approvals; merge into bootstrap values after approved AWS creation."
+  value       = module.load_balancing.bootstrap_values
+}
+output "alb_dns_name" {
+  value = module.load_balancing.alb_dns_name
+}

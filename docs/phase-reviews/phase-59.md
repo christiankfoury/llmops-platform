@@ -1,6 +1,6 @@
 # Phase 59 Review
 
-Status: In Progress, awaiting the documented security-policy approval. Implementation and review fixes are pushed; no exception is active.
+Status: In Progress. The user directed permission removal instead of an exception. Initial controller compatibility passed; adopted Terraform/TGB implementation is being validated. The earlier exception request is superseded, not approved or activated.
 
 ## Summary
 

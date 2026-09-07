@@ -4,5 +4,4 @@ resources:
 - service-api.yaml
 - service-web.yaml
 - service-metrics.yaml
-- ingress.yaml
 - networkpolicy.yaml
