@@ -54,6 +54,21 @@ This phase establishes **source revision eligibility**, not a registry image dig
 
 ## Local validation and limits
 
+### Faster iteration with unchanged release gates
+
+API, migration and web builds use the GitHub Actions v2 BuildKit cache with
+separate scopes; API and migration import each other's shared Java build layers.
+GitHub's cache branch isolation applies. Cache export is best effort and capped
+at two minutes; a missing cache causes a normal build. Image scans, SBOMs, OCI
+identity rehearsal, tests and current-revision eligibility always run. Cache
+contents never serve as release evidence. See [Docker's cache documentation](https://docs.docker.com/build/ci/github-actions/cache/).
+
+Audit new dependency/image candidates before integration. During edits run
+focused checks for the changed behavior, then all mandatory checks on the phase
+candidate. Investigations have non-blocking 20-30 minute reassessment checkpoints;
+the agent continues phase by phase without routine approval requests. No required
+job has been made conditional or skipped to obtain faster feedback.
+
 ```powershell
 python scripts/validate_ci_policy.py
 python -m unittest discover -s scripts/tests -p test_supply_chain.py -v
@@ -61,6 +76,6 @@ python scripts/install_validation_tools.py --tools gitleaks
 python scripts/validate_supply_chain.py history --gitleaks .maven-cache/tools/pinned/gitleaks.exe
 ```
 
-Maven `clean verify` requires an available real Redis test endpoint and starts isolated PostgreSQL test instances; CI additionally supplies PostgreSQL for the packaged smoke. Missing services fail, not skip. The current Windows workstation cannot run the Linux Docker engine; hosted CI supplies the required real container and Kubernetes evidence. Trivy's reviewed package is currently Linux amd64; the history scanner supports Windows amd64 too.
+Maven `clean verify` requires an available real Redis test endpoint and starts isolated PostgreSQL test instances; CI additionally supplies PostgreSQL for the packaged smoke. Missing services fail, not skip. Linux Docker became available on the Windows workstation during Phase 62; isolated local container checks now complement mandatory hosted CI. The pinned CI toolchain remains authoritative for release evidence.
 
 History detection, SBOMs and advisory scans reduce known supply-chain risks; they cannot prove absence of all secrets or vulnerabilities. Cloud IAM, ALB data plane, EKS network enforcement, backups and deployment health retain their separate approved validation phases.

@@ -208,6 +208,37 @@ For each phase:
 
 Do not wait for human approval between normal app, code, documentation, local Docker, CI, test, Helm template, or static validation phases.
 
+### Efficient autonomous execution
+
+Continue to the next phase automatically after completion and review. Do not pause
+after a phase or an investigation checkpoint unless a listed approval gate or
+concrete blocker applies.
+
+- Audit candidate dependencies and immutable image digests before building new
+  integrations around them. Use focused image scans and compatibility probes to
+  reject unsuitable candidates early; keep the vulnerability and secret policy.
+- During implementation, run the smallest relevant checks that can catch the
+  change's failure modes. Run the full required suite on the phase candidate and
+  preserve all exact-revision CI/release evidence requirements. Follow-up fixes
+  receive relevant local checks and all mandatory CI gates; skipped integration
+  tests never count as success.
+- Reuse Docker build layers and existing verified tool/dependency caches. Caches
+  are performance aids, never substitutes for tests, fresh security audits,
+  immutable artifact verification or successful current-revision release gates.
+- Reassess a slow investigation at roughly 20-30 minute checkpoints. Record what
+  was learned, which options were ruled out, and the next bounded experiment;
+  continue independent work without routine permission requests. Do not rerun
+  unchanged successful checks without a changed input or unresolved concern.
+- A failed candidate or first approach is a finding to remediate, not by itself
+  a stop condition. Investigate supported updates, minimal variants, removal of
+  unused components, and reproducible targeted patches with compatibility tests.
+  Stop only when safe alternatives are exhausted or an existing gate applies.
+
+Keep each implementation within its current phase and retain separate commits
+for actionable post-commit findings. These efficiency rules do not authorize
+scanner exceptions, weaker security checks, cloud changes, paid resources,
+production, real secret changes, or DNS/TLS changes.
+
 ## Stop conditions and human approval gates
 
 Stop and request human approval before any action that could create cost, downtime, data loss, credential exposure, or production impact.
