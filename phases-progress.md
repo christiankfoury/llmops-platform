@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 57: Java metrics logs and traces - In Progress. Phase 56 review and all seven CI jobs passed, including 269 Java tests and packaged bounded/slow-body checks. Phases 1-47 remain the completed historical baseline.
+Phase 58: Java Docker Compose and Helm runtime cutover - In Progress. Phase 57 review and all seven CI jobs passed, including 275 Java tests and packaged private metrics/correlated log checks. Phases 1-47 remain the completed historical baseline.
 
 ## Phase table
 
@@ -85,8 +85,8 @@ Phase 57: Java metrics logs and traces - In Progress. Phase 56 review and all se
 | 54 | Java usage and operator configuration APIs | Completed | main | 24b040b | 2026-09-06 | Dashboard contracts, parameterized queries, local access boundary, serialized configuration and audits; 232 Java tests, frontend checks and all CI jobs passed. |
 | 55 | Operator authorization and application key lifecycle | Completed | main | 3cdefbf | 2026-09-06 | OIDC/project grants, key lifecycle, protected dashboard and synthetic isolation; 256 Java/19 frontend tests and all CI jobs passed. |
 | 56 | Distributed limits and dependency-aware readiness | Completed |
-| 57 | Java metrics logs and traces | In Progress |
-| 58 | Java Docker Compose and Helm runtime cutover | Not Started |
+| 57 | Java metrics logs and traces | Completed |
+| 58 | Java Docker Compose and Helm runtime cutover | In Progress |
 | 59 | AWS infrastructure validation and bootstrap boundaries | Not Started |
 | 60 | Java supply chain and CI release eligibility | Not Started |
 | 61 | AWS immutable promotion migrations and rollback | Not Started |
@@ -261,7 +261,7 @@ Implementation and validation:
 
 ### Phase 57: Java metrics logs and traces
 
-Status: In Progress
+Status: Completed
 
 Implementation plan:
 
@@ -275,8 +275,20 @@ Implementation and validation:
 
 - Added compatible gateway/HTTP/telemetry Prometheus output, cached dependency gauges, safe structured operational logs and explicit bounded OpenTelemetry spans/propagation/export.
 - Management health/Prometheus now use a separate loopback listener; diagnostic endpoints remain disabled. Actual private scrape/OTLP export, redaction, worker context and transaction/admission counters are tested.
-- Final Java clean verify passes 275 tests without skips, and packaged private metrics/log smoke passes. Commit/push and pushed review pending. Evidence is recorded in docs/phase-reviews/phase-57.md.
+- Final Java clean verify passes 275 tests without skips, and packaged private metrics/log smoke passes. Implementation e701c519afbdb0ecff4915818d1cb8bc7e61ad48 is pushed; all seven jobs in CI run 34083974332 passed. Pushed review found no top actionable findings and needed no fix commit. Evidence is recorded in docs/phase-reviews/phase-57.md. Next: Phase 58.
 - AWS, provider calls, real credentials and publication remain gated. Running Grafana/alerts are Phase 62; runtime Docker/Helm cutover is Phase 58.
+
+### Phase 58: Java Docker Compose and Helm runtime cutover
+
+Status: In Progress
+
+Implementation plan:
+
+- Build pinned non-root Java runtime/migration images with bounded JVM memory, writable temporary paths, health probes and graceful shutdown; make Java the default Compose API after a fresh-stack CI check.
+- Use an explicit one-shot migration dependency and isolated Java development volumes; preserve the Python reference and existing data. Support explicit synthetic local seeding and default-closed or synthetic dashboard modes.
+- Update Helm/raw Kubernetes configuration, separate private management access, secret references, server-side dashboard settings, TLS database/Redis wiring, startup probes and termination grace. Keep cloud application and bootstrap deployment gated.
+- Validate Compose configuration locally and build/run the fresh container stack in CI because this workstation's Docker Linux engine is unavailable. Verify gateway, both telemetry clients/replays, dashboard mode/auth boundaries, migrations, probes and container security/writable paths.
+- Run Java checks for startup/TLS changes, relevant frontend image checks, Helm rendering/lint and Kubernetes validation; document migration/cutover/rollback commands, commit/push, review and fix before AWS static infrastructure Phase 59.
 
 ### Phase 1: Project specification and architecture
 
