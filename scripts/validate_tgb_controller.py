@@ -322,6 +322,7 @@ def main():
     state = AWSFixture()
     server = serve_aws(state)
     created = False
+    controller_logs = []
     try:
         run(
             "kind",
@@ -675,6 +676,9 @@ def main():
             "recover registration after AWS failure",
             lambda: state.targets == {(pod_ip, 8000)},
         )
+        controller_logs.append(
+            kube("logs", "deployment/aws-load-balancer-controller", "-n", "kube-system").stdout
+        )
         kube("rollout", "restart", "deployment/aws-load-balancer-controller", "-n", "kube-system")
         kube(
             "rollout",
@@ -714,6 +718,9 @@ def main():
             "PASS: deny-by-default AWS fixture rejects other groups and AWS management actions",
             flush=True,
         )
+        controller_logs.append(
+            kube("logs", "deployment/aws-load-balancer-controller", "-n", "kube-system").stdout
+        )
         kube(
             "scale", "deployment/aws-load-balancer-controller", "-n", "kube-system", "--replicas=0"
         )
@@ -735,7 +742,12 @@ def main():
         assert (
             "no endpoints available" in unavailable.stderr
             or "connection refused" in unavailable.stderr
+            or "context deadline exceeded" in unavailable.stderr
         ), unavailable.stderr
+        absent = kube("get", "pod", "webhook-outage-probe", "-n", NS, ok=False)
+        assert absent.returncode != 0 and "Error from server (NotFound):" in absent.stderr, (
+            absent.stderr
+        )
         print("PASS: new pods rejected when readiness admission is unavailable", flush=True)
         (CACHE / "evidence.json").write_text(
             json.dumps(
@@ -752,10 +764,12 @@ def main():
     finally:
         server.shutdown()
         if created:
-            logs = kube(
-                "logs", "deployment/aws-load-balancer-controller", "-n", "kube-system", ok=False
-            )
-            (CACHE / "controller.log").write_text(logs.stdout + logs.stderr)
+            if not controller_logs:
+                logs = kube(
+                    "logs", "deployment/aws-load-balancer-controller", "-n", "kube-system", ok=False
+                )
+                controller_logs.append(logs.stdout + logs.stderr)
+            (CACHE / "controller.log").write_text("\n".join(controller_logs))
             (CACHE / "aws-calls.json").write_text(json.dumps(state.calls))
             # Only the fixed, explicitly created disposable cluster; never namespaces
             # or objects from a user's current cluster/context.
