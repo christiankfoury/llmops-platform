@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 51: PostgreSQL persistence and migration handover — In Progress. Phase 50 review and all seven CI jobs passed, including Java verification and packaged-JAR smoke checks. Phases 1-47 remain the completed historical baseline.
+Phase 52: Java gateway and model routing - In Progress. Phase 51 review and all seven CI jobs passed, including real PostgreSQL parity/adoption tests and packaged migration/app smoke checks. Phases 1-47 remain the completed historical baseline.
 
 ## Phase table
 
