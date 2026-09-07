@@ -1,0 +1,43 @@
+name: TargetGroupBinding compatibility
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/validate_tgb_controller.py
+      - infra/validation/tgb/**
+      - .github/workflows/tgb-compatibility.yml
+permissions:
+  contents: read
+jobs:
+  compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install validation tools
+        run: |
+          python scripts/install_validation_tools.py
+          echo "$GITHUB_WORKSPACE/.maven-cache/tools/pinned" >> "$GITHUB_PATH"
+          python -m pip install PyYAML==6.0.3
+          curl --fail --location https://github.com/kubernetes-sigs/kind/releases/download/v0.33.0/kind-linux-amd64 -o /tmp/kind
+          curl --fail --location https://github.com/kubernetes-sigs/kind/releases/download/v0.33.0/kind-linux-amd64.sha256sum -o /tmp/kind.sha256sum
+          cd /tmp
+          sed 's/kind-linux-amd64/kind/' kind.sha256sum | sha256sum --check
+          chmod +x /tmp/kind
+          echo /tmp >> "$GITHUB_PATH"
+      - name: Test pinned controller lifecycle and denied operations without AWS
+        run: python scripts/validate_tgb_controller.py
+      - name: Retain synthetic compatibility evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: tgb-compatibility
+          path: |
+            .maven-cache/tgb-compatibility/evidence.json
+            .maven-cache/tgb-compatibility/controller.log
+            .maven-cache/tgb-compatibility/aws-calls.json
+          retention-days: 7

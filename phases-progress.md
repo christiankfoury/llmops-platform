@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 59: AWS infrastructure validation and bootstrap boundaries - In Progress, awaiting the documented controller-permission exception approval. Implementation and separate review fixes are pushed through acc0236. CI 34094603109 passed Java (277 tests), frontend, Python reference checks and all three container/TLS scans; two security jobs block only on required ALB Ingress reconciliation (KSV-0056). The exception is inactive. Phases 1-47 remain the completed historical baseline; 48-58 are completed Java conversion phases.
+Phase 59: AWS infrastructure validation and bootstrap boundaries - In Progress. The user directed removal of the flagged Ingress permission instead of a scanner exception. Investigating Terraform-owned load balancing and restricted TargetGroupBinding reconciliation with the pinned v3.5.0 controller; functional and negative authorization tests must pass before adoption. The exception is inactive and unapproved. Phases 1-47 remain the completed historical baseline; 48-58 are completed Java conversion phases.
 
 ## Phase table
 
@@ -303,6 +303,13 @@ Implementation and validation:
 ### Phase 59: AWS infrastructure validation and bootstrap boundaries
 
 Status: In Progress
+
+Revised plan (2026-09-07, user-directed):
+
+- Validate unmodified controller v3.5.0 against disposable Kubernetes 1.36 before adopting the proposed ownership change. Source inspection found unconditional Ingress reconciler startup and security-group cleanup even without TGB networking; simply removing permissions is not sufficient evidence.
+- Test real RBAC/admission rejections, approved pod target registration/deregistration, readiness updates, temporary provider failures and restart/delete finalizer recovery. Use only local AWS protocol fixtures and fake credentials; retain the distinction from live AWS IAM and ALB health/traffic.
+- If compatible, move ALB/listeners/rules/security groups/target groups into Terraform, approve exact binding names/ARN/service/ports through bootstrap admission, remove Ingress writes and AWS management actions, and rerun all required infrastructure scans/checks.
+- The earlier scanner-exception approval request is superseded by this investigation, not approved. No exception activation or future phase work is authorized by this plan. Local Docker startup was attempted but the Linux engine remains unavailable; execute the disposable runtime test in ordinary CI.
 
 Implementation plan:
 

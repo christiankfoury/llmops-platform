@@ -1407,6 +1407,7 @@ Acceptance criteria:
 Deliverables:
 
 - Strengthen Terraform validation and all-environment Helm/schema checks. Separate cluster-wide operators/stores/controller installation from namespace-scoped app releases; document private EKS runner/DNS connectivity and state bootstrap.
+- Investigate the pinned v3.5.0 controller with Terraform-owned ALB/listeners/rules/security groups/target groups and restricted TargetGroupBinding registration. Remove Ingress writes instead of activating the proposed KSV-0056 exception. Adopt the design only after controller lifecycle, Kubernetes RBAC/admission denials and AWS permission boundaries are validated; document limitations and remaining cloud validation gates.
 
 Relevant files:
 
@@ -1415,6 +1416,7 @@ Relevant files:
 Acceptance criteria:
 
 - All AWS environment roots fmt/validate; all Helm values render and validate with CRD schemas. Required EKS add-ons and NetworkPolicy enforcement are explicit; cluster-scoped resources no longer require app deployer privilege escalation. Static validation creates no AWS resources.
+- Scanner success alone is insufficient: exercise registration/deregistration, readiness, restart/deletion/finalizer recovery and rejected unauthorized operations on disposable Kubernetes with the pinned controller. Distinguish local AWS protocol fixtures from real IAM and ALB data-plane evidence. The scanner exception remains inactive.
 - Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
 
 ## Phase 60: Java supply chain and CI release eligibility
