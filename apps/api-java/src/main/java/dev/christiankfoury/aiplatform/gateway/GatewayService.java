@@ -9,17 +9,25 @@ public class GatewayService {
   private final GatewayConfiguration configuration;
   private final ProviderCaller provider;
   private final GatewayRecorder recorder;
+  private final dev.christiankfoury.aiplatform.reliability.RedisAdmission admission;
 
   public GatewayService(
-      GatewayConfiguration configuration, ProviderCaller provider, GatewayRecorder recorder) {
+      GatewayConfiguration configuration,
+      ProviderCaller provider,
+      GatewayRecorder recorder,
+      dev.christiankfoury.aiplatform.reliability.RedisAdmission admission) {
     this.configuration = configuration;
     this.provider = provider;
     this.recorder = recorder;
+    this.admission = admission;
   }
 
   public CompletionResponse complete(String key, CompletionRequest request) {
     long started = System.nanoTime();
     GatewayContext context = configuration.resolve(key, request);
+    admission.key(
+        dev.christiankfoury.aiplatform.reliability.RedisAdmission.Traffic.GATEWAY,
+        context.scope().keyId());
     String requestId = "req_" + UUID.randomUUID().toString().replace("-", "");
     CompletionProvider.Result result;
     try {

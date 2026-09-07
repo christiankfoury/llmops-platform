@@ -12,8 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class HealthController {
   private final ApplicationAvailability availability;
 
-  public HealthController(ApplicationAvailability availability) {
+  private final dev.christiankfoury.aiplatform.reliability.DependencyReadiness dependencies;
+
+  public HealthController(
+      ApplicationAvailability availability,
+      dev.christiankfoury.aiplatform.reliability.DependencyReadiness dependencies) {
     this.availability = availability;
+    this.dependencies = dependencies;
   }
 
   @GetMapping("/health")
@@ -30,8 +35,9 @@ public class HealthController {
 
   @GetMapping("/health/ready")
   public ResponseEntity<Map<String, String>> ready() {
-    // Phase 56 adds required dependency checks. This foundation reports lifecycle state only.
-    boolean ready = availability.getReadinessState() == ReadinessState.ACCEPTING_TRAFFIC;
+    boolean ready =
+        availability.getReadinessState() == ReadinessState.ACCEPTING_TRAFFIC
+            && dependencies.ready();
     return ResponseEntity.status(ready ? 200 : 503)
         .body(Map.of("status", ready ? "ready" : "unavailable"));
   }

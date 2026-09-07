@@ -34,12 +34,16 @@ public class ProviderCaller {
   }
 
   public CompletionProvider.Result complete(GatewayContext context, String input) {
+    long deadline = System.nanoTime() + settings.timeout().toNanos();
     for (int attempt = 1; attempt <= settings.maxAttempts(); attempt++) {
       try {
-        return attempt(context, input, attempt);
+        return attempt(context, input, attempt, deadline);
       } catch (ProviderFailure failure) {
         if (!failure.kind().retryable() || attempt == settings.maxAttempts()) throw failure;
         try {
+          long remaining = deadline - System.nanoTime();
+          if (remaining <= settings.retryBackoff().toNanos())
+            throw new ProviderFailure(ProviderFailure.Kind.TIMEOUT);
           Thread.sleep(settings.retryBackoff());
         } catch (InterruptedException interrupted) {
           Thread.currentThread().interrupt();
@@ -50,7 +54,10 @@ public class ProviderCaller {
     throw new ProviderFailure(ProviderFailure.Kind.ERROR);
   }
 
-  private CompletionProvider.Result attempt(GatewayContext context, String input, int attempt) {
+  private CompletionProvider.Result attempt(
+      GatewayContext context, String input, int attempt, long deadline) {
+    long remaining = deadline - System.nanoTime();
+    if (remaining <= 0) throw new ProviderFailure(ProviderFailure.Kind.TIMEOUT);
     java.util.concurrent.Future<CompletionProvider.Result> task;
     try {
       task = workers.submit(() -> provider.complete(context, input, attempt));
@@ -58,7 +65,9 @@ public class ProviderCaller {
       throw new ProviderFailure(ProviderFailure.Kind.BUSY);
     }
     try {
-      return task.get(settings.timeout().toMillis(), TimeUnit.MILLISECONDS);
+      remaining = deadline - System.nanoTime();
+      if (remaining <= 0) throw new TimeoutException();
+      return task.get(remaining, TimeUnit.NANOSECONDS);
     } catch (TimeoutException timeout) {
       task.cancel(true);
       workers.purge();

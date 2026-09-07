@@ -18,18 +18,21 @@ public class TelemetryController {
   private final TelemetryAttribution attribution;
   private final TelemetryWriter writer;
   private final TelemetryMetrics metrics;
+  private final dev.christiankfoury.aiplatform.reliability.RedisAdmission admission;
 
   public TelemetryController(
       ApplicationAuthenticator authenticator,
       TelemetryNormalizer normalizer,
       TelemetryAttribution attribution,
       TelemetryWriter writer,
-      TelemetryMetrics metrics) {
+      TelemetryMetrics metrics,
+      dev.christiankfoury.aiplatform.reliability.RedisAdmission admission) {
     this.authenticator = authenticator;
     this.normalizer = normalizer;
     this.attribution = attribution;
     this.writer = writer;
     this.metrics = metrics;
+    this.admission = admission;
   }
 
   @PostMapping(value = "/v1/usage/llm-events", consumes = "application/json")
@@ -40,6 +43,9 @@ public class TelemetryController {
     TelemetryEvent event = null;
     try {
       var scope = authenticator.authenticate(key);
+      admission.key(
+          dev.christiankfoury.aiplatform.reliability.RedisAdmission.Traffic.TELEMETRY,
+          scope.keyId());
       // Read at most one byte beyond the bound, including requests without Content-Length.
       event =
           normalizer.normalize(
@@ -52,6 +58,9 @@ public class TelemetryController {
           response.duplicate() ? "duplicate" : "accepted",
           response.duplicate() ? null : event.text("error_category"));
       return response;
+    } catch (dev.christiankfoury.aiplatform.reliability.RateLimitFailure failure) {
+      metrics.outcome(event, "rejected", "rate_limited");
+      throw failure;
     } catch (ValidationFailure failure) {
       metrics.outcome(event, "rejected", "validation_error");
       throw failure;

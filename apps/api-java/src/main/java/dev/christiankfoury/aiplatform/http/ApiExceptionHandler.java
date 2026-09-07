@@ -92,7 +92,30 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(ApiFailure.class)
   public ResponseEntity<Map<String, String>> applicationFailure(ApiFailure failure) {
-    return ResponseEntity.status(failure.status()).body(Map.of("detail", failure.getMessage()));
+    var response = ResponseEntity.status(failure.status());
+    if (failure.status() == 503) response.header("Retry-After", "1");
+    return response.body(Map.of("detail", failure.getMessage()));
+  }
+
+  @ExceptionHandler(dev.christiankfoury.aiplatform.reliability.RateLimitFailure.class)
+  public ResponseEntity<Map<String, String>> rateLimited(
+      dev.christiankfoury.aiplatform.reliability.RateLimitFailure failure) {
+    return ResponseEntity.status(429)
+        .header("Retry-After", Long.toString(failure.retryAfterSeconds()))
+        .body(Map.of("detail", "Rate limit exceeded"));
+  }
+
+  @ExceptionHandler({
+    org.springframework.dao.DataAccessResourceFailureException.class,
+    org.springframework.dao.TransientDataAccessResourceException.class,
+    org.springframework.dao.QueryTimeoutException.class,
+    org.springframework.transaction.CannotCreateTransactionException.class,
+    org.springframework.transaction.TransactionTimedOutException.class
+  })
+  public ResponseEntity<Map<String, String>> dependencyFailure(Exception failure) {
+    return ResponseEntity.status(503)
+        .header("Retry-After", "1")
+        .body(Map.of("detail", "Dependency unavailable"));
   }
 
   @ExceptionHandler(Exception.class)

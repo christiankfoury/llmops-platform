@@ -31,8 +31,21 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      redis:
+        image: redis:7.2.16-alpine@sha256:b5dee736fa6758052556cc97b5d5423177dcd8e26ce9746e6e3d58484a5a4143
+        ports:
+          - 56379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
+          --memory 128m
     env:
       JDBC_DATABASE_URL: jdbc:postgresql://localhost:55433/ai_platform
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: "56379"
+      TEST_REDIS_PORT: "56379"
       DATABASE_USERNAME: ai_platform
       DATABASE_PASSWORD: local_dev_password
     defaults:
@@ -60,8 +73,11 @@ jobs:
         run: |
           java -jar target/production-ai-platform-api-0.1.0-SNAPSHOT-migration.jar migrate
           python3 - <<'PY'
+          import http.client
           import json
           import os
+          import socket
+          import threading
           import subprocess
           import time
           import urllib.error
@@ -164,7 +180,47 @@ jobs:
                       with urllib.request.urlopen(operator, timeout=5) as response:
                           prompt = json.load(response)
                           assert response.status == 201 and prompt["version"] == 1 and prompt["is_active"] is True
-                      print("Packaged Java health, gateway, telemetry/replay, usage, OIDC authorization and operator checks passed")
+                      # Rejected/chunked bodies must not reach authentication, provider execution or persistence.
+                      chunked = http.client.HTTPConnection("127.0.0.1", 18080, timeout=5)
+                      try:
+                          chunked.request("POST", "/v1/gateway/completions", body=iter([b"x" * 20000, b"x" * 20000]),
+                                          headers={"Content-Type": "application/json"}, encode_chunked=True)
+                          result = chunked.getresponse()
+                          assert result.status == 413
+                          result.read()
+                      finally:
+                          chunked.close()
+                      for trickle in (False, True):
+                          connection = socket.create_connection(("127.0.0.1", 18080), timeout=2)
+                          connection.settimeout(8)
+                          stop = threading.Event()
+                          sender = None
+                          try:
+                              connection.sendall(b"POST /v1/gateway/completions HTTP/1.1\r\nHost: localhost:18080\r\nContent-Type: application/json\r\nContent-Length: 1000\r\nConnection: close\r\n\r\n{")
+                              if trickle:
+                                  def send_fragments():
+                                      try:
+                                          while not stop.wait(0.5):
+                                              connection.sendall(b"x")
+                                      except OSError:
+                                          pass
+                                  sender = threading.Thread(target=send_fragments, daemon=True)
+                                  sender.start()
+                              started = time.monotonic()
+                              received = b""
+                              while b"\r\n" not in received:
+                                  chunk = connection.recv(1024)
+                                  if not chunk:
+                                      break
+                                  received += chunk
+                              assert received.startswith(b"HTTP/1.1 408"), received.split(b"\r\n", 1)[0]
+                              assert time.monotonic() - started < 7
+                          finally:
+                              stop.set()
+                              connection.close()
+                              if sender is not None:
+                                  sender.join(timeout=2)
+                      print("Packaged Java health, gateway, telemetry/replay, operator and bounded/slow-body checks passed")
                   finally:
                       process.terminate()
                       try:

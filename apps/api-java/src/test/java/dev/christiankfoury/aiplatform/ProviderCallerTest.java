@@ -151,4 +151,32 @@ class ProviderCallerTest {
     assertThatThrownBy(() -> new ProviderSettings(1, Duration.ofSeconds(1), Duration.ZERO, 100))
         .isInstanceOf(IllegalArgumentException.class);
   }
+
+  @Test
+  void retriesShareOneDeadlineIncludingBackoff() throws Exception {
+    AtomicInteger attempts = new AtomicInteger();
+    var caller =
+        new ProviderCaller(
+            (context, input, attempt) -> {
+              attempts.incrementAndGet();
+              try {
+                Thread.sleep(120);
+              } catch (InterruptedException stopped) {
+                Thread.currentThread().interrupt();
+              }
+              throw new ProviderFailure(ProviderFailure.Kind.ERROR);
+            },
+            new ProviderSettings(3, Duration.ofMillis(300), Duration.ofMillis(50), 1));
+    try {
+      long start = System.nanoTime();
+      assertThatThrownBy(() -> caller.complete(null, "synthetic"))
+          .isInstanceOfSatisfying(
+              ProviderFailure.class,
+              failure -> assertThat(failure.kind()).isEqualTo(ProviderFailure.Kind.TIMEOUT));
+      assertThat(Duration.ofNanos(System.nanoTime() - start)).isLessThan(Duration.ofMillis(800));
+      assertThat(attempts.get()).isLessThanOrEqualTo(2);
+    } finally {
+      caller.shutdown();
+    }
+  }
 }

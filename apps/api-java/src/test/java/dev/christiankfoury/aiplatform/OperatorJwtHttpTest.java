@@ -44,10 +44,6 @@ class OperatorJwtHttpTest extends PostgresTestSupport {
 
   static HttpServer server() {
     try {
-      // Keep Windows JDK selector paths short; this is confined to the test process.
-      var tmp = java.nio.file.Path.of("target", "jwt-socket").toAbsolutePath();
-      java.nio.file.Files.createDirectories(tmp);
-      System.setProperty("jdk.net.unixdomain.tmpdir", tmp.toString());
       var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
       byte[] body = new JWKSet(KEY.toPublicJWK()).toString().getBytes(StandardCharsets.UTF_8);
       server.createContext(

@@ -59,9 +59,23 @@ abstract class OperatorTestSupport extends PostgresTestSupport {
   }
 
   @BeforeEach
-  void operatorFixture() {
+  void operatorFixture() throws Exception {
+    var requiredReadiness =
+        webContext.getBean(dev.christiankfoury.aiplatform.reliability.DependencyReadiness.class);
+    long readyDeadline = System.nanoTime() + java.time.Duration.ofSeconds(5).toNanos();
+    while (!requiredReadiness.ready()) {
+      requiredReadiness.refresh();
+      if (requiredReadiness.ready()) break;
+      if (System.nanoTime() >= readyDeadline)
+        throw new AssertionError("Required test PostgreSQL/Redis is unavailable");
+      Thread.sleep(100);
+    }
     http =
         org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup(webContext)
+            .addFilters(
+                webContext.getBean(dev.christiankfoury.aiplatform.http.RequestIdFilter.class),
+                webContext.getBean(
+                    dev.christiankfoury.aiplatform.reliability.AdmissionFilter.class))
             .apply(
                 org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers
                     .springSecurity())

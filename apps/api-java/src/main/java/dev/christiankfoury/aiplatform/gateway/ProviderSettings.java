@@ -11,7 +11,7 @@ public record ProviderSettings(
         || maxAttempts > 3
         || timeout == null
         || timeout.toMillis() < 10
-        || timeout.toMillis() > 60000
+        || timeout.toMillis() > 20000
         || retryBackoff == null
         || retryBackoff.isNegative()
         || retryBackoff.toMillis() > 1000

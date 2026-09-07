@@ -281,3 +281,7 @@ Rollback risks:
 3. Record root cause.
 4. Record detection gap.
 5. Add test, alert, or runbook improvement.
+
+## Java admission and readiness
+
+For Java 429/503 responses, Redis/database recovery and shutdown, follow [Java reliability](java-reliability.md). Readiness refuses missing/stale dependencies; liveness stays healthy during a dependency outage. Inspect Retry-After and recover the dependency before changing quotas or restarting instances. All replicas must share identical namespace and limit settings. Never flush a shared Redis cache.

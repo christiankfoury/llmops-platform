@@ -219,3 +219,7 @@ AgentOps redaction boundary:
 ## Java operator boundary (Phase 55)
 
 The Java service replaces local operator identity with RS256 OIDC verification and explicit viewer/operator project grants. The dashboard uses a server-side OIDC code flow, encrypted HttpOnly sessions and origin/CSRF checks; machine keys remain separate. Application keys are generated with 256 bits of entropy, returned once, stored hashed and revoked with atomic verified audit records. Default access is closed. The explicit frontend synthetic demo never queries platform data. See [Java operator security](java-operator-security.md) for exact settings, tests and stateless-session revocation limits. These controls apply to Java; the historical Python deployment remains a reference until Phase 58.
+
+## Java bounded admission (Phase 56)
+
+The Java service now bounds unauthenticated traffic with three fixed Redis counters, trusted-key quotas, in-flight requests, headers, paths, queries, body sizes and read deadlines. Hosted Redis requires authenticated TLS with certificate verification. Dependency loss fails closed; API errors omit credentials and diagnostic text. These admission controls do not replace ingress abuse controls or guarantee spending limits. See [Java reliability](java-reliability.md).

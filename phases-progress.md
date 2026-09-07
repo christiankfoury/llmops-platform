@@ -239,6 +239,26 @@ Implementation and validation:
 - Reliability: V2 preserves legacy rows; key/grant/audit changes are atomic and grant checks share the project lock. Full readiness/limits and metrics remain the next phases.
 - Commit/push/post-commit review: 3cdefbf15378b0695bbff0c50477242f08689477 pushed; all seven jobs in CI run 34079493775 passed. Review found no remaining top actionable findings; no fix commit was needed. Next: Phase 56.
 
+### Phase 56: Distributed limits and dependency-aware readiness
+
+Status: In Progress
+
+Implementation plan:
+
+- Add required Redis with bounded TLS-capable connections and atomic fixed-window Lua quotas shared by all replicas. Use fixed pre-authentication route counters to bound invalid-key spray and trusted key IDs for authenticated quotas.
+- Bound API queries/bodies and concurrency before expensive work; return safe 429 with Retry-After or dependency 503 responses without recording rejected usage/costs.
+- Cache short-lived dependency health from one bounded background checker; keep liveness independent of PostgreSQL/Redis, reject new work while draining and fit provider retries inside a total shutdown budget.
+- Validate against real disposable Redis/PostgreSQL, with concurrent independent clients, expiration, malformed/oversized input, network outages, readiness recovery, liveness and cancellation. CI must run all integration checks without skips.
+- Preserve AWS and client contracts; document exact limits/failure/shutdown behavior, commit/push, review the pushed revision and fix findings before Phase 57.
+
+Implementation and validation:
+
+- Added atomic shared Redis quotas, bounded TLS-capable connections, safe admission errors, body/query/concurrency/deadline limits and total provider retry budgets.
+- Added cached dependency readiness, independent liveness and graceful draining, verified through actual Redis/PostgreSQL network fault proxies.
+- Local Java clean verification passes 269 tests with no failures or skips. Packaged service passes authenticated gateway/client replay/operator checks plus actual chunked/idle/trickle body checks. CI now supplies a pinned real Redis fixture.
+- AWS, real secrets, production and publication remain gated. No accepted client data contract or Python runtime changed. Docker/Helm cutover remains Phase 58.
+- Commit/push and pushed-commit review pending; detailed evidence is in docs/phase-reviews/phase-56.md.
+
 ### Phase 1: Project specification and architecture
 
 Status: Completed
