@@ -79,8 +79,8 @@ Phase 51: PostgreSQL persistence and migration handover â€” In Progress. Phase 5
 | 48 | Java conversion and AWS release roadmap | Completed |
 | 49 | Backend compatibility contract baseline | Completed |
 | 50 | Spring Boot build and service foundation | Completed |
-| 51 | PostgreSQL persistence and migration handover | In Progress |
-| 52 | Java gateway and model routing | Not Started |
+| 51 | PostgreSQL persistence and migration handover | Completed |
+| 52 | Java gateway and model routing | In Progress |
 | 53 | Java Proofbase and AgentOps telemetry ingestion | Not Started |
 | 54 | Java usage and operator configuration APIs | Not Started |
 | 55 | Operator authorization and application key lifecycle | Not Started |
@@ -146,17 +146,18 @@ Implementation notes:
 
 ### Phase 51: PostgreSQL persistence and migration handover
 
-Status: In Progress — implementation and local validation complete; pushed CI/review pending.
+Status: Completed
 
 Implementation notes:
 
 - Added matching JPA/Flyway schema, verified explicit Alembic adoption, a shared migration-owner lock, separate migration JAR and deterministic opt-in local seeds.
-- Validation: Java clean verify passed (14 tests, no skips); full Python suite passed against disposable PostgreSQL (81 tests, no skips); Ruff, frozen contract check and whitespace validation passed.
+- Validation: Java clean verify passed (15 tests, no skips); full Python suite passed against disposable PostgreSQL (81 tests, no skips); Ruff, frozen contract check and whitespace validation passed.
 - Security: no real credentials, existing database changes or cloud operations; seed startup requires explicit local/loopback settings.
 - Reliability: unchanged legacy rows/schema, guarded single migration owner, no automatic DDL/baselining/downgrade; transaction uniqueness and precision verified.
 - Observability: migration status only; no provider or telemetry exporter.
 - Commit/push/review evidence: docs/phase-reviews/phase-51.md.
-- Next phase: Phase 52 after review closure.
+- Pushed fix 4e4b49e75e0d606e2a073adf0b819bdef6f61a9b and all seven jobs in CI run 34070545375 passed; no remaining top actionable review findings.
+- Next phase: Phase 52, Java gateway and model routing.
 
 ### Phase 1: Project specification and architecture
 
