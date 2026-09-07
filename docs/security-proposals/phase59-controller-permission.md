@@ -2,7 +2,7 @@
 
 Status: **Pending user approval. No scanner suppression is active.**
 
-The remaining Phase 59 scan finding is `KSV-0056` on the `load-balancer-reconciler` Role. The local configured-manifest scan reports eight copies of the same capability because it validates base/dev/staging/prod and both bootstrap stages. All other rendered HIGH/CRITICAL findings were removed by implementation changes.
+The remaining Phase 59 scan finding is `KSV-0056` on the `load-balancer-reconciler` Role. The local configured-manifest scan reports eight copies of the same capability because it validates base/dev/staging/prod and both bootstrap stages. All other rendered HIGH/CRITICAL findings were removed by implementation changes. Pushed [CI 34094603109](https://github.com/christiankfoury/production-ai-platform/actions/runs/34094603109) confirms the same sole blocker after all Java, frontend and production image/TLS checks passed.
 
 ## Exact permission and purpose
 

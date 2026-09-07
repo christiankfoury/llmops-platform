@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 59: AWS infrastructure validation and bootstrap boundaries - In Progress. Phase 58 review and all seven CI jobs passed, including 277 Java tests, fresh TLS Compose/client checks, bounded shutdown and all three image scans. Phases 1-47 remain the completed historical baseline.
+Phase 59: AWS infrastructure validation and bootstrap boundaries - In Progress, awaiting the documented controller-permission exception approval. Implementation and separate review fixes are pushed through acc0236. CI 34094603109 passed Java (277 tests), frontend, Python reference checks and all three container/TLS scans; two security jobs block only on required ALB Ingress reconciliation (KSV-0056). The exception is inactive. Phases 1-47 remain the completed historical baseline; 48-58 are completed Java conversion phases.
 
 ## Phase table
 
@@ -323,6 +323,9 @@ Implementation and local validation (2026-09-07):
 - Implementation `dd125e66df161df7be2c768ed04a2dd705c3a372` pushed. CI 34091679445 passed six jobs (including infrastructure, Java and all three image/TLS checks) and flagged app network mutation plus upstream ESO default privileges. Separate fix `a1e48c541119c99127fc28d60defe7ade36d2248` transfers networking to bootstrap.
 - The controller follow-up uses namespace-scoped ESO controllers/v1 stores, read-only ALB cluster discovery and a namespace-scoped Ingress reconciler. Every configured controller is scanned; 506 resource instances validate with zero skipped.
 - The only remaining local rendered HIGH/CRITICAL finding is KSV-0056 on the ALB controller's required Ingress patch/update permission. No exception is active; the concrete approval proposal is `docs/security-proposals/phase59-controller-permission.md`. Phase 59 remains In Progress until pushed review and the security-policy gate are resolved.
+- Final code review: controller fix `9133c2d9ba94dce41464ea1241ec8ecda9e8432c`; distinct leader IDs fixed in separate commit `acc02366d2a35c4a41e3275b39cbcc3060a9c6d9`. CI 34094603109 completed with five passing jobs and only the two documented security-policy failures. Its infrastructure job passed all six mock plans and 506 schema/resource checks before the blocking scan. All three images, fresh TLS/client replay, negative certificate and graceful-shutdown checks passed.
+- User approval was requested for the exact, expiring policy proposal under AGENTS.md's security-check gate; no response or approval has been received. No Phase 60 work, exception activation or cloud operation began. Resume Phase 59 by resolving this decision, running the gated scans and closing its review before advancing.
+
 
 ### Phase 1: Project specification and architecture
 

@@ -1,5 +1,7 @@
 # Phase 59 Review
 
+Status: In Progress, awaiting the documented security-policy approval. Implementation and review fixes are pushed; no exception is active.
+
 ## Summary
 
 AWS bootstrap is separated from namespace-scoped Java application releases. Pinned offline validation now checks every Terraform root, both bootstrap graph stages, Kubernetes built-ins and controller CRDs.
@@ -56,6 +58,13 @@ AWS bootstrap is separated from namespace-scoped Java application releases. Pinn
 - Pushed commit: `dd125e66df161df7be2c768ed04a2dd705c3a372`.
 - Top findings: CI 34091679445 passed infrastructure checks but flagged app-deployer network mutations (KSV-0056) and upstream ESO archive default permissions/security context. First fix transfers Services/Ingress/NetworkPolicy ownership to a separate bootstrap network release and makes these objects read-only to the app deployer; ESO broad privileges are removed by separate namespace-scoped reconcilers and v1 stores. Configured-source scans now cover the actual deployment; the only remaining finding is KSV-0056 on the ALB controller's required Ingress finalizer permission.
 - Fix commits: `a1e48c541119c99127fc28d60defe7ade36d2248` removes app-deployer network mutations. `5ab54f3d33be4bfa3c4400eed133d37e2a0d54e7` fixes the network chart's namespace fallback and adds cross-release namespace checks. `9133c2d9ba94dce41464ea1241ec8ecda9e8432c` scopes controllers, verifies configured deployment scans and records the inactive permission proposal. Its post-push review identified shared default ESO leader-election IDs; a separate fix assigns each reconciler its own ID and verifies rendered arguments. No scan suppression has been enabled; the sole remaining capability exception is documented for approval.
+
+Final pushed-code evidence:
+
+- Reviewed code head: `acc02366d2a35c4a41e3275b39cbcc3060a9c6d9`.
+- [CI 34094603109](https://github.com/christiankfoury/production-ai-platform/actions/runs/34094603109): Java, frontend, Python reference, Python dependency audit and production images passed. The Java job reports 277 tests, zero failures/errors/skips; packaged gateway/telemetry/operator/request-bound/metrics/log checks passed. The image job built/scanned all three targets and passed the fresh PostgreSQL/Redis TLS, eight client captures/replays, negative certificate and bounded SIGTERM checks.
+- Infrastructure initialization, six mocked plans and 506 strict resource checks passed. Repository and configured-resource scans remain failed solely for KSV-0056 on the namespace-scoped `load-balancer-reconciler` Ingress rule. One source finding and eight equivalent rendered instances were inspected; no other HIGH/CRITICAL configuration findings remain.
+- The inactive proposal's exact paths match the scan results. Local documentation links and proposal non-activation were checked. Approval was requested; none has been received. This is an explicit stop under AGENTS.md's security-check gate, not a completed phase or a bypassed CI result.
 
 ## Next Phase
 
