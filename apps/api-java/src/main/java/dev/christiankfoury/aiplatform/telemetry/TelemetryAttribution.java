@@ -29,7 +29,8 @@ public class TelemetryAttribution {
     String source = event.text("source_app");
     String expectedApp =
         source.equals("proofbase") ? "enterprise-knowledge-agent" : "agentops-workflow-platform";
-    if (!project.getSlug().equals(source)
+    if (!Boolean.TRUE.equals(project.getIsActive())
+        || !project.getSlug().equals(source)
         || !application.getSlug().equals(expectedApp)
         || !application.getProjectId().equals(project.getId())
         || !Boolean.TRUE.equals(application.getIsActive())) throw denied();

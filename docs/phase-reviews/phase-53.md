@@ -47,9 +47,9 @@
 - Operator authorization, distributed limits, runtime cutover and live AWS/public readiness remain later phases.
 
 ### Post-Commit Review
-- Pushed commit: pending.
-- Top findings: pending pushed-commit review.
-- Fix commits: none yet.
+- Pushed commit: b3a58dc59d9500517bdcffd678f4e4f30bcf35a2, verified by GitHub main readback.
+- Top findings: source attribution checked application activity but omitted project activity. A disabled project could keep accepting telemetry through an otherwise active key/application. The separate fix checks the project flag and proves refusal without persistence, followed by successful ingestion after reactivation.
+- Fix commits: inactive-project refusal fix being validated for a separate commit.
 
 ### Next Phase
 - Phase 54: Java usage and operator configuration APIs, after review closure.

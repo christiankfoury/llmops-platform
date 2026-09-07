@@ -11,7 +11,7 @@ Send an active, unrevoked application key in `X-API-Key`. The stored project/app
 | proofbase | proofbase | enterprise-knowledge-agent |
 | agentops | agentops | agentops-workflow-platform |
 
-Missing/invalid/revoked keys and inactive applications return 401. A valid key for another source, including the local gateway demo key, returns 403. Proofbase accepts rag_query, rag_query_stream, markdown_cleanup, query_decomposition and embedding_generation; AgentOps accepts agent_step, structured_generation and workflow_summary. Source-incompatible operations return 422. These registrations are the existing client scopes, not caller-provided project IDs. Local seeding is explicitly opt-in and restricted to disposable loopback development databases; see [migration handover](database-migration-handover.md).
+Missing/invalid/revoked keys and inactive applications return 401. A valid key for another source, including the local gateway demo key, or a disabled project returns 403. Proofbase accepts rag_query, rag_query_stream, markdown_cleanup, query_decomposition and embedding_generation; AgentOps accepts agent_step, structured_generation and workflow_summary. Source-incompatible operations return 422. These registrations are the existing client scopes, not caller-provided project IDs. Local seeding is explicitly opt-in and restricted to disposable loopback development databases; see [migration handover](database-migration-handover.md).
 
 ## Payload and replay compatibility
 

@@ -231,6 +231,25 @@ class TelemetryHttpTest extends PostgresTestSupport {
   }
 
   @Test
+  void inactiveProjectCannotAcceptTelemetryWithAnOtherwiseActiveKey() throws Exception {
+    var body = event("proofbase_query");
+    var project = projects.findBySlug("proofbase").orElseThrow();
+    try {
+      project.setIsActive(false);
+      projects.saveAndFlush(project);
+      submit(body).andExpect(status().isForbidden());
+      assertThat(
+              requests.findAll().stream()
+                  .filter(item -> Objects.equals(item.getExternalEventId(), body.get("event_id"))))
+          .isEmpty();
+    } finally {
+      project.setIsActive(true);
+      projects.saveAndFlush(project);
+    }
+    submit(body).andExpect(status().isAccepted()).andExpect(jsonPath("$.duplicate").value(false));
+  }
+
+  @Test
   void revokedKeyAndInactiveApplicationAreRejected() throws Exception {
     var body = event("agentops_step");
     var key =
