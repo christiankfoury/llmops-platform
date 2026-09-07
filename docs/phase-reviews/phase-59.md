@@ -53,8 +53,8 @@ AWS bootstrap is separated from namespace-scoped Java application releases. Pinn
 
 ## Post-Commit Review
 
-- Pushed commit: pending.
-- Top findings: pending pushed-diff and CI review.
+- Pushed commit: `dd125e66df161df7be2c768ed04a2dd705c3a372`.
+- Top findings: CI 34091679445 passed infrastructure checks but flagged app-deployer network mutations (KSV-0056) and upstream ESO archive default permissions/security context. First fix transfers Services/Ingress/NetworkPolicy ownership to a separate bootstrap network release and makes these objects read-only to the app deployer; ESO review remains open.
 - Fix commits: pending.
 
 ## Next Phase

@@ -1,0 +1,5 @@
+namespace:
+  name: ai-platform-staging
+ingress:
+  webHost: staging.ai-platform.example.com
+  apiHost: api.staging.ai-platform.example.com

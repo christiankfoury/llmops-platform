@@ -11,6 +11,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 HELM = os.environ.get("HELM", "helm")
 CHART = "infra/helm/ai-platform"
+NETWORK_CHART = "infra/helm/ai-platform-network"
 SECRET_KEYS = {
     "JDBC_DATABASE_URL",
     "DATABASE_USERNAME",
@@ -124,7 +125,19 @@ def main() -> None:
     for environment in (None, "dev", "staging", "prod"):
         values = [] if environment is None else ["-f", CHART + "/values-" + environment + ".yaml"]
         run(HELM, "lint", CHART, "--strict", *values)
-        check(run(HELM, "template", "ai-platform", CHART, *values), environment or "dev")
+        app = run(HELM, "template", "ai-platform", CHART, *values)
+        assert all(
+            d["kind"] not in {"Service", "Ingress", "NetworkPolicy"}
+            for d in yaml.safe_load_all(app)
+            if d
+        )
+        network_values = (
+            []
+            if environment is None
+            else ["-f", NETWORK_CHART + "/values-" + environment + ".yaml"]
+        )
+        network = run(HELM, "template", "ai-platform-network", NETWORK_CHART, *network_values)
+        check(app + "\n---\n" + network, environment or "dev")
         print("Helm Java runtime boundaries:", environment or "base")
     check(
         run(
@@ -134,21 +147,30 @@ def main() -> None:
             CHART,
             "--set",
             "web.config.authMode=oidc,api.config.oidcAudience=https://api.fixture.invalid,web.config.oidcIssuer=https://identity.fixture.invalid,web.config.oidcClientId=fixture-client",
-        ),
+        )
+        + "\n---\n"
+        + run(HELM, "template", "ai-platform-network", NETWORK_CHART),
         "dev",
     )
     run(
         HELM,
         "template",
         "ai-platform",
-        CHART,
+        NETWORK_CHART,
         "--set",
         "networkPolicy.enabled=false",
         success=False,
     )
     for environment in (None, "dev", "staging", "prod"):
         path = "infra/k8s/" + ("base" if environment is None else "overlays/" + environment)
-        check(run("kubectl", "kustomize", path), environment or "dev")
+        app = run("kubectl", "kustomize", path)
+        assert all(
+            d["kind"] not in {"Service", "Ingress", "NetworkPolicy"}
+            for d in yaml.safe_load_all(app)
+            if d
+        )
+        network_path = path.replace("infra/k8s/", "infra/k8s/network/")
+        check(app + "\n---\n" + run("kubectl", "kustomize", network_path), environment or "dev")
         print("Kustomize Java runtime boundaries:", environment or "base")
     print("Optional OIDC configuration and refusal of unprotected metrics passed")
 

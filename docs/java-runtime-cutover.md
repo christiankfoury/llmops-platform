@@ -47,7 +47,7 @@ Java container health checks call readiness. Kubernetes adds a liveness-based st
 
 ## Kubernetes configuration and secrets
 
-The Helm chart and raw Kustomize bases/overlays use the same ports, probes, resource budgets, writable mounts and Java settings. Charts default to closed operator/dashboard access. Set the nonsecret OIDC issuer/audience/JWKS, web client ID and HTTPS origin through reviewed values; `API_BASE_URL` defaults to the private API Service and is server-only. OIDC web mode reads a separate `ai-platform-web-session` Secret (`session-secret`, optional `oidc-client-secret`). The frontend never receives database/Redis credentials.
+The application and bootstrap-owned network Helm charts (and separate raw Kustomize paths) use the same ports, probes, resource budgets, writable mounts and Java settings. Charts default to closed operator/dashboard access. Set the nonsecret OIDC issuer/audience/JWKS, web client ID and HTTPS origin through reviewed values; `API_BASE_URL` defaults to the private API Service and is server-only. OIDC web mode reads a separate `ai-platform-web-session` Secret (`session-secret`, optional `oidc-client-secret`). The frontend never receives database/Redis credentials.
 
 The API's `ai-platform-runtime-secrets` must contain these AWS Secrets Manager properties through External Secrets:
 

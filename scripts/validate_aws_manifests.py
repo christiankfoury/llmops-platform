@@ -218,6 +218,15 @@ def bootstrap_boundaries(docs, environment):
             else:
                 assert metadata["namespace"] == app
                 assert not any("jobs" in r["resources"] for r in doc["rules"])
+                for rule in doc["rules"]:
+                    if set(rule["resources"]) & {
+                        "services",
+                        "ingresses",
+                        "networkpolicies",
+                        "endpoints",
+                        "endpointslices",
+                    }:
+                        assert set(rule["verbs"]) <= {"get", "list", "watch"}
     assert not any(doc["kind"] == "Secret" for doc in docs)
 
 
@@ -303,7 +312,12 @@ def main():
         validate(name, docs, generated)
     for environment in [None, "dev", "staging", "prod"]:
         env = environment or "dev"
-        for chart in ["infra/helm/ai-platform", "infra/helm/ai-platform-migration", BOOTSTRAP]:
+        for chart in [
+            "infra/helm/ai-platform",
+            "infra/helm/ai-platform-network",
+            "infra/helm/ai-platform-migration",
+            BOOTSTRAP,
+        ]:
             values = [] if environment is None else ["-f", chart + "/values-" + env + ".yaml"]
             run(HELM, "lint", chart, "--strict", *values)
             extra = ["--set", "externalSecretsEnabled=true"] if chart == BOOTSTRAP else []
@@ -332,6 +346,13 @@ def main():
         validate(
             "kustomize-" + (environment or "base"),
             documents(run("kubectl", "kustomize", path)),
+            generated,
+        )
+        validate(
+            "kustomize-network-" + (environment or "base"),
+            documents(
+                run("kubectl", "kustomize", path.replace("infra/k8s/", "infra/k8s/network/"))
+            ),
             generated,
         )
     invalid = copy.deepcopy(next(d for d in docs if d["kind"] == "ExternalSecret"))

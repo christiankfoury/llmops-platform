@@ -1,0 +1,35 @@
+namespace:
+  name: ''
+commonLabels:
+  app.kubernetes.io/part-of: production-ai-platform
+networkPolicy:
+  enabled: true
+  ingressCidrs:
+  - 10.0.0.0/8
+metrics:
+  enabled: true
+  namespaceSelector:
+    kubernetes.io/metadata.name: observability
+  podSelector:
+    app.kubernetes.io/name: prometheus
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+  webHost: ai-platform.example.com
+  apiHost: api.ai-platform.example.com
+  tls: []
+api:
+  service:
+    type: ClusterIP
+    port: 8000
+    annotations: {}
+web:
+  service:
+    type: ClusterIP
+    port: 3000
+appReleaseName: ai-platform
+nameOverride: ai-platform
+fullnameOverride: ai-platform

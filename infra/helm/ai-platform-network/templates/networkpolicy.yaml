@@ -23,7 +23,7 @@ spec:
   podSelector:
     matchLabels:
       app.kubernetes.io/name: {{ include "ai-platform.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/instance: {{ .Values.appReleaseName }}
       app.kubernetes.io/component: api
   policyTypes:
     - Ingress
@@ -32,7 +32,7 @@ spec:
         - podSelector:
             matchLabels:
               app.kubernetes.io/name: {{ include "ai-platform.name" . }}
-              app.kubernetes.io/instance: {{ .Release.Name }}
+              app.kubernetes.io/instance: {{ .Values.appReleaseName }}
               app.kubernetes.io/component: web
         {{- range .Values.networkPolicy.ingressCidrs }}
         - ipBlock:
@@ -66,7 +66,7 @@ spec:
   podSelector:
     matchLabels:
       app.kubernetes.io/name: {{ include "ai-platform.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/instance: {{ .Values.appReleaseName }}
       app.kubernetes.io/component: web
   policyTypes:
     - Ingress

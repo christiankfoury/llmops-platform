@@ -11,11 +11,6 @@ resources:
 - hpa-web.yaml
 - pdb-api.yaml
 - pdb-web.yaml
-- service-api.yaml
-- service-web.yaml
-- ingress.yaml
-- networkpolicy.yaml
-- service-metrics.yaml
 images:
 - name: production-ai-platform-api
   newName: replace-with-ecr/production-ai-platform/api

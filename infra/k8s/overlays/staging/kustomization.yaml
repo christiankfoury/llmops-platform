@@ -39,8 +39,3 @@ patches:
     name: ai-platform-web-config
   patch: "- op: replace\n  path: /data/ENVIRONMENT\n  value: staging\n- op: replace\n\
     \  path: /data/WEB_ORIGIN\n  value: https://staging.ai-platform.example.com"
-- target:
-    kind: Ingress
-    name: ai-platform
-  patch: "- op: replace\n  path: /spec/rules/0/host\n  value: staging.ai-platform.example.com\n\
-    - op: replace\n  path: /spec/rules/1/host\n  value: api.staging.ai-platform.example.com"

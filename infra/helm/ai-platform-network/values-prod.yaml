@@ -1,0 +1,5 @@
+namespace:
+  name: ai-platform-prod
+ingress:
+  webHost: ai-platform.example.com
+  apiHost: api.ai-platform.example.com

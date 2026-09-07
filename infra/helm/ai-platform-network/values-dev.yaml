@@ -1,0 +1,5 @@
+namespace:
+  name: ai-platform-dev
+ingress:
+  webHost: dev.ai-platform.example.com
+  apiHost: api.dev.ai-platform.example.com
