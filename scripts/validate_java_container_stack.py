@@ -238,8 +238,15 @@ def main() -> None:
         else:
             raise AssertionError("Negative Redis-trust fixture did not remain live")
         assert command("docker", "exec", negative_id, *probe, "ready", check=False).returncode != 0
+        # Exercise the actual image entrypoint/PID 1 signal path, not only Java lifecycle tests.
+        stop_started = time.monotonic()
+        command("docker", "stop", "--time", "60", api_id, timeout=75)
+        stopped = json.loads(command("docker", "inspect", api_id).stdout)[0]["State"]
+        assert not stopped["Running"] and not stopped["OOMKilled"]
+        assert stopped["ExitCode"] in (0, 143), "API required a forced kill or crashed on shutdown"
+        assert time.monotonic() - stop_started < 60, "API exceeded its shutdown allowance"
         print(
-            "Fresh Java Compose: non-root/read-only images, migrations/seeding, verified PostgreSQL+Redis TLS, gateway, eight client captures/replays, isolated dashboard, private metrics and negative certificate checks passed"
+            "Fresh Java Compose: non-root/read-only images, migrations/seeding, verified PostgreSQL+Redis TLS, gateway, eight client captures/replays, isolated dashboard, private metrics, negative certificate checks and bounded SIGTERM shutdown passed"
         )
     except Exception:
         if started:

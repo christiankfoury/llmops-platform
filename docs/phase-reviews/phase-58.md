@@ -51,7 +51,7 @@
 
 ### Post-Commit Review
 - Pushed commit: 7d9bb448f0fc36ccb17c662abbdcd6c808b6d832.
-- Top findings: Kubernetes web configuration omitted the required OIDC audience; minimal JDK image lacked unzip and caused Maven Wrapper to select a tarball against the pinned ZIP checksum. Both are being fixed separately; required CI remains pending.
+- Top findings: Kubernetes web configuration omitted the required OIDC audience; minimal JDK image lacked unzip and caused Maven Wrapper to select a tarball against the pinned ZIP checksum. Both have separate fixes (eff07cc and 38962cc). Review also added an actual PID 1/SIGTERM check to cover the shipped entrypoint, beyond Java lifecycle and static grace-period tests; required CI remains pending.
 - Fix commits: separate OIDC audience wiring and Maven archive extraction fixes; final identifiers/CI evidence follow.
 
 ### Next Phase
