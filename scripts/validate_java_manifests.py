@@ -46,6 +46,9 @@ def check(output: str, expected_environment: str) -> None:
         }
         for d in docs
     ), "App releases must remain namespace-scoped and cannot own migration jobs"
+    namespace = next(d["metadata"]["namespace"] for d in docs if d["kind"] == "Deployment")
+    assert isinstance(namespace, str) and namespace
+    assert all(d["metadata"].get("namespace") == namespace for d in docs), "App/network namespace mismatch"
     indexed = {(d["kind"], d["metadata"]["name"]): d for d in docs}
     assert len(indexed) == len(docs), "Duplicate rendered resource identity"
     for component in ("api", "web"):

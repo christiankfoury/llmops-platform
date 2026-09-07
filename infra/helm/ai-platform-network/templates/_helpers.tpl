@@ -16,7 +16,7 @@
 {{- end -}}
 
 {{- define "ai-platform.namespace" -}}
-{{- default .Values.appReleaseNamespace .Values.namespace.name -}}
+{{- default .Release.Namespace .Values.namespace.name -}}
 {{- end -}}
 
 {{- define "ai-platform.labels" -}}
