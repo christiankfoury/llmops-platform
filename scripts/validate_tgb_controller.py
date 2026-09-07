@@ -105,6 +105,10 @@ def candidate_rbac():
         }:
             continue
         if doc and doc["kind"] in {"Role", "RoleBinding", "ClusterRole", "ClusterRoleBinding"}:
+            if doc["kind"] == "Role" and doc["metadata"]["name"] == "load-balancer-leader-election":
+                doc["rules"].append(
+                    {"apiGroups": [""], "resources": ["events"], "verbs": ["create", "patch"]}
+                )
             if doc["metadata"]["name"] == "load-balancer-reconciler":
                 for rule in doc.get("rules", []):
                     if "ingresses" in rule["resources"]:
@@ -673,7 +677,9 @@ def main():
             "delete cleans targets and removes finalizer after restart",
             lambda: (
                 not state.targets
-                and not json.loads(kube("get", "targetgroupbindings", "-n", NS, "-o", "json").stdout)["items"]
+                and not json.loads(
+                    kube("get", "targetgroupbindings", "-n", NS, "-o", "json").stdout
+                )["items"]
             ),
         )
         assert not state.denied, (
