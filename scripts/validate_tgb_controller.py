@@ -22,6 +22,7 @@ from pathlib import Path
 from xml.sax.saxutils import escape
 
 import yaml
+from validate_aws_manifests import UniqueLoader
 
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = ROOT / ".maven-cache/tgb-compatibility"
@@ -355,8 +356,9 @@ def main():
             ]
         )
         apply(candidate_rbac())
-        values = yaml.safe_load(
-            (ROOT / "infra/bootstrap/controllers/aws-load-balancer-controller.yaml").read_text()
+        values = yaml.load(
+            (ROOT / "infra/bootstrap/controllers/aws-load-balancer-controller.yaml").read_text(),
+            Loader=UniqueLoader,
         )
         values.update(
             {

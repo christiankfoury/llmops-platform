@@ -49,5 +49,3 @@ disableIngressClassAnnotation: true
 disableIngressGroupNameAnnotation: true
 podMutatorWebhookConfig:
   failurePolicy: Fail
-podMutatorWebhookConfig:
-  failurePolicy: Fail

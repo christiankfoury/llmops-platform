@@ -57,6 +57,11 @@ def verify(path, digest):
 
 
 def verify_sources():
+    # Helm silently accepts duplicate value keys. Validate inputs before merging.
+    for directory in (ROOT / "infra/bootstrap", ROOT / "infra/helm"):
+        for path in directory.rglob("*.yaml"):
+            if "templates" not in path.parts and "files" not in path.parts:
+                documents(path.read_text(encoding="utf-8"))
     for directory in [
         ROOT / BOOTSTRAP / "files",
         ROOT / "infra/terraform/modules/cluster/policies",
