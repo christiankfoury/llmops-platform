@@ -1,6 +1,6 @@
 # Java Spring Boot conversion and AWS public release
 
-Decision date: 2026-09-06. Continuation updated: 2026-09-08. Phases 48-61 are completed; Phase 62 is blocked/deferred. Phases 63-64 are completed with local recovery, security and synthetic demo evidence; Phase 65 preparation follows, then the Phase 66 AWS approval gate.
+Decision date: 2026-09-06. Continuation updated: 2026-09-08. Phases 48-61 are completed; Phase 62 is blocked/deferred. Phases 63-65 are completed with local recovery, security/demo evidence and a blocked AWS launch package. Execution is stopped before Phase 66 for Phase 62 completion, owner AWS setup and explicit approval.
 
 ## Approved direction
 

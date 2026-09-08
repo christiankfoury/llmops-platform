@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 65: AWS launch preflight and approval package - In Progress. Phases 63 and 64 completed their bounded preparation, pushed reviews and all mandatory candidate CI. Phase 62 is Blocked with vulnerability remediation deferred by the owner. Follow the scoped continuation override in AGENTS.md and the independent acceptance criteria for Phases 63-65 in phases.md. Stop before Phase 66 for AWS setup and approval; monitoring remains a launch blocker.
+Phase 66: Approved single AWS dev/demo deployment - Blocked before execution. Phases 63-65 completed their bounded preparation, mandatory candidate CI and pushed review. Stop here for owner AWS setup and explicit approval; Phase 62 remains independently Blocked with monitoring remediation deferred. Do not resume monitoring fixes, unhold cloud jobs or start AWS actions automatically. The concrete input/cost/cleanup package is docs/aws-launch-checklist.md.
 
 Handoff (2026-09-08): docs/next-chat-handoff.md records the dirty local Phase 62 prototype, deferred vulnerability backlog and next actions. Phases 1-61 remain historical completion evidence. AWS is the cloud target. Phase 59 removed Ingress writes; its scanner exception remains inactive.
 
@@ -98,9 +98,9 @@ Portfolio scope decision (2026-09-08): Phases 63-65 are bounded preparation, fol
 | 61 | AWS immutable promotion migrations and rollback | Completed | main | 35719e2 | 2026-09-07 | docs/phase-reviews/phase-61.md |
 | 62 | Runnable monitoring stack and supported log collection | Blocked | main | 4cf7b9a | - | Remediation deferred; incomplete, monitoring release blocked. |
 | 63 | Local resilience recovery and cost rehearsal | Completed | main | d03a9c1 | 2026-09-08 | Local recovery/restore evidence; 11/11 CI jobs and reviewed fixes. |
-| 64 | Public repository and isolated demo preparation | Completed |
-| 65 | AWS launch preflight and approval package | In Progress |
-| 66 | Approved single AWS dev/demo deployment and operational evidence | Not Started |
+| 64 | Public repository and isolated demo preparation | Completed | main | ad8bcbf | 2026-09-08 | Focused review, synthetic assets and 11/11 CI; docs/phase-reviews/phase-64.md. |
+| 65 | AWS launch preflight and approval package | Completed | main | 218bc46 | 2026-09-08 | Preparation complete, launch BLOCKED; 11/11 CI and reviewed package. |
+| 66 | Approved single AWS dev/demo deployment and operational evidence | Blocked | - | - | - | Stopped before execution: Phase 62, AWS setup/current eligibility and explicit approval required. |
 | 67 | Optional staging promotion and recovery exercise | Skipped | - | - | - | Owner removed from required portfolio scope on 2026-09-08; no live validation claimed. |
 | 68 | Optional separate production launch | Skipped | - | - | - | Owner removed from required portfolio scope on 2026-09-08; no production deployment claimed. |
 | 69 | Approved public repository release and closeout | Not Started |
@@ -418,15 +418,16 @@ Phase 64 local preparation evidence:
 
 ### Phase 65: AWS launch preflight and approval package
 
-Status: In Progress
+Status: Completed (preparation); launch remains Blocked
 
 Implementation plan and preparation evidence:
 
 - Inspect current dev Terraform/release/bootstrap inputs; prepare one private dev/demo setup checklist and blocked launch decision.
 - Price the actual NAT-enabled, two-worker footprint with runner, ALB and monitoring/storage allowances using current public AWS sources; retain arithmetic/provenance and a proposed 48-hour lifetime.
 - Record missing account/region/quota/add-on/identity/HTTPS/state/secret/runner/environment-protection inputs, immutable deploy/compatible rollback and separately approved cleanup steps.
-- Correct obsolete cost assumptions and budget scope: the current budget is account-wide, not project-filtered. No AWS calls, state, credentials, resources, new executable environment files or holds changed.
-- Carry Phase 62 final monitoring/image/CI/transport/storage/credential gates forward; do not restart remediation. Run focused document/arithmetic checks and all mandatory candidate CI, then pushed review and any separate fixes. Stop before Phase 66.
+- Correct obsolete cost assumptions and budget scope: the current budget is account-wide, not project-filtered. Only public unsigned price reads; no authenticated AWS calls, state, credentials, resources, new executable environment files or holds changed.
+- Carry Phase 62 final monitoring/image/CI/transport/storage/credential gates forward; no remediation restarted. Focused document/arithmetic/default checks, CI policy and eight release-plan tests passed. Candidate 218bc46 passed all 11 jobs in CI 34195008384; Java 280 tests/zero skips, history 196 commits/zero unreviewed. Exact-revision verification passed, deployment unauthorized; pushed review found no further actionable issues.
+- The checklist and docs/phase-reviews/phase-65.md retain account/region/quota/access, private runner/environment protections, state, identity/HTTPS, secret, capacity and cleanup inputs. Proposed estimate USD 29.52/48 hours, USD 50 review envelope; no spending approval. Stopped before Phase 66. Phases 67-68 remain owner-skipped; Phase 69 publication/license remains separately gated.
 
 ### Phase 1: Project specification and architecture
 

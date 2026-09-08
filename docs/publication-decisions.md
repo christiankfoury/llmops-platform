@@ -20,6 +20,6 @@ security/contribution guidance, sanitized assets and explicit remaining decision
 No scanner exceptions, branch-protection bypass, secret rotation or paid services
 were introduced. Historical monitoring reports remain visible with their limits.
 
-Phase 65 prepares the specific AWS inputs and cost/change package; it may correctly
-record a blocked launch. Ask the owner for the license and publication decision when Phase 69's
+The completed [Phase 65 package](aws-launch-checklist.md) records specific missing
+AWS inputs and the cost/change proposal with a blocked launch decision. Ask the owner for the license and publication decision when Phase 69's
 reviewable release package is ready.

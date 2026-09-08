@@ -18,9 +18,9 @@ future work, with existing configuration and static checks preserved.
 
 Phase 63 completed its bounded local rehearsal and mandatory CI/review on 2026-09-08.
 Phase 64 also completed its focused review/demo package and all mandatory candidate CI.
-Continue independent Phase 65 preparation under AGENTS.md, then stop for AWS
-setup and approval before Phase 66. Phase 65 may finish a package whose launch
-decision is **blocked**. Phase 62 and current mandatory CI must be resolved before
+Phase 65 completed its checklist/cost package, current mandatory candidate CI and
+pushed review. Execution is **stopped before Phase 66** for owner AWS setup and
+approval; the [launch decision](aws-launch-checklist.md) is **blocked**. Phase 62 and current mandatory CI must be resolved before
 the monitoring/cloud release. The Skopeo CI availability failure was repaired separately in a291ad7; its
 mandatory OCI promotion round trip passed. Always check the latest CI state.
 
@@ -58,8 +58,8 @@ rebuilds, or reinterpret deferral as deployment risk acceptance.
 
 ## AWS boundary and cost
 
-Phase 65 estimates only the selected dev/demo footprint; historical staging/prod
-cost tables are comparisons, not a spending plan. Refresh pricing and confirm
+The [Phase 65 estimate](cost-analysis.md) prices only the selected dev/demo footprint;
+historical staging/prod cost tables are not a spending plan. Refresh pricing and confirm
 intended lifetime, persistent storage, backups, load balancer/network charges and
 an explicit cleanup plan before seeking approval. Budget alerts are notifications,
 not hard spending caps. The plan authorizes no apply/destroy, paid resource,

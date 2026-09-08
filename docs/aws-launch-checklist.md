@@ -71,7 +71,8 @@ to ordinary release jobs.
 
 ## Safe preflight, after owner setup
 
-No AWS API or authenticated Terraform plan was executed for Phase 65. These are
+Only public unsigned pricing reads were used; no authenticated AWS API or
+Terraform plan was executed for Phase 65. These are
 read-only checks for the approved account profile, not recorded results:
 
 ```sh

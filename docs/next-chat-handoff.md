@@ -8,14 +8,35 @@ Work in `S:\github-repos\production-ai-platform`. Read `AGENTS.md`,
 `docs/security/monitoring-vulnerability-backlog.md` and
 `docs/portfolio-completion-plan.md` first.
 
-Phases 1-61 are completed. Phase 62 is **Blocked**, incomplete, with monitoring
-vulnerability fixes/custom rebuilds deferred at the owner's request. Phase 63 is
-**Completed**: candidate 140d35e and separate fixes 208c5d6/d03a9c1 passed all 11 CI
-jobs. Exact d03a9c1 eligibility was verified with deployment unauthorized. Continue
-Phase 65 (In Progress). Phase 64 candidate ad8bcbf passed all 11 jobs in CI
-34193634531, exact-revision verification and pushed review. Stop
-before Phase 66 for AWS setup and explicit approval of one dev/demo environment. AGENTS.md contains the scoped
-exception to the ordinary sequential phase loop; all other rules still apply.
+Phases 1-61 and the bounded preparation Phases 63-65 are completed. Phase 62 is
+**Blocked**, incomplete, with vulnerability fixes/custom rebuilds deferred by the
+owner. **STOP before Phase 66.** AWS setup and explicit approval are missing, and
+the Phase 62 prerequisite remains unresolved. Do not restart its remediation,
+remove cloud-job holds, create environments/runners/secrets or perform AWS actions
+automatically. Phases 67-68 remain owner-skipped; Phase 69 has separate approval.
+
+The concrete handoff is [the AWS setup/checklist](aws-launch-checklist.md),
+[the cost model](cost-analysis.md), and [Phase 65 review](phase-reviews/phase-65.md).
+It proposes one private us-east-1 dev/demo for 48 hours: USD 29.52 estimated, with
+a USD 50 review envelope, **not approved or an enforced cap**. Account/profile,
+region/date, private access/runner, protected GitHub environments, state/bootstrap,
+quotas/versions, identity/HTTPS, secret delivery and cleanup decisions remain
+explicit missing inputs. Domain/IdP/private-access purchases need separate pricing.
+Only unsigned public price reads were made; no authenticated AWS API/plan ran.
+
+Completed candidate evidence (all 11 mandatory jobs passed for each):
+
+- Phase 63: 140d35e, separate fixes 208c5d6/d03a9c1; final candidate CI 34192015607.
+  Closeout 3b8162e also passed CI 34192564066.
+- Phase 64: ad8bcbf, CI 34193634531; no additional pushed findings. Closeout
+  161848d passed CI 34194112651. Two actual synthetic browser captures retained.
+- Phase 65: 218bc46, CI 34195008384; no additional pushed findings. Java 280 tests,
+  zero skips, history 196 commits/zero unreviewed, image/OCI/infrastructure gates
+  passed. Exact-revision verification reported deployment_authorized=false.
+
+This closeout also requires its own successful CI before final delivery. On any
+resumption inspect the latest remote main SHA/run; historical green checks and
+14-day artifacts do not authorize a new deployment or override current policy.
 
 ## Remaining phases
 
@@ -24,8 +45,8 @@ exception to the ordinary sequential phase loop; all other rules still apply.
 | 62 | Runnable monitoring finalization; vulnerabilities, final image compatibility/delivery and monitoring CI remain deferred launch blockers |
 | 63 | Completed: 20/20 requests, p95 173 ms, Redis recovery 1.297 s, compatible rollback and 24 request/cost rows restored; monitoring checks remain with 62 |
 | 64 | Completed: focused security review, two actual synthetic captures, corrected README/script and current scans; license/publication remain gated |
-| 65 | Practical checklist and cost estimate for one AWS dev/demo footprint; launch stays blocked while prerequisites are unresolved |
-| 66 | One AWS dev/demo deployment with a bounded release/monitoring/rollback demonstration, after eligibility and approval |
+| 65 | Completed: practical checklist, current cost/provenance and gated cleanup package; launch decision BLOCKED |
+| 66 | Blocked before execution: owner AWS setup/explicit approval plus Phase 62 completion/current eligibility required |
 | 67 | Skipped: separate staging deployment is optional future work |
 | 68 | Skipped: separate production deployment is optional future work |
 | 69 | Separately approved repository release/license/closeout after required single-environment evidence; 67-68 are not prerequisites |
@@ -109,5 +130,8 @@ or adopt a failing image to make a phase appear complete.
   TargetGroupBinding permissions and has no Ingress writes.
 
 Phase 63 evidence and review are in `docs/phase-reviews/phase-63.md` and its JSON.
+Phase 64 security/demo and Phase 65 checklist/cost reviews are in the same directory.
+The isolated checkout is clean at phase delivery; the new rehearsal and screenshot
+containers are stopped, with data retained.
 Both rehearsal databases remain as stopped local containers/volumes. No existing
 database was deleted. Phase 62 remains blocked and AWS deployment is not approved.

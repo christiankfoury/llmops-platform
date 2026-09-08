@@ -12,10 +12,10 @@ Active implementation direction (2026-09-06): convert the existing FastAPI backe
 
 Continuation status (2026-09-08): Java conversion/cutover and release preparation
 through Phase 61 are completed. Phase 62 monitoring remains incomplete with
-vulnerability remediation deferred. The owner-selected continuation is independent
-Phase 65 preparation after completed Phase 63 local recovery and Phase 64 security/demo evidence, under
-the scoped AGENTS.md override, then the Phase 66
-AWS setup/approval gate. This does not remove runnable monitoring from the product
+vulnerability remediation deferred. The owner-selected independent
+Phases 63-65 preparation is completed: local recovery, security/demo evidence and
+a practical AWS checklist/cost estimate. Execution is stopped before Phase 66
+for monitoring completion, owner AWS setup and explicit approval. This does not remove runnable monitoring from the product
 or grant deployment eligibility. See [the handoff](docs/next-chat-handoff.md).
 
 Completion scope (owner direction, 2026-09-08): bounded local verification,
