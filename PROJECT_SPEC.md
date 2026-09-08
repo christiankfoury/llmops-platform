@@ -13,7 +13,7 @@ Active implementation direction (2026-09-06): convert the existing FastAPI backe
 Continuation status (2026-09-08): Java conversion/cutover and release preparation
 through Phase 61 are completed. Phase 62 monitoring remains incomplete with
 vulnerability remediation deferred. The owner-selected continuation is independent
-Phases 64-65 preparation after completed Phase 63 local recovery evidence, under
+Phase 65 preparation after completed Phase 63 local recovery and Phase 64 security/demo evidence, under
 the scoped AGENTS.md override, then the Phase 66
 AWS setup/approval gate. This does not remove runnable monitoring from the product
 or grant deployment eligibility. See [the handoff](docs/next-chat-handoff.md).

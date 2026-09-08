@@ -17,7 +17,8 @@ future work, with existing configuration and static checks preserved.
 | 69 | Explicitly approved repository publication and closeout | Current required CI/security evidence, owner-selected license, sanitized assets and claims matching measured behavior |
 
 Phase 63 completed its bounded local rehearsal and mandatory CI/review on 2026-09-08.
-Continue independent 64-65 preparation under AGENTS.md, then stop for AWS
+Phase 64 also completed its focused review/demo package and all mandatory candidate CI.
+Continue independent Phase 65 preparation under AGENTS.md, then stop for AWS
 setup and approval before Phase 66. Phase 65 may finish a package whose launch
 decision is **blocked**. Phase 62 and current mandatory CI must be resolved before
 the monitoring/cloud release. The Skopeo CI availability failure was repaired separately in a291ad7; its

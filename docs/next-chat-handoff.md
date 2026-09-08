@@ -12,7 +12,8 @@ Phases 1-61 are completed. Phase 62 is **Blocked**, incomplete, with monitoring
 vulnerability fixes/custom rebuilds deferred at the owner's request. Phase 63 is
 **Completed**: candidate 140d35e and separate fixes 208c5d6/d03a9c1 passed all 11 CI
 jobs. Exact d03a9c1 eligibility was verified with deployment unauthorized. Continue
-Phase 64 (In Progress), then Phase 65. Stop
+Phase 65 (In Progress). Phase 64 candidate ad8bcbf passed all 11 jobs in CI
+34193634531, exact-revision verification and pushed review. Stop
 before Phase 66 for AWS setup and explicit approval of one dev/demo environment. AGENTS.md contains the scoped
 exception to the ordinary sequential phase loop; all other rules still apply.
 
@@ -22,7 +23,7 @@ exception to the ordinary sequential phase loop; all other rules still apply.
 |---|---|
 | 62 | Runnable monitoring finalization; vulnerabilities, final image compatibility/delivery and monitoring CI remain deferred launch blockers |
 | 63 | Completed: 20/20 requests, p95 173 ms, Redis recovery 1.297 s, compatible rollback and 24 request/cost rows restored; monitoring checks remain with 62 |
-| 64 | Focused security/secret review, small synthetic screenshot set, concise demo script and honest README; carry unresolved decisions |
+| 64 | Completed: focused security review, two actual synthetic captures, corrected README/script and current scans; license/publication remain gated |
 | 65 | Practical checklist and cost estimate for one AWS dev/demo footprint; launch stays blocked while prerequisites are unresolved |
 | 66 | One AWS dev/demo deployment with a bounded release/monitoring/rollback demonstration, after eligibility and approval |
 | 67 | Skipped: separate staging deployment is optional future work |

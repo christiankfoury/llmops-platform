@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 64: Public repository and isolated demo preparation - In Progress. Phase 63 completed its local rehearsal, pushed review fixes and all mandatory CI. Phase 62 is Blocked with vulnerability remediation deferred by the owner. Follow the scoped continuation override in AGENTS.md and the independent acceptance criteria for Phases 63-65 in phases.md. Stop before Phase 66 for AWS setup and approval; monitoring remains a launch blocker.
+Phase 65: AWS launch preflight and approval package - In Progress. Phases 63 and 64 completed their bounded preparation, pushed reviews and all mandatory candidate CI. Phase 62 is Blocked with vulnerability remediation deferred by the owner. Follow the scoped continuation override in AGENTS.md and the independent acceptance criteria for Phases 63-65 in phases.md. Stop before Phase 66 for AWS setup and approval; monitoring remains a launch blocker.
 
 Handoff (2026-09-08): docs/next-chat-handoff.md records the dirty local Phase 62 prototype, deferred vulnerability backlog and next actions. Phases 1-61 remain historical completion evidence. AWS is the cloud target. Phase 59 removed Ingress writes; its scanner exception remains inactive.
 
@@ -98,8 +98,8 @@ Portfolio scope decision (2026-09-08): Phases 63-65 are bounded preparation, fol
 | 61 | AWS immutable promotion migrations and rollback | Completed | main | 35719e2 | 2026-09-07 | docs/phase-reviews/phase-61.md |
 | 62 | Runnable monitoring stack and supported log collection | Blocked | main | 4cf7b9a | - | Remediation deferred; incomplete, monitoring release blocked. |
 | 63 | Local resilience recovery and cost rehearsal | Completed | main | d03a9c1 | 2026-09-08 | Local recovery/restore evidence; 11/11 CI jobs and reviewed fixes. |
-| 64 | Public repository and isolated demo preparation | In Progress |
-| 65 | AWS launch preflight and approval package | Not Started |
+| 64 | Public repository and isolated demo preparation | Completed |
+| 65 | AWS launch preflight and approval package | In Progress |
 | 66 | Approved single AWS dev/demo deployment and operational evidence | Not Started |
 | 67 | Optional staging promotion and recovery exercise | Skipped | - | - | - | Owner removed from required portfolio scope on 2026-09-08; no live validation claimed. |
 | 68 | Optional separate production launch | Skipped | - | - | - | Owner removed from required portfolio scope on 2026-09-08; no production deployment claimed. |
@@ -400,7 +400,7 @@ Implementation evidence (2026-09-08):
 
 ### Phase 64: Public repository and isolated demo preparation
 
-Status: In Progress
+Status: Completed
 
 Implementation plan:
 
@@ -414,7 +414,7 @@ Phase 64 local preparation evidence:
 - Corrected Java/Redis/manual-release and synthetic-dashboard claims; added focused security/contribution guidance, one five-minute script, short unreleased notes and license/publication decisions.
 - Captured two actual JPEG browser views from immutable local web image 2bef6ea2; fixture isolation/admin rejection probes and the required local image audit passed.
 - Read-only GitHub checks found private visibility, no license/releases and zero deployment environments. No settings changed. Phase 62 remains a release blocker.
-- Review/evidence: docs/phase-reviews/phase-64.md and phase-64-evidence.json. Candidate full CI and post-push review remain required before completion.
+- Review/evidence: docs/phase-reviews/phase-64.md and phase-64-evidence.json. Candidate ad8bcbf passed all 11 jobs in CI 34193634531; Java 280 tests/zero skips, history 194 commits/zero unreviewed. Exact-revision eligibility verified with deployment unauthorized; pushed review found no further actionable issues.
 
 ### Phase 1: Project specification and architecture
 

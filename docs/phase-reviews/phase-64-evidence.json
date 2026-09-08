@@ -49,5 +49,17 @@
       "Name": "3.24.1"
     },
     "result_targets": 2
-  }
+  },
+  "candidate_ci": {
+    "sha": "ad8bcbfbc2936a4397600bdec62976653753388c",
+    "run_id": 34193634531,
+    "required_jobs_passed": 11,
+    "java_tests": 280,
+    "java_skipped": 0,
+    "history_commits": 194,
+    "history_unreviewed_findings": 0,
+    "exact_revision_verified": true,
+    "deployment_authorized": false
+  },
+  "capture_container_stopped": true
 }
