@@ -1,0 +1,157 @@
+{
+  "result": "passed",
+  "schema_version": 1,
+  "measured_at_utc": "2026-09-08T05:37:13.175605+00:00",
+  "source_revision": "a291ad7a7083217aa76b3b2a78eb00b36de076f9",
+  "project": "ai-platform-recovery-d0630ae95a4a",
+  "scope": "disposable local Docker; not AWS RTO/RPO or capacity",
+  "images": {
+    "candidate": {
+      "image_id": "sha256:1d4de2edc27f499e8c09b24ce8e0f4b7dbe4f7f55d3ebc3784bfdc59b4ddf955",
+      "revision": "a291ad7a7083217aa76b3b2a78eb00b36de076f9"
+    },
+    "rollback": {
+      "image_id": "sha256:96ca0e4fcabef0ff1b637148d4c661fde03df0b916d519aa7a29605744a8666f",
+      "revision": "1737899a576b7e4bb6c679d1e64b49b6e8d54047"
+    }
+  },
+  "migration_image_id": "sha256:c544fe939356ced128c9903e457d4f4b158093f96af88b6dbe9e10744d505dfb",
+  "dependency_images": {
+    "postgres": "postgres:16.15-alpine@sha256:cf78e76683b9ca8c5733cbbdce6c9262b45b6767934dd0a95e671f9a0fc20685",
+    "redis": "redis:7.2.16-alpine@sha256:b5dee736fa6758052556cc97b5d5423177dcd8e26ce9746e6e3d58484a5a4143"
+  },
+  "monitoring_alert_resolution": "deferred: Phase 62 / pre-Phase 66 blocker",
+  "paid_provider_calls": 0,
+  "aws_calls": 0,
+  "load": {
+    "requests": 20,
+    "concurrency": 4,
+    "status_counts": {
+      "200": 20
+    },
+    "errors": 0,
+    "latency_ms": {
+      "min": 27,
+      "mean": 113.25,
+      "p95_nearest_rank": 173,
+      "max": 198
+    }
+  },
+  "redis_outage": {
+    "detected_including_stop_seconds": 1.312,
+    "readiness": 503,
+    "liveness": 200,
+    "gateway": 503,
+    "recovery_including_start_seconds": 1.297
+  },
+  "restart": {
+    "stop_to_ready_and_request_seconds": 23.203,
+    "exit_code": 143,
+    "oom_killed": false
+  },
+  "rollback": {
+    "replace_to_ready_and_request_seconds": 22.797,
+    "schema": "2",
+    "migration_history_unchanged": true,
+    "limitation": "Distinct image IDs/revision labels with identical app sources; no schema downgrade"
+  },
+  "backup_restore": {
+    "backup_seconds": 0.578,
+    "restore_command_seconds": 0.922,
+    "new_target_to_verified_api_seconds": 28.625,
+    "backup_bytes": 37914,
+    "backup_sha256": "78637dc8c71b125bf9ec79f1ba0940a0a20f46aafb4ba6f083c8125e0f3daf9a",
+    "source_rows": {
+      "projects": {
+        "count": 3,
+        "sha256": "bf41c74c6f549a0307d96ae0ed77bd3af74bac7a759f4b3eca9eaae432a2a084"
+      },
+      "applications": {
+        "count": 3,
+        "sha256": "1ea4ac1f04a525853f90ebb4f615fa7c76277aed49b30de630087fe98a547d66"
+      },
+      "api_keys": {
+        "count": 3,
+        "sha256": "3af4339880ae4724834ebc579b2d91024afda731769d09a69786226b901e741b"
+      },
+      "prompt_versions": {
+        "count": 3,
+        "sha256": "6b36269091f97045ada8e99567e566abd4b1d277d48e96a45eefab591962b949"
+      },
+      "model_routes": {
+        "count": 3,
+        "sha256": "a10383e6dff9e81249d325a6aba778c484c1c42ff8bf13b7d13931e7ca434997"
+      },
+      "gateway_requests": {
+        "count": 24,
+        "sha256": "de235789bd7f65659450f2cecc1656fcc3705d6196d7d2e6033c197bcc888c2f"
+      },
+      "cost_records": {
+        "count": 24,
+        "sha256": "e357188d9cc94f2ffccb55f781e14c42a8570513d54be44572118356bc5e89c7"
+      },
+      "audit_logs": {
+        "count": 3,
+        "sha256": "29cfc4468c5deddfc87d1ab998fc94c728bd18a20825dad162ce25c5a2d0ac04"
+      },
+      "operator_project_grants": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "flyway_schema_history": {
+        "count": 2,
+        "sha256": "ddfc7f00ef9177853fd60372303dabc0e56c5013f9bec36a72564a5a52b891d0"
+      }
+    },
+    "restored_rows": {
+      "projects": {
+        "count": 3,
+        "sha256": "bf41c74c6f549a0307d96ae0ed77bd3af74bac7a759f4b3eca9eaae432a2a084"
+      },
+      "applications": {
+        "count": 3,
+        "sha256": "1ea4ac1f04a525853f90ebb4f615fa7c76277aed49b30de630087fe98a547d66"
+      },
+      "api_keys": {
+        "count": 3,
+        "sha256": "3af4339880ae4724834ebc579b2d91024afda731769d09a69786226b901e741b"
+      },
+      "prompt_versions": {
+        "count": 3,
+        "sha256": "6b36269091f97045ada8e99567e566abd4b1d277d48e96a45eefab591962b949"
+      },
+      "model_routes": {
+        "count": 3,
+        "sha256": "a10383e6dff9e81249d325a6aba778c484c1c42ff8bf13b7d13931e7ca434997"
+      },
+      "gateway_requests": {
+        "count": 24,
+        "sha256": "de235789bd7f65659450f2cecc1656fcc3705d6196d7d2e6033c197bcc888c2f"
+      },
+      "cost_records": {
+        "count": 24,
+        "sha256": "e357188d9cc94f2ffccb55f781e14c42a8570513d54be44572118356bc5e89c7"
+      },
+      "audit_logs": {
+        "count": 3,
+        "sha256": "29cfc4468c5deddfc87d1ab998fc94c728bd18a20825dad162ce25c5a2d0ac04"
+      },
+      "operator_project_grants": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "flyway_schema_history": {
+        "count": 2,
+        "sha256": "ddfc7f00ef9177853fd60372303dabc0e56c5013f9bec36a72564a5a52b891d0"
+      }
+    },
+    "exact_rows_match": true,
+    "restored_api_new_request_persisted": true,
+    "source_database_deleted": false,
+    "rpo_limitation": "Quiesced logical snapshot; no writes during backup, no PITR measurement"
+  },
+  "cleanup": "Owned containers stopped; database volumes retained if created; no database deletion",
+  "estimated_mock_cost_usd": "0.000120",
+  "cost_readback": "Read from the retained quiesced source after the rehearsal; mock estimate, not incurred charges.",
+  "harness_note": "Measured with the Phase 63 working candidate on the recorded app source revision. Subsequent cleanup ownership hardening passed focused unit tests; the successful scenario was not repeated."
+}

@@ -648,8 +648,8 @@ jobs:
         run: |
           python scripts/validate_ci_policy.py
           python -m unittest discover -s scripts/tests -p 'test_*.py' -v
-          python -m ruff check scripts/validate_supply_chain.py scripts/release_eligibility.py scripts/validate_ci_policy.py scripts/tests/test_supply_chain.py scripts/tests/test_release_bundle.py scripts/release_bundle.py scripts/release_plan.py scripts/execute_release.py scripts/check_release_runner.py scripts/validate_release_workflows.py scripts/validate_release_manifests.py scripts/tests/test_release_plan.py scripts/install_validation_tools.py
-          python -m ruff format --check scripts/validate_supply_chain.py scripts/release_eligibility.py scripts/validate_ci_policy.py scripts/tests/test_supply_chain.py scripts/tests/test_release_bundle.py scripts/release_bundle.py scripts/release_plan.py scripts/execute_release.py scripts/check_release_runner.py scripts/validate_release_workflows.py scripts/validate_release_manifests.py scripts/tests/test_release_plan.py scripts/install_validation_tools.py
+          python -m ruff check scripts/validate_supply_chain.py scripts/release_eligibility.py scripts/validate_ci_policy.py scripts/tests/test_supply_chain.py scripts/tests/test_release_bundle.py scripts/release_bundle.py scripts/release_plan.py scripts/execute_release.py scripts/check_release_runner.py scripts/validate_release_workflows.py scripts/validate_release_manifests.py scripts/tests/test_release_plan.py scripts/install_validation_tools.py scripts/rehearse_local_recovery.py scripts/tests/test_local_recovery.py
+          python -m ruff format --check scripts/validate_supply_chain.py scripts/release_eligibility.py scripts/validate_ci_policy.py scripts/tests/test_supply_chain.py scripts/tests/test_release_bundle.py scripts/release_bundle.py scripts/release_plan.py scripts/execute_release.py scripts/check_release_runner.py scripts/validate_release_workflows.py scripts/validate_release_manifests.py scripts/tests/test_release_plan.py scripts/install_validation_tools.py scripts/rehearse_local_recovery.py scripts/tests/test_local_recovery.py
 
   release-eligibility:
     name: Release eligibility

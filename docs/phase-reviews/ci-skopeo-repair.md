@@ -28,10 +28,21 @@ Nine validation jobs passed; image promotion and release eligibility failed.
 
 ## Review and evidence status
 
-Local release archive/release-plan tests, lint, formatting and workflow policy
-checks precede commit. The exact pushed revision must pass the full CI, including
-the actual three-image OCI registry round trip; that result will be recorded
-after readback. No AWS calls or registry authentication changes were made.
+Pushed repair: `a291ad7a7083217aa76b3b2a78eb00b36de076f9`.
+[CI run 34190824931](https://github.com/christiankfoury/production-ai-platform/actions/runs/34190824931)
+passed all 11 jobs, including 280 Java tests with zero skips and the actual
+API/migration/web OCI copy, raw-root digest and pull/config comparisons. The
+downloaded `release-supply-chain-1/manifest.json` confirms the Red Hat executable
+version and zero AWS calls. Full-history evidence reviewed 189 commits, with ten
+previously reviewed synthetic findings and zero unreviewed findings.
+
+Fifteen local archive/release-plan tests, Ruff lint/format, actionlint and both
+workflow policy checks passed. The initial local format check found mixed
+line endings from Windows patching; normalization produced no Git content diff,
+and the committed Linux checkout's formatting passed CI. Post-push review checked
+both entrypoints, immutable pin, retained audit artifact, ECR TLS/auth and digest
+comparisons. No top actionable finding or separate code fix remained.
+No AWS calls or registry authentication changes were made.
 
 This is the independent CI prerequisite repair, not monitoring remediation.
 Phase 62 and its preserved workspace remain blocked/deferred. Phase 63 has not

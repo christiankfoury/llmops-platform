@@ -89,13 +89,25 @@ Budget resources are Terraform code only until an approved `terraform apply` is 
 
 ## App-Level LLM Cost Tracking
 
+The [Phase 63 local rehearsal](local-recovery-rehearsal.md) uses 20 synthetic
+load requests plus a few recovery probes and the mock provider: no paid LLM or
+AWS calls. It verifies durable cost records after restore. Mock estimates are
+demonstration values, not incurred provider charges.
+
+AWS Budgets are **notifications, not hard spending caps**. Request/concurrency
+quotas, bounded retries, maximum replica/node counts and data retention are
+separate controls. Redis outages fail admission closed; restored Redis counters
+may reset. Deployment and teardown still require explicit approval. Phase 65
+refreshes the one-environment estimate and intended running period.
+
 The API already estimates LLM cost per successful gateway request.
 
 Implementation path:
 
-- `apps/api/app/services/pricing.py` defines mock model input/output token prices.
-- `apps/api/app/services/mock_provider.py` estimates input and output token usage.
-- `apps/api/app/services/gateway.py` calculates estimated cost and persists it.
+- Java `gateway/MockPricing.java` defines mock token prices, `MockProvider.java`
+  estimates usage, and `GatewayRecorder.java` persists request/cost records under
+  `apps/api-java/src/main/java/dev/christiankfoury/aiplatform/`.
+- `apps/api` remains the historical Python compatibility reference.
 - `gateway_requests.estimated_cost_usd` stores request-level cost.
 - `cost_records.estimated_cost_usd` stores cost records for usage aggregation.
 - `GET /v1/usage/summary` returns total estimated cost.

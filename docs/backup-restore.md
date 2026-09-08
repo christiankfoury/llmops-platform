@@ -67,7 +67,7 @@ Use this path when data corruption, accidental deletion, failed migration, or da
 5. Keep the restored database private in the same VPC/subnet/security-group posture as the source.
 6. Retrieve the restored database endpoint through AWS-managed outputs or console metadata. Do not print credentials in logs.
 7. Create or update the runtime database secret through the approved secret-management path. Do not commit the secret value.
-8. Run Alembic migrations only if the restored schema is behind the deployed application and the migration is non-destructive.
+8. Use the Java migration image's read-only `verify-schema` command against the restored target. Flyway is the sole migration owner after cutover. If a compatible forward migration is needed, review it and run the separate migration job; never run Alembic on a Flyway-owned database or downgrade its schema.
 9. Point a staging or temporary validation deployment at the restored database.
 10. Validate:
     - API readiness passes
@@ -89,31 +89,22 @@ Approval gates:
 
 ## Local Restore Rehearsal
 
-Local rehearsal exercises the operator flow without touching AWS.
+Use [the Phase 63 rehearsal](local-recovery-rehearsal.md). It creates a unique
+Compose project, uses only the mock gateway and synthetic seeds, stops writes
+before `pg_dump -Fc`, then restores with `pg_restore --exit-on-error --no-owner
+--no-acl` into an empty PostgreSQL service. It never drops, cleans, overwrites or
+attaches to an existing database. Python captures binary dump bytes directly;
+PowerShell text redirection is not used for the custom-format archive.
 
-Start local services, migrate, and seed:
+The restored row counts and stable hashes cover every application table and
+Flyway history. A temporary Java API then proves readiness and a new durable
+gateway write against the recovered database. Both database volumes and stopped
+containers remain available; cleanup or database deletion needs separate approval.
+The dump remains in ignored `.maven-cache/`, contains synthetic fixture data only,
+and must not be committed. Never reuse this script to back up a real database.
 
-```bash
-docker compose up --build
-make api-migrate
-make api-seed
-```
-
-Create a local PostgreSQL dump from the Compose database:
-
-```bash
-docker compose exec postgres pg_dump -U ai_platform -d ai_platform > local-backup.sql
-```
-
-Drop and recreate only a disposable local database, then restore:
-
-```bash
-docker compose exec postgres dropdb -U ai_platform ai_platform_restore --if-exists
-docker compose exec postgres createdb -U ai_platform ai_platform_restore
-docker compose exec -T postgres psql -U ai_platform -d ai_platform_restore < local-backup.sql
-```
-
-Validate by pointing a temporary local connection string at `ai_platform_restore`, running migrations, and checking API readiness. Delete `local-backup.sql` after the rehearsal because dumps can contain application data.
+The measured local timings are not AWS RTO/RPO, PITR or production-SLA evidence.
+Monitoring alert resolution is deferred under Phase 62 and required before Phase 66.
 
 ## Terraform State Recovery
 

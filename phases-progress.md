@@ -16,11 +16,11 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 63: Local resilience recovery and cost rehearsal - In Progress (handoff/plan selected; implementation has not started). Phase 62 is Blocked with vulnerability remediation deferred by the owner. Follow the scoped continuation override in AGENTS.md and the independent acceptance criteria for Phases 63-65 in phases.md. Stop before Phase 66 for AWS setup and approval; monitoring remains a launch blocker.
+Phase 63: Local resilience recovery and cost rehearsal - In Progress (local implementation passed; candidate CI/review pending). Phase 62 is Blocked with vulnerability remediation deferred by the owner. Follow the scoped continuation override in AGENTS.md and the independent acceptance criteria for Phases 63-65 in phases.md. Stop before Phase 66 for AWS setup and approval; monitoring remains a launch blocker.
 
 Handoff (2026-09-08): docs/next-chat-handoff.md records the dirty local Phase 62 prototype, deferred vulnerability backlog and next actions. Phases 1-61 remain historical completion evidence. AWS is the cloud target. Phase 59 removed Ingress writes; its scanner exception remains inactive.
 
-Known CI blocker: documentation commit 4cf7b9a failed CI run 34188573590 because the release promotion rehearsal could not pull the pinned Skopeo image (manifest unknown). Nine jobs passed; the image/promotion job failed and release eligibility failed as a consequence. This is separate from the deferred monitoring vulnerabilities. Repair or validate tool availability without bypassing checks before completing the next implementation phase. See the handoff for the exact digest and evidence.
+CI prerequisite repaired: a291ad7 passed all 11 jobs in CI run 34190824931, including the audited immutable Skopeo image and three-image OCI round trip. See docs/phase-reviews/ci-skopeo-repair.md. Phase 62 remains a separate unresolved monitoring gate.
 
 Portfolio scope decision (2026-09-08): Phases 63-65 are bounded preparation, followed by one approved AWS dev/demo deployment in Phase 66. Separate staging and production deployments (67-68) are Skipped by owner scope decision, not completed; their existing configuration remains statically validated and live AWS behavior unclaimed. After approved Phase 66, the next required phase is 69 with separate publication approval. See docs/portfolio-completion-plan.md. No runtime implementation or AWS action occurred in this planning change.
 
@@ -97,7 +97,7 @@ Portfolio scope decision (2026-09-08): Phases 63-65 are bounded preparation, fol
 | 60 | Java supply chain and CI release eligibility | Completed |
 | 61 | AWS immutable promotion migrations and rollback | Completed | main | 35719e2 | 2026-09-07 | docs/phase-reviews/phase-61.md |
 | 62 | Runnable monitoring stack and supported log collection | Blocked | main | 4cf7b9a | - | Remediation deferred; incomplete, monitoring release blocked. |
-| 63 | Local resilience recovery and cost rehearsal | In Progress | - | - | - | Handoff selected; independent implementation has not started. |
+| 63 | Local resilience recovery and cost rehearsal | In Progress | - | - | - | Local rehearsal passed; candidate mandatory CI and pushed review pending. |
 | 64 | Public repository and isolated demo preparation | Not Started |
 | 65 | AWS launch preflight and approval package | Not Started |
 | 66 | Approved single AWS dev/demo deployment and operational evidence | Not Started |
@@ -378,7 +378,7 @@ Validation hold and handoff:
 
 ### Phase 63: Local resilience recovery and cost rehearsal
 
-Status: In Progress (planning/handoff only)
+Status: In Progress (local implementation passed; candidate CI/review pending)
 
 Implementation plan:
 
@@ -388,6 +388,15 @@ Implementation plan:
 - Record monitoring-dependent alert checks as deferred to Phase 62/pre-Phase 66. Do not use unapproved candidate images, restart custom monitoring rebuilds or claim skipped validation passed.
 - Complete documentation, relevant tests, full required CI, commit/push/review and separate findings fixes; continue independent Phase 64 then Phase 65 preparation automatically.
 - Stop before Phase 66 for AWS setup and approval. A prepared package can have a blocked launch decision; it is not a deployable release while Phase 62 remains unresolved.
+
+Implementation evidence (2026-09-08):
+
+- Isolated checkout preserves the original dirty Phase 62 work. Skopeo repair completed separately with all 11 CI jobs passing.
+- One successful local run: 20/20 requests, zero errors, p95 173 ms; Redis recovery 1.297 s, restart 23.203 s, compatible rollback 22.797 s; no schema downgrade.
+- Fresh PostgreSQL target restored in 0.922 s (command only), 28.625 s including startup and API verification; exact hashes/counts across ten tables, 24 request and 24 cost rows, and a new recovered API write.
+- Synthetic mock estimate USD 0.000120; no AWS or paid-provider calls. Both database volumes retained. Original guard rejected telemetry-only seed routes before load; corrected to inspect the demo app, then the complete rehearsal passed.
+- Existing Java/Redis/PostgreSQL CI and TLS container coverage retained; cleanup ownership negative tests and script lint added. Local evidence is not AWS RTO/RPO; monitoring alert resolution remains deferred under Phase 62/pre-66.
+- Review/evidence: docs/phase-reviews/phase-63.md and phase-63-evidence.json. Candidate commit/push and mandatory CI must pass before completion/Phase 64.
 
 ### Phase 1: Project specification and architecture
 

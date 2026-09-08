@@ -1,5 +1,11 @@
 # Incident Response
 
+Local evidence: [Phase 63's bounded rehearsal](local-recovery-rehearsal.md)
+measures dependency rejection/recovery, restart, compatible image rollback and
+restore into a new PostgreSQL target. These are local synthetic observations,
+not AWS recovery commitments. Monitoring-dependent alert firing/resolution
+remains a Phase 62/pre-Phase 66 blocker while image remediation is deferred.
+
 ## Severity levels
 
 ### SEV1
