@@ -38,6 +38,15 @@ LLM usage cost drivers:
 - failed requests that reach a provider and still consume tokens
 - high-volume client apps or abusive API key usage
 
+## Current portfolio scope (2026-09-08)
+
+The launch preparation now targets **one approved AWS dev/demo environment**.
+Staging and production estimates below are retained historical comparisons for
+optional configurations, not required deployments or an approved spending plan.
+Phase 65 must refresh pricing for the selected single footprint, intended running
+period and separately approved cleanup. No resources or cleanup are authorized
+by this planning update. See [the completion plan](portfolio-completion-plan.md).
+
 ## Environment Cost Estimate
 
 | Environment | Terraform sizing baseline | Monthly estimate | Main cost drivers | Cost posture |

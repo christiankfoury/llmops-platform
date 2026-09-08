@@ -1,5 +1,13 @@
 # Portfolio Demo Plan
 
+Current scope (2026-09-08): prepare a small synthetic screenshot set and one
+concise demo script, then demonstrate one approved AWS dev/demo environment.
+Staging/prod configuration may be shown as code, with live behavior labeled
+untested. Cloud actions, public access and real DNS/TLS are not authorized by this
+plan. The target pitch/bullets below require matching evidence before publication;
+monitoring eligibility and AWS deployment remain pending. Follow the
+[completion plan](portfolio-completion-plan.md).
+
 ## Goal
 
 Show a recruiter or hiring manager that this is a serious production infrastructure project, not just a small AI app.
@@ -32,7 +40,7 @@ The clean demo story: Proofbase shows the enterprise RAG product layer, AgentOps
 8. Show cost/latency/error metrics.
 9. Show CI workflow.
 10. Show Terraform modules.
-11. Show Helm chart values for dev/staging/prod.
+11. Show the dev/demo Helm values and identify staging/prod values as optional configuration with static validation only.
 12. Show Grafana dashboard.
 13. Show Loki logs by request ID.
 14. Show rollback workflow.
@@ -55,9 +63,9 @@ The clean demo story: Proofbase shows the enterprise RAG product layer, AgentOps
 
 ## Final resume bullets
 
-- Built a production-grade LLMOps platform with FastAPI, Next.js, PostgreSQL, Redis, and Kubernetes.
+- Built a production-style LLMOps platform with Java/Spring Boot, Next.js, PostgreSQL, Redis, and Kubernetes.
 - Provisioned AWS infrastructure with Terraform, including EKS, ECR, RDS PostgreSQL, Redis, IAM, and secret references.
-- Implemented Helm-based deployments across dev, staging, and prod with GitHub Actions CI/CD and rollback workflows.
+- Demonstrated an approved AWS dev/demo release and rollback through Helm and GitHub Actions; retained optional staging/prod configuration with static validation.
 - Added observability with OpenTelemetry traces, Prometheus metrics, Grafana dashboards, and Loki structured logs.
 - Implemented API key auth, prompt versioning, model routing, request logging, latency tracking, error tracking, and estimated LLM cost monitoring.
 - Documented incident response, backup/restore, security baseline, and cloud cost controls.

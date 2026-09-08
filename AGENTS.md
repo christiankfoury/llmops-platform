@@ -47,7 +47,9 @@ When implementing the AgentOps Workflow Platform integration:
 
 By the end of the project, the repository should credibly support this claim:
 
-> Built a production-grade AI platform on AWS using Kubernetes, Terraform, Helm, GitHub Actions, Prometheus, Grafana, Loki, OpenTelemetry, managed PostgreSQL, Redis, external secret management, staged deployments, rollback workflows, request tracing, cost monitoring, and reliability runbooks.
+> Built and demonstrated a production-style LLMOps platform in one AWS dev/demo environment using Java, Kubernetes, Terraform, Helm, GitHub Actions, Prometheus, Grafana, Loki, OpenTelemetry, managed PostgreSQL, Redis, external secrets, request tracing, cost monitoring, and tested release/rollback and local backup/restore procedures.
+
+Use this target claim only after the approved AWS demonstration and its evidence exist. Staging/production configurations are optional, statically validated designs unless separately deployed and tested.
 
 ## Default technical choices
 
@@ -233,6 +235,37 @@ This scoped override takes precedence over the normal sequential/blocker rules:
   Phase 62 working tree. Use an isolated checkout from main for independent work
   where practical; do not discard, automatically commit or adopt the prototype,
   custom images or rebuild recipes as part of another phase.
+
+### Portfolio completion scope (owner direction, 2026-09-08)
+
+Use `docs/portfolio-completion-plan.md` and the revised phase criteria to keep the
+remaining work bounded. Demonstrate each important capability, retain evidence
+and document limitations. Do not expand the remaining phases into an open-ended
+security, benchmarking or third-party distribution maintenance project.
+
+- Phase 63: one repeatable local rehearsal covering a short synthetic load sample,
+  one dependency outage/recovery, restart/compatible rollback and PostgreSQL
+  backup/restore into a new disposable target. Reuse existing tests and runbooks.
+- Phase 64: focused secret/security and honest-claims review, current mandatory
+  scan evidence, a small synthetic screenshot set and one concise demo script.
+  Keep known monitoring vulnerabilities deferred; do not restart custom rebuilds.
+- Phase 65: one practical AWS dev/demo setup checklist, current cost estimate,
+  explicit missing inputs, deployment/rollback steps and a gated cleanup plan.
+- Phase 66: one approved AWS dev/demo deployment and bounded operational evidence.
+  No second staging environment or separate production deployment is required.
+  Public access and real DNS/TLS still need their existing explicit approval.
+- Phases 67 and 68 are **Skipped by owner scope decision**, retained as optional
+  future work. Preserve existing staging/prod Terraform, Helm and workflow code
+  with applicable static checks; label it untested in AWS unless evidence exists.
+  Do not re-enable these phases automatically or claim they were completed.
+- After approved Phase 66 completion, the next required phase is 69, which retains
+  its separate publication/license approval. Required-scope completion excludes
+  owner-skipped optional phases, but never excludes the unresolved Phase 62 gate.
+
+All existing authentication, least-privilege, secret, vulnerability, integration
+and CI requirements remain. This is a scope reduction, not deployment approval or
+permission to weaken checks. The Phase 62 deferral and Phase 66 approval boundary
+above still apply. A prepared launch package can remain blocked.
 
 ### Efficient autonomous execution
 

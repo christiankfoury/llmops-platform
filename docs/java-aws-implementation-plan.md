@@ -8,6 +8,21 @@ The user selected Java Spring Boot and retained AWS. EKS, ECR, RDS PostgreSQL, E
 
 Phases 1-47 are the historical Python/infrastructure baseline. Their completion does not assert that Java is implemented or AWS resources are running. New phases 48-69 distinguish implementation, local validation, cloud validation, and publication.
 
+## Portfolio completion scope (2026-09-08)
+
+The owner selected a bounded portfolio finish: one local resilience/restore
+rehearsal, focused security/demo preparation, one practical setup/cost checklist,
+and one approved AWS dev/demo deployment. Separate staging and production
+installations are optional future work (Phases 67-68 are Skipped), with existing
+configuration preserved and live behavior explicitly untested. After approved
+Phase 66, the next required phase is 69 with its separate publication/license
+approval. See [the completion plan](portfolio-completion-plan.md).
+
+The Phase 62 monitoring gate and all required CI/approval gates remain unchanged.
+No custom monitoring rebuilds resume automatically. A prepared launch package
+may still be blocked. The final story demonstrates capabilities and measured
+limits; it does not assert a production SLA or multiple deployed environments.
+
 ## Implementation design
 
 - Use Java 21, Spring Boot MVC, Maven Wrapper, Jakarta Validation, Spring Data JPA/Hibernate, PostgreSQL, and Flyway. Pin the supported Spring Boot patch and build tooling in Phase 50 after checking available artifacts. Java 21 is installed locally; Spring documents supported Java/build combinations in its [system requirements](https://docs.spring.io/spring-boot/system-requirements.html).
@@ -47,9 +62,9 @@ Phases 1-47 are the historical Python/infrastructure baseline. Their completion 
 | 63 | Local resilience recovery and cost rehearsal |
 | 64 | Public repository and isolated demo preparation |
 | 65 | AWS launch preflight and approval package |
-| 66 | Approved AWS dev deployment and operational evidence |
-| 67 | Approved staging promotion and recovery exercise |
-| 68 | Approved production or public demo launch |
+| 66 | Approved single AWS dev/demo deployment and operational evidence |
+| 67 | Optional staging promotion/recovery — Skipped for this release |
+| 68 | Optional separate production launch — Skipped for this release |
 | 69 | Approved public repository release and closeout |
 
 Detailed deliverables and acceptance criteria are authoritative in [phases.md](../phases.md); execution status is in [phases-progress.md](../phases-progress.md).
@@ -78,4 +93,4 @@ A missing local tool should be resolved using a pinned/verifiable workspace tool
 
 ## Definition of success
 
-A clean checkout can build and run the Java API and dashboard, securely receive gateway/Proofbase/AgentOps requests, and deploy through reproducible AWS workflows. The portfolio shows a verified change moving through CI, identity, deployment, telemetry, an actionable alert, rollback, and tested recovery, with real costs and validation limitations visible.
+A clean checkout can build and run the Java API and dashboard, securely receive gateway/Proofbase/AgentOps requests, and support one approved AWS dev/demo deployment through reproducible workflows. The portfolio demonstrates CI, identity, deployment, telemetry, an actionable alert, compatible rollback and a tested local backup/restore. Record real costs and distinguish local evidence, live dev/demo evidence and statically validated optional staging/production configuration. No production SLA or customer workload is claimed.

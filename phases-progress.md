@@ -22,6 +22,8 @@ Handoff (2026-09-08): docs/next-chat-handoff.md records the dirty local Phase 62
 
 Known CI blocker: documentation commit 4cf7b9a failed CI run 34188573590 because the release promotion rehearsal could not pull the pinned Skopeo image (manifest unknown). Nine jobs passed; the image/promotion job failed and release eligibility failed as a consequence. This is separate from the deferred monitoring vulnerabilities. Repair or validate tool availability without bypassing checks before completing the next implementation phase. See the handoff for the exact digest and evidence.
 
+Portfolio scope decision (2026-09-08): Phases 63-65 are bounded preparation, followed by one approved AWS dev/demo deployment in Phase 66. Separate staging and production deployments (67-68) are Skipped by owner scope decision, not completed; their existing configuration remains statically validated and live AWS behavior unclaimed. After approved Phase 66, the next required phase is 69 with separate publication approval. See docs/portfolio-completion-plan.md. No runtime implementation or AWS action occurred in this planning change.
+
 ## Phase table
 
 | Phase | Title | Status | Pushed To | Commit | Completed Date | Notes |
@@ -98,9 +100,9 @@ Known CI blocker: documentation commit 4cf7b9a failed CI run 34188573590 because
 | 63 | Local resilience recovery and cost rehearsal | In Progress | - | - | - | Handoff selected; independent implementation has not started. |
 | 64 | Public repository and isolated demo preparation | Not Started |
 | 65 | AWS launch preflight and approval package | Not Started |
-| 66 | Approved AWS dev deployment and operational evidence | Not Started |
-| 67 | Approved staging promotion and recovery exercise | Not Started |
-| 68 | Approved production or public demo launch | Not Started |
+| 66 | Approved single AWS dev/demo deployment and operational evidence | Not Started |
+| 67 | Optional staging promotion and recovery exercise | Skipped | - | - | - | Owner removed from required portfolio scope on 2026-09-08; no live validation claimed. |
+| 68 | Optional separate production launch | Skipped | - | - | - | Owner removed from required portfolio scope on 2026-09-08; no production deployment claimed. |
 | 69 | Approved public repository release and closeout | Not Started |
 
 ### Phase 48: Java conversion and AWS release roadmap
@@ -382,7 +384,7 @@ Implementation plan:
 
 - Read docs/next-chat-handoff.md and preserve the dirty Phase 62 prototype; use an isolated checkout for independent work where practical.
 - Resolve the pinned Skopeo availability failure from CI 34188573590 in a separate focused follow-up; retain OCI digest preservation and all required CI gates.
-- Exercise disposable Java/PostgreSQL/Redis load, outages, restart, compatible rollback and backup/restore; record actual latency/error/recovery/record-count evidence.
+- Run one bounded disposable Java/PostgreSQL/Redis rehearsal: short synthetic load, one Redis outage/recovery, API restart/compatible rollback and one PostgreSQL backup/restore into a new target. Record actual latency/error/recovery/record-count evidence; reuse existing tests and stop expanding after acceptance passes.
 - Record monitoring-dependent alert checks as deferred to Phase 62/pre-Phase 66. Do not use unapproved candidate images, restart custom monitoring rebuilds or claim skipped validation passed.
 - Complete documentation, relevant tests, full required CI, commit/push/review and separate findings fixes; continue independent Phase 64 then Phase 65 preparation automatically.
 - Stop before Phase 66 for AWS setup and approval. A prepared package can have a blocked launch decision; it is not a deployable release while Phase 62 remains unresolved.

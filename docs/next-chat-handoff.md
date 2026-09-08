@@ -1,17 +1,18 @@
-# Continuation handoff — 2026-09-08
+# Continuation handoff - 2026-09-08
 
 ## Start here
 
 Work in `S:\github-repos\production-ai-platform`. Read `AGENTS.md`,
 `PROJECT_SPEC.md`, `phases.md`, `phases-progress.md`,
 `docs/java-aws-implementation-plan.md`, this file and
-`docs/security/monitoring-vulnerability-backlog.md` first.
+`docs/security/monitoring-vulnerability-backlog.md` and
+`docs/portfolio-completion-plan.md` first.
 
 Phases 1-61 are completed. Phase 62 is **Blocked**, incomplete, with monitoring
 vulnerability fixes/custom rebuilds deferred at the owner's request. Phase 63 is
 selected as **In Progress for planning/handoff**; its implementation has not
 started. Continue the independent revised scopes of 63, then 64, then 65. Stop
-before Phase 66 for AWS setup and explicit approval. AGENTS.md contains the scoped
+before Phase 66 for AWS setup and explicit approval of one dev/demo environment. AGENTS.md contains the scoped
 exception to the ordinary sequential phase loop; all other rules still apply.
 
 ## Remaining phases
@@ -19,13 +20,18 @@ exception to the ordinary sequential phase loop; all other rules still apply.
 | Phase | Remaining outcome / boundary |
 |---|---|
 | 62 | Runnable monitoring finalization; vulnerabilities, final image compatibility/delivery and monitoring CI remain deferred launch blockers |
-| 63 | Disposable local Java/PostgreSQL/Redis load, outages, restart/rollback and backup/restore evidence; monitoring-dependent checks remain with 62 |
-| 64 | Independent security/publication review, isolated synthetic demo assets and honest claims; carry unresolved monitoring/license/publication decisions |
-| 65 | Concrete AWS launch preparation, costs, access prerequisites and a launch decision that stays blocked while prerequisites are unresolved |
-| 66 | AWS dev installation and operational evidence, only after 62/current CI/security eligibility, AWS setup and approval |
-| 67 | Separately approved staging promotion and recovery |
-| 68 | Separately approved production/public-demo launch and real DNS/TLS changes |
-| 69 | Separately approved public repository release, license and closeout |
+| 63 | One bounded local load/outage/restart/rollback/backup-restore rehearsal; monitoring-dependent checks remain with 62 |
+| 64 | Focused security/secret review, small synthetic screenshot set, concise demo script and honest README; carry unresolved decisions |
+| 65 | Practical checklist and cost estimate for one AWS dev/demo footprint; launch stays blocked while prerequisites are unresolved |
+| 66 | One AWS dev/demo deployment with a bounded release/monitoring/rollback demonstration, after eligibility and approval |
+| 67 | Skipped: separate staging deployment is optional future work |
+| 68 | Skipped: separate production deployment is optional future work |
+| 69 | Separately approved repository release/license/closeout after required single-environment evidence; 67-68 are not prerequisites |
+
+Bound the remaining work to the completion plan. Preserve staging/prod code and
+static checks, but do not create those environments or claim live validation.
+Phase 66 can be an approved private demo; public exposure/real DNS/TLS remains a
+separate approval. No deployments or cleanup are authorized by this scope change.
 
 ## First engineering action: existing CI failure
 
@@ -39,6 +45,10 @@ production image job. The runner could not pull:
 quay.io/skopeo/stable@sha256:e5d9c4af8ec327785c7ca938d1e4f8452c6a05014850e58e2ff9456899ebd97c
 manifest unknown
 ```
+
+The subsequent handoff commit `513758a` also failed CI run `34189266499`
+with the same Skopeo manifest error (nine jobs passed; image/promotion and
+release eligibility failed). Check the latest run before acting.
 
 Release eligibility then correctly failed. Java, Python, frontend, repository
 vulnerability scan, history secret scan, infrastructure, TGB and policy checks

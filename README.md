@@ -30,7 +30,14 @@ AgentOps Workflow Platform is connected as the second telemetry client path: Age
 
 ## Target Portfolio Claim
 
-> Built a production-grade AI platform on AWS using Kubernetes, Terraform, Helm, GitHub Actions, Prometheus, Grafana, Loki, OpenTelemetry, managed PostgreSQL, Redis, external secret management, staged deployments, rollback workflows, request tracing, cost monitoring, and reliability runbooks.
+> Built and demonstrated a production-style LLMOps platform in one AWS dev/demo environment using Java, Kubernetes, Terraform, Helm, GitHub Actions, Prometheus, Grafana, Loki, OpenTelemetry, managed PostgreSQL, Redis, external secrets, request tracing, cost monitoring, and tested release/rollback and local backup/restore procedures.
+
+Use this target claim only after the approved AWS demonstration and its evidence exist. Staging/production configurations are optional, statically validated designs unless separately deployed and tested.
+
+Portfolio completion scope (2026-09-08): one approved AWS dev/demo deployment.
+Separate staging and production deployments are optional future work; their code
+and static validation remain available. Monitoring image eligibility is still
+blocked and AWS is not yet deployed. See the [completion plan](docs/portfolio-completion-plan.md).
 
 ## What Is Implemented
 

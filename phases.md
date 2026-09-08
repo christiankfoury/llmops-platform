@@ -1476,7 +1476,7 @@ historical alert evidence with its date and image limitations.
 
 Deliverables:
 
-- Exercise disposable local load, dependency outages, restart/rolling release, compatible rollback, and PostgreSQL backup/restore. Add reproducible evidence and response runbooks; refresh AWS sizing assumptions.
+- Deliver one repeatable, bounded local rehearsal: a short synthetic load sample, one Redis dependency outage/recovery, one API restart and compatible rollback, and one PostgreSQL backup restored into a new disposable target. Reuse existing tests/runbooks and record latency, error/recovery behavior and recovered rows. Further experiments require a concrete failed check or unresolved finding; no capacity benchmark campaign is required.
 
 Relevant files:
 
@@ -1497,7 +1497,7 @@ monitoring release or live AWS installation.
 
 Deliverables:
 
-- Run a full-history secret review and dependency/security audit, prepare a license choice, security reporting/contribution guidance, synthetic demo screenshots/video instructions, draft release notes, and honest README claims.
+- Complete one focused review of secret handling, authentication/project boundaries, IAM/RBAC and network exposure, using existing tests and current mandatory CI/security evidence. Keep the full-history secret check and dependency scan; defer the known monitoring fixes. Prepare an accurate README, a small synthetic screenshot set, one concise demo script, short release notes and the license/publication decision record. Reuse existing guidance instead of creating a broader audit program.
 
 Relevant files:
 
@@ -1518,7 +1518,7 @@ items together. Phase 62 and successful current CI remain deployment prerequisit
 
 Deliverables:
 
-- Prepare the concrete dev launch package: validated Terraform/Helm artifacts, current cost estimate, region/quota/access requirements, state/secret/bootstrap inputs, runner connectivity, monitoring/backup plan, and rollback commands.
+- Prepare one practical AWS dev/demo launch checklist: validated artifacts, region/account/quota/access and runner requirements, state/secret/bootstrap inputs, current costs for this single footprint, intended running period, monitoring/backup/rollback steps and a cleanup plan whose execution requires separate approval. Do not budget or provision staging/prod as part of this release.
 
 Relevant files:
 
@@ -1529,11 +1529,11 @@ Acceptance criteria:
 - All independent local preparation checks pass. Record Phase 62 monitoring-dependent checks and image eligibility as unresolved launch prerequisites; do not waive or report them as passed. Record missing AWS account/domain inputs without inventing values. Any authenticated plan remains read-only and uses safe state handling. Present a specific resource/cost/change package for approval before apply, real secrets, or DNS/TLS mutation.
 - Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
 
-## Phase 66: Approved AWS dev deployment and operational evidence
+## Phase 66: Approved single AWS dev/demo deployment and operational evidence
 
 Deliverables:
 
-- Only after Phase 62 security/compatibility completion, successful current required CI, explicit approval and required access, bootstrap AWS dev, install operators/monitoring, deploy the Java release, and run functional smoke and controlled operational checks.
+- Only after Phase 62 security/compatibility completion, successful current required CI, explicit approval and required access, bootstrap one AWS dev/demo environment, install operators/monitoring and deploy the Java release. Demonstrate a gateway/telemetry request, protected dashboard access, searchable logs/traces, a fired/resolved alert and compatible release/rollback. Use the local backup/restore evidence from Phase 63 and verify cloud backup configuration; a separate cloud recovery exercise is optional.
 
 Relevant files:
 
@@ -1541,44 +1541,40 @@ Relevant files:
 
 Acceptance criteria:
 
-- Real EKS deployment, scoped OIDC, secret synchronization, HTTPS, gateway/telemetry/auth, dashboards/traces, backup, and rollback are verified. Record actual cloud evidence and cost; do not claim production readiness from static checks.
+- Record the exact release and actual EKS/OIDC/secret synchronization, gateway/telemetry/auth, dashboards/logs/traces/alerts, backup configuration and rollback evidence for this one environment. Use a bounded synthetic workload and record actual cost and limitations. Public access or real-domain HTTPS requires explicit DNS/TLS/exposure approval; an approved private demonstration is sufficient. Do not claim HA, production SLA or tested staging/prod operation. After this phase, proceed to Phase 69 only with its publication approval; Phases 67-68 are optional and skipped.
 - Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
 
-## Phase 67: Approved staging promotion and recovery exercise
+## Phase 67: Optional staging promotion and recovery exercise
 
-Deliverables:
+Status: **Skipped for the current portfolio release by owner decision (2026-09-08).**
+Retained as optional future work; it is not a prerequisite for Phase 69 and must
+not restart automatically. Preserve the existing staging configuration and static
+checks; no staging AWS deployment or recovery success is claimed.
 
-- After environment-specific approval, promote the same verified image digest to staging and rehearse recovery and migration compatibility.
+If the owner later reactivates this phase, define a bounded scope and obtain
+separate environment/cost/access approval before promotion or recovery actions.
+The original intended outcome was promotion of the same verified image digest to
+isolated staging, with authorization/rollback/migration and optional cloud restore
+evidence. Existing security, data-loss and cloud approval gates would still apply.
 
-Relevant files:
+## Phase 68: Optional separate production launch
 
-- AWS staging environment, docs/backup-restore.md, docs/deployment.md
+Status: **Skipped for the current portfolio release by owner decision (2026-09-08).**
+The single approved dev/demo deployment in Phase 66 satisfies the cloud portfolio
+milestone. A second production environment is optional future work and is not a
+prerequisite for Phase 69. Preserve existing production configuration and static
+checks; no customer-production, availability or live production claim is made.
 
-Acceptance criteria:
-
-- Staging uses separate secrets and data, passes authorization/load checks, demonstrates safe rollback and a restore into a new approved target, and records measured RTO/RPO and residual risks.
-- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
-
-## Phase 68: Approved production or public demo launch
-
-Deliverables:
-
-- Obtain explicit approval for the selected production/public-demo footprint and real DNS/TLS changes, then release through protected workflows.
-
-Relevant files:
-
-- AWS approved environment, docs/incident-response.md, docs/deployment.md
-
-Acceptance criteria:
-
-- Only an approved digest is released; operator access and synthetic demo boundaries work; spending limits/alerts and monitoring owners are configured; post-launch checks and rollback readiness are recorded. Public demo does not imply customer-production approval.
-- Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
+If later reactivated, require a fresh explicit footprint/cost/production approval
+and any real DNS/TLS approval before action. Define operational ownership,
+security eligibility and bounded post-launch/rollback checks then. Do not infer
+production permission from approval of the portfolio dev/demo environment.
 
 ## Phase 69: Approved public repository release and closeout
 
 Deliverables:
 
-- After explicit publication authorization, finalize the chosen license and sanitized portfolio assets, publish the verified release, and change repository visibility if requested.
+- After the required single-environment portfolio evidence and explicit publication authorization, finalize the chosen license and sanitized assets, publish the verified release, and change repository visibility only if requested. Phases 67-68 remain owner-skipped optional work; do not require or claim their completion.
 
 Relevant files:
 
@@ -1586,5 +1582,5 @@ Relevant files:
 
 Acceptance criteria:
 
-- History/security review is current, released code matches successful CI, claims match measured evidence, no secrets/customer data are public, and all implemented phases have pushed commits and completed reviews. Optional provider work is clearly separate.
+- History/security review is current, released code matches successful CI, claims match measured evidence, no secrets/customer data are public, and all implemented required phases have pushed commits and completed reviews. Phase 62 must be resolved for monitoring release eligibility; skipped optional staging/production phases are explicitly labeled. Optional provider work is clearly separate.
 - Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.

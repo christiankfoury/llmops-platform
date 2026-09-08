@@ -4,7 +4,7 @@
 
 ## One-line description
 
-A production-grade AI platform that exposes an LLM gateway API and usage dashboard, deployed with serious DevOps/cloud practices: Terraform, Kubernetes, Helm, CI/CD, observability, secrets, rollback, reliability runbooks, and cost controls.
+A production-style LLMOps portfolio project with an LLM gateway and usage dashboard, demonstrating Terraform, Kubernetes, Helm, CI/CD, observability, secrets, rollback, backup/restore and cost controls in one approved AWS dev/demo environment.
 
 ## Why this project exists
 
@@ -16,6 +16,13 @@ vulnerability remediation deferred. The owner-selected continuation is independe
 Phases 63-65 preparation under the scoped AGENTS.md override, then the Phase 66
 AWS setup/approval gate. This does not remove runnable monitoring from the product
 or grant deployment eligibility. See [the handoff](docs/next-chat-handoff.md).
+
+Completion scope (owner direction, 2026-09-08): bounded local verification,
+focused security/demo preparation and one approved AWS dev/demo deployment.
+Separate staging and production deployments are optional future work; their
+existing configuration remains available for static review. No production SLA,
+customer workload or multi-environment AWS operating claim is implied. See the
+[portfolio completion plan](docs/portfolio-completion-plan.md).
 
 This project is designed as a portfolio piece for DevOps/cloud, backend, full-stack, and AI engineering roles.
 
@@ -61,7 +68,9 @@ Recruiters and hiring managers for:
 
 ## Final portfolio claim
 
-> Built a production-grade AI platform on AWS using Kubernetes, Terraform, Helm, GitHub Actions, Prometheus, Grafana, Loki, OpenTelemetry, managed PostgreSQL, Redis, external secret management, staged deployments, rollback workflows, request tracing, cost monitoring, and reliability runbooks.
+> Built and demonstrated a production-style LLMOps platform in one AWS dev/demo environment using Java, Kubernetes, Terraform, Helm, GitHub Actions, Prometheus, Grafana, Loki, OpenTelemetry, managed PostgreSQL, Redis, external secrets, request tracing, cost monitoring, and tested release/rollback and local backup/restore procedures.
+
+Use this target claim only after the approved AWS demonstration and its evidence exist. Staging/production configurations are optional, statically validated designs unless separately deployed and tested.
 
 ## Product concept
 
@@ -83,7 +92,7 @@ The gateway centralizes:
 
 ### Platform operator
 
-As a platform operator, I want to deploy the AI gateway across dev, staging, and prod environments so that teams can use a consistent LLM access layer.
+As a platform operator, I want to demonstrate a controlled release, monitoring and rollback in one AWS dev/demo environment, with reusable staging/prod configurations available as optional future work.
 
 ### Application developer
 
@@ -225,6 +234,11 @@ The detailed Phase 31 contract is documented in `docs/external-telemetry-contrac
 
 ## Infrastructure goals
 
+Current release scope: local development plus one approved AWS dev/demo
+environment. Staging and production goals below describe optional designs, not
+required live deployments. Existing configuration still receives applicable
+static validation; do not represent those environments as tested in AWS.
+
 ### Local
 
 Local environment should run with:
@@ -240,23 +254,23 @@ Local environment should run with:
 
 Dev environment should:
 
-- deploy automatically from main
+- deploy a verified main revision through approved release workflows
 - use smaller infrastructure
 - allow fast iteration
 - use separate secrets and namespace
 
-### Staging
+### Staging (optional future deployment)
 
-Staging environment should:
+If separately selected and approved, staging should:
 
 - mirror production closely
 - deploy manually
 - be used for release validation
 - have realistic observability
 
-### Prod
+### Prod (optional future deployment)
 
-Production environment should:
+If separately selected and approved, production should:
 
 - require approval
 - use conservative scaling defaults
