@@ -13,8 +13,10 @@ additional source-lock/plugin findings, and local passing candidates. The
 The local monitoring prototype has working integration evidence. The final secure
 image set, immutable delivery, required monitoring CI and deployment validation
 are incomplete. Runtime and custom-build changes remain local workspace work;
-this documentation does not adopt or publish them. Phase 62 is not completed,
-and Phase 63 has not started.
+this documentation does not adopt or publish them. Phase 62 is Blocked and not
+completed. Phase 63 is selected for independent continuation (implementation not
+yet started), followed by Phases 64-65 preparation under the scoped AGENTS.md
+override. See [the next-chat handoff](next-chat-handoff.md).
 
 No scanner exception, risk acceptance for deployment, cloud installation, security
 policy change or approval bypass is authorized by the decision to defer fixes.

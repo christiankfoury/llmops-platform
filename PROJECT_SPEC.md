@@ -10,6 +10,13 @@ A production-grade AI platform that exposes an LLM gateway API and usage dashboa
 
 Active implementation direction (2026-09-06): convert the existing FastAPI backend to Java 21/Spring Boot while retaining AWS, PostgreSQL, the Next.js dashboard, and both telemetry client contracts. The Python runtime remains the reference until compatibility, authorization, and container cutover are validated. Phases 48-69 add the Java conversion, remaining access controls/reliability, AWS release validation, running monitoring, recovery evidence, and gated public release. See [the Java/AWS implementation plan](docs/java-aws-implementation-plan.md). Completed historical phases do not imply live AWS deployment or completion of this new sequence.
 
+Continuation status (2026-09-08): Java conversion/cutover and release preparation
+through Phase 61 are completed. Phase 62 monitoring remains incomplete with
+vulnerability remediation deferred. The owner-selected continuation is independent
+Phases 63-65 preparation under the scoped AGENTS.md override, then the Phase 66
+AWS setup/approval gate. This does not remove runnable monitoring from the product
+or grant deployment eligibility. See [the handoff](docs/next-chat-handoff.md).
+
 This project is designed as a portfolio piece for DevOps/cloud, backend, full-stack, and AI engineering roles.
 
 The application is intentionally simple but realistic. The infrastructure around it is the main showcase.

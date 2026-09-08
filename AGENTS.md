@@ -208,6 +208,32 @@ For each phase:
 
 Do not wait for human approval between normal app, code, documentation, local Docker, CI, test, Helm template, or static validation phases.
 
+### Owner continuation override: deferred Phase 62 (2026-09-08)
+
+The owner deferred monitoring vulnerability fixes and custom third-party rebuilds
+and requested continuation of the remaining implementation toward AWS setup.
+This scoped override takes precedence over the normal sequential/blocker rules:
+
+- Keep Phase 62 **Blocked**, incomplete and not release-eligible. Preserve the
+  runnable monitoring deliverable, local prototype and vulnerability backlog;
+  do not automatically restart its fixes or rebuilds, suppress findings, or
+  interpret deferral as deployment risk acceptance.
+- Select Phase 63 as the active continuation, then proceed through the independent
+  preparation scopes of Phases 64 and 65. Their revised acceptance criteria in
+  `phases.md` explicitly carry monitoring-dependent checks into the Phase 62 /
+  pre-Phase 66 blocker list. Unexecuted checks never count as passes.
+- Finish the phase commit/push/review loop and all mandatory CI for each completed
+  preparation phase. Repair ordinary CI/tool availability failures separately;
+  those are not covered by the monitoring vulnerability deferral.
+- Phase 65 may finish an honest launch preparation package with a **blocked launch
+  decision**. It cannot declare deployment readiness while Phase 62 or required
+  CI remains unresolved. Stop before Phase 66 for AWS setup and explicit approval;
+  all other existing approval gates still apply earlier when encountered.
+- Read `docs/next-chat-handoff.md` before continuation. Preserve the existing dirty
+  Phase 62 working tree. Use an isolated checkout from main for independent work
+  where practical; do not discard, automatically commit or adopt the prototype,
+  custom images or rebuild recipes as part of another phase.
+
 ### Efficient autonomous execution
 
 Continue to the next phase automatically after completion and review. Do not pause

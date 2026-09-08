@@ -1,6 +1,6 @@
 # Java Spring Boot conversion and AWS public release
 
-Decision date: 2026-09-06. Status: Active roadmap; implementation begins with Phase 49 after the Phase 48 planning commit is pushed and reviewed.
+Decision date: 2026-09-06. Continuation updated: 2026-09-08. Phases 48-61 are completed; Phase 62 is blocked/deferred. Phase 63 is selected for independent continuation, followed by preparation Phases 64-65 and the Phase 66 AWS approval gate.
 
 ## Approved direction
 
@@ -55,6 +55,14 @@ Phases 1-47 are the historical Python/infrastructure baseline. Their completion 
 Detailed deliverables and acceptance criteria are authoritative in [phases.md](../phases.md); execution status is in [phases-progress.md](../phases-progress.md).
 
 ## Execution and review
+
+Owner continuation direction (2026-09-08): follow the explicit Phase 62 deferral
+override in AGENTS.md. Continue the revised independent scopes of Phases 63-65;
+keep monitoring-dependent evidence and image eligibility unresolved under Phase
+62 and as pre-Phase 66 prerequisites. A complete Phase 65 preparation package may
+record a blocked launch decision. No security gate, required CI, publication or
+AWS approval is waived. Read [the next-chat handoff](next-chat-handoff.md), including
+the separate Skopeo CI availability failure and preserved dirty prototype.
 
 For each phase: reread AGENTS.md/spec/roadmap/progress; write the implementation plan; implement only that phase; run relevant checks and fix issues; update evidence and progress; create a detailed conventional commit; push main without bypassing protections; review the pushed diff; fix each top finding in a separate validated/pushed commit; record the prescribed phase review; advance automatically until a genuine blocker or approval gate.
 

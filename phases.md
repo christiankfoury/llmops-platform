@@ -1468,6 +1468,12 @@ Acceptance criteria:
 
 ## Phase 63: Local resilience recovery and cost rehearsal
 
+Continuation scope (owner direction, 2026-09-08): proceed with the independent
+Java/PostgreSQL/Redis local rehearsal while Phase 62 is blocked. Do not build or
+adopt the deferred monitoring images. Live monitoring-dependent alert-resolution
+checks remain tracked under Phase 62 and required before Phase 66; retain the
+historical alert evidence with its date and image limitations.
+
 Deliverables:
 
 - Exercise disposable local load, dependency outages, restart/rolling release, compatible rollback, and PostgreSQL backup/restore. Add reproducible evidence and response runbooks; refresh AWS sizing assumptions.
@@ -1478,10 +1484,16 @@ Relevant files:
 
 Acceptance criteria:
 
-- Record measured local latency/error behavior, alert resolution, restore time and recovered records; mark local evidence distinctly from AWS RTO/RPO. No existing database is deleted. Budgets are documented as alerts, with quotas/retention/scaling as separate controls.
+- Record measured local latency/error behavior, outage/restart/rollback behavior, restore time and recovered records using disposable Java/PostgreSQL/Redis services. Record monitoring-dependent alert validation as deferred to Phase 62/pre-Phase 66, never passed or silently skipped. Mark local evidence distinctly from AWS RTO/RPO. No existing database is deleted. Budgets are documented as alerts, with quotas/retention/scaling as separate controls.
 - Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
 
 ## Phase 64: Public repository and isolated demo preparation
+
+Continuation scope (2026-09-08): complete independent security/publication review
+and synthetic demo preparation. Carry the known monitoring backlog forward as an
+unresolved release/publication blocker without restarting its fixes. Screenshots
+and claims must identify the exact tested prototype; do not imply a secure final
+monitoring release or live AWS installation.
 
 Deliverables:
 
@@ -1493,10 +1505,16 @@ Relevant files:
 
 Acceptance criteria:
 
-- Resolve publication blockers and record remaining decisions; choose the license with the owner before release. Demo data is isolated, admin writes are protected, paid provider calls remain disabled, and no customer telemetry is exposed. Do not change repository visibility or publish a release in this phase.
+- Resolve independent publication blockers and record remaining decisions, including the deferred monitoring release blocker; choose the license with the owner before release. Demo data is isolated, admin writes are protected, paid provider calls remain disabled, and no customer telemetry is exposed. Do not change repository visibility or publish a release in this phase.
 - Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
 
 ## Phase 65: AWS launch preflight and approval package
+
+Continuation scope (2026-09-08): complete launch preparation and the decision
+record, even when the decision is **blocked pending Phase 62 and AWS setup**.
+Completion of preparation is not permission or readiness to launch. Stop before
+Phase 66 and present the outstanding dependency/security, account/access and cost
+items together. Phase 62 and successful current CI remain deployment prerequisites.
 
 Deliverables:
 
@@ -1508,14 +1526,14 @@ Relevant files:
 
 Acceptance criteria:
 
-- All locally executable checks pass. Record missing subscription/account/domain inputs without inventing values. Any authenticated plan remains read-only and uses safe state handling. Present a specific resource/cost/change package for approval before apply, real secrets, or DNS/TLS mutation.
+- All independent local preparation checks pass. Record Phase 62 monitoring-dependent checks and image eligibility as unresolved launch prerequisites; do not waive or report them as passed. Record missing AWS account/domain inputs without inventing values. Any authenticated plan remains read-only and uses safe state handling. Present a specific resource/cost/change package for approval before apply, real secrets, or DNS/TLS mutation.
 - Follow the per-phase validation, conventional commit, push, pushed-commit review, separate fix-commit, and phase-review loop in AGENTS.md.
 
 ## Phase 66: Approved AWS dev deployment and operational evidence
 
 Deliverables:
 
-- After explicit approval and required access, bootstrap AWS dev, install operators/monitoring, deploy the Java release, and run functional smoke and controlled operational checks.
+- Only after Phase 62 security/compatibility completion, successful current required CI, explicit approval and required access, bootstrap AWS dev, install operators/monitoring, deploy the Java release, and run functional smoke and controlled operational checks.
 
 Relevant files:
 

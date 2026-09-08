@@ -1,6 +1,6 @@
 ## Phase 62 Review
 
-Status: **In Progress; vulnerability remediation deferred by the owner on
+Status: **Blocked; vulnerability remediation deferred by the owner on
 2026-09-08.** Do not automatically resume fixes or custom third-party rebuilds.
 See the [deferred backlog](../security/monitoring-vulnerability-backlog.md) and
 [current handoff](../monitoring-remediation.md). Phase 62 remains incomplete;
@@ -9,7 +9,7 @@ monitoring release eligibility and all security/cloud approval gates remain held
 The sections below retain the **initial 2026-09-07 audit checkpoint**, before
 later local rebuild experiments. They do not describe the final candidate state.
 The runtime prototype remains local working-tree work, not an approved or
-published monitoring release. Phases 59–61 remain completed; Phase 63 has not started.
+published monitoring release. Phases 59â€“61 remain completed; Phase 63 has not started.
 
 ### Summary
 

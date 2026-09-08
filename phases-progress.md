@@ -16,9 +16,11 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 62: Runnable monitoring stack and supported log collection - In Progress. Phase 61 passed all eleven CI gates and real immutable-artifact preflight on 35719e2, with every cloud job held. Phase 59 removed Ingress writes using the validated Terraform-owned load balancing and restricted TargetGroupBinding design; the scanner exception remains inactive. Phases 1-47 remain historical evidence; AWS execution and production/secrets/DNS changes retain explicit approval gates.
+Phase 63: Local resilience recovery and cost rehearsal - In Progress (handoff/plan selected; implementation has not started). Phase 62 is Blocked with vulnerability remediation deferred by the owner. Follow the scoped continuation override in AGENTS.md and the independent acceptance criteria for Phases 63-65 in phases.md. Stop before Phase 66 for AWS setup and approval; monitoring remains a launch blocker.
 
-Owner decision (2026-09-08): defer monitoring vulnerability fixes and custom third-party rebuilds; document known findings for optional future remediation. Do not automatically restart that work. Phase 62 remains incomplete and monitoring release eligibility remains blocked under the unchanged security policy. See docs/security/monitoring-vulnerability-backlog.md and docs/monitoring-remediation.md. No scanner exception or deployment approval was granted. Phase 63 has not started.
+Handoff (2026-09-08): docs/next-chat-handoff.md records the dirty local Phase 62 prototype, deferred vulnerability backlog and next actions. Phases 1-61 remain historical completion evidence. AWS is the cloud target. Phase 59 removed Ingress writes; its scanner exception remains inactive.
+
+Known CI blocker: documentation commit 4cf7b9a failed CI run 34188573590 because the release promotion rehearsal could not pull the pinned Skopeo image (manifest unknown). Nine jobs passed; the image/promotion job failed and release eligibility failed as a consequence. This is separate from the deferred monitoring vulnerabilities. Repair or validate tool availability without bypassing checks before completing the next implementation phase. See the handoff for the exact digest and evidence.
 
 ## Phase table
 
@@ -92,8 +94,8 @@ Owner decision (2026-09-08): defer monitoring vulnerability fixes and custom thi
 | 59 | AWS infrastructure validation and bootstrap boundaries | Completed |
 | 60 | Java supply chain and CI release eligibility | Completed |
 | 61 | AWS immutable promotion migrations and rollback | Completed | main | 35719e2 | 2026-09-07 | docs/phase-reviews/phase-61.md |
-| 62 | Runnable monitoring stack and supported log collection | In Progress |
-| 63 | Local resilience recovery and cost rehearsal | Not Started |
+| 62 | Runnable monitoring stack and supported log collection | Blocked | main | 4cf7b9a | - | Remediation deferred; incomplete, monitoring release blocked. |
+| 63 | Local resilience recovery and cost rehearsal | In Progress | - | - | - | Handoff selected; independent implementation has not started. |
 | 64 | Public repository and isolated demo preparation | Not Started |
 | 65 | AWS launch preflight and approval package | Not Started |
 | 66 | Approved AWS dev deployment and operational evidence | Not Started |
@@ -354,7 +356,7 @@ Implementation and validation:
 
 ### Phase 62: Runnable monitoring stack and supported log collection
 
-Status: In Progress
+Status: Blocked (owner-deferred vulnerability remediation)
 
 Implementation plan:
 
@@ -371,6 +373,19 @@ Validation hold and handoff:
 - Pinned binary configuration checks passed. The proposed private dev bootstrap has 56 schema-valid resources, zero skips, four passing security-boundary tests and no high/critical manifest findings. Existing Java/release/AWS/TGB policy validators also pass on the working tree. Actual EKS transport, storage and credential behavior remains untested and gated.
 - Initial 2026-09-07 checkpoint: ten of eleven image audits failed; Redis exporter passed, no secrets were found. The Prometheus 3.13.3 security backport also failed on bundled gRPC. Later local candidate experiments are recorded separately in the deferred backlog; none establishes complete release eligibility. No scanner exception was activated.
 - Phase 62 code/configuration remains local and uncommitted. This documentation records the failed validation honestly; it does not finish the phase or authorize deployment. If the owner later resumes remediation, resolve image eligibility, finish remaining package checks, wire required CI, and complete the commit/push/review loop. Full review and sanitized evidence: docs/phase-reviews/phase-62.md.
+
+### Phase 63: Local resilience recovery and cost rehearsal
+
+Status: In Progress (planning/handoff only)
+
+Implementation plan:
+
+- Read docs/next-chat-handoff.md and preserve the dirty Phase 62 prototype; use an isolated checkout for independent work where practical.
+- Resolve the pinned Skopeo availability failure from CI 34188573590 in a separate focused follow-up; retain OCI digest preservation and all required CI gates.
+- Exercise disposable Java/PostgreSQL/Redis load, outages, restart, compatible rollback and backup/restore; record actual latency/error/recovery/record-count evidence.
+- Record monitoring-dependent alert checks as deferred to Phase 62/pre-Phase 66. Do not use unapproved candidate images, restart custom monitoring rebuilds or claim skipped validation passed.
+- Complete documentation, relevant tests, full required CI, commit/push/review and separate findings fixes; continue independent Phase 64 then Phase 65 preparation automatically.
+- Stop before Phase 66 for AWS setup and approval. A prepared package can have a blocked launch decision; it is not a deployable release while Phase 62 remains unresolved.
 
 ### Phase 1: Project specification and architecture
 
