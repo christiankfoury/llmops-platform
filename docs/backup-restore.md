@@ -6,11 +6,16 @@ This document defines the recovery posture for the Production AI Platform. It co
 
 All cloud restore actions are approval-gated. This repository may document and validate recovery paths, but it must not run `terraform apply`, mutate AWS resources, rotate secrets, or redirect production traffic without explicit human approval.
 
+Current required cloud scope is one approved dev/demo. Staging/prod targets below
+are optional untested designs. The [launch and cleanup checklist](aws-launch-checklist.md)
+requires an explicit snapshot/retention decision before deleting any database;
+dev deletion-protection/final-snapshot defaults do not grant that permission.
+
 ## Recovery Targets
 
 | Environment | RDS backup retention | Redis snapshot retention | RTO target | RPO target | Notes |
 |---|---:|---:|---:|---:|---|
-| dev | 1 day | 1 day | 1 business day | 24 hours | Cost-minimized and rebuildable. Data loss is acceptable for local/dev validation. |
+| dev | 1 day | 1 day | 1 business day | 24 hours | Cost-minimized and rebuildable. Synthetic data only; deletion/data-loss decisions still require explicit approval. |
 | staging | 7 days | 7 days | 4 hours | 24 hours | Used for restore rehearsal and release validation. |
 | prod | 14 days | 14 days | 2 hours | 1 hour or better when RDS PITR is available | Portfolio target, subject to an approved live recovery exercise before real production claims. |
 

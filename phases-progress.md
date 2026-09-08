@@ -416,6 +416,18 @@ Phase 64 local preparation evidence:
 - Read-only GitHub checks found private visibility, no license/releases and zero deployment environments. No settings changed. Phase 62 remains a release blocker.
 - Review/evidence: docs/phase-reviews/phase-64.md and phase-64-evidence.json. Candidate ad8bcbf passed all 11 jobs in CI 34193634531; Java 280 tests/zero skips, history 194 commits/zero unreviewed. Exact-revision eligibility verified with deployment unauthorized; pushed review found no further actionable issues.
 
+### Phase 65: AWS launch preflight and approval package
+
+Status: In Progress
+
+Implementation plan and preparation evidence:
+
+- Inspect current dev Terraform/release/bootstrap inputs; prepare one private dev/demo setup checklist and blocked launch decision.
+- Price the actual NAT-enabled, two-worker footprint with runner, ALB and monitoring/storage allowances using current public AWS sources; retain arithmetic/provenance and a proposed 48-hour lifetime.
+- Record missing account/region/quota/add-on/identity/HTTPS/state/secret/runner/environment-protection inputs, immutable deploy/compatible rollback and separately approved cleanup steps.
+- Correct obsolete cost assumptions and budget scope: the current budget is account-wide, not project-filtered. No AWS calls, state, credentials, resources, new executable environment files or holds changed.
+- Carry Phase 62 final monitoring/image/CI/transport/storage/credential gates forward; do not restart remediation. Run focused document/arithmetic checks and all mandatory candidate CI, then pushed review and any separate fixes. Stop before Phase 66.
+
 ### Phase 1: Project specification and architecture
 
 Status: Completed

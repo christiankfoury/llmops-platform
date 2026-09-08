@@ -1,6 +1,6 @@
 # AWS bootstrap and application release boundaries
 
-Phase 59 validates infrastructure offline. No AWS resources, paid services, real secrets, identity provider, DNS record or deployment has been created by this phase. AWS remains the target: EKS, ECR, RDS PostgreSQL, ElastiCache Redis and Secrets Manager. The old deployment workflows remain held until the immutable Java release sequence in Phase 61.
+Phase 59 validates infrastructure offline. No AWS resources, paid services, real secrets, identity provider, DNS record or deployment has been created by this phase. AWS remains the target: EKS, ECR, RDS PostgreSQL, ElastiCache Redis and Secrets Manager. The Phase 61 immutable workflows remain hard-held. The current [launch checklist](aws-launch-checklist.md) records the Phase 65 blocked decision and missing inputs.
 
 ## Ownership
 
@@ -44,7 +44,7 @@ Create or identify the account-wide `https://token.actions.githubusercontent.com
 
 EKS defaults to private endpoint access only. The later deployment runner must be a fresh, trusted runner inside the VPC or on a reviewed connected network, with routes and security-group access to the private EKS endpoint on TCP 443. Enable VPC DNS support/hostnames and Amazon-provided DNS or reviewed Route 53 Resolver forwarding. Verify the EKS hostname resolves to reachable private addresses, and verify STS/ECR/Secrets Manager endpoints and the public OIDC issuer separately. Do not enable public EKS access to work around a disconnected GitHub-hosted runner. No untrusted fork job may run on a deployment runner or receive its identity.
 
-Private nodes now have NAT egress by default for image pulls and AWS APIs; disabling NAT without a complete endpoint/egress alternative is not a deployable configuration. One NAT gateway is currently shared across AZs: it has a recurring cost and an AZ outage dependency. Phase 63/65 must price and choose the accepted topology before cloud approval. RDS/Redis remain private and accept traffic only from the configured workload security groups. Current CIDRs are dev `10.20.0.0/16`, staging `10.30.0.0/16`, prod `10.40.0.0/16`; change Terraform and reviewed bootstrap values together.
+Private nodes now have NAT egress by default for image pulls and AWS APIs; disabling NAT without a complete endpoint/egress alternative is not a deployable configuration. One NAT gateway is currently shared across AZs: it has a recurring cost and an AZ outage dependency. The [Phase 65 estimate](cost-analysis.md) includes this proposed topology; its actual account, capacity and cost acceptance remain required before cloud approval. RDS/Redis remain private and accept traffic only from the configured workload security groups. Current CIDRs are dev `10.20.0.0/16`, staging `10.30.0.0/16`, prod `10.40.0.0/16`; change Terraform and reviewed bootstrap values together.
 
 ## Ordered, approval-gated bootstrap
 

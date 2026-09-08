@@ -46,4 +46,4 @@ On migration/health failure, preserve Jobs, history and deployment evidence. Ins
 
 ## Validation boundary
 
-Unit/negative policy tests, real PostgreSQL schema checks, offline Terraform plans, strict Helm schemas, CI runtime/TLS tests/scans and a real disposable-registry copy establish local behavior. No live AWS publish, protected-environment approval, private EKS migration, ALB data-plane smoke, production rollback, DNS or secret modification has been performed. Phase 65 prepares the concrete cloud change package; phases 66–68 require explicit environment approval and live evidence.
+Unit/negative policy tests, real PostgreSQL schema checks, offline Terraform plans, strict Helm schemas, CI runtime/TLS tests/scans and a real disposable-registry copy establish local behavior. No live AWS publish, protected-environment approval, private EKS migration, ALB data-plane smoke, production rollback, DNS or secret modification has been performed. The [Phase 65 launch package](aws-launch-checklist.md) records the blocked decision. Phase 66 requires explicit approval and live evidence for one AWS dev/demo; phases 67-68 remain owner-skipped optional work.

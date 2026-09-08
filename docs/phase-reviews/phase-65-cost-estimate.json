@@ -1,0 +1,376 @@
+{
+  "checked_at_utc": "2026-09-08T06:27:36.864469+00:00",
+  "currency": "USD",
+  "region": "us-east-1",
+  "scenario": "Proposed one private AWS dev/demo; not approved or deployed",
+  "source_revision": "161848d25d3b0865c30dae7719afb016dbeb9d74",
+  "duration_hours": 48,
+  "comparison_hours": 730,
+  "sources": {
+    "eks": "https://aws.amazon.com/eks/pricing/",
+    "ec2": "https://docs.aws.amazon.com/prescriptive-guidance/latest/optimize-costs-microsoft-workloads/right-size-selection.html",
+    "ebs": "https://aws.amazon.com/ebs/pricing/",
+    "rds": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonRDS/current/us-east-1/index.json",
+    "redis": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonElastiCache/current/us-east-1/index.json",
+    "vpc": "https://aws.amazon.com/vpc/pricing/",
+    "alb": "https://aws.amazon.com/elasticloadbalancing/pricing/",
+    "ecr": "https://aws.amazon.com/ecr/pricing/",
+    "secrets": "https://aws.amazon.com/secrets-manager/pricing/",
+    "kms": "https://aws.amazon.com/kms/pricing/"
+  },
+  "rows": [
+    {
+      "name": "EKS standard support",
+      "unit_rate_usd": "0.10",
+      "quantity": 1,
+      "rate_period": "hour",
+      "source": "eks",
+      "estimated_usd": {
+        "hours_48": "4.80",
+        "hours_730": "73.00"
+      }
+    },
+    {
+      "name": "Worker nodes: t3.medium",
+      "unit_rate_usd": "0.0416",
+      "quantity": 2,
+      "rate_period": "hour",
+      "source": "ec2",
+      "estimated_usd": {
+        "hours_48": "3.99",
+        "hours_730": "60.74"
+      }
+    },
+    {
+      "name": "Worker root EBS allowance",
+      "unit_rate_usd": "0.10",
+      "quantity": 80,
+      "rate_period": "month",
+      "source": "ebs",
+      "estimated_usd": {
+        "hours_48": "0.53",
+        "hours_730": "8.00"
+      }
+    },
+    {
+      "name": "RDS db.t4g.micro Single-AZ",
+      "unit_rate_usd": "0.016",
+      "quantity": 1,
+      "rate_period": "hour",
+      "source": "rds",
+      "estimated_usd": {
+        "hours_48": "0.77",
+        "hours_730": "11.68"
+      }
+    },
+    {
+      "name": "RDS gp3 GB",
+      "unit_rate_usd": "0.115",
+      "quantity": 20,
+      "rate_period": "month",
+      "source": "rds",
+      "estimated_usd": {
+        "hours_48": "0.15",
+        "hours_730": "2.30"
+      }
+    },
+    {
+      "name": "Redis cache.t4g.micro",
+      "unit_rate_usd": "0.016",
+      "quantity": 1,
+      "rate_period": "hour",
+      "source": "redis",
+      "estimated_usd": {
+        "hours_48": "0.77",
+        "hours_730": "11.68"
+      }
+    },
+    {
+      "name": "One shared NAT",
+      "unit_rate_usd": "0.045",
+      "quantity": 1,
+      "rate_period": "hour",
+      "source": "vpc",
+      "estimated_usd": {
+        "hours_48": "2.16",
+        "hours_730": "32.85"
+      }
+    },
+    {
+      "name": "NAT public IPv4",
+      "unit_rate_usd": "0.005",
+      "quantity": 1,
+      "rate_period": "hour",
+      "source": "vpc",
+      "estimated_usd": {
+        "hours_48": "0.24",
+        "hours_730": "3.65"
+      }
+    },
+    {
+      "name": "Internal ALB",
+      "unit_rate_usd": "0.0225",
+      "quantity": 1,
+      "rate_period": "hour",
+      "source": "alb",
+      "estimated_usd": {
+        "hours_48": "1.08",
+        "hours_730": "16.43"
+      }
+    },
+    {
+      "name": "ALB capacity: 1 LCU allowance",
+      "unit_rate_usd": "0.008",
+      "quantity": 1,
+      "rate_period": "hour",
+      "source": "alb",
+      "estimated_usd": {
+        "hours_48": "0.38",
+        "hours_730": "5.84"
+      }
+    },
+    {
+      "name": "Private t3.large runner allowance",
+      "unit_rate_usd": "0.0832",
+      "quantity": 1,
+      "rate_period": "hour",
+      "source": "ec2",
+      "estimated_usd": {
+        "hours_48": "3.99",
+        "hours_730": "60.74"
+      }
+    },
+    {
+      "name": "Runner gp3 GB allowance",
+      "unit_rate_usd": "0.08",
+      "quantity": 30,
+      "rate_period": "month",
+      "source": "ebs",
+      "estimated_usd": {
+        "hours_48": "0.16",
+        "hours_730": "2.40"
+      }
+    },
+    {
+      "name": "Monitoring gp3 GB allowance",
+      "unit_rate_usd": "0.08",
+      "quantity": 40,
+      "rate_period": "month",
+      "source": "ebs",
+      "estimated_usd": {
+        "hours_48": "0.21",
+        "hours_730": "3.20"
+      }
+    },
+    {
+      "name": "ECR GB allowance",
+      "unit_rate_usd": "0.10",
+      "quantity": 10,
+      "rate_period": "month",
+      "source": "ecr",
+      "estimated_usd": {
+        "hours_48": "0.07",
+        "hours_730": "1.00"
+      }
+    },
+    {
+      "name": "Total secret allowance",
+      "unit_rate_usd": "0.40",
+      "quantity": 6,
+      "rate_period": "month",
+      "source": "secrets",
+      "estimated_usd": {
+        "hours_48": "0.16",
+        "hours_730": "2.40"
+      }
+    },
+    {
+      "name": "EKS KMS key",
+      "unit_rate_usd": "1.00",
+      "quantity": 1,
+      "rate_period": "month",
+      "source": "kms",
+      "estimated_usd": {
+        "hours_48": "0.07",
+        "hours_730": "1.00"
+      }
+    }
+  ],
+  "base_usd": {
+    "hours_48": "19.52",
+    "hours_730": "296.90"
+  },
+  "variable_and_retained_data_allowance_usd": {
+    "hours_48": "10.00",
+    "hours_730": "25.00"
+  },
+  "scenario_total_usd": {
+    "hours_48": "29.52",
+    "hours_730": "321.90"
+  },
+  "proposed_review_envelope_usd": {
+    "hours_48": "50.00",
+    "hours_730": "425.00"
+  },
+  "approval": false,
+  "authenticated_aws_calls": 0,
+  "public_price_lists": [
+    {
+      "retrieved_at_utc": "2026-09-08T06:20:06.510221+00:00",
+      "url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonRDS/current/us-east-1/index.json",
+      "publication_date": "2026-09-04T17:27:16Z",
+      "version": "20260904172716",
+      "source_sha256": "afbcb6add5d22d081c093899ec2f7e2748b79b5e984faba91a490f459afe6464",
+      "selected_products": [
+        {
+          "product": {
+            "sku": "9HPEGXQTDDGH53C9",
+            "productFamily": "Database Instance",
+            "attributes": {
+              "servicecode": "AmazonRDS",
+              "location": "US East (N. Virginia)",
+              "locationType": "AWS Region",
+              "instanceType": "db.t4g.micro",
+              "currentGeneration": "Yes",
+              "instanceFamily": "General purpose",
+              "vcpu": "2",
+              "physicalProcessor": "AWS Graviton2",
+              "memory": "1 GiB",
+              "storage": "EBS Only",
+              "networkPerformance": "Up to 5 Gigabit",
+              "processorArchitecture": "64-bit",
+              "engineCode": "14",
+              "databaseEngine": "PostgreSQL",
+              "licenseModel": "No license required",
+              "deploymentOption": "Single-AZ",
+              "usagetype": "InstanceUsage:db.t4g.micro",
+              "operation": "CreateDBInstance:0014",
+              "instanceTypeFamily": "T4G",
+              "normalizationSizeFactor": "0.5",
+              "regionCode": "us-east-1",
+              "servicename": "Amazon Relational Database Service",
+              "unbundledLicensing": "FALSE"
+            }
+          },
+          "on_demand": {
+            "9HPEGXQTDDGH53C9.JRTCKXETXF": {
+              "offerTermCode": "JRTCKXETXF",
+              "sku": "9HPEGXQTDDGH53C9",
+              "effectiveDate": "2026-09-01T00:00:00Z",
+              "priceDimensions": {
+                "9HPEGXQTDDGH53C9.JRTCKXETXF.6YS6EN2CT7": {
+                  "rateCode": "9HPEGXQTDDGH53C9.JRTCKXETXF.6YS6EN2CT7",
+                  "description": "$ 0.016 per RDS db.t4g.micro Single-AZ instance hour (or partial hour) running PostgreSQL",
+                  "beginRange": "0",
+                  "endRange": "Inf",
+                  "unit": "Hrs",
+                  "pricePerUnit": {
+                    "USD": "0.0160000000"
+                  },
+                  "appliesTo": []
+                }
+              },
+              "termAttributes": {}
+            }
+          }
+        },
+        {
+          "product": {
+            "sku": "KYVYY29G957PKY3B",
+            "productFamily": "Database Storage",
+            "attributes": {
+              "servicecode": "AmazonRDS",
+              "location": "US East (N. Virginia)",
+              "locationType": "AWS Region",
+              "storageMedia": "SSD",
+              "volumeType": "General Purpose-GP3",
+              "minVolumeSize": "5 GB",
+              "maxVolumeSize": "16 TB",
+              "engineCode": "14",
+              "databaseEngine": "PostgreSQL",
+              "deploymentOption": "Single-AZ",
+              "usagetype": "RDS:GP3-Storage",
+              "operation": "CreateDBInstance:0014",
+              "regionCode": "us-east-1",
+              "servicename": "Amazon Relational Database Service"
+            }
+          },
+          "on_demand": {
+            "KYVYY29G957PKY3B.JRTCKXETXF": {
+              "offerTermCode": "JRTCKXETXF",
+              "sku": "KYVYY29G957PKY3B",
+              "effectiveDate": "2026-09-01T00:00:00Z",
+              "priceDimensions": {
+                "KYVYY29G957PKY3B.JRTCKXETXF.6YS6EN2CT7": {
+                  "rateCode": "KYVYY29G957PKY3B.JRTCKXETXF.6YS6EN2CT7",
+                  "description": "$0.115 per GB-month of provisioned GP3 storage running PostgreSQL",
+                  "beginRange": "0",
+                  "endRange": "Inf",
+                  "unit": "GB-Mo",
+                  "pricePerUnit": {
+                    "USD": "0.1150000000"
+                  },
+                  "appliesTo": []
+                }
+              },
+              "termAttributes": {}
+            }
+          }
+        }
+      ]
+    },
+    {
+      "retrieved_at_utc": "2026-09-08T06:20:05.891812+00:00",
+      "url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonElastiCache/current/us-east-1/index.json",
+      "publication_date": "2026-09-03T18:39:02Z",
+      "version": "20260903183902",
+      "source_sha256": "d122044a88962018e9953d793296e7226ebb19e085e0731d1b6b848468f2b5c9",
+      "selected_products": [
+        {
+          "product": {
+            "sku": "BT7FF8NJHA6V7WVP",
+            "productFamily": "Cache Instance",
+            "attributes": {
+              "servicecode": "AmazonElastiCache",
+              "location": "US East (N. Virginia)",
+              "locationType": "AWS Region",
+              "instanceType": "cache.t4g.micro",
+              "currentGeneration": "Yes",
+              "instanceFamily": "Standard",
+              "vcpu": "2",
+              "memory": "0.5 GiB",
+              "networkPerformance": "Up to 5 Gigabit",
+              "cacheEngine": "Redis",
+              "usagetype": "NodeUsage:cache.t4g.micro",
+              "operation": "CreateCacheCluster:0002",
+              "normalizationSizeFactor": "0.5",
+              "regionCode": "us-east-1",
+              "servicename": "Amazon ElastiCache"
+            }
+          },
+          "on_demand": {
+            "BT7FF8NJHA6V7WVP.JRTCKXETXF": {
+              "offerTermCode": "JRTCKXETXF",
+              "sku": "BT7FF8NJHA6V7WVP",
+              "effectiveDate": "2026-09-01T00:00:00Z",
+              "priceDimensions": {
+                "BT7FF8NJHA6V7WVP.JRTCKXETXF.6YS6EN2CT7": {
+                  "rateCode": "BT7FF8NJHA6V7WVP.JRTCKXETXF.6YS6EN2CT7",
+                  "description": "$0.016 per T4G Micro Cache node-hour (or partial hour) running Redis",
+                  "beginRange": "0",
+                  "endRange": "Inf",
+                  "unit": "Hrs",
+                  "pricePerUnit": {
+                    "USD": "0.0160000000"
+                  },
+                  "appliesTo": []
+                }
+              },
+              "termAttributes": {}
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

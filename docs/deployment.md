@@ -1,3 +1,5 @@
+> **Current launch decision: BLOCKED.** Use [the single AWS dev/demo checklist](aws-launch-checklist.md) and [dated cost estimate](cost-analysis.md). Phase 65 preparation authorizes no cloud action; Phase 62 completion, account setup and explicit Phase 66 approval remain required. Phases 67-68 are owner-skipped optional designs.
+
 > Current Java release procedure: [immutable-release-runbook.md](immutable-release-runbook.md). Phase 61 replaces the historical workflows with manual verified-artifact preflight and hard-held AWS jobs.
 
 > Current AWS bootstrap and ownership: [aws-bootstrap.md](aws-bootstrap.md). Cluster resources and owner Jobs are no longer part of the normal app chart. The historical commands below must not be used as a current Java release procedure.
@@ -12,7 +14,7 @@ The following sections retain historical implementation context. Old Python imag
 
 ## Environments
 
-The project targets four environments:
+Historical configuration layout (only local and one approved AWS dev/demo are required):
 
 - local
 - dev

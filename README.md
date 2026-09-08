@@ -132,6 +132,7 @@ concurrency, scaling bounds and retention are separate cost controls.
 - [Architecture](docs/architecture.md), [TargetGroupBinding ownership](docs/targetgroupbinding-design.md)
 - [Backup/restore](docs/backup-restore.md), [incident response](docs/incident-response.md), [cost analysis](docs/cost-analysis.md)
 - [Proofbase integration](docs/proofbase-integration.md), [AgentOps integration](docs/agentops-integration.md)
+- [AWS setup and blocked launch decision](docs/aws-launch-checklist.md), [priced dev/demo proposal](docs/cost-analysis.md)
 - [Completion scope](docs/portfolio-completion-plan.md), [release decisions](docs/publication-decisions.md)
 
 The repository remains private, with no license selected or release published.
