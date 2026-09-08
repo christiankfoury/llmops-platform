@@ -5,8 +5,7 @@
   an isolated checkout. The original Phase 62 prototype remains untouched.
 - Plan and repeatable commands: [local rehearsal](../local-recovery-rehearsal.md).
   Exact local observations: [JSON evidence](phase-63-evidence.json).
-- Implementation passed locally; candidate CI, push readback and final review
-  must pass before marking the phase completed.
+- Completed: implementation, separate fixes, all mandatory CI and final review passed.
 
 ### Scope Check
 - In scope: one 20-request sample, one Redis outage/recovery, restart, compatible
@@ -77,14 +76,20 @@
 - Databases/dump remain local for inspection. Deletion requires separate approval.
 
 ### Post-Commit Review
-- Pushed candidate: `140d35eec3cbdbbe0acce8ceff8ad462b3e19f93`; mandatory CI pending.
+- Pushed candidate: `140d35eec3cbdbbe0acce8ceff8ad462b3e19f93`; [CI 34191692780](https://github.com/christiankfoury/production-ai-platform/actions/runs/34191692780) passed all 11 jobs.
 - Top finding: revision-to-revision source comparison did not reject uncommitted
   Docker/runtime inputs, including the preserved prototype if invoked there.
   Add an explicit tracked/staged/untracked input guard before Docker inspection.
-- Fix commit: separate follow-up pending; focused negative guard tests added.
+- Fix commit: `208c5d6`; [CI 34191996872](https://github.com/christiankfoury/production-ai-platform/actions/runs/34191996872) passed all 11 jobs. Three focused safety tests and an actual dirty Git input probe passed before Docker startup.
 - Documentation finding: the cost implementation reference used `MockProvider`
-  instead of the actual `MockCompletionProvider`; corrected in a separate docs fix.
+  instead of the actual `MockCompletionProvider`; corrected separately in `d03a9c1`.
+  [CI 34192015607](https://github.com/christiankfoury/production-ai-platform/actions/runs/34192015607) passed all 11 jobs. Exact-revision eligibility verification passed with deployment unauthorized.
+- Final review found no remaining top actionable findings. Thirty script tests pass;
+  mandatory Java verification runs 280 tests with zero skips, including PostgreSQL/Redis;
+  frontend, image/TLS/OCI, dependency/history and infrastructure gates all passed.
+  Local full-history scan reviewed 191 commits, ten prior synthetic findings, zero
+  unreviewed findings. This does not close the separate monitoring image backlog.
 
 ### Next Phase
 - Phase 64: focused security review and isolated synthetic demo preparation,
-  after Phase 63 candidate CI and review pass.
+  In Progress; Phase 62 remains blocked and AWS remains approval-gated.

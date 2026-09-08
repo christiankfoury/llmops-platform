@@ -16,12 +16,12 @@ future work, with existing configuration and static checks preserved.
 | 66 | One explicitly approved AWS dev/demo deployment | Actual request/auth, protected dashboards, metrics/logs/traces, alert, release/rollback and cloud backup-configuration evidence; actual cost recorded |
 | 69 | Explicitly approved repository publication and closeout | Current required CI/security evidence, owner-selected license, sanitized assets and claims matching measured behavior |
 
-Phase 63 is active for planning; no implementation is completed by this scope
-change. Continue independent 63-65 preparation under AGENTS.md, then stop for AWS
+Phase 63 completed its bounded local rehearsal and mandatory CI/review on 2026-09-08.
+Continue independent 64-65 preparation under AGENTS.md, then stop for AWS
 setup and approval before Phase 66. Phase 65 may finish a package whose launch
 decision is **blocked**. Phase 62 and current mandatory CI must be resolved before
-the monitoring/cloud release. The known Skopeo CI availability failure is a
-separate first engineering task; verify its latest state in the next run.
+the monitoring/cloud release. The Skopeo CI availability failure was repaired separately in a291ad7; its
+mandatory OCI promotion round trip passed. Always check the latest CI state.
 
 ## Optional work removed from this release
 

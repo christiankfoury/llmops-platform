@@ -10,8 +10,9 @@ Work in `S:\github-repos\production-ai-platform`. Read `AGENTS.md`,
 
 Phases 1-61 are completed. Phase 62 is **Blocked**, incomplete, with monitoring
 vulnerability fixes/custom rebuilds deferred at the owner's request. Phase 63 is
-selected as **In Progress for planning/handoff**; its implementation has not
-started. Continue the independent revised scopes of 63, then 64, then 65. Stop
+**Completed**: candidate 140d35e and separate fixes 208c5d6/d03a9c1 passed all 11 CI
+jobs. Exact d03a9c1 eligibility was verified with deployment unauthorized. Continue
+Phase 64 (In Progress), then Phase 65. Stop
 before Phase 66 for AWS setup and explicit approval of one dev/demo environment. AGENTS.md contains the scoped
 exception to the ordinary sequential phase loop; all other rules still apply.
 
@@ -20,7 +21,7 @@ exception to the ordinary sequential phase loop; all other rules still apply.
 | Phase | Remaining outcome / boundary |
 |---|---|
 | 62 | Runnable monitoring finalization; vulnerabilities, final image compatibility/delivery and monitoring CI remain deferred launch blockers |
-| 63 | One bounded local load/outage/restart/rollback/backup-restore rehearsal; monitoring-dependent checks remain with 62 |
+| 63 | Completed: 20/20 requests, p95 173 ms, Redis recovery 1.297 s, compatible rollback and 24 request/cost rows restored; monitoring checks remain with 62 |
 | 64 | Focused security/secret review, small synthetic screenshot set, concise demo script and honest README; carry unresolved decisions |
 | 65 | Practical checklist and cost estimate for one AWS dev/demo footprint; launch stays blocked while prerequisites are unresolved |
 | 66 | One AWS dev/demo deployment with a bounded release/monitoring/rollback demonstration, after eligibility and approval |
@@ -33,7 +34,15 @@ static checks, but do not create those environments or claim live validation.
 Phase 66 can be an approved private demo; public exposure/real DNS/TLS remains a
 separate approval. No deployments or cleanup are authorized by this scope change.
 
-## First engineering action: existing CI failure
+## CI repair completed; inspect latest status before continuing
+
+The failure below is historical. Repair a291ad7 pins an audited Red Hat UBI
+Skopeo image and explicit executable. CI 34190824931 passed all 11 jobs and the
+actual three-image OCI round trip. Details: `docs/phase-reviews/ci-skopeo-repair.md`.
+Phase 63 final CI 34192015607 also passed. Do not restart this repair without a
+new failure.
+
+### Historical failure
 
 The documentation deferral is on main at `4cf7b9a7bbccb3775a6f51aad36cb98f7f12cd50`.
 Its [CI run 34188573590](https://github.com/christiankfoury/production-ai-platform/actions/runs/34188573590)
@@ -67,8 +76,9 @@ editing; they are not part of main or successful CI. They include Compose,
 monitoring images/configuration, Helm/bootstrap changes, a Java Dockerfile log
 folder, validation scripts, custom source-build recipes and candidate evidence.
 Do not discard them, stage them wholesale, publish their images or count them as
-another phase's completed implementation. Prefer an isolated checkout/worktree
-from main for independent Phase 63 work, preserving this original workspace.
+another phase's completed implementation. The active isolated checkout is `.maven-cache/continuation` (detached HEAD, normal
+`HEAD:main` pushes). Original local main stays at 2b65581 to preserve its dirty
+Phase 62 work; remote main has advanced. Do not merge/reset that original tree.
 Do not delete existing databases, volumes, namespaces, secrets or caches as cleanup.
 
 The prototype ran metrics, dashboards, searchable logs/traces and fired/resolved
@@ -97,5 +107,6 @@ or adopt a failing image to make a phase appear complete.
   completed: Terraform owns load balancing; the pinned controller uses restricted
   TargetGroupBinding permissions and has no Ingress writes.
 
-This handoff changes documentation/phase selection only. It does not implement
-Phase 63, resolve the CI failure, complete Phase 62 or approve AWS deployment.
+Phase 63 evidence and review are in `docs/phase-reviews/phase-63.md` and its JSON.
+Both rehearsal databases remain as stopped local containers/volumes. No existing
+database was deleted. Phase 62 remains blocked and AWS deployment is not approved.

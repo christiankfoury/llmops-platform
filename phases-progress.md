@@ -16,7 +16,7 @@ Codex must update this file at the end of every phase.
 
 ## Current phase
 
-Phase 63: Local resilience recovery and cost rehearsal - In Progress (local implementation passed; candidate CI/review pending). Phase 62 is Blocked with vulnerability remediation deferred by the owner. Follow the scoped continuation override in AGENTS.md and the independent acceptance criteria for Phases 63-65 in phases.md. Stop before Phase 66 for AWS setup and approval; monitoring remains a launch blocker.
+Phase 64: Public repository and isolated demo preparation - In Progress. Phase 63 completed its local rehearsal, pushed review fixes and all mandatory CI. Phase 62 is Blocked with vulnerability remediation deferred by the owner. Follow the scoped continuation override in AGENTS.md and the independent acceptance criteria for Phases 63-65 in phases.md. Stop before Phase 66 for AWS setup and approval; monitoring remains a launch blocker.
 
 Handoff (2026-09-08): docs/next-chat-handoff.md records the dirty local Phase 62 prototype, deferred vulnerability backlog and next actions. Phases 1-61 remain historical completion evidence. AWS is the cloud target. Phase 59 removed Ingress writes; its scanner exception remains inactive.
 
@@ -97,8 +97,8 @@ Portfolio scope decision (2026-09-08): Phases 63-65 are bounded preparation, fol
 | 60 | Java supply chain and CI release eligibility | Completed |
 | 61 | AWS immutable promotion migrations and rollback | Completed | main | 35719e2 | 2026-09-07 | docs/phase-reviews/phase-61.md |
 | 62 | Runnable monitoring stack and supported log collection | Blocked | main | 4cf7b9a | - | Remediation deferred; incomplete, monitoring release blocked. |
-| 63 | Local resilience recovery and cost rehearsal | In Progress | - | - | - | Local rehearsal passed; candidate mandatory CI and pushed review pending. |
-| 64 | Public repository and isolated demo preparation | Not Started |
+| 63 | Local resilience recovery and cost rehearsal | Completed | main | d03a9c1 | 2026-09-08 | Local recovery/restore evidence; 11/11 CI jobs and reviewed fixes. |
+| 64 | Public repository and isolated demo preparation | In Progress |
 | 65 | AWS launch preflight and approval package | Not Started |
 | 66 | Approved single AWS dev/demo deployment and operational evidence | Not Started |
 | 67 | Optional staging promotion and recovery exercise | Skipped | - | - | - | Owner removed from required portfolio scope on 2026-09-08; no live validation claimed. |
@@ -378,7 +378,7 @@ Validation hold and handoff:
 
 ### Phase 63: Local resilience recovery and cost rehearsal
 
-Status: In Progress (local implementation passed; candidate CI/review pending)
+Status: Completed
 
 Implementation plan:
 
@@ -396,7 +396,18 @@ Implementation evidence (2026-09-08):
 - Fresh PostgreSQL target restored in 0.922 s (command only), 28.625 s including startup and API verification; exact hashes/counts across ten tables, 24 request and 24 cost rows, and a new recovered API write.
 - Synthetic mock estimate USD 0.000120; no AWS or paid-provider calls. Both database volumes retained. Original guard rejected telemetry-only seed routes before load; corrected to inspect the demo app, then the complete rehearsal passed.
 - Existing Java/Redis/PostgreSQL CI and TLS container coverage retained; cleanup ownership negative tests and script lint added. Local evidence is not AWS RTO/RPO; monitoring alert resolution remains deferred under Phase 62/pre-66.
-- Review/evidence: docs/phase-reviews/phase-63.md and phase-63-evidence.json. Candidate commit/push and mandatory CI must pass before completion/Phase 64.
+- Review/evidence: docs/phase-reviews/phase-63.md and phase-63-evidence.json. Candidate 140d35e and separate fixes 208c5d6/d03a9c1 each passed all 11 CI jobs; final exact-revision eligibility verified, deployment_authorized=false.
+
+### Phase 64: Public repository and isolated demo preparation
+
+Status: In Progress
+
+Implementation plan:
+
+- Review current secrets/auth/project grants, least-privilege IAM/RBAC and exposure using existing source/tests and current mandatory scan evidence.
+- Correct stale README/security/demo claims to Java, Redis limits, manual held immutable releases and isolated synthetic dashboard data.
+- Capture two actual local synthetic dashboard screenshots; prepare one concise script, short release notes, contribution/security guidance and pending license/publication decisions.
+- Carry Phase 62 monitoring eligibility, AWS, real identity/domain and publication decisions forward. No monitoring rebuilds, paid providers, visibility changes or release publication.
 
 ### Phase 1: Project specification and architecture
 
