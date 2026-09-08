@@ -1454,6 +1454,7 @@ Acceptance criteria:
 Deliverables:
 
 - Codify a local monitoring profile and EKS bootstrap package for Prometheus, Grafana, Loki, Alloy, OpenTelemetry Collector, trace storage, exporters, and Alertmanager.
+- Owner decision (2026-09-08): defer monitoring vulnerability fixes and custom third-party rebuilds; preserve exact findings in `docs/security/monitoring-vulnerability-backlog.md` and its JSON. Do not resume remediation automatically. The runnable-stack deliverable remains, and security eligibility still blocks completion/deployment under the existing acceptance criteria.
 
 Relevant files:
 

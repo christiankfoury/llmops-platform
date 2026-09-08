@@ -18,7 +18,7 @@ Codex must update this file at the end of every phase.
 
 Phase 62: Runnable monitoring stack and supported log collection - In Progress. Phase 61 passed all eleven CI gates and real immutable-artifact preflight on 35719e2, with every cloud job held. Phase 59 removed Ingress writes using the validated Terraform-owned load balancing and restricted TargetGroupBinding design; the scanner exception remains inactive. Phases 1-47 remain historical evidence; AWS execution and production/secrets/DNS changes retain explicit approval gates.
 
-Current stop condition (2026-09-07): ten of eleven proposed upstream monitoring images fail the high/critical vulnerability gate. The local synthetic runtime rehearsal passed, but Phase 62 implementation remains uncommitted and not release-eligible. See docs/phase-reviews/phase-62.md and its evidence record. Phase 63 has not started.
+Owner decision (2026-09-08): defer monitoring vulnerability fixes and custom third-party rebuilds; document known findings for optional future remediation. Do not automatically restart that work. Phase 62 remains incomplete and monitoring release eligibility remains blocked under the unchanged security policy. See docs/security/monitoring-vulnerability-backlog.md and docs/monitoring-remediation.md. No scanner exception or deployment approval was granted. Phase 63 has not started.
 
 ## Phase table
 
@@ -366,10 +366,11 @@ Implementation plan:
 
 Validation hold and handoff:
 
+- Owner decision (2026-09-08): remediation is deferred. The backlog preserves exact original image findings, later build-lock/plugin findings and local candidate evidence. Do not automatically resume fixes or rebuilds; all security/deployment gates remain active.
 - Built new local Java API/migration images and passed a disposable monitoring rehearsal: all four dashboards populated; 44 application series; bounded stream labels; searchable correlated Java logs/traces with content/key sentinels absent; unauthorized metrics/Grafana access rejected; Redis outage fired and resolved a local alert while liveness stayed healthy.
 - Pinned binary configuration checks passed. The proposed private dev bootstrap has 56 schema-valid resources, zero skips, four passing security-boundary tests and no high/critical manifest findings. Existing Java/release/AWS/TGB policy validators also pass on the working tree. Actual EKS transport, storage and credential behavior remains untested and gated.
-- Ten of eleven image audits failed; Redis exporter passed, no secrets were found. Today's Prometheus 3.13.3 security backport still fails on bundled gRPC and was not adopted. No complete supported upstream image set passing the gate was found; dependency overrides and exceptions were not introduced.
-- Phase 62 code/configuration remains local and uncommitted. This documentation records the failed validation honestly; it does not finish the phase or authorize deployment. Resume by resolving image eligibility, finishing remaining package checks, wiring required CI, and completing the commit/push/review loop. Full review and sanitized evidence: docs/phase-reviews/phase-62.md.
+- Initial 2026-09-07 checkpoint: ten of eleven image audits failed; Redis exporter passed, no secrets were found. The Prometheus 3.13.3 security backport also failed on bundled gRPC. Later local candidate experiments are recorded separately in the deferred backlog; none establishes complete release eligibility. No scanner exception was activated.
+- Phase 62 code/configuration remains local and uncommitted. This documentation records the failed validation honestly; it does not finish the phase or authorize deployment. If the owner later resumes remediation, resolve image eligibility, finish remaining package checks, wire required CI, and complete the commit/push/review loop. Full review and sanitized evidence: docs/phase-reviews/phase-62.md.
 
 ### Phase 1: Project specification and architecture
 
