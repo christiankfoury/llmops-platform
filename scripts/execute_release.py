@@ -139,6 +139,8 @@ def publish(directory: Path, config: dict, manifest: dict) -> None:
             "docker",
             "run",
             "--rm",
+            "--entrypoint",
+            "skopeo",
             "--volume",
             f"{directory}:/images:ro",
             "--volume",

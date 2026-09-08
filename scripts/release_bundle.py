@@ -233,6 +233,8 @@ def registry_rehearsal() -> None:
             "docker",
             "run",
             "--rm",
+            "--entrypoint",
+            "skopeo",
             "--network",
             "host",
             "--volume",

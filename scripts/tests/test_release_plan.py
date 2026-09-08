@@ -281,6 +281,7 @@ class ReleasePlanTest(unittest.TestCase):
             self.assertTrue(
                 all("--preserve-digests" in c and "--dest-tls-verify=true" in c for c in copies)
             )
+            self.assertTrue(all(c[c.index("--entrypoint") + 1] == "skopeo" for c in copies))
             probe.return_value.returncode = 0
             probe.return_value.stdout = b"different image"
             with self.assertRaises(ValueError):

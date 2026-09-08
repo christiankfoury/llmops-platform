@@ -479,6 +479,8 @@ jobs:
 
       - name: Package immutable images/charts and rehearse registry promotion
         run: |
+          skopeo_image=$(python3 -c 'import json; print(json.load(open("infra/release/toolchain.json"))["skopeo_image"])')
+          .maven-cache/tools/pinned/trivy image --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed --scanners vuln,secret --format json --output .maven-cache/supply-chain/images/skopeo-audit.json "$skopeo_image"
           python3 scripts/install_validation_tools.py --tools helm
           export PATH="$GITHUB_WORKSPACE/.maven-cache/tools/pinned:$PATH"
           python3 scripts/release_bundle.py build
