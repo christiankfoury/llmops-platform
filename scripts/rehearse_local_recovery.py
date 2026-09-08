@@ -53,6 +53,21 @@ def stop_owned(container: str, project: str, run) -> None:
     run("docker", "stop", "--time", "60", container)
 
 
+def require_clean_inputs(run) -> None:
+    changed = run(
+        "git",
+        "status",
+        "--porcelain",
+        "--untracked-files=all",
+        "--",
+        "apps/api-java",
+        "contracts",
+        ".dockerignore",
+        "docker-compose.yml",
+    )
+    require(not changed.strip(), "Rehearsal requires clean tracked and untracked runtime inputs")
+
+
 def summarize(results) -> dict:
     require(len(results) == 20, "The bounded sample must contain exactly 20 requests")
     latencies = sorted(r.latency_ms for r in results)
@@ -107,6 +122,7 @@ def main() -> None:
         )
         return record
 
+    require_clean_inputs(run)
     candidate, previous, migrator = [
         inspect(x) for x in (args.api_image, args.rollback_image, args.migration_image)
     ]

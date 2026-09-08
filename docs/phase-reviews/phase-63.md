@@ -77,9 +77,11 @@
 - Databases/dump remain local for inspection. Deletion requires separate approval.
 
 ### Post-Commit Review
-- Pushed commit: pending candidate commit/readback.
-- Top findings: pending pushed review and mandatory CI.
-- Fix commits: none yet.
+- Pushed candidate: `140d35eec3cbdbbe0acce8ceff8ad462b3e19f93`; mandatory CI pending.
+- Top finding: revision-to-revision source comparison did not reject uncommitted
+  Docker/runtime inputs, including the preserved prototype if invoked there.
+  Add an explicit tracked/staged/untracked input guard before Docker inspection.
+- Fix commit: separate follow-up pending; focused negative guard tests added.
 
 ### Next Phase
 - Phase 64: focused security review and isolated synthetic demo preparation,

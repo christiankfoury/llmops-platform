@@ -7,10 +7,20 @@ from pathlib import Path
 from unittest.mock import Mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
-from rehearse_local_recovery import stop_owned  # noqa: E402
+from rehearse_local_recovery import require_clean_inputs, stop_owned  # noqa: E402
 
 
 class CleanupTest(unittest.TestCase):
+    def test_modified_staged_and_untracked_runtime_inputs_are_rejected(self):
+        for status in (
+            b" M apps/api-java/Dockerfile",
+            b"M  docker-compose.yml",
+            b"?? contracts/new.json",
+        ):
+            with self.subTest(status=status), self.assertRaises(ValueError):
+                require_clean_inputs(Mock(return_value=status))
+        require_clean_inputs(Mock(return_value=b""))
+
     def test_foreign_or_invalid_container_cannot_be_stopped(self):
         run = Mock(
             return_value=json.dumps(
