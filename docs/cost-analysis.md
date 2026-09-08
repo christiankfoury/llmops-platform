@@ -104,7 +104,7 @@ The API already estimates LLM cost per successful gateway request.
 
 Implementation path:
 
-- Java `gateway/MockPricing.java` defines mock token prices, `MockProvider.java`
+- Java `gateway/MockPricing.java` defines mock token prices, `MockCompletionProvider.java`
   estimates usage, and `GatewayRecorder.java` persists request/cost records under
   `apps/api-java/src/main/java/dev/christiankfoury/aiplatform/`.
 - `apps/api` remains the historical Python compatibility reference.

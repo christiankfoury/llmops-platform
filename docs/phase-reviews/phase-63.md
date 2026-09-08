@@ -82,6 +82,8 @@
   Docker/runtime inputs, including the preserved prototype if invoked there.
   Add an explicit tracked/staged/untracked input guard before Docker inspection.
 - Fix commit: separate follow-up pending; focused negative guard tests added.
+- Documentation finding: the cost implementation reference used `MockProvider`
+  instead of the actual `MockCompletionProvider`; corrected in a separate docs fix.
 
 ### Next Phase
 - Phase 64: focused security review and isolated synthetic demo preparation,
