@@ -1,0 +1,53 @@
+{
+  "checked_at_utc": "2026-09-08T06:02:28.383029+00:00",
+  "app_source_revision": "d03a9c166f2e4efb1ceebda540b1c7e567da794f",
+  "image_id": "sha256:2bef6ea2a4b8245b0a3b94e7df8923157ce0f95c4739f63832fd4b822a2fd50c",
+  "scope": "Local synthetic read-only dashboard; no API/database/provider connected",
+  "ui": "Actual browser screenshots visually verified, fixture label and synthetic request detail visible",
+  "checks": {
+    "fixture_session": 200,
+    "synthetic_requests": 1,
+    "admin_post": 403,
+    "admin_patch": 403,
+    "key_listing": 404,
+    "unmatched_project_request_count": 0,
+    "backend_intentionally_unreachable": true,
+    "loopback_only": true,
+    "read_only_container": true,
+    "dropped_capabilities": "ALL"
+  },
+  "screenshots": {
+    "phase-64-overview.jpg": {
+      "sha256": "c75e6fb53e09a220840592089a74169437bf2a94c9c07d017a2bd8b394ba8b76",
+      "bytes": 95499,
+      "dimensions": [
+        1265,
+        1010
+      ]
+    },
+    "phase-64-request.jpg": {
+      "sha256": "95c2dca08eb9a7c4f6d757094c064c28dda40bda3fd56d2408354c18c3260641",
+      "bytes": 113949,
+      "dimensions": [
+        1265,
+        1010
+      ]
+    }
+  },
+  "aws_calls": 0,
+  "paid_provider_calls": 0,
+  "repository_visibility": "private",
+  "license": null,
+  "github_deployment_environments": 0,
+  "image_audit": {
+    "scanner": "0.70.0",
+    "policy": "HIGH,CRITICAL; ignore-unfixed; vuln,secret; exit-code 1",
+    "report_sha256": "af55564768fcf8b081e10d8a1fdd1cc415995ae44cef67c6cacf32f977ecbfdb",
+    "result": "passed",
+    "os": {
+      "Family": "alpine",
+      "Name": "3.24.1"
+    },
+    "result_targets": 2
+  }
+}

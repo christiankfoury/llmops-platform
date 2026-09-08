@@ -2,6 +2,23 @@
 
 Current AWS load-balancing ownership is defined in [the TargetGroupBinding design](targetgroupbinding-design.md): Terraform owns ALB/listeners/rules/security groups/target groups; the pinned controller has no Ingress writes and only exact-group registration permissions. Bootstrap controls immutable bindings and readiness admission. Historical Ingress examples below do not supersede this approval-gated sequence.
 
+## Current Java and release posture (2026-09-08)
+
+The [focused Phase 64 review](security/phase-64-review.md) and
+[Java operator security](java-operator-security.md) describe the current runtime.
+Java is the default after Phase 58, Flyway is sole migration owner, and Redis
+provides atomic distributed limits. Unconfigured operator endpoints are closed;
+OIDC identities receive only explicit database-backed project grants. The default
+web demo serves fixed synthetic fixtures and rejects all writes.
+
+Release jobs are manual and held, with separate publisher/migration/application
+identities and explicit environment approval checks. No AWS deployment exists.
+The sections labeled Phase 11–26 below retain historical design context; their
+in-process/Python/automatic-deploy descriptions are superseded by the current Java
+and immutable-release documents. Monitoring vulnerabilities remain deferred and
+Phase 62 is a launch/publication blocker. Recording a risk is never permission to
+weaken checks; the scanner exception remains inactive.
+
 ## Core rules
 
 - Never commit secrets.

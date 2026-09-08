@@ -1,6 +1,6 @@
 # Java operator access and key lifecycle
 
-Phase 55 adds OIDC operator authentication, project grants, dashboard sessions, application key management and an isolated synthetic demo. AWS remains the target. Java is still an explicitly launched service; Docker/Helm runtime cutover is Phase 58. These local tests are not evidence of a deployed AWS identity, ingress or production environment.
+Phase 55 adds OIDC operator authentication, project grants, dashboard sessions, application key management and an isolated synthetic demo. AWS remains the target. Java became the default Docker/Helm runtime in completed Phase 58. These local tests are not evidence of a deployed AWS identity, ingress or production environment.
 
 ## Identity and project access
 

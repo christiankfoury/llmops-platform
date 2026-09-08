@@ -1,77 +1,25 @@
-# Portfolio Demo Plan
+# Portfolio demo preparation
 
-Current scope (2026-09-08): prepare a small synthetic screenshot set and one
-concise demo script, then demonstrate one approved AWS dev/demo environment.
-Staging/prod configuration may be shown as code, with live behavior labeled
-untested. Cloud actions, public access and real DNS/TLS are not authorized by this
-plan. The target pitch/bullets below require matching evidence before publication;
-monitoring eligibility and AWS deployment remain pending. Follow the
-[completion plan](portfolio-completion-plan.md).
+The current deliverable is one [five-minute script](demo-script.md) and
+[two actual synthetic browser captures](assets/screenshots/phase-64.md).
+Reuse these instead of creating a second demo flow or a large screenshot set.
 
-## Goal
+The story is the operating layer: a scoped Java gateway, protected usage APIs,
+CI/security checks, Terraform/Helm packaging, immutable promotion, dependency
+recovery and a measured local restore. Proofbase and AgentOps retain their product
+and workflow responsibilities. Neither client supplies content for these captures.
 
-Show a recruiter or hiring manager that this is a serious production infrastructure project, not just a small AI app.
+Current claims may describe tested local behavior and static cloud configuration.
+The default web view is read-only fixed data, not an API-backed telemetry feed.
+The [Phase 62 prototype](phase-reviews/phase-62.md) is dated evidence with an
+unresolved final image/security gate. Do not claim a secure complete monitoring
+release, live AWS operation, production SLA, HA or tested staging/prod deployments.
 
-## 60-second pitch
+A single private AWS dev/demo can satisfy Phase 66 after monitoring completion,
+current CI, setup and explicit approval. Public exposure and real DNS/TLS need
+separate authorization. Phase 69 retains the license and publication decisions;
+[the decision record](publication-decisions.md) lists outstanding inputs.
 
-I built a production-style LLMOps platform. Apps call a central LLM gateway instead of calling model providers directly. The gateway handles API keys, prompt versions, model routing, request logs, latency, failures, and estimated cost.
-
-The main focus is infrastructure: Terraform-managed AWS infrastructure, Kubernetes on EKS, Helm releases, GitHub Actions CI/CD, staged deployments, rollback workflows, OpenTelemetry tracing, Prometheus metrics, Grafana dashboards, Loki logs, External Secrets, and reliability runbooks.
-
-## Portfolio positioning
-
-Pair this project with Proofbase and AgentOps when explaining the portfolio:
-
-- Proofbase: a realistic permission-aware RAG product with citations, scoped retrieval, document workflows, and benchmarked answer quality.
-- AgentOps Workflow Platform: a realistic agent workflow product with workflow runs, agent steps, structured generation, retries, tool categories, and per-step costs.
-- Production AI Platform: the production LLMOps layer that centralizes model access, cost, latency, errors, traces, secrets, deployments, rollback, and cloud operations.
-
-The clean demo story: Proofbase shows the enterprise RAG product layer, AgentOps shows the agent workflow layer, and Production AI Platform shows how AI workloads are operated responsibly in production. Proofbase and AgentOps are telemetry-connected client apps; the platform centralizes operational visibility without taking over retrieval, citations, workflow execution, prompts, generated outputs, or tool payloads.
-
-## Demo flow
-
-1. Show README architecture diagram.
-2. Run local app with Docker Compose.
-3. Send a gateway request.
-4. Show request in dashboard.
-5. Send the local Proofbase demo telemetry event and filter the dashboard to `source_app=proofbase`.
-6. Send the local AgentOps demo telemetry event and filter the dashboard to `source_app=agentops`.
-7. Explain why Proofbase rows are RAG operations while AgentOps rows are agent-step/workflow-summary operations.
-8. Show cost/latency/error metrics.
-9. Show CI workflow.
-10. Show Terraform modules.
-11. Show the dev/demo Helm values and identify staging/prod values as optional configuration with static validation only.
-12. Show Grafana dashboard.
-13. Show Loki logs by request ID.
-14. Show rollback workflow.
-15. Show incident runbook, including the external telemetry outage section.
-
-## Screenshots to capture
-
-- Dashboard overview
-- Proofbase-filtered dashboard view
-- AgentOps-filtered dashboard view
-- Request table
-- Cost dashboard
-- Latency/error dashboard
-- Grafana overview
-- Loki request logs
-- GitHub Actions CI
-- GitHub Actions deploy
-- Helm release
-- Architecture diagram
-
-## Final resume bullets
-
-- Built a production-style LLMOps platform with Java/Spring Boot, Next.js, PostgreSQL, Redis, and Kubernetes.
-- Provisioned AWS infrastructure with Terraform, including EKS, ECR, RDS PostgreSQL, Redis, IAM, and secret references.
-- Demonstrated an approved AWS dev/demo release and rollback through Helm and GitHub Actions; retained optional staging/prod configuration with static validation.
-- Added observability with OpenTelemetry traces, Prometheus metrics, Grafana dashboards, and Loki structured logs.
-- Implemented API key auth, prompt versioning, model routing, request logging, latency tracking, error tracking, and estimated LLM cost monitoring.
-- Documented incident response, backup/restore, security baseline, and cloud cost controls.
-- Connected Proofbase as a telemetry-first client app for centralized LLM usage, latency, token, error, and estimated-cost visibility while preserving the RAG/product boundary.
-- Connected AgentOps Workflow Platform as a telemetry-first client app for centralized agent-step usage, latency, retry, status, token, error, workflow-summary, and estimated-cost visibility while preserving the workflow/orchestration boundary.
-
-## Client App Boundaries
-
-Proofbase remains the AI product layer for permission-aware enterprise RAG. AgentOps remains the agent workflow layer for workflow runs, agent steps, retries, structured generation, tools, and local workflow observability. Production AI Platform remains the operations layer that centralizes telemetry, cost, latency, failures, dashboards, infrastructure, deployment, secrets, and reliability controls.
+Before sharing, use the current README, [focused security review](security/phase-64-review.md),
+[unreleased notes](release-notes.md) and the exact evidence revision. Keep optional
+staging/prod configuration labeled static and untested in AWS.

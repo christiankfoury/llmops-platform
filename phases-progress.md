@@ -409,6 +409,13 @@ Implementation plan:
 - Capture two actual local synthetic dashboard screenshots; prepare one concise script, short release notes, contribution/security guidance and pending license/publication decisions.
 - Carry Phase 62 monitoring eligibility, AWS, real identity/domain and publication decisions forward. No monitoring rebuilds, paid providers, visibility changes or release publication.
 
+Phase 64 local preparation evidence:
+
+- Corrected Java/Redis/manual-release and synthetic-dashboard claims; added focused security/contribution guidance, one five-minute script, short unreleased notes and license/publication decisions.
+- Captured two actual JPEG browser views from immutable local web image 2bef6ea2; fixture isolation/admin rejection probes and the required local image audit passed.
+- Read-only GitHub checks found private visibility, no license/releases and zero deployment environments. No settings changed. Phase 62 remains a release blocker.
+- Review/evidence: docs/phase-reviews/phase-64.md and phase-64-evidence.json. Candidate full CI and post-push review remain required before completion.
+
 ### Phase 1: Project specification and architecture
 
 Status: Completed

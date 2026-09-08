@@ -1,306 +1,139 @@
-# Production AI Platform / LLMOps Infrastructure Platform
+# Production AI Platform
 
-A production-style AI platform portfolio project for DevOps, cloud, platform, backend, full-stack, and LLMOps roles.
+A Java LLM gateway and usage dashboard, with the operations layer as the main
+portfolio work: Terraform, Kubernetes, Helm, CI/CD, identity, observability,
+immutable releases, rollback, recovery and cost controls.
 
-The app is intentionally scoped: a lightweight LLM gateway and usage dashboard. The main artifact is the production operating layer around it: Terraform, EKS, Helm, GitHub Actions, observability, secrets, rollback, security, reliability, cost controls, and runbooks.
+**Current evidence:** tested locally and in CI. AWS is not deployed. Monitoring
+runs as a preserved local prototype, but its final image set remains blocked by
+[deferred vulnerabilities](docs/security/monitoring-vulnerability-backlog.md).
+The remaining cloud scope is one explicitly approved AWS dev/demo environment;
+staging and production configurations are optional and statically validated only.
 
-## 60-Second Summary
+## What you can inspect in one minute
 
-This repository shows how I would operate AI workloads in production, not just how I would call an LLM API.
+- Java 21 / Spring Boot gateway with hashed application keys, prompt/model routing,
+  request and cost records, PostgreSQL/Flyway and atomic Redis limits.
+- OIDC operator access with database-backed viewer/operator project grants;
+  the Next.js dashboard keeps tokens on the server and protects writes.
+- Mandatory CI: Java/PostgreSQL/Redis integration tests, frontend/Python checks,
+  full-history secrets, dependency/image scans, Terraform/Helm/Kubernetes checks,
+  and an actual immutable OCI registry promotion round trip.
+- A [measured local recovery rehearsal](docs/phase-reviews/phase-63.md): 20/20
+  requests, p95 173 ms; dependency recovery, restart, compatible image rollback,
+  and 24 request/cost records restored into a new PostgreSQL target.
+- Separate application, migration and publisher identities; Terraform owns AWS
+  load balancing, bootstrap owns TargetGroupBindings, and release jobs remain held.
 
-- Apps call a central LLM gateway instead of calling providers directly.
-- The gateway handles API keys, prompt versions, model routing, request logs, latency, failures, token estimates, and estimated cost.
-- The platform runs locally with Docker Compose and is packaged for Kubernetes with Helm.
-- AWS infrastructure is defined with Terraform modules for EKS, ECR, RDS PostgreSQL, ElastiCache Redis, IAM, Secrets Manager, and optional budget alerts.
-- CI/CD uses GitHub Actions for checks, image builds/scans, dev deploy, staging/prod promotion, and rollback.
-- Observability includes OpenTelemetry traces, Prometheus metrics, Grafana dashboards, Loki log assets, alert rules, and incident runbooks.
-- Safety controls include hashed API keys, rate limiting, non-root containers, NetworkPolicies, External Secrets, private data services, backups, rollback docs, and explicit production approval gates.
+## Synthetic dashboard preview
 
-## Portfolio Positioning
+![Read-only local synthetic dashboard](docs/assets/screenshots/phase-64-overview.jpg)
 
-This project complements **Proofbase**, the permission-aware enterprise RAG application, and **AgentOps Workflow Platform**, the agent workflow/orchestration application.
+This is an actual local browser capture of **fixed synthetic fixtures**. It is
+separate from gateway traffic, seeded databases, Proofbase/AgentOps telemetry and
+monitoring. [Request detail and capture provenance](docs/assets/screenshots/phase-64.md)
+identify the tested image, checks and limitations.
 
-- Proofbase proves the AI product layer: document workflows, retrieval quality, citations, permissions, memory safety, and answer-quality evaluation.
-- AgentOps proves the agent workflow layer: workflow runs, agent steps, structured generation, retries, tool categories, and per-step costs.
-- Production AI Platform proves the operations layer: centralized model access, cost, latency, errors, traces, secrets, deployments, rollback, and cloud infrastructure.
+## Portfolio boundaries
 
-Proofbase is connected as a client app through telemetry first: Proofbase keeps owning RAG, retrieval, citations, permissions, memory, and answer-quality evaluation, while this platform centralizes model usage, cost, latency, token, error, and request visibility. Gateway-routed provider calls can follow after the gateway supports Proofbase's richer provider contract.
+| Project | Responsibility |
+|---|---|
+| Proofbase | Permission-aware RAG product, retrieval, citations and answer quality |
+| AgentOps Workflow Platform | Agent workflows, steps, retries, generated outputs and tools |
+| Production AI Platform | Gateway, safe usage telemetry, operational controls and infrastructure |
 
-AgentOps Workflow Platform is connected as the second telemetry client path: AgentOps keeps owning workflow execution, agent prompts, structured outputs, tool behavior, and workflow state, while this platform centralizes safe operational telemetry for agent steps and workflow summaries.
+Proofbase and AgentOps are telemetry-first clients. They retain their own prompts,
+content and execution. This platform accepts operational metadata; it does not run
+RAG pipelines or workflows. Gateway routing for those clients is a future integration.
 
-## Target Portfolio Claim
+## Local demo
 
-> Built and demonstrated a production-style LLMOps platform in one AWS dev/demo environment using Java, Kubernetes, Terraform, Helm, GitHub Actions, Prometheus, Grafana, Loki, OpenTelemetry, managed PostgreSQL, Redis, external secrets, request tracing, cost monitoring, and tested release/rollback and local backup/restore procedures.
+From a clean checkout with Docker running:
 
-Use this target claim only after the approved AWS demonstration and its evidence exist. Staging/production configurations are optional, statically validated designs unless separately deployed and tested.
-
-Portfolio completion scope (2026-09-08): one approved AWS dev/demo deployment.
-Separate staging and production deployments are optional future work; their code
-and static validation remain available. Monitoring image eligibility is still
-blocked and AWS is not yet deployed. See the [completion plan](docs/portfolio-completion-plan.md).
-
-## What Is Implemented
-
-The default backend is Java 21 / Spring Boot. The [Java and AWS release plan](docs/java-aws-implementation-plan.md) tracks the conversion and remaining deployment, monitoring, recovery and publication work. The Python code remains an explicit local compatibility reference. [Runtime cutover and verification](docs/java-runtime-cutover.md) distinguish tested behavior from cloud work still pending; AWS remains the target.
-
-Application:
-
-- Java 21 / Spring Boot LLM gateway
-- Next.js usage dashboard
-- PostgreSQL/JPA schema, Flyway migrations and verified Alembic handover
-- hashed application keys, OIDC operator sign-in and scoped project grants
-- prompt versioning
-- model routing
-- mock LLM provider
-- request logging
-- cost, latency, token, and error tracking
-- audit logs for prompt/model route changes
-- atomic Redis rate limits and dependency-aware readiness
-
-Platform:
-
-- Docker Compose local stack
-- production Dockerfiles
-- Terraform AWS modules for network, ECR, EKS, RDS, Redis, Secrets Manager, IAM, and budgets
-- raw Kubernetes manifests
-- Helm chart with dev/staging/prod values
-- GitHub Actions CI, deploy, promotion, and rollback workflows
-- optional Argo CD GitOps manifests
-- OpenTelemetry tracing
-- Prometheus metrics and alert rules
-- Grafana dashboard JSON
-- Loki/Promtail/log dashboard assets
-- External Secrets integration
-- security, reliability, incident, backup/restore, cost, and GitOps docs
-- Proofbase external telemetry ingestion, dashboard filtering, browser validation, and client-app integration docs
-- AgentOps external telemetry ingestion, dashboard filtering, browser validation, and client-app integration docs
-
-## Architecture
-
-```mermaid
-flowchart LR
-  client["Client apps"] --> ingress["Ingress / TLS"]
-  ingress --> api["LLM Gateway API"]
-  api --> auth["API key auth"]
-  api --> routing["Prompt + model routing"]
-  routing --> provider["Mock LLM provider"]
-  api --> postgres[("RDS PostgreSQL")]
-  api --> redis[("Redis")]
-  api --> metrics["Prometheus metrics"]
-  api --> logs["JSON logs -> Loki"]
-  api --> traces["OpenTelemetry traces"]
-  metrics --> grafana["Grafana dashboards"]
-  logs --> grafana
-```
-
-See [docs/architecture-diagrams.md](docs/architecture-diagrams.md) for the deployment diagram and request lifecycle.
-See [docs/gateway-flow.md](docs/gateway-flow.md) for a developer-focused walkthrough of the API key, project/app, prompt, routing, provider, logging, and cost-tracking flow.
-
-## Local Demo
-
-To run Production AI Platform, Proofbase, and AgentOps together without port conflicts, use the [local portfolio stack runbook](docs/local-portfolio-stack.md).
-
-Start the local stack:
-
-```bash
+```sh
 docker compose up --build
 ```
 
-Compose runs Flyway before API startup and seeds the local placeholder scopes. To repeat those explicit local commands:
+Compose runs the separate Flyway migration job, seeds placeholder local scopes,
+and starts Java, PostgreSQL, Redis and the read-only synthetic dashboard. Open
+[the dashboard](http://localhost:3000) and [API readiness](http://localhost:8000/health/ready).
+All host ports bind to loopback. The Python service in `apps/api` is retained as a
+compatibility reference; Java in `apps/api-java` is the default runtime.
 
-```bash
-make api-migrate
-make api-seed
-```
+Send one mock request:
 
-Open:
-
-- Web dashboard: `http://localhost:3000`
-- API health: `http://localhost:8000/health`
-
-Send a gateway request with the local placeholder seed key:
-
-```bash
+```sh
 curl -X POST http://localhost:8000/v1/gateway/completions \
   -H "Content-Type: application/json" \
   -H "X-API-Key: local-dev-placeholder-key-not-a-secret" \
   -d '{"input":"hello from local development"}'
 ```
 
-The seed key is intentionally non-secret demo data and is stored only as a hash.
+The placeholder key is synthetic and stored as a hash. The response and database
+show this request; the default synthetic dashboard stays fixed. To view actual
+platform usage, configure [OIDC and project grants](docs/java-operator-security.md).
+Unconfigured operator APIs are closed. Paid providers are not implemented in the
+current gateway; unsupported routes are rejected.
 
-Send a safe Proofbase-shaped telemetry event:
+Use [the concise demo script](docs/demo-script.md) and
+[the repeatable local recovery commands](docs/local-recovery-rehearsal.md).
+Local Docker shutdown retains database volumes; database deletion needs approval.
 
-```bash
-python scripts/send_proofbase_browser_demo_event.py
+## Architecture and deployment boundary
+
+```mermaid
+flowchart LR
+  clients[Client applications] --> gateway[Java gateway and telemetry API]
+  browser[Operator browser] --> web[Next.js session and proxy]
+  web --> gateway
+  gateway --> pg[(PostgreSQL)]
+  gateway --> redis[(Redis limits)]
+  gateway --> mock[Mock provider]
+  gateway --> signals[Operational metrics, logs and traces]
 ```
 
-The default dashboard uses isolated synthetic fixtures. To inspect newly ingested data, configure [OIDC sign-in and project grants](docs/java-operator-security.md); anonymous usage/configuration APIs are closed.
+Terraform defines EKS, ECR, RDS PostgreSQL, ElastiCache Redis, IAM, Secrets Manager,
+networking and budgets. Helm packages the application and separate migration job.
+Current release workflows are **manual and held**: they validate a full revision,
+current CI provenance, immutable images/charts and schema compatibility before
+separately protected publisher, migration and application jobs can execute.
+Rollback selects a verified compatible release; it never downgrades the database.
+See [immutable releases](docs/immutable-release-runbook.md) and [deployment](docs/deployment.md).
 
-Send a safe AgentOps-shaped telemetry event:
+An approved private AWS dev/demo is sufficient for the portfolio. No production
+SLA, high availability, multi-environment AWS operation or live cloud restore is
+claimed. Phases 67–68 are skipped by owner scope decision. Phase 66 requires AWS
+setup, Phase 62 completion, current required CI and explicit approval; Phase 69
+has a separate publication/license decision.
 
-```bash
-python scripts/send_agentops_browser_demo_event.py
-```
+## Observability and recovery
 
-The Java API preserves both clients' event/replay contracts. The older browser demo documents describe the historical Python demo; use the Java operator setup for real usage views.
+Java emits operational JSON logs, bounded metrics and trace spans without request
+content. Management metrics use `/actuator/prometheus` on private port 9080; they
+are not a public application-port endpoint. CI checks metric, trace, privacy and
+verified database/Redis TLS behavior.
 
-Useful commands:
+The dated [Phase 62 prototype](docs/phase-reviews/phase-62.md) demonstrated populated
+dashboards, searchable logs/traces and fired/resolved alerts. Final supported image
+compatibility, delivery and monitoring CI remain unfinished. Legacy Promtail assets
+are historical; the preserved Alloy proposal is not an eligible monitoring release.
+No monitoring screenshot here is presented as current secure-release evidence.
 
-```bash
-make local-up
-make local-down
-make api-migrate
-make api-seed
-make api-test
-make web-lint
-make web-typecheck
-make web-test
-make check
-make docker-build-prod
-python scripts/smoke_load.py --requests 20 --concurrency 4
-```
+[Phase 63](docs/phase-reviews/phase-63.md) restored exact local row hashes and proved
+a new API write. Its latency/recovery timings are a small synthetic sample, not
+AWS RTO/RPO, PITR or capacity measurements. Budgets notify; request quotas,
+concurrency, scaling bounds and retention are separate cost controls.
 
-## Deployment Story
+## Verification and documentation
 
-The workflows below are the historical AWS scaffold. Keep automated deployment disabled until phases 59-61 validate infrastructure, Java image eligibility and migration-aware promotion. No successful AWS deployment is claimed.
+- [Testing](docs/testing.md), [CI/CD](docs/ci-cd.md), [phase progress](phases-progress.md)
+- [Java runtime cutover](docs/java-runtime-cutover.md), [operator security](docs/java-operator-security.md)
+- [Security review](docs/security/phase-64-review.md), [security policy](SECURITY.md), [contributing](CONTRIBUTING.md)
+- [Architecture](docs/architecture.md), [TargetGroupBinding ownership](docs/targetgroupbinding-design.md)
+- [Backup/restore](docs/backup-restore.md), [incident response](docs/incident-response.md), [cost analysis](docs/cost-analysis.md)
+- [Proofbase integration](docs/proofbase-integration.md), [AgentOps integration](docs/agentops-integration.md)
+- [Completion scope](docs/portfolio-completion-plan.md), [release decisions](docs/publication-decisions.md)
 
-Target path:
-
-1. CI runs backend lint/tests, frontend lint/typecheck/tests/audit, production image builds, dependency scans, image scans, repository scan, and infrastructure static checks.
-2. Dev deploy can run automatically from `main` only when explicit repository variables enable it.
-3. Staging deploy is manual.
-4. Production deploy is manual and protected by the GitHub `prod` Environment approval gate.
-5. Rollback is manual, requires a selected Helm revision, and includes rollout checks plus smoke tests.
-
-Optional GitOps path:
-
-- Argo CD AppProject and Application manifests live in `infra/gitops/argocd`.
-- Applications point at the same Helm chart and dev/staging/prod values files.
-- Dev can self-heal; staging and prod are manual sync.
-- GitHub Actions and Argo CD should not both continuously control the same Helm release.
-
-## Observability
-
-Gateway requests emit:
-
-- request ID and trace ID
-- project/application context where safe
-- selected provider/model
-- latency
-- status and error category
-- estimated tokens and cost
-
-Assets:
-
-- `/metrics` Prometheus endpoint in the API
-- `llm_gateway_*` cost, token, latency, request, error, auth, and rate-limit metrics
-- Grafana overview, reliability, cost, and logs dashboards
-- Loki/Promtail logging configuration
-- OpenTelemetry request and gateway spans
-- alert rules for errors, latency, 5xx, pod restarts, database availability, and cost spikes
-
-See [docs/observability.md](docs/observability.md) and [docs/dashboard-screenshots.md](docs/dashboard-screenshots.md).
-
-Proofbase and AgentOps are connected telemetry clients. See [docs/proofbase-integration.md](docs/proofbase-integration.md) for the RAG boundary and [docs/agentops-integration.md](docs/agentops-integration.md) for the workflow boundary.
-
-## Security, Reliability, And Cost
-
-Security:
-
-- no committed secrets
-- hashed API keys
-- non-root runtime containers
-- read-only Kubernetes root filesystems
-- dropped Linux capabilities
-- NetworkPolicies
-- External Secrets with AWS Secrets Manager
-- GitHub OIDC deploy roles
-- blocking supply-chain scans
-
-Reliability:
-
-- readiness and liveness probes
-- graceful shutdown
-- bounded provider retries and timeouts
-- HPA and PDB manifests/templates
-- rollback workflow
-- backup/restore runbook
-- incident response runbook
-
-Cost:
-
-- request-level estimated LLM cost
-- cost summary endpoint and dashboard
-- Prometheus cost metric and Grafana cost panels
-- environment cost analysis
-- optional AWS Budget Terraform module
-- dev teardown guidance
-
-See [docs/portfolio-summary.md](docs/portfolio-summary.md), [docs/security-baseline.md](docs/security-baseline.md), [docs/backup-restore.md](docs/backup-restore.md), and [docs/cost-analysis.md](docs/cost-analysis.md).
-
-## Demo Path
-
-Use [docs/demo-script.md](docs/demo-script.md) for the full walkthrough.
-
-Recommended flow:
-
-1. Show this README and architecture diagram.
-2. Run the local stack.
-3. Send a gateway request.
-4. Show the web dashboard.
-5. Show persisted request/cost/error data.
-6. Show CI checks and image scanning.
-7. Show Terraform modules.
-8. Show Helm values and Argo CD manifests.
-9. Show Grafana dashboard definitions and screenshot checklist.
-10. Walk through rollback and incident simulation.
-
-## Documentation Map
-
-- [PROJECT_SPEC.md](PROJECT_SPEC.md): full project spec
-- [AGENTS.md](AGENTS.md): autonomous phase workflow
-- [phases.md](phases.md): phase roadmap
-- [phases-progress.md](phases-progress.md): implementation log
-- [docs/architecture.md](docs/architecture.md): architecture details
-- [docs/architecture-diagrams.md](docs/architecture-diagrams.md): Mermaid diagrams
-- [docs/gateway-flow.md](docs/gateway-flow.md): gateway request flow and code walkthrough
-- [docs/external-telemetry-contract.md](docs/external-telemetry-contract.md): Proofbase-first external LLM telemetry contract
-- [docs/proofbase-integration.md](docs/proofbase-integration.md): Proofbase connection summary and RAG boundary
-- [docs/agentops-integration.md](docs/agentops-integration.md): AgentOps connection summary and workflow boundary
-- [docs/agentops-integration-plan.md](docs/agentops-integration-plan.md): AgentOps Workflow Platform telemetry integration plan
-- [docs/proofbase-browser-telemetry-demo.md](docs/proofbase-browser-telemetry-demo.md): local browser demo for Proofbase telemetry
-- [docs/agentops-browser-telemetry-demo.md](docs/agentops-browser-telemetry-demo.md): local browser demo for AgentOps telemetry
-- [docs/deployment.md](docs/deployment.md): local, Kubernetes, Helm, CI/CD, rollback, GitOps
-- [docs/ci-cd.md](docs/ci-cd.md): GitHub Actions CI jobs, actions, scanners, and deployment boundaries
-- [docs/testing.md](docs/testing.md): validation commands
-- [docs/terraform.md](docs/terraform.md): Terraform modules and state guidance
-- [docs/observability.md](docs/observability.md): metrics, logs, traces, dashboards
-- [docs/runbook.md](docs/runbook.md): operational runbook
-- [docs/incident-response.md](docs/incident-response.md): incident process
-- [docs/incident-simulation.md](docs/incident-simulation.md): demo incident scenario
-- [docs/backup-restore.md](docs/backup-restore.md): backup, restore, RTO/RPO, DR assumptions
-- [docs/secrets-management.md](docs/secrets-management.md): External Secrets and secret handling
-- [docs/security-baseline.md](docs/security-baseline.md): security controls
-- [docs/security-audit.md](docs/security-audit.md): audit log review
-- [docs/cost-analysis.md](docs/cost-analysis.md): cost estimates and controls
-- [docs/gitops-argocd.md](docs/gitops-argocd.md): optional Argo CD path
-- [docs/dashboard-screenshots.md](docs/dashboard-screenshots.md): screenshot capture plan
-- [docs/demo-script.md](docs/demo-script.md): interview/demo script
-- [docs/portfolio-summary.md](docs/portfolio-summary.md): final bullets, summaries, limitations
-
-## Known Limitations
-
-- The gateway provider integration is a mock provider by default; real paid provider calls through the gateway require refreshed pricing, credentials, quota controls, and approval.
-- Proofbase is connected through telemetry, not gateway-routed provider calls; Proofbase still owns RAG retrieval, citations, permissions, and answer quality.
-- AgentOps is connected through telemetry, not platform-executed workflows; AgentOps still owns workflow orchestration, agent prompts, generated outputs, tools, and workflow state.
-- Admin prompt/model endpoints are operator foundations, not a full production admin authorization system.
-- Rate limiting is in-process for the portfolio baseline; multi-replica production would use Redis-backed distributed limits.
-- Terraform is code-only until an approved apply creates real AWS resources.
-- Argo CD manifests are optional and are not applied by default.
-- Live Grafana screenshots are not committed because no approved live monitoring deployment exists in this repository; capture guidance is documented.
-- Multi-region disaster recovery is documented as out of scope for this baseline.
-
-## Status
-
-The original 30 infrastructure/platform phases are implemented in code and documentation. Phases 31-40 complete the Proofbase telemetry integration sequence. Phases 41-47 complete the AgentOps telemetry integration sequence, including contract, client, emission, validation, browser-demo, and closeout docs. CI was kept green during the original phase loop, and the repository is packaged as a portfolio-grade production AI platform rather than a toy LLM app.
+The repository remains private, with no license selected or release published.
+Historical phase reviews retain earlier runtime evidence; current claims follow
+this README, the latest phase progress and the linked measured results.
