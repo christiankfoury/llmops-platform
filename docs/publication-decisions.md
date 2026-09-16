@@ -6,7 +6,7 @@ metadata, and zero deployment environments. Those observations do not modify set
 
 | Item | Current decision / remaining input |
 |---|---|
-| License | Unselected. Owner must choose before Phase 69; no license file added. |
+| License | Owner selected MIT on 2026-09-16. Standard [LICENSE](../LICENSE) added with copyright 2026 Christian Kfoury; third-party materials retain their own licenses. |
 | Visibility and release | Remain private/unpublished. Separate explicit Phase 69 approval required. |
 | Private reporting channel | Owner must choose and verify a channel before public release; SECURITY.md uses an existing private contact path meanwhile. |
 | Monitoring | Phase 62 remains incomplete; known vulnerability fixes/custom rebuilds deferred, not risk-accepted. |
@@ -21,5 +21,7 @@ No scanner exceptions, branch-protection bypass, secret rotation or paid service
 were introduced. Historical monitoring reports remain visible with their limits.
 
 The completed [Phase 65 package](aws-launch-checklist.md) records specific missing
-AWS inputs and the cost/change proposal with a blocked launch decision. Ask the owner for the license and publication decision when Phase 69's
-reviewable release package is ready.
+AWS inputs and the cost/change proposal with a blocked launch decision. The owner's
+2026-09-16 MIT selection resolves the project-license decision only. Phase 69's
+publication approval, the private reporting channel and the other release
+prerequisites remain outstanding. No repository visibility or release was changed.

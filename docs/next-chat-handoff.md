@@ -38,18 +38,22 @@ This closeout also requires its own successful CI before final delivery. On any
 resumption inspect the latest remote main SHA/run; historical green checks and
 14-day artifacts do not authorize a new deployment or override current policy.
 
+Owner follow-up (2026-09-16): MIT selected and added as `LICENSE`. This resolves
+the project-license choice only; publication/private reporting channel, AWS and
+monitoring gates remain unchanged. Do not make the repository public automatically.
+
 ## Remaining phases
 
 | Phase | Remaining outcome / boundary |
 |---|---|
 | 62 | Runnable monitoring finalization; vulnerabilities, final image compatibility/delivery and monitoring CI remain deferred launch blockers |
 | 63 | Completed: 20/20 requests, p95 173 ms, Redis recovery 1.297 s, compatible rollback and 24 request/cost rows restored; monitoring checks remain with 62 |
-| 64 | Completed: focused security review, two actual synthetic captures, corrected README/script and current scans; license/publication remain gated |
+| 64 | Completed: focused security review, two actual synthetic captures, corrected README/script and current scans; MIT subsequently selected, publication remains gated |
 | 65 | Completed: practical checklist, current cost/provenance and gated cleanup package; launch decision BLOCKED |
 | 66 | Blocked before execution: owner AWS setup/explicit approval plus Phase 62 completion/current eligibility required |
 | 67 | Skipped: separate staging deployment is optional future work |
 | 68 | Skipped: separate production deployment is optional future work |
-| 69 | Separately approved repository release/license/closeout after required single-environment evidence; 67-68 are not prerequisites |
+| 69 | Separately approved repository publication/closeout after required single-environment evidence; MIT selected, 67-68 are not prerequisites |
 
 Bound the remaining work to the completion plan. Preserve staging/prod code and
 static checks, but do not create those environments or claim live validation.

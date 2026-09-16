@@ -10,5 +10,6 @@
 - Monitoring image remediation remains deferred and Phase 62 remains blocked.
   AWS is not deployed. One dev/demo is the approved planning scope; separate
   staging/prod deployments are skipped optional work.
-- License, visibility/publication, AWS setup/costs and any public exposure remain
+- MIT license selected by the owner on 2026-09-16; standard LICENSE added.
+- Visibility/publication, AWS setup/costs and any public exposure remain
   owner decisions. This file is preparation, not a published GitHub release.

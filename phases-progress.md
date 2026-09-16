@@ -24,6 +24,12 @@ CI prerequisite repaired: a291ad7 passed all 11 jobs in CI run 34190824931, incl
 
 Portfolio scope decision (2026-09-08): Phases 63-65 are bounded preparation, followed by one approved AWS dev/demo deployment in Phase 66. Separate staging and production deployments (67-68) are Skipped by owner scope decision, not completed; their existing configuration remains statically validated and live AWS behavior unclaimed. After approved Phase 66, the next required phase is 69 with separate publication approval. See docs/portfolio-completion-plan.md. No runtime implementation or AWS action occurred in this planning change.
 
+Owner license decision (2026-09-16): MIT selected explicitly and added as LICENSE
+with copyright 2026 Christian Kfoury. Current README, contribution guidance,
+publication decisions and handoff updated. This resolves only the license choice;
+Phase 69 is not completed, visibility stays private, and the reporting-channel,
+Phase 62 and Phase 66 prerequisites remain. Mandatory CI applies to this change.
+
 ## Phase table
 
 | Phase | Title | Status | Pushed To | Commit | Completed Date | Notes |

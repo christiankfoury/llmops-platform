@@ -20,6 +20,7 @@ AWS apply/destroy/resources, data deletion, real secrets, production, DNS/TLS an
 public exposure retain explicit approval gates. Do not bypass branch protection,
 force-push main, lower scanner thresholds or activate exceptions.
 
-The repository remains private and the license is undecided. Do not add a license,
-change visibility or publish releases without the owner's separate decision.
+The owner selected the [MIT License](LICENSE) on 2026-09-16. Preserve applicable
+third-party license notices. The repository remains private; visibility changes
+and release publication still require the owner's separate approval.
 Report security concerns through the process in [SECURITY.md](SECURITY.md).

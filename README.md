@@ -104,7 +104,7 @@ An approved private AWS dev/demo is sufficient for the portfolio. No production
 SLA, high availability, multi-environment AWS operation or live cloud restore is
 claimed. Phases 67–68 are skipped by owner scope decision. Phase 66 requires AWS
 setup, Phase 62 completion, current required CI and explicit approval; Phase 69
-has a separate publication/license decision.
+has a separate publication approval; the owner selected MIT on 2026-09-16.
 
 ## Observability and recovery
 
@@ -135,6 +135,8 @@ concurrency, scaling bounds and retention are separate cost controls.
 - [AWS setup and blocked launch decision](docs/aws-launch-checklist.md), [priced dev/demo proposal](docs/cost-analysis.md)
 - [Completion scope](docs/portfolio-completion-plan.md), [release decisions](docs/publication-decisions.md)
 
-The repository remains private, with no license selected or release published.
+The project uses the [MIT License](LICENSE), selected by the owner on 2026-09-16.
+Third-party dependencies and vendored materials retain their respective licenses.
+The repository remains private, with no release published.
 Historical phase reviews retain earlier runtime evidence; current claims follow
 this README, the latest phase progress and the linked measured results.
