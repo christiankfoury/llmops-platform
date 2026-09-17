@@ -21,7 +21,7 @@ record the results in that PR's rollout review before making a visibility decisi
 |---|---|
 | License | MIT selected; third-party notices retained. |
 | Presentation | Java/local behavior, twelve fixed sample requests and three actual application captures. Both backend/AI and platform/DevOps reading paths are provided. |
-| Documentation | Public engineering guides and dated technical evidence retained; chat handoffs, old execution prompts and personal operating notes retained privately. Historical Git content remains visible. |
+| Documentation | Public engineering guides and dated technical evidence retained. Process notes are removed from the current tree, with local backup copies preserved. Their earlier committed versions will remain visible in Git history after publication; this is curation, not historical redaction. |
 | Main protection | Required PRs and all eleven applicable GitHub Actions contexts, strict/up-to-date checks, administrator enforcement and conversation resolution; no extra reviewer, bypass, force push or deletion. |
 | Images | At the verified checkpoint, all three private GHCR images passed immutable read-back checks. Package settings showed inheritance disabled and explicit repository Actions access. Recheck access during the visibility transition. |
 | Exposure | Baseline and fourteen subsequent runs reviewed; [coverage and limitations](security/publication-review.md). New commits, PR material and retained run artifacts require incremental review. |
