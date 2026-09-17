@@ -97,8 +97,12 @@ runs the identical anchored build/test/scan steps, while the main image job is
 inactive. Skipping either context's required image job fails the aggregate check.
 Only the main image job has `packages: write`; all other CI jobs retain read-only
 contents access. Its token is passed to the guarded retention step, not stored in
-checkout credentials. Existing destination packages must be private and linked
-to this repository; missing packages can only be created from this private repo.
+checkout credentials. Existing destinations must be private containers with the
+fixed package name and repository owner. Conflicting repository metadata is
+rejected; GHCR can omit that optional REST field. The exact source-repository
+label is required inside the verified OCI config, before push and after pull.
+Scoped token access, current CI provenance and full digest checks remain required;
+missing packages can only be created from this private repo.
 No workflow changes package visibility, grants public access or deletes packages.
 
 Large image archives are no longer uploaded to Actions by CI. Smaller reports,

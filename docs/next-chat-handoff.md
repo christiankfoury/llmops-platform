@@ -61,9 +61,19 @@ First GHCR candidate `14cefc5`, run `35165106845`, passed image builds, scans an
 local registry rehearsal, then failed its required post-upload package metadata
 check. No GHCR round-trip evidence or green eligibility exists yet. A bounded
 follow-up adds source-repository build labels and clearer safe diagnostics. The
-CLI lacks package-read scope and the in-app browser needs owner sign-in to inspect
-the existing API package's private visibility/repository association. Preserve the
-guard; labels alone cannot repair a package rejected before the next upload.
+Owner sign-in allowed a read-only settings check: the API package is private,
+linked to this repository and grants it Actions access. No settings changed.
+Follow-up `b90639f`, run `35168711182`, still failed because the REST guard assumed
+repository linkage was always returned for granular GHCR packages. The next fix
+checks fixed package ownership/privacy, rejects conflicting linkage when supplied,
+and requires the source label inside digest-verified OCI configuration bytes.
+Trust still depends on exact-revision eligible CI and complete blob verification.
+
+The account page confirmed Actions storage at 2 GB used / 2 GB included (100%),
+with included usage resetting in 14 days on 2026-09-16. Storage accrues hourly;
+deleting archives does not restore already consumed monthly allowance. Current
+Actions billed usage was zero. A 6-12 hour refresh is not a guaranteed unblock.
+Keep small evidence uploads mandatory and do not change billing automatically.
 
 The original Phase 62 work and a monitoring-only review patch remain uncommitted.
 Custom rebuild experiments are backed up under the ignored local cache. The GHCR

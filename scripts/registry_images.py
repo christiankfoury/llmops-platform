@@ -10,6 +10,7 @@ import json
 import os
 import re
 import subprocess
+import tarfile
 import tempfile
 import urllib.error
 import urllib.request
@@ -40,13 +41,28 @@ def validate_storage(manifest: dict) -> None:
             raise ValueError("Foreign, mutable or substituted registry source")
 
 
-def verify_image(path: Path, record: dict, registry: bool) -> None:
+def verify_image(path: Path, record: dict, registry: bool, require_source: bool = False) -> None:
     actual = inspect_oci(path)  # Verifies every referenced blob, not just index metadata.
     if registry:
         if any(actual[field] != record[field] for field in FIELDS):
             raise ValueError("Registry image differs from the tested/scanned image")
     elif actual != record:
         raise ValueError("OCI archive differs from the tested/scanned image")
+    if registry or require_source:
+        # Bind source metadata to the already verified config digest, not an API
+        # repository relationship which GHCR's granular package response can omit.
+        config_name = "blobs/sha256/" + actual["config_digest"].split(":")[1]
+        with tarfile.open(path, "r:*") as archive:
+            member = next(
+                item for item in archive.getmembers() if item.name.removeprefix("./") == config_name
+            )
+            with archive.extractfile(member) as stream:
+                config = json_bytes(stream.read(1_000_001))
+        source = (config.get("config", {}).get("Labels") or {}).get(
+            "org.opencontainers.image.source"
+        )
+        if source != "https://github.com/" + REPOSITORY:
+            raise ValueError("Verified image must identify this source repository")
 
 
 def invoke(arguments: list[str]) -> bytes:
@@ -88,8 +104,14 @@ def private_package(name: str, token: str, allow_missing: bool = False) -> None:
         raise ValueError("Package visibility must be private")
     if data.get("package_type") != "container" or data.get("name") != package:
         raise ValueError("Package identity does not match the fixed destination")
-    if (data.get("repository") or {}).get("full_name") != REPOSITORY:
-        raise ValueError("Private package must be linked to this repository")
+    if (data.get("owner") or {}).get("login") != owner:
+        raise ValueError("Private package must belong to the fixed repository owner")
+    # Repository linkage is optional for granular GHCR packages in the REST API.
+    # Reject conflicting linkage when supplied; source labels in verified OCI
+    # bytes, trusted-main CI identity and digest checks establish image provenance.
+    repository = data.get("repository")
+    if repository is not None and repository.get("full_name") != REPOSITORY:
+        raise ValueError("Package metadata identifies a conflicting repository")
 
 
 @contextlib.contextmanager
@@ -184,7 +206,12 @@ def publish_images() -> None:
         # Check every destination before writing any package.
         for name in IMAGES:
             private_package(name, token, allow_missing=True)
-            verify_image(directory / f"{name}.oci.tar", manifest["images"][name], registry=False)
+            verify_image(
+                directory / f"{name}.oci.tar",
+                manifest["images"][name],
+                registry=False,
+                require_source=True,
+            )
         for name in IMAGES:
             record = manifest["images"][name]
             target = image_repository(name) + f":{revision}-{run}-{attempt}"

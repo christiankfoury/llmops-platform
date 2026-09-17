@@ -21,6 +21,7 @@ from validate_ci_policy import check_image_source_labels  # noqa: E402
 class RegistryImagesTest(unittest.TestCase):
     def setUp(self):
         self.fixture = fixtures.BundleTest()
+        self.fixture.source = "https://github.com/" + REPOSITORY
         self.fixture.setUp()
         self.addCleanup(self.fixture.doCleanups)
         self.path = self.fixture.archive()
@@ -81,17 +82,19 @@ class RegistryImagesTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 registry.validate_storage(bad)
 
-    def test_public_unlinked_and_inaccessible_packages_fail_closed(self):
+    def test_public_foreign_and_inaccessible_packages_fail_closed(self):
         package = {
             "name": "production-ai-platform-ci-api",
             "package_type": "container",
             "visibility": "private",
             "repository": {"full_name": REPOSITORY},
+            "owner": {"login": REPOSITORY.split("/")[0]},
         }
         for bad in (
             {**package, "visibility": "public"},
             {**package, "repository": {"full_name": "foreign/repo"}},
-            {**package, "repository": None},
+            {**package, "owner": {"login": "foreign"}},
+            {**package, "owner": None},
             {**package, "name": "foreign-package"},
             {**package, "package_type": "npm"},
         ):
@@ -106,6 +109,16 @@ class RegistryImagesTest(unittest.TestCase):
             return_value=io.BytesIO(json.dumps(package).encode()),
         ):
             registry.private_package("api", "synthetic-token")
+        # GHCR's granular metadata can omit repository even when the UI is linked.
+        # Privacy and ownership are still checked; image source is verified below.
+        for repository_field in ({"repository": None}, {}):
+            response = {k: v for k, v in package.items() if k != "repository"}
+            response.update(repository_field)
+            with patch(
+                "registry_images.urllib.request.urlopen",
+                return_value=io.BytesIO(json.dumps(response).encode()),
+            ):
+                registry.private_package("api", "synthetic-token")
         for code in (401, 403, 404, 500):
             error = urllib.error.HTTPError("https://api.github.com", code, "fixture", {}, None)
             with patch("registry_images.urllib.request.urlopen", side_effect=error):
@@ -157,6 +170,23 @@ class RegistryImagesTest(unittest.TestCase):
                 bad["steps"][index]["with"]["labels"] = label
                 with self.subTest(index=index, label=label), self.assertRaises(ValueError):
                     check_image_source_labels(bad)
+
+    def test_verified_registry_bytes_require_the_exact_source_repository(self):
+        for source in (None, "https://github.com/foreign/repo"):
+            fixture = fixtures.BundleTest()
+            fixture.source = source
+            fixture.setUp()
+            self.addCleanup(fixture.doCleanups)
+            path = fixture.archive()
+            record = inspect_oci(path)
+            # Historical Actions archives retain their original byte checks.
+            registry.verify_image(path, record, registry=False)
+            for registry_mode in (True, False):
+                with (
+                    self.subTest(source=source, registry=registry_mode),
+                    self.assertRaises(ValueError),
+                ):
+                    registry.verify_image(path, record, registry=registry_mode, require_source=True)
 
     def test_registry_errors_do_not_echo_credentials_or_response_bodies(self):
         with patch("registry_images.subprocess.run") as run:

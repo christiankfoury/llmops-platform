@@ -31,7 +31,7 @@ secrets, account billing settings or repository visibility changed.
 - Existing Helm release validation passed for dev/staging/prod, including rejected
   mutable references and unsafe inputs. No AWS deployment is inferred.
 - New tests reject changed OCI blobs/configuration/root manifests, foreign/mutable
-  registry references, public/unlinked packages, unsupported publication contexts
+  registry references, public/foreign packages, unsupported publication contexts
   and missing/skipped context-specific image validation.
 - Real private GHCR push/read-back and full current-revision CI remain to be
   verified by the pushed candidate. Historical green runs are not substitutes.
@@ -88,3 +88,33 @@ remain. Optional staging/prod remain skipped. No source publication was performe
   the failing metadata field or relax the check. If an association is missing,
   connect the fixed private package to this repository; do not change visibility.
   New image labels do not by themselves prove that an existing package is linked.
+
+## Package API compatibility follow-up
+
+Owner sign-in resolved the inspection blocker. The existing API package settings
+showed private visibility, the correct source repository and Actions access with
+inherited repository permissions. No settings were changed. Candidate `b90639f`
+(run `35168711182`) still failed the repository-field check before any upload;
+privacy and package identity passed. The REST container response can omit the
+repository relationship even when the web settings show it.
+
+The corrected guard requires the fixed owner, exact package name/type and private
+visibility, rejects a conflicting repository when returned, and checks the source
+label inside the digest-verified runtime configuration before push and after pull.
+It does not treat a source label alone as trusted provenance: full OCI blob hashes,
+tested configuration/root/runtime digests, fixed registry paths, trusted main
+identity and current successful CI evidence remain mandatory. GitHub's scoped
+workflow token must still successfully access each private package. See the
+[package API](https://docs.github.com/en/rest/packages/packages) and
+[container registry access model](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry).
+
+Local validation: 38 unit tests passed, including missing/foreign source labels,
+private package ownership, absent optional repository metadata and conflicting
+repository metadata. Ruff and CI policy validation passed. Live round-trip and
+full mandatory CI must still run on this fix.
+
+Read-only billing inspection confirmed 100% of the included Actions storage
+allowance consumed, with a reset in 14 days and zero currently billed usage.
+Small evidence uploads remain an external blocker; a quota refresh after archive
+cleanup cannot be promised to restore accrued monthly usage. No billing change,
+additional deletion, scanner exception or evidence bypass was made.

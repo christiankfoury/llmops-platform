@@ -29,9 +29,10 @@ class BundleTest(unittest.TestCase):
             self.members["blobs/sha256/" + digest] = data
             return {"digest": "sha256:" + digest, "size": len(data), "mediaType": media}
 
-        self.config = blob(
-            b'{"os":"linux","architecture":"amd64"}', "application/vnd.oci.image.config.v1+json"
-        )
+        config = {"os": "linux", "architecture": "amd64"}
+        if getattr(self, "source", None) is not None:
+            config["config"] = {"Labels": {"org.opencontainers.image.source": self.source}}
+        self.config = blob(json.dumps(config).encode(), "application/vnd.oci.image.config.v1+json")
         layer = blob(b"synthetic-layer", "application/vnd.oci.image.layer.v1.tar+gzip")
         self.manifest = blob(
             json.dumps({"schemaVersion": 2, "config": self.config, "layers": [layer]}).encode(),
