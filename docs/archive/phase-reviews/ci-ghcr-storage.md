@@ -113,8 +113,7 @@ private package ownership, absent optional repository metadata and conflicting
 repository metadata. Ruff and CI policy validation passed. Live round-trip and
 full mandatory CI must still run on this fix.
 
-Read-only billing inspection confirmed 100% of the included Actions storage
-allowance consumed, with a reset in 14 days and zero currently billed usage.
-Small evidence uploads remain an external blocker; a quota refresh after archive
-cleanup cannot be promised to restore accrued monthly usage. No billing change,
-additional deletion, scanner exception or evidence bypass was made.
+At this checkpoint, the account's evidence-upload allowance remained an external
+blocker. The subsequent [cost-control review](ci-cost-controls.md) records its
+resolution and a successful complete CI run. No scanner exception or evidence
+bypass was used.

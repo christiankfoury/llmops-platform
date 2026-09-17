@@ -1,6 +1,6 @@
 # Java usage and operator APIs
 
-Phase 54 ports the dashboard query contract and prompt/model configuration to Java. AWS remains the target. Python is still the Docker/Helm reference until Phase 58; Phase 55 supplies OIDC roles and server-side project grants. Live AWS deployment evidence remains a later phase.
+Phases 54–55 introduced the Java dashboard query/configuration contract and OIDC project grants. Java is now the default Docker Compose/Helm runtime after the Phase 58 cutover; Python remains a compatibility reference. AWS is not deployed. See [current progress](../phases-progress.md).
 
 ## Operator access
 
@@ -33,8 +33,8 @@ Configuration and its audit row commit together in a five-second transaction. Au
 
 Payloads are flat, strict JSON objects with known fields. Duplicate keys, trailing documents, unknown fields and scalar coercion are rejected with safe 422 errors. Bodies are limited to 256 KiB; prompt content to 32,000 Unicode code points, matching the gateway execution limit. NUL/unpaired surrogates are rejected. JSON booleans and positive integers must have their actual types; numeric/boolean strings are not coerced. Optional null patch fields leave the corresponding property unchanged, matching the reference. Oversized bodies return 413. Text defaults, activation/default flags and priority retain the reference defaults.
 
-## Validation and next step
+## Validation and current state
 
 Required PostgreSQL tests cover summary/list field sets, decimal/null fidelity, filters, stable pagination, active scopes, configuration concurrency, cross-application isolation, audit rollback and gateway use of configured resources. Phase 55 adds project authorization and verified audit identity. Existing dashboard contract tests remain in place alongside session/OIDC tests.
 
-The packaged-service smoke uses a temporary signed identity and explicitly provisioned grants. It validates anonymous refusal, the synthetic nine-request summary after gateway/client telemetry ingestion, all six dashboard reads and authenticated prompt creation. Redis readiness/limits, observability and runtime cutover follow in Phases 56-58.
+The packaged-service smoke uses a temporary signed identity and explicitly provisioned grants. It validates anonymous refusal, the synthetic nine-request summary after gateway/client telemetry ingestion, all six dashboard reads and authenticated prompt creation. Redis readiness/limits, application observability and the Java runtime cutover are implemented. Monitoring finalization and AWS deployment remain blocked; see [observability status](observability.md).

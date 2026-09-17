@@ -62,7 +62,10 @@ Expected operator response:
 
 ## Dashboard Interpretation
 
-Use the dashboard filters to inspect AgentOps traffic:
+In authenticated mode, use the dashboard filters to inspect ingested AgentOps traffic.
+The default Demo mode shows fixed sample rows and does not query the platform API.
+Configure [operator sign-in and project grants](java-operator-security.md) before
+using dashboard rows to validate newly submitted events.
 
 - `source_app=agentops` isolates AgentOps traffic from gateway-originated and Proofbase traffic.
 - `operation_type=agent_step` shows model-backed agent-step events that may include token and estimated-cost data.
@@ -86,11 +89,18 @@ Use the contract and cross-repository checks:
 .\.venv\Scripts\python scripts\send_agentops_browser_demo_event.py
 ```
 
-Then open `http://localhost:3000`, filter **Source App** to `agentops`, and inspect the resulting dashboard rows.
+The sender validates ingestion independently of the dashboard. To inspect its events
+in the UI, configure operator sign-in, grant access to the AgentOps project, then open
+`http://localhost:3000` and filter **Source App** to `agentops`. Demo mode remains fixed
+even after a successful submission; its sample rows are not ingestion evidence.
 
-AgentOps-side validation lives in the sibling repository:
+AgentOps-side checks are optional cross-repository validation. From a checkout of
+`agentops-workflow-platform`, with its API virtualenv and test prerequisites installed:
 
 ```powershell
-S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe scripts\test_phase45_mocked_platform_receiver.py
-S:\github-repos\agentops-workflow-platform\apps\api\.venv\Scripts\python.exe scripts\send_platform_telemetry_smoke.py
+.\apps\api\.venv\Scripts\python.exe scripts\test_phase45_mocked_platform_receiver.py
+.\apps\api\.venv\Scripts\python.exe scripts\send_platform_telemetry_smoke.py
 ```
+
+On Unix, use `apps/api/.venv/bin/python`. The platform's default local demo does
+not require either client repository.

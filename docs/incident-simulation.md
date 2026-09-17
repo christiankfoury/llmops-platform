@@ -1,5 +1,12 @@
 # Incident Simulation
 
+This is a planned monitoring/cloud tabletop scenario. The default Compose stack
+does not run the alerting stack, AWS is not deployed, and monitoring finalization
+remains [blocked](security/monitoring-vulnerability-backlog.md). The local mock failure
+commands below can exercise API behavior, but do not establish that these alerts or
+cloud rollback have run. For measured recovery evidence, use the
+[local rehearsal](local-recovery-rehearsal.md).
+
 ## Scenario
 
 A new gateway release causes a spike in provider failures and HTTP 5xx responses.

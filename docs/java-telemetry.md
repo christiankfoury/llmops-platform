@@ -1,6 +1,6 @@
 # Java client telemetry ingestion
 
-Phase 53 implements `POST /v1/usage/llm-events` for Proofbase and AgentOps. AWS remains the target; Python remains the Docker/Helm runtime until Phase 58. This endpoint receives operational metadata. It neither executes client workflows nor handles RAG documents, prompts, generated answers, or tool payloads.
+Phase 53 introduced `POST /v1/usage/llm-events` for Proofbase and AgentOps. Java is now the default Docker Compose/Helm runtime; Python remains a compatibility reference. AWS is not deployed. This endpoint receives operational metadata. It neither executes client workflows nor handles RAG documents, prompts, generated answers, or tool payloads.
 
 ## Authentication and attribution
 
@@ -38,7 +38,7 @@ The existing unique application/event constraint arbitrates concurrent writes us
 
 Bounded telemetry event/error/cost/token counters increment after the transaction returns. Only a newly committed event contributes cost or tokens; duplicates, validation failures and rolled-back writes do not. Source and operation labels come from finite sets; arbitrary error categories collapse to other. Model names, IDs and operational strings never become labels. These are process counters rather than a durable billing ledger; a process crash after database commit can miss a metric increment. Full Prometheus exposure, tracing and structured logs arrive in Phase 57; database queries remain the durable usage source.
 
-Client sending remains optional and best-effort in the unchanged client helpers. Receiver errors/timeouts do not become workflow failures. Distributed admission limits, operator access control, runtime cutover and live AWS evidence remain subsequent phases.
+Client sending remains optional and best-effort in the unchanged client helpers. Receiver errors/timeouts do not become workflow failures. Distributed admission limits, operator access control and the Java runtime cutover are implemented. Live AWS evidence remains outstanding; see [current progress](../phases-progress.md).
 
 ## Reproducing validation
 

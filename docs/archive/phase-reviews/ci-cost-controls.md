@@ -2,8 +2,8 @@
 
 ## Summary and scope
 
-Implement the owner's USD 5/month account-wide Actions overage plan. Keep private
-GHCR images and 14-day Actions reports. Document billing-aware agent behavior,
+Bound CI resource use while keeping private GHCR images and 14-day Actions reports.
+Document the distinction between workflow resource controls and account billing,
 bound job runtimes and cancel superseded PR runs without cancelling main evidence.
 No application, monitoring prototype, AWS or report-transport changes are included.
 
@@ -31,18 +31,12 @@ previous image-fix run used roughly 22 rounded runner-minutes (USD 0.13 if fully
 billable), and verified all three private GHCR image round trips. Its required
 report uploads failed on the exhausted Actions storage allowance.
 
-## Billing and rollout gate
+## Rollout prerequisite
 
-The owner saved a payment method. The refreshed form removed the payment blocker;
-the existing Actions budget was then changed to USD 5 with Stop usage and
-75/90/100% alerts retained. GitHub confirmed the update. Other product budgets
-and included-usage alerts were not changed. The billing prerequisite for this
-candidate is satisfied; no payment details or billing credentials are stored here.
-
-Next: push this candidate, run all mandatory CI, verify exact-revision
-eligibility and inspect actual usage/artifact sizes. Record its run and result in
-the handoff. Do not repeatedly rerun unchanged quota failures or raise the budget
-automatically. Phase 62 remains Blocked and Phase 66 requires separate approval.
+An account allowance initially prevented required evidence uploads. The account
+configuration was resolved separately; no payment details or billing settings are
+part of this public review. The completed run below verifies restored uploads and
+release evidence. CI limits do not authorize monitoring or AWS deployment.
 
 ## Post-commit review
 

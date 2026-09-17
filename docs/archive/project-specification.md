@@ -18,7 +18,7 @@ vulnerability remediation deferred. The owner-selected independent
 Phases 63-65 preparation is completed: local recovery, security/demo evidence and
 a practical AWS checklist/cost estimate. Execution is stopped before Phase 66
 for monitoring completion, owner AWS setup and explicit approval. This does not remove runnable monitoring from the product
-or grant deployment eligibility. See [the handoff](../next-chat-handoff.md).
+or grant deployment eligibility. See [current progress](../../phases-progress.md).
 
 Completion scope (owner direction, 2026-09-08): bounded local verification,
 focused security/demo preparation and one approved AWS dev/demo deployment.

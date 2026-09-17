@@ -97,6 +97,14 @@ agent workflows. [Integration boundaries](docs/architecture.md#client-integratio
 
 ## Documentation
 
+For **backend and AI engineering**, follow the [gateway](docs/java-gateway.md),
+[authorization design](docs/java-operator-security.md),
+[telemetry contract](docs/external-telemetry-contract.md) and [tests](docs/testing.md).
+
+For **platform and DevOps engineering**, follow [CI/CD](docs/ci-cd.md),
+[AWS ownership](docs/targetgroupbinding-design.md),
+[observability](docs/observability.md) and the [recovery rehearsal](docs/local-recovery-rehearsal.md).
+
 Start with the [documentation index](docs/README.md): architecture, local setup,
 security, testing, releases, recovery and costs. Historical implementation notes are
 kept in the [archive](docs/archive/README.md); [progress](phases-progress.md) distinguishes

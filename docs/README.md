@@ -1,5 +1,10 @@
 # Documentation
 
+Two reading paths:
+
+- **Backend / AI engineering:** [gateway](java-gateway.md), [operator authorization](java-operator-security.md), [telemetry contracts](external-telemetry-contract.md), [tests](testing.md).
+- **Platform / DevOps:** [delivery](ci-cd.md), [infrastructure ownership](targetgroupbinding-design.md), [observability](observability.md), [recovery](local-recovery-rehearsal.md).
+
 | Topic | Start here | Supporting material |
 |---|---|---|
 | Local setup and demo | [Run locally](deployment.md) | [Walkthrough](demo-script.md), [screenshots](dashboard-screenshots.md) |

@@ -37,7 +37,12 @@ not proof that every dependency is free of vulnerabilities.
 - Optional staging/prod configuration stays intact and statically tested, without
   live deployment/HA/SLA claims. Local restore timings are not cloud RTO/RPO.
 
-## Remaining decisions and blockers
+## Decisions and blockers at the Phase 64 checkpoint
+
+The following records that earlier checkpoint. MIT was subsequently selected,
+Phase 65 completed, and source sharing was separated from AWS completion. See the
+[current publication record](../publication-decisions.md); the monitoring blocker
+still applies to monitoring/cloud deployment.
 
 Read-only GitHub inspection found a private repository, no license, no releases,
 and zero deployment environments. [Publication decisions](../publication-decisions.md)

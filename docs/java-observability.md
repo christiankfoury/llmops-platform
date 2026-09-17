@@ -1,6 +1,6 @@
 # Java metrics, logs and traces
 
-Phase 57 implements the Java runtime's operational instrumentation. AWS remains the target. Runtime image/Helm cutover follows in Phase 58; the runnable monitoring stack and real dashboard/alert evidence follow in Phase 62. Existing Python monitoring instructions describe the reference runtime until cutover.
+Phase 57 introduced the Java runtime's operational instrumentation; Java is now the default image/Helm runtime after Phase 58. Monitoring has dated local prototype evidence, but Phase 62 finalization remains blocked. AWS is not deployed. Older Python monitoring instructions describe only the compatibility reference. See [monitoring status](observability.md).
 
 ## Management access
 
