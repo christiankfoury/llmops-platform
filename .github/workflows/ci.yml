@@ -403,7 +403,7 @@ jobs:
   # This catches Dockerfile/runtime issues before Kubernetes or Helm ever see them.
   docker:
     name: Production image build and scan
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/production-ai-platform' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/llmops-platform' }}
     permissions:
       contents: read
       packages: write
@@ -437,7 +437,7 @@ jobs:
           push: false
           platforms: linux/amd64
           outputs: type=oci,dest=.maven-cache/release-images/api.oci.tar,compression=gzip
-          labels: org.opencontainers.image.source=https://github.com/christiankfoury/production-ai-platform
+          labels: org.opencontainers.image.source=https://github.com/christiankfoury/llmops-platform
           tags: |
             production-ai-platform-api:ci
             production-ai-platform-api:local
@@ -456,7 +456,7 @@ jobs:
           push: false
           platforms: linux/amd64
           outputs: type=oci,dest=.maven-cache/release-images/migration.oci.tar,compression=gzip
-          labels: org.opencontainers.image.source=https://github.com/christiankfoury/production-ai-platform
+          labels: org.opencontainers.image.source=https://github.com/christiankfoury/llmops-platform
           tags: |
             production-ai-platform-migration:ci
             production-ai-platform-migration:local
@@ -472,7 +472,7 @@ jobs:
           push: false
           platforms: linux/amd64
           outputs: type=oci,dest=.maven-cache/release-images/web.oci.tar,compression=gzip
-          labels: org.opencontainers.image.source=https://github.com/christiankfoury/production-ai-platform
+          labels: org.opencontainers.image.source=https://github.com/christiankfoury/llmops-platform
           tags: |
             production-ai-platform-web:ci
             production-ai-platform-web:local
@@ -502,7 +502,7 @@ jobs:
           python3 scripts/release_bundle.py rehearse
 
       - name: Retain verified images in private GHCR
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/production-ai-platform' }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/llmops-platform' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 scripts/registry_images.py publish
@@ -697,18 +697,18 @@ jobs:
           validation_needs(os.environ['GITHUB_EVENT_NAME'], os.environ['GITHUB_REF'], os.environ['GITHUB_REPOSITORY'], jobs)
           PY
       - name: Collect supply-chain evidence from this run
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/production-ai-platform'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/llmops-platform'
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: '*-supply-chain-${{ github.run_attempt }}'
           path: .maven-cache/eligibility-inputs
       - name: Create exact-revision candidate evidence
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/production-ai-platform'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/llmops-platform'
         env:
           CI_NEEDS_JSON: ${{ toJSON(needs) }}
         run: python3 scripts/release_eligibility.py candidate --inputs .maven-cache/eligibility-inputs --output .maven-cache/release/eligibility.json
       - name: Retain candidate for completed-run verification
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/production-ai-platform'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/llmops-platform'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: release-eligibility-${{ github.sha }}-${{ github.run_attempt }}

@@ -6,21 +6,21 @@ Phase 31 focused on Proofbase (`enterprise-knowledge-agent`) first. Phases 41-47
 
 ## Integration Goal
 
-Production AI Platform should centralize LLMOps visibility for external applications without taking over their product-layer behavior.
+LLMOps Platform should centralize LLMOps visibility for external applications without taking over their product-layer behavior.
 
 For Proofbase, that means:
 
 - Proofbase keeps owning RAG, retrieval, citations, permissions, memory behavior, document workflows, and answer-quality evaluation.
-- Production AI Platform receives normalized events for model usage, estimated cost, latency, status, token usage, request IDs, and bounded metadata.
-- Proofbase continues to work if Production AI Platform is unavailable.
+- LLMOps Platform receives normalized events for model usage, estimated cost, latency, status, token usage, request IDs, and bounded metadata.
+- Proofbase continues to work if LLMOps Platform is unavailable.
 
 This phase does not route Proofbase provider calls through the gateway. Gateway-routed Proofbase calls are a later option after the gateway supports the richer RAG provider contract.
 
 For AgentOps, that means:
 
 - AgentOps keeps owning workflow execution, agent planning, prompts, structured outputs, retries, tool behavior, and workflow state.
-- Production AI Platform receives normalized events for model usage, estimated cost, latency, status, token usage, retry count, workflow/step IDs, and bounded agent metadata.
-- AgentOps continues to work if Production AI Platform is unavailable.
+- LLMOps Platform receives normalized events for model usage, estimated cost, latency, status, token usage, retry count, workflow/step IDs, and bounded agent metadata.
+- AgentOps continues to work if LLMOps Platform is unavailable.
 
 The AgentOps implementation plan is documented in [agentops-integration-plan.md](archive/agentops-integration-plan.md).
 
@@ -34,7 +34,7 @@ X-API-Key: <application API key>
 Idempotency-Key: <optional stable event key>
 ```
 
-The API key identifies the calling Production AI Platform application record. The request body identifies the external operation and usage facts.
+The API key identifies the calling LLMOps Platform application record. The request body identifies the external operation and usage facts.
 
 Accepted events are persisted as gateway request records with external telemetry fields and, when cost is present, matching cost records. This makes external events visible in the existing usage summary and request-list endpoints without claiming that the gateway performed the provider call.
 
@@ -106,7 +106,7 @@ Example payload:
 | `generation_latency_ms` | integer | Proofbase-specific generation latency. |
 | `error_category` | string | Bounded category such as `provider_error`, `provider_timeout`, `validation_error`, `rate_limited`, or `unknown`. Required when `status` is `failed` if known. |
 | `error_message_redacted` | string | Short sanitized message. No prompts, document text, provider payloads, or secrets. |
-| `project_external_id` | string | Source app project identifier. It is not a Production AI Platform project UUID. |
+| `project_external_id` | string | Source app project identifier. It is not an LLMOps Platform project UUID. |
 | `department_external_id` | string | Optional Proofbase department identifier. |
 | `metadata` | object | Bounded sanitized operational metadata. Keys and values must be allowlisted by the source app. |
 
@@ -136,7 +136,7 @@ AgentOps phases should add these operation types:
 
 External telemetry must not include these values by default:
 
-- Production AI Platform API keys.
+- LLMOps Platform API keys.
 - Provider API keys or credentials.
 - Authorization headers, cookies, session tokens, or database connection strings.
 - Full prompts or system messages.
@@ -237,7 +237,7 @@ Proofbase already has local request/cost fields that can map to this contract:
 | `project_id` | `project_external_id` |
 | `department_id` | `department_external_id` |
 
-Proofbase's local observability log may keep app-local diagnostics such as truncated questions. Those fields must not cross into Production AI Platform telemetry unless a later privacy review explicitly approves them.
+Proofbase's local observability log may keep app-local diagnostics such as truncated questions. Those fields must not cross into LLMOps Platform telemetry unless a later privacy review explicitly approves them.
 
 ## AgentOps Field Mapping
 
@@ -261,11 +261,11 @@ AgentOps already has local workflow, step, and cost fields that can map to this 
 | `AgentStep.retry_count` | `metadata.retry_count` |
 | sanitized local error category | `error_category` |
 
-AgentOps local records may keep workflow input/output JSON and error messages. Those fields must not cross into Production AI Platform telemetry unless a later privacy review explicitly approves a redacted debug mode.
+AgentOps local records may keep workflow input/output JSON and error messages. Those fields must not cross into LLMOps Platform telemetry unless a later privacy review explicitly approves a redacted debug mode.
 
 ## Phase Notes
 
-Phase 32 implements the Production AI Platform ingestion API from this contract.
+Phase 32 implements the LLMOps Platform ingestion API from this contract.
 
 Phases 33-39 should connect Proofbase one operation group at a time:
 

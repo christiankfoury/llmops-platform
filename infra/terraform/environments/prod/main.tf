@@ -7,7 +7,7 @@ locals {
     Project     = local.project_name
     Environment = local.environment
     ManagedBy   = "terraform"
-    Repository  = "christiankfoury/production-ai-platform"
+    Repository  = "christiankfoury/llmops-platform"
   }
 }
 

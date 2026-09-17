@@ -6,7 +6,7 @@ This repository does not deploy Loki by default. It provides the config shape ne
 
 ## Files
 
-- `promtail-config.yaml`: Kubernetes pod log scrape config for Production AI Platform workloads.
+- `promtail-config.yaml`: Kubernetes pod log scrape config for LLMOps Platform workloads.
 - `../grafana/provisioning/datasources/loki.yaml`: Grafana Loki datasource provisioning.
 - `../grafana/dashboards/ai-platform-logs.json`: Grafana logs dashboard with error and request-correlation panels.
 

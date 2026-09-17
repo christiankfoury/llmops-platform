@@ -12,7 +12,7 @@ import subprocess
 import zipfile
 from pathlib import Path
 
-REPOSITORY = "christiankfoury/production-ai-platform"
+REPOSITORY = "christiankfoury/llmops-platform"
 WORKFLOW = ".github/workflows/ci.yml"
 ROOT = Path(__file__).resolve().parents[1]
 POLICY_FILES = (
@@ -45,7 +45,7 @@ REQUIRED = {
     "tgb": "tgb / compatibility",
 }
 PR_IMAGE_JOB = "Pull-request image build and scan"
-MAIN_IMAGE_IF = "${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/production-ai-platform' }}"
+MAIN_IMAGE_IF = "${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/llmops-platform' }}"
 PR_IMAGE_IF = "${{ github.event_name == 'pull_request' }}"
 
 

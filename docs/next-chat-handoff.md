@@ -37,7 +37,7 @@ New findings and final settings/CI readbacks belong in the publication decision 
 
 ## Publication implementation and review
 
-The cleanup is in [PR #2](https://github.com/christiankfoury/production-ai-platform/pull/2).
+The cleanup is in [PR #2](https://github.com/christiankfoury/llmops-platform/pull/2).
 Application/capture commit `b6e59ff` passed local frontend checks, Compose smoke and
 history review (204 commits; ten existing synthetic findings). Screenshot source
 hashes and archived JSON evidence were verified. A separate review fix corrects
@@ -77,3 +77,18 @@ Superseded PR run `35183603661` was canceled after the additional filter finding
 The four newly completed PR/review runs and their 17 downloadable log/artifact
 archives were inventoried and scanned with zero detections. Current final PR and
 main evidence still require their own verification and exposure review.
+
+## LLMOps Platform rename follow-up
+
+The owner approved the repository/display-name change to `llmops-platform` /
+**LLMOps Platform**, plus the description in README. Work is isolated on
+`codex/llmops-platform-name`; the local workspace directory stays unchanged to
+preserve both dirty Phase 62 trees. CI repository identity, source labels, GitOps
+URLs and future AWS OIDC configuration move together; private package/resource
+names remain stable as documented in [CI/CD](ci-cd.md#repository-name).
+
+The preceding screenshot refresh merged as `47f02fd`; main CI `35244773489`
+attempt 1 and exact-revision verification passed. Its [rollout review](https://github.com/christiankfoury/llmops-platform/pull/3#issuecomment-5717686186)
+records current publication evidence and cost observations. Record rename PR/main
+verification in the rename PR rollout review. Visibility approval and AWS gates
+remain pending.

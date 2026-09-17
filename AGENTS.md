@@ -1,6 +1,6 @@
 # Repository engineering guide
 
-Production AI Platform is an operations-focused Java LLM gateway and usage dashboard.
+LLMOps Platform is an operations-focused Java LLM gateway and usage dashboard.
 Proofbase owns RAG; AgentOps owns workflow execution. Integrations here carry operational
 metadata only: never prompts, generated content, tool payloads or customer documents.
 

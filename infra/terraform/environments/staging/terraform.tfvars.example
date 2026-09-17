@@ -16,7 +16,7 @@ budget_alert_enabled      = false
 budget_monthly_limit_usd  = "250"
 budget_alert_subscriber_emails = []
 create_github_actions_role = false
-github_repository         = "christiankfoury/production-ai-platform"
+github_repository         = "christiankfoury/llmops-platform"
 
 # Resolve actual role and add-on versions through read-only AWS preflight before any plan/apply.
 bootstrap_principal_arn = "arn:aws:iam::000000000000:role/replace-with-bootstrap-role"

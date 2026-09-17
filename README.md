@@ -1,10 +1,10 @@
-# Production AI Platform
+# LLMOps Platform
 
-[![CI](https://github.com/christiankfoury/production-ai-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/christiankfoury/production-ai-platform/actions/workflows/ci.yml)
+[![CI](https://github.com/christiankfoury/llmops-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/christiankfoury/llmops-platform/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A Java LLM gateway and usage dashboard with reproducible delivery, project-scoped
-access, infrastructure as code, and tested local recovery procedures.
+An LLM gateway and operations dashboard with usage tracking, cost monitoring,
+and reproducible cloud infrastructure.
 
 **Java 21 · Spring Boot · Next.js · PostgreSQL · Redis · Terraform · Kubernetes · Helm**
 
@@ -29,8 +29,8 @@ access, infrastructure as code, and tested local recovery procedures.
 With Git and Docker Compose available:
 
 ```sh
-git clone https://github.com/christiankfoury/production-ai-platform.git
-cd production-ai-platform
+git clone https://github.com/christiankfoury/llmops-platform.git
+cd llmops-platform
 docker compose up --build
 ```
 

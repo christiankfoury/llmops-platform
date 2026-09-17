@@ -1,6 +1,6 @@
 # Project summary
 
-Production AI Platform combines a Java gateway and usage dashboard with reproducible
+LLMOps Platform combines a Java gateway and usage dashboard with reproducible
 container delivery, Terraform/Helm configuration, project authorization and local
 recovery evidence. [README](../README.md) · [Architecture](architecture.md)
 

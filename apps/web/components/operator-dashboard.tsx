@@ -30,7 +30,7 @@ export function OperatorDashboard() {
   }
   if (unavailable) return <main><h1>Operator dashboard unavailable</h1><p>Reload to retry the connection.</p></main>;
   if (!identity) return <main><p>Checking sign-in…</p></main>;
-  if (!identity.authenticated) return <main><h1>Production AI Platform</h1>{identity.mode === "disabled" ?
+  if (!identity.authenticated) return <main><h1>LLMOps Platform</h1>{identity.mode === "disabled" ?
     <p>Operator sign-in has not been configured.</p> : <a href="/api/auth/login">Sign in to the operator dashboard</a>}</main>;
   return <><aside className={styles.accessNotice} aria-label="Dashboard access">{identity.mode === "synthetic_demo" ?
     <p>Demo mode · Sample data · Read only</p> : <><span>Signed in · Project access controlled by your grants</span> <button onClick={() => void signOut()}>Sign out</button></>}</aside><Dashboard /></>;

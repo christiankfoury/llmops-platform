@@ -1,6 +1,6 @@
 # Project specification
 
-Production AI Platform provides a Java LLM gateway, operational telemetry API and
+LLMOps Platform provides a Java LLM gateway, operational telemetry API and
 Next.js usage dashboard. The focus is reproducible delivery, authorization,
 infrastructure, recovery and cost visibility around a small application workload.
 

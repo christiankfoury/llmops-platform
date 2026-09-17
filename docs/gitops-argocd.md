@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document explains the optional Argo CD GitOps path for the Production AI Platform.
+This document explains the optional Argo CD GitOps path for the LLMOps Platform.
 
 GitHub Actions remains the default CI/CD path. Argo CD is an additional portfolio-grade deployment option that can continuously reconcile the same Helm chart from Git when an operator intentionally enables it.
 
@@ -21,7 +21,7 @@ infra/gitops/argocd/
 
 Each Argo CD Application points to:
 
-- repo: `https://github.com/christiankfoury/production-ai-platform.git`
+- repo: `https://github.com/christiankfoury/llmops-platform.git`
 - revision: `main`
 - chart path: `infra/helm/ai-platform`
 - values file:
