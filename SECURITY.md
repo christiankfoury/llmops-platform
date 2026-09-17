@@ -13,7 +13,8 @@ Use GitHub's private **Report a vulnerability** form:
 Private reporting is selected for source publication and will be enabled and verified
 as part of the visibility change. Publication status is tracked in
 [the decision record](docs/publication-decisions.md). If the form is unavailable,
-do not post exploit details, credentials or customer information in a public issue.
+use your existing private contact with the repository owner while access remains
+private. Do not post exploit details, credentials or customer information in a public issue.
 
 Include the affected revision/component, a minimal synthetic reproduction, impact,
 and expected versus observed behavior. Use placeholders instead of real secrets or
