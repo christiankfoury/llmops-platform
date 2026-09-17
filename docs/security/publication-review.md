@@ -1,6 +1,6 @@
 # Source publication review
 
-Reviewed 2026-09-17 against main `c6fa6e7` and the publication candidate.
+Baseline reviewed 2026-09-17 against main `c6fa6e7`; the follow-up checkpoint below covers `4c79901`.
 Visibility has not changed. This review supports a source-sharing decision, not
 AWS deployment or acceptance of the monitoring vulnerabilities.
 
@@ -60,9 +60,9 @@ At baseline, the remote exposes one branch, no tags/releases/release assets, and
 one historical closed PR with no issue or inline review comments. Discussions are
 disabled; no wiki Git repository was available. The cleanup and subsequent PRs are covered by the follow-up above.
 
-## Source and application checks
+## Baseline source and application checks (`c6fa6e7`)
 
-- Fresh history review: 203 commits, ten existing reviewed synthetic detections,
+- Baseline history review: 203 commits, ten existing reviewed synthetic detections,
   zero unreviewed detections. Added candidate text passed a separate staged scan.
   Literal demo keys in newly archived command examples use shell variables;
   original examples remain in history. The complete patch also includes removed
