@@ -81,6 +81,30 @@ change uses its own `.maven-cache/ghcr-ci` checkout; `.maven-cache/continuation`
 contains the uncommitted monitoring-only review and must not be staged wholesale.
 Phase 62 remains Blocked and Phase 66 still requires AWS setup and approval.
 
+## Approved CI cost controls (2026-09-16)
+
+Owner selected USD 5/month account-wide Actions overage with Stop usage and
+75/90/100% alerts. This supersedes the earlier zero-paid-usage direction for
+Actions only. Keep the other product budgets at zero, large images in private
+GHCR, and required reports in Actions for 14 days. No report-to-GHCR migration.
+The previous candidate `7fae01b` verified all three GHCR image round trips in run
+`35169391921`; mandatory evidence uploads failed only on the storage allowance.
+
+The bounded cost-control change adds explicit 30-minute maximum CI job timeouts,
+five minutes for eligibility, preserves the 15-minute controller limit, and
+cancels only superseded PR runs. Main runs remain independent. Policy regression
+tests enforce these settings. GitHub billing, not workflow code, enforces spend.
+No billing credentials or recurring cost-monitor workflow are added.
+
+Billing setup was verified after the owner saved a payment method: GitHub accepted
+the existing Actions budget update from USD 0 to USD 5, with Stop usage and all
+three alert thresholds retained. Other product budgets remain unchanged. Current
+CI must still pass; saved billing settings alone do not establish eligibility.
+Record the final saved billing settings, current-revision CI and observed
+runner-minutes/artifact bytes in the follow-up review. Do not automatically raise
+the budget if CI is blocked. The broader strategy is local development, then one
+separately approved bounded AWS demo and separately approved cleanup.
+
 ## Remaining phases
 
 | Phase | Remaining outcome / boundary |

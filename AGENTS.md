@@ -269,6 +269,28 @@ above still apply. A prepared launch package can remain blocked.
 
 ### Efficient autonomous execution
 
+#### Owner-approved CI cost policy (2026-09-16)
+
+- Account-wide GitHub Actions overage is authorized within a USD 5/month budget
+  with Stop usage enabled and alerts at 75%, 90% and 100%. Verify billing setup
+  before triggering paid CI. Never automatically increase this budget, upgrade
+  runners/plans, add paid cache capacity or change other product budgets.
+- GitHub billing is the source of actual spend and enforcement; repository rules
+  cannot enforce an account invoice cap. Taxes, exchange rates and accrued usage
+  may affect invoices. Record runner-minute/artifact-size estimates during reviews.
+- Keep large tested images in private GHCR and small required reports in Actions
+  for 14 days. Do not migrate reports to a custom registry transport to avoid a
+  small approved storage charge. Preserve full provenance and security checks.
+- Use focused local checks and existing caches during development; run mandatory
+  exact-revision CI on each candidate/fix. Investigate failures before retries;
+  unchanged quota failures do not justify repeated reruns. Never count partial
+  attempts or cancelled/skipped required checks as release success.
+- CI jobs have explicit timeouts at most 30 minutes; preserve stricter limits and
+  use five minutes for eligibility. Cancel only superseded runs of the same PR;
+  main runs stay independent to preserve each commit's required evidence.
+- Develop locally. A future bounded AWS demonstration and cleanup require their
+  separate approvals; the GitHub budget does not authorize cloud spending.
+
 Continue to the next phase automatically after completion and review. Do not pause
 after a phase or an investigation checkpoint unless a listed approval gate or
 concrete blocker applies.

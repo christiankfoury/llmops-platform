@@ -109,9 +109,36 @@ Large image archives are no longer uploaded to Actions by CI. Smaller reports,
 SBOMs, charts and eligibility manifests retain their 14-day lifetime. GHCR images
 alone do not extend release eligibility beyond expiring evidence. Private GHCR
 container storage/bandwidth are currently free; private hosted-runner minutes and
-Actions artifacts still have account-wide allowances. Leave paid usage disabled.
+Actions artifacts still have account-wide allowances. The owner approved USD 5/month
+of Actions overage with Stop usage enabled; other product budgets remain zero.
 Storage cleanup/accounting delays can still block small evidence uploads; never
 ignore an upload failure or claim the release passed without complete evidence.
 
 Sources checked 2026-09-16: [Container Registry billing](https://docs.github.com/en/billing/concepts/product-billing/github-packages),
 [workflow package permissions](https://docs.github.com/en/packages/managing-github-packages-using-github-actions-workflows/publishing-and-installing-a-package-with-github-actions).
+
+## Cost-aware CI operating policy
+
+Keep required reports in Actions for 14 days and tested images in private GHCR.
+GitHub's account-wide USD 5/month Actions overage budget, Stop usage setting and
+75/90/100% alerts control paid usage; workflow code cannot enforce billing. The
+owner supplies payment details. Do not increase spending, other product budgets,
+runner size or cache capacity automatically. This is not a prepaid subscription
+or an invoice guarantee, and is separate from future AWS approval.
+
+All ordinary CI jobs have explicit limits of 30 minutes or less; controller
+compatibility retains 15 minutes and eligibility uses five. Concurrency groups
+share only a PR number within its event/workflow; main uses unique run IDs and
+cannot be cancelled by a newer commit. Cancellation never counts as a passed gate.
+Policy tests enforce timeouts, PR-only cancellation, evidence retention and the
+exclusion of OCI image archives from Actions artifacts. Caches remain performance
+aids, never replacements for current tests, fresh scans or provenance verification.
+
+Run focused local checks before each candidate, investigate failures before retrying,
+and run all mandatory jobs for exact-revision release qualification. Do not loop on
+unchanged billing failures. Review runner-minutes and artifact bytes after CI;
+consult GitHub billing for actual account-wide charges. No billing token or recurring
+monitoring workflow is added. The previous run used approximately 22 rounded Linux
+runner-minutes, about USD 0.13 if fully billable at USD 0.006/minute. Included usage
+is consumed first; shared artifact storage is USD 0.25/GB-month beyond allowance.
+These dated estimates exclude taxes and currency conversion.

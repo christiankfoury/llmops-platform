@@ -13,10 +13,15 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   java:
     name: Java build and contract foundation
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     services:
       postgres:
         image: postgres:16.15-alpine@sha256:cf78e76683b9ca8c5733cbbdce6c9262b45b6767934dd0a95e671f9a0fc20685
@@ -295,6 +300,7 @@ jobs:
   backend:
     name: Backend lint and tests
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     services:
       # GitHub Actions service container used only for this job.
       # The app connects through localhost:55432 from the runner.
@@ -360,6 +366,7 @@ jobs:
   frontend:
     name: Frontend lint, typecheck, tests, and audit
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: apps/web
@@ -401,6 +408,7 @@ jobs:
       contents: read
       packages: write
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps: &image_checks
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -523,6 +531,7 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps: *image_checks
 
   # Python dependency audit focuses on the production requirements file.
@@ -530,6 +539,7 @@ jobs:
   dependency-scan:
     name: Python dependency scan
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -553,6 +563,7 @@ jobs:
   repository-scan:
     name: Repository vulnerability scan
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -570,6 +581,7 @@ jobs:
   infrastructure:
     name: Infrastructure static checks
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -621,6 +633,7 @@ jobs:
   history-secrets:
     name: Full-history secret review
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -643,6 +656,7 @@ jobs:
   ci-policy:
     name: CI policy and eligibility tests
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -667,6 +681,7 @@ jobs:
     needs: [java, backend, frontend, docker, docker-pr, dependency-scan, repository-scan, infrastructure, tgb, history-secrets, ci-policy]
     if: ${{ always() }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:

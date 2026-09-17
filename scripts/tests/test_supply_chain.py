@@ -13,7 +13,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 import release_eligibility as release  # noqa: E402 - standalone scripts need the test path above
-from validate_ci_policy import check_image_scanners, check_workflow  # noqa: E402
+from validate_ci_policy import (  # noqa: E402
+    CI_CONCURRENCY,
+    check_cost_policy,
+    check_image_scanners,
+    check_workflow,
+)
 from validate_supply_chain import java_reports, review_history  # noqa: E402
 
 
@@ -190,6 +195,51 @@ class EligibilityTest(unittest.TestCase):
 
 
 class SecretAndPolicyTest(unittest.TestCase):
+    def test_cost_limits_preserve_evidence_and_main_runs(self):
+        clean = {
+            "concurrency": CI_CONCURRENCY,
+            "jobs": {
+                "check": {
+                    "timeout-minutes": 30,
+                    "steps": [
+                        {
+                            "uses": "actions/upload-artifact@" + "a" * 40,
+                            "with": {"retention-days": 14, "path": "reports"},
+                        }
+                    ],
+                },
+                "release-eligibility": {"timeout-minutes": 5},
+            },
+        }
+        check_cost_policy(clean, primary=True)
+        for timeout in (None, True, 0, 31, "30"):
+            bad = copy.deepcopy(clean)
+            bad["jobs"]["check"]["timeout-minutes"] = timeout
+            with self.subTest(timeout=timeout), self.assertRaises(ValueError):
+                check_cost_policy(bad, primary=True)
+        for field, value in (("group", "main"), ("cancel-in-progress", True)):
+            bad = copy.deepcopy(clean)
+            bad["concurrency"][field] = value
+            with self.assertRaises(ValueError):
+                check_cost_policy(bad, primary=True)
+        for field, value in (
+            ("retention-days", 1),
+            ("retention-days", 90),
+            ("path", "images/*.oci.tar"),
+        ):
+            bad = copy.deepcopy(clean)
+            bad["jobs"]["check"]["steps"][0]["with"][field] = value
+            with self.assertRaises(ValueError):
+                check_cost_policy(bad, primary=True)
+        bad = copy.deepcopy(clean)
+        bad["jobs"]["release-eligibility"]["timeout-minutes"] = 6
+        with self.assertRaises(ValueError):
+            check_cost_policy(bad, primary=True)
+        with self.assertRaises(ValueError):
+            check_cost_policy(clean, primary=False)
+        clean["jobs"]["check"]["timeout-minutes"] = 15
+        check_cost_policy(clean, primary=False)
+
     def test_runtime_image_secret_scanning_cannot_be_dropped(self):
         def job(scanners):
             return {"steps": [{"run": f"trivy image --exit-code 1 --scanners {scanners} image:ci"}]}

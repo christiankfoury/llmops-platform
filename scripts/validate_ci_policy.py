@@ -13,6 +13,33 @@ from validate_aws_manifests import UniqueLoader
 
 ROOT = Path(__file__).resolve().parents[1]
 
+CI_CONCURRENCY = {
+    "group": "${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}",
+    "cancel-in-progress": "${{ github.event_name == 'pull_request' }}",
+}
+
+
+def check_cost_policy(data: dict, primary: bool) -> None:
+    if primary and data.get("concurrency") != CI_CONCURRENCY:
+        raise ValueError("Only superseded PR runs may share cancellation groups")
+    for key, job in data["jobs"].items():
+        if "uses" in job:
+            continue  # The called workflow enforces its own job timeout.
+        limit = 5 if key == "release-eligibility" else 30
+        timeout = job.get("timeout-minutes")
+        if type(timeout) is not int or not 1 <= timeout <= limit:
+            raise ValueError("CI jobs require bounded explicit timeouts")
+        if not primary and timeout > 15:
+            raise ValueError("Preserve the stricter controller compatibility timeout")
+        for step in job.get("steps", []):
+            if step.get("uses", "").startswith("actions/upload-artifact@"):
+                settings = step.get("with", {})
+                if settings.get("retention-days") != 14:
+                    raise ValueError("Required CI evidence must retain its 14-day lifetime")
+                path = settings.get("path", "")
+                if any(value in path for value in ("release-images", ".oci.tar")):
+                    raise ValueError("Large image archives belong in GHCR")
+
 
 def check_image_source_labels(job: dict) -> None:
     builds = [
@@ -87,6 +114,7 @@ def main() -> None:
         source = (ROOT / ".github/workflows" / file).read_text()
         data = yaml.load(source, Loader=UniqueLoader)
         check_workflow(data, pins)
+        check_cost_policy(data, primary=file == "ci.yml")
         if "secrets." in source or "aws-actions/" in source or "id-token:" in source:
             raise ValueError("CI cannot request deployment credentials")
         if file == "ci.yml":
