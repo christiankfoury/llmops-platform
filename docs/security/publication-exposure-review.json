@@ -1,0 +1,79 @@
+{
+  "review_date": "2026-09-17",
+  "source_baseline": "c6fa6e77c0e1ea06f210fe04dd1736aed654698f",
+  "runs_inventoried": 329,
+  "downloaded_run_logs": 328,
+  "unavailable_run_logs": [
+    {
+      "run_id": 34151173790,
+      "status": "HTTP 404; failed push run; not inspectable"
+    }
+  ],
+  "artifacts_inventoried": 481,
+  "downloaded_artifacts": 471,
+  "expired_artifacts": [
+    {
+      "id": 10029669013,
+      "name": "prepared-release-1"
+    },
+    {
+      "id": 10026781560,
+      "name": "tgb-compatibility"
+    },
+    {
+      "id": 10026457063,
+      "name": "tgb-compatibility"
+    },
+    {
+      "id": 10026407933,
+      "name": "tgb-compatibility"
+    },
+    {
+      "id": 10026239367,
+      "name": "tgb-compatibility"
+    },
+    {
+      "id": 10026056226,
+      "name": "tgb-compatibility"
+    },
+    {
+      "id": 10025440128,
+      "name": "tgb-compatibility"
+    },
+    {
+      "id": 10025312983,
+      "name": "tgb-compatibility"
+    },
+    {
+      "id": 10025236669,
+      "name": "tgb-compatibility"
+    },
+    {
+      "id": 10025171682,
+      "name": "tgb-compatibility"
+    }
+  ],
+  "download_bytes": 543159889,
+  "downloaded_members": 5665,
+  "gitleaks": {
+    "version": "8.30.1",
+    "archive_depth": 3,
+    "raw_findings": 88,
+    "reviewed_sha256_evidence_references": 88,
+    "unreviewed_findings": 0
+  },
+  "git_history": {
+    "commits": 203,
+    "raw_findings": 10,
+    "reviewed_existing_synthetic_findings": 10,
+    "unreviewed_findings": 0
+  },
+  "refs": {
+    "branches": [
+      "main"
+    ],
+    "tags": 0,
+    "releases": 0
+  },
+  "scope_note": "Baseline inventory. New PR/main run evidence must be reviewed before visibility approval."
+}

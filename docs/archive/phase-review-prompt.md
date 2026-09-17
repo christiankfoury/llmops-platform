@@ -1,3 +1,5 @@
+> Historical document. Current behavior and scope are described in the [documentation index](../README.md).
+
 # Phase Review Prompt
 
 Use this prompt after Codex completes each phase.

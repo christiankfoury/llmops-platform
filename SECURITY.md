@@ -1,30 +1,38 @@
 # Security policy
 
-This is a private portfolio project. AWS deployment and repository publication
-remain gated; the current gateway uses a mock provider and the default dashboard
-uses isolated synthetic fixtures. It is not offered as a production service or a
-security certification.
+This repository is a development and infrastructure demonstration, not a hosted
+production service. Current validation covers the Java application and its delivery
+pipeline. AWS is not deployed; the monitoring release has known unresolved findings.
 
-## Report a concern
+## Report a vulnerability
 
-Contact the repository owner through an existing private channel. Do not put
-credentials, customer content, tokens, database dumps or exploit details into a
-public issue. Before public release, the owner must choose and verify a private
-vulnerability-reporting channel; no email address or reporting SLA is invented here.
+Use GitHub's private **Report a vulnerability** form:
 
-Include the affected commit, component, a minimal synthetic reproduction and
-expected versus observed behavior. Redact credentials and personal data. Real
-secret rotation, access changes and deployment actions require their normal approval.
+[Submit a private security report](https://github.com/christiankfoury/production-ai-platform/security/advisories/new)
 
-## Required controls and known findings
+Private reporting is selected for source publication and will be enabled and verified
+as part of the visibility change. Publication status is tracked in
+[the decision record](docs/publication-decisions.md). If the form is unavailable,
+use your existing private contact with the repository owner while access remains
+private. Do not post exploit details, credentials or customer information in a public issue.
 
-- Keep full-history secret review, dependency audits, image scans, integration
-  tests and CI eligibility blocking. Missing or skipped evidence is not a pass.
-- No scanner exception is active. Documentation of a finding does not authorize
-  an exception or a lower scan threshold.
-- [Monitoring findings](docs/security/monitoring-vulnerability-backlog.md) remain
-  deferred by the owner. Phase 62 is incomplete and is a release/deployment blocker.
-- [The focused review](docs/security/phase-64-review.md) records authentication,
-  project boundaries, IAM/RBAC, exposure, current evidence and practical limits.
-- [Publication decisions](docs/publication-decisions.md) remain separate from
-  preparation; no visibility change, license selection or public release is approved.
+Include the affected revision/component, a minimal synthetic reproduction, impact,
+and expected versus observed behavior. Use placeholders instead of real secrets or
+personal data. No response-time SLA or bug bounty is offered.
+
+## Controls and limitations
+
+- Application keys are hashed; operator access uses OIDC and project grants.
+  Browser mutations retain session, origin and CSRF protections.
+- Required CI includes full-history secrets, dependencies, runtime images,
+  infrastructure policies and actual PostgreSQL/Redis integration tests.
+- Scan results establish compliance with the selected policy, not absence of all
+  vulnerabilities. No scanner exception is active.
+- [Known monitoring findings](docs/security/monitoring-vulnerability-backlog.md)
+  remain documented and block monitoring deployment. Source sharing is not
+  deployment risk acceptance or a claim that these findings were fixed.
+- The [security design](docs/java-operator-security.md) and
+  [focused review](docs/security/phase-64-review.md) describe tested boundaries.
+
+Real secret rotation, infrastructure changes and data deletion require their normal
+approval. Never include raw secrets in logs, reports, issues or pull requests.

@@ -22,7 +22,7 @@ For AgentOps, that means:
 - Production AI Platform receives normalized events for model usage, estimated cost, latency, status, token usage, retry count, workflow/step IDs, and bounded agent metadata.
 - AgentOps continues to work if Production AI Platform is unavailable.
 
-The AgentOps implementation plan is documented in [agentops-integration-plan.md](agentops-integration-plan.md).
+The AgentOps implementation plan is documented in [agentops-integration-plan.md](archive/agentops-integration-plan.md).
 
 ## Endpoint Shape
 

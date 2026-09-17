@@ -83,4 +83,4 @@ Then open `http://localhost:3000`, filter **Source App** to `proofbase`, and ins
 
 AgentOps Workflow Platform is now connected as the second telemetry client app. It uses the same ingestion foundation, but its event model is workflow/agent-step oriented rather than RAG oriented.
 
-Use [agentops-integration.md](agentops-integration.md) for the completed AgentOps connection summary and [agentops-integration-plan.md](agentops-integration-plan.md) for the implementation phase notes.
+Use [agentops-integration.md](agentops-integration.md) for the completed AgentOps connection summary and [agentops-integration-plan.md](archive/agentops-integration-plan.md) for the implementation phase notes.

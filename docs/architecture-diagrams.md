@@ -1,84 +1,44 @@
-# Architecture Diagrams
+# Architecture diagrams
 
-## Logical Platform
+The [system architecture](architecture.md) explains current local behavior and the
+unexecuted AWS design. These diagrams distinguish CI evidence from deployment.
 
-```mermaid
-flowchart LR
-  client["Client apps"] --> ingress["Ingress / TLS"]
-  ingress --> api["FastAPI LLM gateway"]
-  api --> auth["API key auth"]
-  auth --> prompt["Prompt version lookup"]
-  prompt --> route["Model route selection"]
-  route --> provider["Mock or real provider"]
-  api --> db[("PostgreSQL")]
-  api --> redis[("Redis")]
-  api --> dashboard["Next.js dashboard"]
-  api --> obs["Metrics, logs, traces"]
-```
-
-## AWS Deployment
-
-```mermaid
-flowchart TB
-  github["GitHub Actions"] --> ecr["Amazon ECR"]
-  github --> eks["Amazon EKS"]
-  terraform["Terraform"] --> vpc["VPC / subnets / security groups"]
-  terraform --> eks
-  terraform --> rds[("RDS PostgreSQL")]
-  terraform --> cache[("ElastiCache Redis")]
-  terraform --> secrets["AWS Secrets Manager"]
-  terraform --> budget["Optional AWS Budget"]
-
-  eks --> api["API Deployment"]
-  eks --> web["Web Deployment"]
-  api --> rds
-  api --> cache
-  api --> secretsync["External Secrets Operator"]
-  secretsync --> secrets
-  api --> prom["Prometheus"]
-  api --> otel["OpenTelemetry Collector"]
-  api --> loki["Loki"]
-  prom --> grafana["Grafana"]
-  loki --> grafana
-```
-
-## Release And Rollback
+## Delivery
 
 ```mermaid
 sequenceDiagram
   participant Dev as Developer
-  participant CI as GitHub Actions CI
-  participant ECR as ECR
-  participant Helm as Helm Release
-  participant K8s as EKS Namespace
+  participant PR as Pull request
+  participant CI as GitHub Actions
+  participant GHCR as Private GHCR
   participant Ops as Operator
-
-  Dev->>CI: Push to main
-  CI->>CI: Lint, tests, audits, image scans
-  CI->>ECR: Push immutable SHA images
-  CI->>Helm: Dev deploy when enabled
-  Ops->>Helm: Manual staging/prod promotion
-  Helm->>K8s: Rollout API and web
-  K8s-->>Ops: Readiness and smoke tests
-  Ops->>Helm: Manual rollback to known-good revision if needed
+  participant AWS as AWS dev/demo (planned)
+  Dev->>PR: Propose focused change
+  PR->>CI: Required tests and scans
+  CI-->>PR: Aggregate validation result
+  PR->>CI: Merge; run exact-main-revision checks
+  CI->>GHCR: Store and verify tested immutable images
+  CI-->>Ops: Verified evidence, deployment not authorized
+  Note over Ops,AWS: Deployment holds remain until prerequisites and approval
+  Ops->>AWS: Separately approved release or compatible rollback
 ```
 
-## Request Lifecycle
+## Planned AWS ownership
 
 ```mermaid
-sequenceDiagram
-  participant Client
-  participant API as LLM Gateway API
-  participant DB as PostgreSQL
-  participant Provider as Provider Adapter
-  participant Obs as Observability
-
-  Client->>API: POST /v1/gateway/completions
-  API->>DB: Verify hashed API key
-  API->>DB: Load active prompt and model route
-  API->>Provider: Send bounded provider request
-  Provider-->>API: Return output or error
-  API->>DB: Persist request and cost record
-  API->>Obs: Emit logs, metrics, and trace spans
-  API-->>Client: Response with request ID, model, latency, tokens, cost
+flowchart TB
+  tf[Terraform] --> network[VPC and network controls]
+  tf --> cluster[EKS]
+  tf --> data[RDS and ElastiCache]
+  tf --> identity[IAM and Secrets Manager]
+  tf --> alb[ALB listeners and target groups]
+  bootstrap[Cluster bootstrap] --> bindings[TargetGroupBindings]
+  bindings --> controller[Restricted endpoint controller]
+  controller --> alb
+  release[Approved immutable release] --> helm[Helm application and migration jobs]
+  helm --> cluster
 ```
+
+AWS has not been deployed. The controller's restricted lifecycle and rendered
+configuration are tested locally/in CI; live access, secret synchronization and
+monitoring remain launch checks. [Ownership details](targetgroupbinding-design.md)

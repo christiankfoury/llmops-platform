@@ -1,6 +1,6 @@
 # CI/CD
 
-The active CI builds the Java API and migration command, tests PostgreSQL/Redis integration and the dashboard, audits resolved dependencies and runtime images, and validates AWS configuration without cloud credentials. Deployment and rollback remain held until Phase 61 replaces the historical workflows; passing CI does not approve deployment.
+The active CI builds the Java API and migration command, tests PostgreSQL/Redis integration and the dashboard, audits resolved dependencies and runtime images, and validates AWS configuration without cloud credentials. Immutable release and rollback workflows are implemented but remain held pending AWS setup and explicit deployment approval; passing CI does not approve deployment.
 
 ## Required checks
 
@@ -50,7 +50,7 @@ python scripts/release_eligibility.py verify --sha <full-40-character-commit> --
 
 The verifier uses authenticated `gh api` reads, checks the exact successful completed main-push run in this repository and workflow, paginates every current-attempt job, and rejects missing/duplicate/unexpected/failed/skipped mandatory jobs (the explicit PR-only image counterpart must be skipped on main), other SHAs, forks, other workflows, stale attempts, incomplete evidence, a different current policy and expired/ambiguous artifacts. Text policy hashes normalize Git line endings so Windows and Linux verification agree. It rereads run state to detect a rerun during verification. It does not grant AWS access, publish images or deploy anything.
 
-This phase establishes **source revision eligibility**, not a registry image digest or deployable release. Phase 61 must bind the verified revision to immutable built/scanned image artifacts, verify their bytes/digests, and preserve the protected environment, migration-owner and infrastructure approval gates. Rebuilding a tag is not evidence that it is the scanned image.
+Source revision eligibility is one part of release verification. The immutable release pipeline also binds that revision to built/scanned images, verifies their bytes/digests, and preserves environment, migration-owner and infrastructure approval gates. Rebuilding a tag is not evidence that it is the scanned image.
 
 ## Local validation and limits
 
@@ -66,7 +66,7 @@ contents never serve as release evidence. See [Docker's cache documentation](htt
 Audit new dependency/image candidates before integration. During edits run
 focused checks for the changed behavior, then all mandatory checks on the phase
 candidate. Investigations have non-blocking 20-30 minute reassessment checkpoints;
-the agent continues phase by phase without routine approval requests. No required
+development continues within the approved scope. No required
 job has been made conditional or skipped to obtain faster feedback.
 
 ```powershell
@@ -142,3 +142,16 @@ monitoring workflow is added. The previous run used approximately 22 rounded Lin
 runner-minutes, about USD 0.13 if fully billable at USD 0.006/minute. Included usage
 is consumed first; shared artifact storage is USD 0.25/GB-month beyond allowance.
 These dated estimates exclude taxes and currency conversion.
+
+## Main branch and source publication
+
+Changes use pull requests, up-to-date branches and every applicable PR check, including
+`Release eligibility`. The solo-maintainer policy requires no second reviewer;
+administrators follow the same protection, with no bypass, force push or deletion.
+PR checks use read-only credentials and cannot publish images. Merged main receives
+a complete independent run and exact-revision verification.
+
+The three existing GHCR packages remain private. Repository permission inheritance
+is disabled; explicit repository Actions access and owner access remain. Public
+source readership must not grant image access. Missing/public packages fail closed.
+See the [publication record](publication-decisions.md) for settings verification.

@@ -1,26 +1,30 @@
 # Contributing
 
-Keep this repository focused on the AI operations layer. Proofbase owns RAG and
-AgentOps owns workflows; do not move their prompts, outputs or tool payloads here.
-Read [AGENTS.md](AGENTS.md), the spec and current phase before changing scope.
+Start with [local setup](docs/deployment.md), [architecture](docs/architecture.md) and
+[testing](docs/testing.md). Java in `apps/api-java` is the default runtime;
+`apps/api` remains a Python compatibility reference. Flyway is the sole migration owner.
 
-Use an isolated checkout when the main workspace contains unrelated work. The
-current Java runtime lives in `apps/api-java`; `apps/api` is the Python contract
-reference. Flyway is the sole migration owner after cutover. Never enable automatic
-destructive schema updates or run two migration owners.
+## Changes
 
-Use synthetic data and committed placeholder examples. Keep real `.env`, dumps,
-state, credentials, tokens and local build evidence out of Git. Add focused tests
-for meaningful behavior changes, run relevant checks from [testing](docs/testing.md),
-and retain every mandatory CI gate, including actual PostgreSQL/Redis tests.
-Use conventional commits and separate commits for actionable review findings.
+Create a focused branch and pull request. Describe the problem, resulting behavior,
+validation and relevant tradeoffs. Use conventional commits. Required CI must pass
+on the current PR revision before merging; the merged main revision receives its
+own complete CI and immutable release verification. A second reviewer is not required
+for this solo project, but checks and branch protections must not be bypassed.
 
-Local code, tests, Docker builds and static infrastructure checks are normal work.
-AWS apply/destroy/resources, data deletion, real secrets, production, DNS/TLS and
-public exposure retain explicit approval gates. Do not bypass branch protection,
-force-push main, lower scanner thresholds or activate exceptions.
+Use synthetic data and local placeholders. Never commit environment files, secrets,
+state, database dumps or customer content. Add tests for meaningful failure modes;
+do not replace database integration tests with skipped or mocked success claims.
+Application code, documentation and static infrastructure checks should remain scoped.
 
-The owner selected the [MIT License](LICENSE) on 2026-09-16. Preserve applicable
-third-party license notices. The repository remains private; visibility changes
-and release publication still require the owner's separate approval.
-Report security concerns through the process in [SECURITY.md](SECURITY.md).
+## Project boundaries
+
+This platform handles the gateway and operational telemetry. Proofbase owns RAG;
+AgentOps owns workflow execution. Their content and provider payloads stay with them.
+AWS deployment, public services, real DNS/TLS, secret rotation and destructive cleanup
+require explicit approval. Monitoring remediation remains deferred; do not add scanner
+exceptions or adopt unreviewed prototype images to make checks pass.
+
+Preserve the [MIT license](LICENSE) and applicable third-party notices.
+Report vulnerabilities through [the security policy](SECURITY.md).
+Maintainer execution and spending rules are in [AGENTS.md](AGENTS.md).

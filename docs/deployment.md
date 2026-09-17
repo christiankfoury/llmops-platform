@@ -1,583 +1,68 @@
-> **Current launch decision: BLOCKED.** Use [the single AWS dev/demo checklist](aws-launch-checklist.md) and [dated cost estimate](cost-analysis.md). Phase 65 preparation authorizes no cloud action; Phase 62 completion, account setup and explicit Phase 66 approval remain required. Phases 67-68 are owner-skipped optional designs.
-
-> Current Java release procedure: [immutable-release-runbook.md](immutable-release-runbook.md). Phase 61 replaces the historical workflows with manual verified-artifact preflight and hard-held AWS jobs.
-
-> Current AWS bootstrap and ownership: [aws-bootstrap.md](aws-bootstrap.md). Cluster resources and owner Jobs are no longer part of the normal app chart. The historical commands below must not be used as a current Java release procedure.
-
-Current AWS load-balancing ownership is defined in [the TargetGroupBinding design](targetgroupbinding-design.md): Terraform owns ALB/listeners/rules/security groups/target groups; the pinned controller has no Ingress writes and only exact-group registration permissions. Bootstrap controls immutable bindings and readiness admission. Historical Ingress examples below do not supersede this approval-gated sequence.
-
-# Deployment
-
-Current runtime: Java 21/Spring Boot, explicit Flyway migration image and Next.js/Node 24. The [Java runtime cutover guide](java-runtime-cutover.md) is authoritative for Compose, Kubernetes settings, TLS, secrets, probes and verification. Default Compose migrates/seeds a fresh local volume and serves isolated synthetic dashboard data. Real usage requires OIDC/project grants. The sections below are historical evidence. Current workflows use the immutable-release runbook; cloud jobs remain held for explicit AWS approval.
-
-The following sections retain historical implementation context. Old Python image, Alembic, direct-browser API, anonymous usage and `/metrics` commands are not Java cutover instructions.
-
-## Environments
-
-Historical configuration layout (only local and one approved AWS dev/demo are required):
-
-- local
-- dev
-- staging
-- prod
+# Local setup and deployment boundaries
 
 ## Local deployment
 
-Implemented local stack:
+Use Docker with Compose v2. From the repository root:
 
-```text
-Docker Compose:
-- API
-- Web
-- PostgreSQL
-- Redis
-```
-
-Start the full stack:
-
-```bash
+```sh
 docker compose up --build
 ```
 
-The same command is available as:
+The default project starts PostgreSQL and Redis, runs the Flyway migration container,
+then starts Java and the web application. The synthetic dashboard is available at
+`http://localhost:3000`; API readiness is `http://localhost:8000/health/ready`.
+No cloud or LLM credentials are needed. Seed keys and database passwords are local
+placeholders; do not reuse them in a shared environment.
 
-```bash
-make local-up
+| Service | Default host address | Configuration |
+|---|---|---|
+| Web | 127.0.0.1:3000 | `WEB_PORT` |
+| Java API | 127.0.0.1:8000 | `API_PORT` |
+| PostgreSQL | 127.0.0.1:55432 | `POSTGRES_PORT` |
+| Redis | 127.0.0.1:56379 | `REDIS_PORT` |
+
+If a port is occupied, set the corresponding variable in your shell before starting.
+Use `docker compose ps -a` and `docker compose logs migration api` to diagnose startup.
+The migration job must finish successfully. Do not work around failures by enabling
+application-owned migrations or removing existing data.
+
+Use the mock request in the [README](../README.md) to exercise the API. It writes to
+PostgreSQL; the default synthetic dashboard intentionally stays fixed. For real usage
+views, follow [OIDC setup and grants](java-operator-security.md). Management metrics
+are private on container port 9080; the default Compose setup does not publish that port.
+
+Stop without removing data:
+
+```sh
+docker compose stop
 ```
 
-Local service URLs:
-
-- Web dashboard: `http://localhost:3000`
-- API health: `http://localhost:8000/health`
-- API readiness: `http://localhost:8000/health/ready`
-- PostgreSQL host port: `55432`
-- Redis host port: `56379`
-
-The web dashboard reads the API directly through `NEXT_PUBLIC_API_BASE_URL` and renders usage, recent requests, failures, prompt versions, and model routes.
-
-Stop containers:
-
-```bash
-make local-down
-```
-
-Run database migrations and seed local development data after the stack is running:
-
-```bash
-make api-migrate
-make api-seed
-```
-
-The local seed creates two application scopes:
-
-- `demo-project` / `demo-app` for gateway smoke tests.
-- `proofbase` / `enterprise-knowledge-agent` for external telemetry integration.
+Do not use `down -v` as routine cleanup. A separate Compose project creates independent
+volumes and is appropriate for an isolated local rehearsal. Existing data stays intact.
 
 ## Production image builds
 
-Phase 9 adds production Dockerfiles for the API and web dashboard while keeping the development Dockerfiles used by Docker Compose.
-
-Build both production images:
-
-```bash
-make docker-build-prod
+```sh
+docker build --target api -f apps/api-java/Dockerfile -t production-ai-platform-api:local .
+docker build --target migration -f apps/api-java/Dockerfile -t production-ai-platform-migration:local .
+docker build -f apps/web/Dockerfile -t production-ai-platform-web:local apps/web
 ```
 
-Equivalent direct commands:
-
-```bash
-docker build -f apps/api/Dockerfile -t production-ai-platform-api:prod apps/api
-docker build -f apps/web/Dockerfile -t production-ai-platform-web:prod apps/web
-```
-
-The API production image:
-
-- installs runtime dependencies from `requirements.prod.txt`
-- excludes test and formatting tools from the runtime dependency set
-- runs as non-root user `10001`
-- exposes port `8000`
-- defines a container health check against `/health/live`
-- reads `ENVIRONMENT`, `DATABASE_URL`, `REDIS_URL`, and `API_CORS_ORIGINS` from environment variables
-
-The web production image:
-
-- uses a multi-stage Next.js standalone build
-- runs as non-root user `10001`
-- exposes port `3000`
-- defines a container health check against `/`
-- reads `API_BASE_URL` or `NEXT_PUBLIC_API_BASE_URL` at runtime through `/api/runtime-config`
-
-Local production-image smoke test:
-
-```bash
-docker run --rm -p 18000:8000 production-ai-platform-api:prod
-docker run --rm -p 13000:3000 -e API_BASE_URL=http://host.docker.internal:8000 production-ai-platform-web:prod
-```
-
-Those commands start containers locally only. Cloud registry publishing and Kubernetes deployment are handled by the deployment workflows after the AWS/EKS environment is explicitly approved and bootstrapped.
-
-Smoke-test the local gateway with the seeded placeholder key:
-
-```bash
-curl -X POST http://localhost:8000/v1/gateway/completions \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: local-dev-placeholder-key-not-a-secret" \
-  -d '{"input":"hello from local development"}'
-```
-
-The local seed key is intentionally non-secret placeholder data and is stored as a hash.
-
-Smoke-test the Proofbase external telemetry placeholder path:
-
-```bash
-curl -X POST http://localhost:8000/v1/usage/llm-events \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: proofbase-local-placeholder-key-not-a-secret" \
-  -d '{
-    "event_id":"evt_local_proofbase_demo_001",
-    "external_request_id":"proofbase_req_local_demo_001",
-    "source_app":"proofbase",
-    "operation_type":"rag_query",
-    "environment":"local",
-    "occurred_at":"2026-07-06T00:00:00Z",
-    "status":"succeeded",
-    "provider":"openai",
-    "model":"gpt-4.1-mini",
-    "prompt_name":"answer_generation",
-    "prompt_version":"v5",
-    "input_tokens":1200,
-    "output_tokens":340,
-    "total_tokens":1540,
-    "estimated_cost_usd":"0.000812",
-    "currency":"USD",
-    "pricing_status":"estimated",
-    "latency_ms":1830,
-    "metadata":{"streaming":false,"citation_count":4}
-  }'
-```
-
-This submits only synthetic telemetry. It does not call OpenAI, AWS, or Proofbase.
-
-The mock provider supports local failure-path checks:
-
-- `"[simulate_failure]"` returns HTTP 502 and records `provider_error`.
-- `"[simulate_timeout]"` returns HTTP 504 and records `provider_timeout`.
-
-Check aggregate usage after sending gateway requests:
-
-```bash
-curl http://localhost:8000/v1/usage/summary
-```
-
-Inspect local operator configuration:
-
-```bash
-curl http://localhost:8000/v1/admin/prompt-versions
-curl http://localhost:8000/v1/admin/model-routes
-```
-
-Admin create/update calls accept `X-Actor-ID` and write audit logs. These endpoints are operator foundations, not a complete production admin authorization system; stronger admin auth remains out of scope for this baseline.
-
-Local environment examples live in:
-
-- `.env.example`
-- `apps/api/.env.example`
-
-For Proofbase local telemetry phases, use these placeholder settings in the Proofbase local environment:
-
-```bash
-PROOFBASE_TELEMETRY_ENABLED=false
-PROOFBASE_TELEMETRY_ENDPOINT=http://localhost:8000/v1/usage/llm-events
-PROOFBASE_TELEMETRY_API_KEY=proofbase-local-placeholder-key-not-a-secret
-PROOFBASE_TELEMETRY_TIMEOUT_SECONDS=2
-PROOFBASE_TELEMETRY_MAX_METADATA_BYTES=2048
-PROOFBASE_TELEMETRY_REDACT_CONTENT=true
-```
-
-Telemetry remains disabled by default until the Proofbase client phase turns it on locally.
-- `apps/web/.env.example`
-
-These files use placeholder development values only. Real provider keys, cloud account IDs, and production secrets must not be committed.
-
-## Dev deployment
-
-Phase 16 adds `.github/workflows/deploy-dev.yml` for the dev release path.
-
-The workflow can run in two ways:
-
-- automatically on pushes to `main` when both repository variables are set to `true`:
-  - `ENABLE_DEV_AUTO_DEPLOY`
-  - `DEV_DEPLOY_APPROVED`
-- manually through `workflow_dispatch`, with an optional immutable image tag override
-
-The enablement variables intentionally default to absent/false. This lets the workflow be committed safely without mutating a real AWS account until the dev environment has been approved and bootstrapped.
-
-Dev workflow steps:
-
-1. Resolve required repository variables and fail fast if any are missing.
-2. Assume the dev GitHub Actions IAM role through OIDC.
-3. Build API and web production images.
-4. Push images to ECR with the commit SHA as the immutable image tag.
-5. Update kubeconfig for the dev EKS cluster.
-6. Run `helm upgrade --install` for the `ai-platform-dev` release.
-7. Wait for API and web deployment rollouts.
-8. Run smoke tests against API readiness and the web dashboard URL.
-
-Required GitHub repository variables:
-
-| Variable | Purpose |
-|---|---|
-| `AWS_ACCOUNT_ID` | AWS account that owns the dev ECR repositories. |
-| `AWS_REGION` | AWS region for ECR and EKS. |
-| `AWS_DEV_DEPLOY_ROLE_ARN` | OIDC role assumed by GitHub Actions for dev deploys. |
-| `DEV_EKS_CLUSTER_NAME` | Dev EKS cluster name, such as `production-ai-platform-dev-eks`. |
-| `DEV_API_HOST` | Ingress host for the dev API. |
-| `DEV_WEB_HOST` | Ingress host for the dev web dashboard. |
-| `DEV_API_BASE_URL` | Public base URL used for API smoke tests and web runtime config. |
-| `DEV_WEB_BASE_URL` | Public base URL used for web smoke tests and API CORS config. |
-
-Optional GitHub repository variables:
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `DEV_NAMESPACE` | `ai-platform-dev` | Kubernetes namespace for the dev release. |
-| `DEV_API_ECR_REPOSITORY` | `production-ai-platform-dev/api` | Dev API ECR repository name. |
-| `DEV_WEB_ECR_REPOSITORY` | `production-ai-platform-dev/web` | Dev web ECR repository name. |
-
-Dev bootstrap prerequisites before enabling automatic deploys:
-
-- Terraform dev infrastructure has been applied through an approved human gate.
-- The optional dev GitHub Actions role is enabled with `create_github_actions_role = true`.
-- The `ai-platform-dev` namespace exists in the dev cluster.
-- The runtime secret reference expected by the chart exists in the namespace:
-  - Secret name: `ai-platform-runtime-secrets`
-  - Keys: `database-url`, `redis-url`
-- DNS/ingress routes resolve for `DEV_API_HOST` and `DEV_WEB_HOST`.
-
-The Phase 16 workflow overrides `namespace.create=false` during Helm deploys so the GitHub deploy role can be scoped to edit the dev namespace rather than administer the whole cluster. Namespace and secret bootstrap remain explicit setup steps because they can affect real infrastructure and secrets.
-
-No AWS keys, kubeconfigs, database URLs, Redis URLs, or provider credentials are committed. The workflow uses GitHub OIDC and repository/environment variables only.
-
-Terraform foundation code for dev, staging, and prod lives under `infra/terraform/environments`. Phase 11 supports safe local `fmt`, `init -backend=false`, and `validate` checks only. Creating AWS resources with `terraform apply` is an explicit approval gate.
-
-See `docs/terraform.md` for backend configuration, AWS credential expectations, and validation commands.
-
-See `docs/ci-cd.md` for the main CI workflow, production image build checks, scanner links, and the boundary between static CI checks and deployment workflows.
-
-Phase 12 adds EKS Terraform code and Kubernetes provider wiring. It remains code-only until an explicit approval gate allows AWS resource creation.
-
-Phase 13 adds managed PostgreSQL and Redis Terraform code. These resources are private, encrypted, and backed up by default, but they are still not created until an approved `terraform apply`.
-
-Phase 28 adds optional AWS Budget alert Terraform code. Budget resources remain disabled by default and require an approved `terraform apply`, a monthly limit, and alert subscriber emails before they affect a real AWS account.
-
-## Kubernetes manifests
-
-Phase 14 adds raw Kubernetes manifests under `infra/k8s`.
-
-Render the base manifests:
-
-```bash
-kubectl kustomize infra/k8s/base
-```
-
-Render environment overlays:
-
-```bash
-kubectl kustomize infra/k8s/overlays/dev
-kubectl kustomize infra/k8s/overlays/staging
-kubectl kustomize infra/k8s/overlays/prod
-```
-
-The manifests include:
-
-- namespace per environment
-- API and web service accounts
-- API and web ConfigMaps
-- API and web Deployments
-- API and web ClusterIP Services
-- ALB-oriented Ingress
-- liveness and readiness probes
-- resource requests and limits
-- non-root pod and container security contexts
-- default-deny ingress NetworkPolicy with API/web allow rules
-- API and web HorizontalPodAutoscalers
-- API and web PodDisruptionBudgets
-- graceful pod termination with preStop drain delay
-- secret references for `DATABASE_URL` and `REDIS_URL`
-
-The referenced `ai-platform-runtime-secrets` Secret is intentionally not committed. Phase 24 adds External Secrets resources that bind AWS Secrets Manager values into Kubernetes without plaintext manifests.
-
-These manifests are raw Kubernetes foundations. Helm packaging and release values are implemented in the Helm phase. HPA and PDB are included as resilience controls and should be tuned per environment before applying to a real cluster.
-
-The Phase 25 NetworkPolicies restrict inbound pod traffic:
-
-- API pods accept port `8000` from web pods and the configured private VPC CIDR placeholder.
-- Web pods accept port `3000` from the configured private VPC CIDR placeholder.
-- Other pod ingress is denied by default.
-
-The raw base uses `10.0.0.0/8` as a private CIDR placeholder. Replace this with the environment VPC or ingress-controller source ranges before applying to a real cluster.
-
-## Helm chart
-
-Phase 15 adds the Helm chart at `infra/helm/ai-platform`.
-
-Lint the chart:
-
-```bash
-helm lint infra/helm/ai-platform
-```
-
-Render environment releases:
-
-```bash
-helm template ai-platform-dev infra/helm/ai-platform \
-  -f infra/helm/ai-platform/values-dev.yaml \
-  --namespace ai-platform-dev
-
-helm template ai-platform-staging infra/helm/ai-platform \
-  -f infra/helm/ai-platform/values-staging.yaml \
-  --namespace ai-platform-staging
-
-helm template ai-platform-prod infra/helm/ai-platform \
-  -f infra/helm/ai-platform/values-prod.yaml \
-  --namespace ai-platform-prod
-```
-
-The chart packages:
-
-- namespace creation toggle
-- service accounts
-- API and web ConfigMaps
-- API and web Deployments
-- API and web Services
-- ALB-oriented Ingress
-- optional API and web HPAs with scale-up and scale-down stabilization behavior
-- API and web PodDisruptionBudgets
-- graceful pod termination settings
-- runtime Secret references for database and Redis connection strings
-
-The Helm chart is the release artifact for deployment workflows. Phase 16 overrides dev image repositories, image tags, ingress hosts, CORS origins, and web API base URL at deploy time from GitHub repository variables.
-
-## Autoscaling and Resilience
-
-Phase 26 adds runtime resilience defaults:
-
-- Dev raw overlays keep HPA minimums small at one pod and maximums at two pods.
-- Staging Helm values scale API and web from two to four pods at 70 percent CPU.
-- Production Helm values scale API and web from three to eight pods at 65 percent CPU.
-- HPAs use faster scale-up and conservative scale-down stabilization to avoid flapping.
-- PDBs keep at least one pod available by default, and production Helm values require two available pods for API and web.
-- API and web pods use `terminationGracePeriodSeconds: 30` and a short preStop sleep to give readiness and load balancers time to drain.
-- The API marks readiness unavailable during shutdown and Uvicorn has a 25 second graceful shutdown timeout.
-
-Provider call resilience is configured through:
-
-```bash
-PROVIDER_MAX_ATTEMPTS=2
-PROVIDER_RETRY_BACKOFF_MS=100
-PROVIDER_TIMEOUT_SECONDS=15
-```
-
-The current mock provider uses these settings to exercise retry paths locally. Future real provider adapters should enforce the same timeout budget around outbound calls.
-
-Resource tuning notes:
-
-- API defaults request `100m` CPU and `256Mi` memory with `500m`/`512Mi` limits.
-- Web defaults request `100m` CPU and `256Mi` memory with `500m`/`512Mi` limits.
-- Increase requests before raising HPA max replicas if pods are consistently CPU throttled.
-- Raise memory requests only after observing container working set in Grafana or Kubernetes metrics.
-
-After local migrations and seed data, run a modest smoke load:
-
-```bash
-python scripts/smoke_load.py --base-url http://localhost:8000 --requests 20 --concurrency 4
-```
-
-## Staging deployment
-
-Phase 17 adds `.github/workflows/deploy-staging.yml` for manual staging promotion.
-
-Staging workflow:
-
-1. Operator starts `Deploy Staging` with an optional immutable image tag and release notes.
-2. Workflow assumes `AWS_STAGING_DEPLOY_ROLE_ARN` through GitHub OIDC.
-3. API and web images are built from the selected ref and pushed to staging ECR using the commit SHA or supplied immutable tag.
-4. Helm upgrades the `ai-platform-staging` release with `values-staging.yaml`.
-5. API and web rollouts are checked.
-6. API readiness and web dashboard smoke tests run.
-7. A release summary is written to the GitHub Actions job summary.
-
-Required staging repository variables:
-
-| Variable | Purpose |
-|---|---|
-| `AWS_ACCOUNT_ID` | AWS account that owns staging ECR and EKS. |
-| `AWS_REGION` | AWS region for staging ECR and EKS. |
-| `AWS_STAGING_DEPLOY_ROLE_ARN` | OIDC role assumed by GitHub Actions for staging deploys. |
-| `STAGING_EKS_CLUSTER_NAME` | Staging EKS cluster name. |
-| `STAGING_API_HOST` | Ingress host for the staging API. |
-| `STAGING_WEB_HOST` | Ingress host for the staging web dashboard. |
-| `STAGING_API_BASE_URL` | Public base URL used for API smoke tests and web runtime config. |
-| `STAGING_WEB_BASE_URL` | Public base URL used for web smoke tests and API CORS config. |
-
-Optional staging repository variables:
-
-| Variable | Default |
-|---|---|
-| `STAGING_NAMESPACE` | `ai-platform-staging` |
-| `STAGING_API_ECR_REPOSITORY` | `production-ai-platform-staging/api` |
-| `STAGING_WEB_ECR_REPOSITORY` | `production-ai-platform-staging/web` |
-
-## Production deployment
-
-Phase 17 adds `.github/workflows/deploy-prod.yml` for approved production releases.
-
-Production workflow:
-
-1. Operator starts `Deploy Prod` manually.
-2. Operator supplies release notes and types `deploy-prod` in the confirmation input.
-3. GitHub waits for the protected `prod` Environment approval before running deployment steps.
-4. Workflow assumes `AWS_PROD_DEPLOY_ROLE_ARN` through GitHub OIDC.
-5. API and web images are built from the selected ref and pushed to prod ECR using the commit SHA or supplied immutable tag.
-6. Helm upgrades the `ai-platform-prod` release with `values-prod.yaml`.
-7. API and web rollouts are checked with longer production timeouts.
-8. API readiness and web dashboard smoke tests run.
-9. A production release summary is written to the GitHub Actions job summary.
-
-Required production repository variables:
-
-| Variable | Purpose |
-|---|---|
-| `AWS_ACCOUNT_ID` | AWS account that owns prod ECR and EKS. |
-| `AWS_REGION` | AWS region for prod ECR and EKS. |
-| `AWS_PROD_DEPLOY_ROLE_ARN` | OIDC role assumed by GitHub Actions for prod deploys. |
-| `PROD_EKS_CLUSTER_NAME` | Production EKS cluster name. |
-| `PROD_API_HOST` | Ingress host for the production API. |
-| `PROD_WEB_HOST` | Ingress host for the production web dashboard. |
-| `PROD_API_BASE_URL` | Public base URL used for API smoke tests and web runtime config. |
-| `PROD_WEB_BASE_URL` | Public base URL used for web smoke tests and API CORS config. |
-
-Optional production repository variables:
-
-| Variable | Default |
-|---|---|
-| `PROD_NAMESPACE` | `ai-platform-prod` |
-| `PROD_API_ECR_REPOSITORY` | `production-ai-platform-prod/api` |
-| `PROD_WEB_ECR_REPOSITORY` | `production-ai-platform-prod/web` |
-
-Production GitHub Environment requirements:
-
-- Create a GitHub Environment named `prod`.
-- Add required reviewers for approval.
-- Keep production variables scoped to the repository or environment according to the team's access model.
-- Do not store static AWS keys; use the OIDC role only.
-
-Promotion release notes template:
-
-```text
-Summary:
-- What changed:
-- Why it is safe:
-
-Validation:
-- CI run:
-- Staging smoke test:
-- Dashboard/log check:
-
-Risk:
-- Known risk:
-- Rollback plan:
-```
-
-Staging and production bootstrap prerequisites:
-
-- Terraform for the target environment has been applied through an approved human gate.
-- The optional GitHub Actions role is enabled with `create_github_actions_role = true`.
-- The target namespace exists before deploy:
-  - staging: `ai-platform-staging`
-  - prod: `ai-platform-prod`
-- The runtime secret reference expected by the chart exists in the namespace:
-  - Secret name: `ai-platform-runtime-secrets`
-  - Keys: `database-url`, `redis-url`
-- DNS/ingress routes resolve for the target API and web hosts.
-
-The staging and production workflows override `namespace.create=false` during Helm deploys so deploy roles can be namespace-scoped. Namespace creation, runtime secret wiring, DNS/TLS, and infrastructure changes remain explicit approved operations outside these workflows.
-
-## Rollback
-
-Phase 18 adds `.github/workflows/rollback.yml`.
-
-Rollback workflow:
-
-1. Operator starts `Rollback` manually.
-2. Operator selects `dev`, `staging`, or `prod`.
-3. Operator enters the Helm revision number to restore.
-4. Operator enters a rollback reason.
-5. Operator confirms with:
-   - `rollback` for dev or staging
-   - `rollback-prod` for prod
-6. For prod, GitHub waits for the protected `prod` Environment approval.
-7. Workflow assumes the matching environment deploy role through OIDC.
-8. Workflow captures recent Helm history.
-9. Workflow runs `helm rollback`.
-10. Workflow waits for API and web rollouts.
-11. Workflow smoke-tests API readiness and web dashboard health.
-12. Workflow writes a rollback summary to the GitHub Actions job summary.
-
-Required variables are the same environment role, cluster, namespace, API URL, and web URL variables used by the deploy workflows.
-
-Before rolling back, inspect release history:
-
-```bash
-helm history ai-platform-prod --namespace ai-platform-prod
-```
-
-Replace the release and namespace for dev or staging. Select a known-good revision and confirm there are no incompatible database or secret changes before rollback.
-
-See `docs/runbook.md` and `docs/incident-response.md`.
-
-Database rollback is a separate restore operation. If a release damages durable data or requires point-in-time recovery, follow `docs/backup-restore.md` before selecting an application rollback or production cutover path.
-
-## GitOps
-
-Phase 29 adds an optional Argo CD path under `infra/gitops/argocd`.
-
-The Argo CD Applications deploy the existing Helm chart:
-
-- dev uses `values-dev.yaml`
-- staging uses `values-staging.yaml`
-- prod uses `values-prod.yaml`
-
-GitHub Actions remains the default deployment path. If Argo CD controls an environment, disable the overlapping GitHub Actions deploy workflow for that namespace or use Argo CD only as a read-only demo. Do not allow two controllers to continuously mutate the same Helm release.
-
-See `docs/gitops-argocd.md` for install notes, sync strategy, promotion, rollback, and validation.
-
-## Metrics
-
-Phase 20 adds a Prometheus-compatible `/metrics` endpoint to the API.
-
-The API Service includes scrape annotations in both the Helm chart and raw Kubernetes manifests:
-
-- `prometheus.io/scrape: "true"`
-- `prometheus.io/path: /metrics`
-- `prometheus.io/port: "8000"`
-
-The metrics cover HTTP request volume/latency, gateway request volume, gateway errors, gateway latency, estimated cost, token usage, API key auth failures, and rate-limit rejections.
-The rate-limit rejection counter increments when the gateway returns HTTP 429.
-
-See `docs/observability.md` for metric names, label guidance, and local verification.
-
-## Tracing
-
-Phase 19 adds OpenTelemetry tracing to the API.
-
-Tracing is controlled by environment variables:
-
-- `OTEL_TRACING_ENABLED`
-- `OTEL_SERVICE_NAME`
-- `OTEL_TRACES_EXPORTER`
-- `OTEL_EXPORTER_OTLP_ENDPOINT`
-
-The Helm chart and raw Kubernetes manifests include tracing configuration defaults. Tracing remains disabled until `OTEL_TRACING_ENABLED=true` is set for an environment.
-
-See `docs/observability.md` for span coverage, request ID propagation, and collector integration notes.
+The images run non-root. CI validates the actual container stack, data-service TLS,
+runtime images and immutable registry promotion. [Testing](testing.md)
+
+## AWS deployment
+
+AWS has not been deployed. The [launch checklist](aws-launch-checklist.md) covers
+account/access setup, private runners, state/bootstrap, secrets, identity, costs,
+monitoring prerequisites and approval. Terraform/Helm configuration alone is not a
+validated cloud deployment. Monitoring remains [blocked](security/monitoring-vulnerability-backlog.md).
+
+The release workflows are manual and held. Once separately approved, they require
+current exact-revision CI, immutable images/charts, schema compatibility and protected
+publisher/migration/application jobs. Use the [immutable release runbook](immutable-release-runbook.md);
+do not invoke historical SHA-tag deployment examples from the archive.
+
+Rollback selects a previously verified compatible application release. It never
+downgrades a database. AWS cleanup, real DNS/TLS, public access and data deletion need
+separate approval. Staging/prod deployments remain optional and untested in AWS.

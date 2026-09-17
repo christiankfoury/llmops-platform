@@ -3,7 +3,7 @@
 ### Summary
 - Implemented one bounded synthetic Java/PostgreSQL/Redis recovery rehearsal in
   an isolated checkout. The original Phase 62 prototype remains untouched.
-- Plan and repeatable commands: [local rehearsal](../local-recovery-rehearsal.md).
+- Plan and repeatable commands: [local rehearsal](../../local-recovery-rehearsal.md).
   Exact local observations: [JSON evidence](phase-63-evidence.json).
 - Completed: implementation, separate fixes, all mandatory CI and final review passed.
 

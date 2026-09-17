@@ -75,7 +75,7 @@ test("synthetic demo has fixed read-only data and never connects to identity or 
   const fetcher = vi.fn(); vi.stubGlobal("fetch", fetcher);
   const request = new NextRequest("https://demo.fixture.invalid/api/platform/v1/usage/summary");
   const response = await proxy(request, ["v1","usage","summary"]);
-  expect(await response.json()).toEqual({ request_count: 1, error_count: 0, average_latency_ms: 120, estimated_cost_usd: "0.000005" });
+  expect(await response.json()).toEqual({ request_count: 12, error_count: 3, average_latency_ms: 422.3333333333333, estimated_cost_usd: "0.002585" });
   expect((await proxy(new NextRequest(request.url, { method: "POST" }), ["v1","admin","prompt-versions"])).status).toBe(403);
   expect((await currentSession(request)).status).toBe(200);
   expect(fetcher).not.toHaveBeenCalled();

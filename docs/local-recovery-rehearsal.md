@@ -35,7 +35,7 @@ only the synthetic application's placeholder machine key sends mock requests.
 
 The command prints `.maven-cache/ai-platform-recovery-<unique-id>/evidence.json`.
 That folder contains its empty environment file, Compose override and synthetic
-dump. The [retained summary](phase-reviews/phase-63-evidence.json) includes:
+dump. The [retained summary](archive/phase-reviews/phase-63-evidence.json) includes:
 
 - Client-observed min/mean/nearest-rank p95/max latency, request/error counts and
   concurrency. Twenty requests are a short sample, not a capacity estimate.

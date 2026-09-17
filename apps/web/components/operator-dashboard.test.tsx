@@ -23,6 +23,8 @@ test("explicit synthetic mode renders the existing dashboard with a clear read-o
   }));
   render(<OperatorDashboard />);
   expect(await screen.findByText("Synthetic demo · Fixed example data · Read only")).toBeVisible();
-  expect(await screen.findAllByText("$0.000005")).toHaveLength(2);
+  expect(await screen.findByRole("button", { name: "demo-request-001" })).toBeVisible();
+  expect(screen.getByText("Support response")).toBeVisible();
+  expect(screen.queryByText("/api/platform")).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Sign out" })).not.toBeInTheDocument();
 });

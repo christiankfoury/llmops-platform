@@ -1,25 +1,15 @@
-# Portfolio demo preparation
+# Demo preparation
 
-The current deliverable is one [five-minute script](demo-script.md) and
-[two actual synthetic browser captures](assets/screenshots/phase-64.md).
-Reuse these instead of creating a second demo flow or a large screenshot set.
+Use [the five-minute walkthrough](demo-script.md), [application gallery](dashboard-screenshots.md)
+and [documentation index](README.md). The demonstration covers the gateway, usage
+inspection, project access, delivery checks, infrastructure design and local recovery.
 
-The story is the operating layer: a scoped Java gateway, protected usage APIs,
-CI/security checks, Terraform/Helm packaging, immutable promotion, dependency
-recovery and a measured local restore. Proofbase and AgentOps retain their product
-and workflow responsibilities. Neither client supplies content for these captures.
+Current screenshots use coherent synthetic fixtures in the real application.
+They do not show live telemetry, provider usage, monitoring deployment or AWS.
+The [local rehearsal](archive/phase-reviews/phase-63.md) is measured evidence and is
+separate from UI fixtures. Monitoring limitations remain visible in the README.
 
-Current claims may describe tested local behavior and static cloud configuration.
-The default web view is read-only fixed data, not an API-backed telemetry feed.
-The [Phase 62 prototype](phase-reviews/phase-62.md) is dated evidence with an
-unresolved final image/security gate. Do not claim a secure complete monitoring
-release, live AWS operation, production SLA, HA or tested staging/prod deployments.
-
-A single private AWS dev/demo can satisfy Phase 66 after monitoring completion,
-current CI, setup and explicit approval. Public exposure and real DNS/TLS need
-separate authorization. Phase 69 retains the license and publication decisions;
-[the decision record](publication-decisions.md) lists outstanding inputs.
-
-Before sharing, use the current README, [focused security review](security/phase-64-review.md),
-[unreleased notes](release-notes.md) and the exact evidence revision. Keep optional
-staging/prod configuration labeled static and untested in AWS.
+Source publication is independent of the later cloud demonstration. One bounded
+private AWS dev/demo remains planned, subject to monitoring completion and explicit
+approval. No additional environment or expanded monitoring rebuild effort is part
+of the source-publication cleanup.

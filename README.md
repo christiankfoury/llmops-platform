@@ -1,142 +1,105 @@
 # Production AI Platform
 
-A Java LLM gateway and usage dashboard, with the operations layer as the main
-portfolio work: Terraform, Kubernetes, Helm, CI/CD, identity, observability,
-immutable releases, rollback, recovery and cost controls.
+[![CI](https://github.com/christiankfoury/production-ai-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/christiankfoury/production-ai-platform/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-**Current evidence:** tested locally and in CI. AWS is not deployed. Monitoring
-runs as a preserved local prototype, but its final image set remains blocked by
-[deferred vulnerabilities](docs/security/monitoring-vulnerability-backlog.md).
-The remaining cloud scope is one explicitly approved AWS dev/demo environment;
-staging and production configurations are optional and statically validated only.
+A Java LLM gateway and usage dashboard with reproducible delivery, project-scoped
+access, infrastructure as code, and tested local recovery procedures.
 
-## What you can inspect in one minute
+**Java 21 · Spring Boot · Next.js · PostgreSQL · Redis · Terraform · Kubernetes · Helm**
 
-- Java 21 / Spring Boot gateway with hashed application keys, prompt/model routing,
-  request and cost records, PostgreSQL/Flyway and atomic Redis limits.
-- OIDC operator access with database-backed viewer/operator project grants;
-  the Next.js dashboard keeps tokens on the server and protects writes.
-- Mandatory CI: Java/PostgreSQL/Redis integration tests, frontend/Python checks,
-  full-history secrets, dependency/image scans, Terraform/Helm/Kubernetes checks,
-  and an actual immutable OCI registry promotion round trip.
-- A [measured local recovery rehearsal](docs/phase-reviews/phase-63.md): 20/20
-  requests, p95 173 ms; dependency recovery, restart, compatible image rollback,
-  and 24 request/cost records restored into a new PostgreSQL target.
-- Separate application, migration and publisher identities; Terraform owns AWS
-  load balancing, bootstrap owns TargetGroupBindings, and release jobs remain held.
+![Dashboard with synthetic requests, usage totals and failure categories](docs/assets/screenshots/dashboard-overview.jpg)
 
-## Synthetic dashboard preview
+*Actual local application capture using invented, read-only example data.*
+[View request details and filtering screenshots →](docs/dashboard-screenshots.md)
 
-![Read-only local synthetic dashboard](docs/assets/screenshots/phase-64-overview.jpg)
+## What it demonstrates
 
-This is an actual local browser capture of **fixed synthetic fixtures**. It is
-separate from gateway traffic, seeded databases, Proofbase/AgentOps telemetry and
-monitoring. [Request detail and capture provenance](docs/assets/screenshots/phase-64.md)
-identify the tested image, checks and limitations.
-
-## Portfolio boundaries
-
-| Project | Responsibility |
+| Capability | Implementation and evidence |
 |---|---|
-| Proofbase | Permission-aware RAG product, retrieval, citations and answer quality |
-| AgentOps Workflow Platform | Agent workflows, steps, retries, generated outputs and tools |
-| Production AI Platform | Gateway, safe usage telemetry, operational controls and infrastructure |
+| Gateway and usage tracking | Hashed application keys, prompt/model routing, mock completions, request records, latency and estimated costs. [Gateway](docs/java-gateway.md) |
+| Operator access | OIDC authentication, project-scoped viewer/operator grants, server-side sessions and protected writes. [Security design](docs/java-operator-security.md) |
+| Delivery and supply chain | Required CI, dependency/image/secret scans, SBOMs, digest-verified OCI promotion and separate migration/application identities. [CI/CD](docs/ci-cd.md) |
+| Infrastructure | Terraform for AWS; Helm/Kubernetes packaging; private data services, least-privilege identities and deployment holds. [Architecture](docs/architecture.md) |
+| Recovery | Redis outage/recovery, application restart, compatible image rollback and PostgreSQL restoration into a separate target. [Measured rehearsal](docs/archive/phase-reviews/phase-63.md) |
+| Operational visibility | Structured logs, bounded metrics and trace spans without request content; usage telemetry from client applications. [Observability](docs/observability.md) |
 
-Proofbase and AgentOps are telemetry-first clients. They retain their own prompts,
-content and execution. This platform accepts operational metadata; it does not run
-RAG pipelines or workflows. Gateway routing for those clients is a future integration.
+## Run locally
 
-## Local demo
-
-From a clean checkout with Docker running:
+With Git and Docker Compose available:
 
 ```sh
+git clone https://github.com/christiankfoury/production-ai-platform.git
+cd production-ai-platform
 docker compose up --build
 ```
 
-Compose runs the separate Flyway migration job, seeds placeholder local scopes,
-and starts Java, PostgreSQL, Redis and the read-only synthetic dashboard. Open
-[the dashboard](http://localhost:3000) and [API readiness](http://localhost:8000/health/ready).
-All host ports bind to loopback. The Python service in `apps/api` is retained as a
-compatibility reference; Java in `apps/api-java` is the default runtime.
+Open [the dashboard](http://localhost:3000) and [API readiness](http://localhost:8000/health/ready).
+Compose starts Java, its separate Flyway migration job, PostgreSQL, Redis and the web
+application. Ports bind to localhost; the demo needs no cloud or provider credentials.
 
-Send one mock request:
+Send a mock completion in another terminal:
 
 ```sh
+export LOCAL_DEMO_API_KEY=local-dev-placeholder-key-not-a-secret
 curl -X POST http://localhost:8000/v1/gateway/completions \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: local-dev-placeholder-key-not-a-secret" \
+  -H "X-API-Key: ${LOCAL_DEMO_API_KEY}" \
   -d '{"input":"hello from local development"}'
 ```
 
-The placeholder key is synthetic and stored as a hash. The response and database
-show this request; the default synthetic dashboard stays fixed. To view actual
-platform usage, configure [OIDC and project grants](docs/java-operator-security.md).
-Unconfigured operator APIs are closed. Paid providers are not implemented in the
-current gateway; unsupported routes are rejected.
+The API stores this request and returns its request ID and usage metadata. The
+**default dashboard uses fixed synthetic data** and does not reflect that request.
+To display API-backed usage, configure [operator sign-in and project grants](docs/java-operator-security.md).
+The gateway currently implements a mock provider; no paid LLM calls are made.
 
-Use [the concise demo script](docs/demo-script.md) and
-[the repeatable local recovery commands](docs/local-recovery-rehearsal.md).
-Local Docker shutdown retains database volumes; database deletion needs approval.
+Stop services with `docker compose stop`; database volumes are retained.
+See [local setup](docs/deployment.md) for ports and troubleshooting, or follow the
+[five-minute walkthrough](docs/demo-script.md).
 
-## Architecture and deployment boundary
+## Architecture
 
 ```mermaid
 flowchart LR
-  clients[Client applications] --> gateway[Java gateway and telemetry API]
+  clients[Client applications] -->|Application key| api[Java gateway and telemetry API]
   browser[Operator browser] --> web[Next.js session and proxy]
-  web --> gateway
-  gateway --> pg[(PostgreSQL)]
-  gateway --> redis[(Redis limits)]
-  gateway --> mock[Mock provider]
-  gateway --> signals[Operational metrics, logs and traces]
+  web -->|OIDC and project grants| api
+  api --> pg[(PostgreSQL)]
+  api --> redis[(Redis limits)]
+  api --> mock[Mock provider]
+  api --> signals[Metrics, logs and traces]
 ```
 
-Terraform defines EKS, ECR, RDS PostgreSQL, ElastiCache Redis, IAM, Secrets Manager,
-networking and budgets. Helm packages the application and separate migration job.
-Current release workflows are **manual and held**: they validate a full revision,
-current CI provenance, immutable images/charts and schema compatibility before
-separately protected publisher, migration and application jobs can execute.
-Rollback selects a verified compatible release; it never downgrades the database.
-See [immutable releases](docs/immutable-release-runbook.md) and [deployment](docs/deployment.md).
+Application and migration containers have separate responsibilities. Flyway owns
+schema changes; application startup does not mutate the schema. Release workflows
+verify immutable images, charts, CI provenance and schema compatibility before any
+approved deployment. Rollback changes the application image, never downgrades data.
 
-An approved private AWS dev/demo is sufficient for the portfolio. No production
-SLA, high availability, multi-environment AWS operation or live cloud restore is
-claimed. Phases 67–68 are skipped by owner scope decision. Phase 66 requires AWS
-setup, Phase 62 completion, current required CI and explicit approval; Phase 69
-has a separate publication approval; the owner selected MIT on 2026-09-16.
+Proofbase and AgentOps are metadata-only telemetry clients. They retain their own
+content, provider calls and execution; this platform does not implement RAG or run
+agent workflows. [Integration boundaries](docs/architecture.md#client-integrations)
 
-## Observability and recovery
+## Validation and current limits
 
-Java emits operational JSON logs, bounded metrics and trace spans without request
-content. Management metrics use `/actuator/prometheus` on private port 9080; they
-are not a public application-port endpoint. CI checks metric, trace, privacy and
-verified database/Redis TLS behavior.
+- Java, frontend, Python reference, security and infrastructure checks run in CI.
+  See [testing](docs/testing.md) for local commands and the CI badge for current status.
+- The local recovery sample completed **20/20 requests**, measured **173 ms p95**,
+  and restored **24 request/cost records** with matching row hashes. This is a small
+  local rehearsal, not a capacity benchmark or cloud RTO/RPO claim.
+- **AWS is not deployed.** Terraform and deployment configuration are statically
+  tested; one bounded dev/demo deployment is planned. Separate staging/production
+  configurations have not been exercised in AWS.
+- **Monitoring finalization is incomplete.** Dated prototype evidence and
+  [known monitoring vulnerabilities](docs/security/monitoring-vulnerability-backlog.md)
+  remain documented. The monitoring release and AWS deployment are blocked.
+- The screenshots show synthetic UI examples, not live provider usage, Grafana or AWS.
+  The project is not offered as a production service and makes no HA/SLA claim.
 
-The dated [Phase 62 prototype](docs/phase-reviews/phase-62.md) demonstrated populated
-dashboards, searchable logs/traces and fired/resolved alerts. Final supported image
-compatibility, delivery and monitoring CI remain unfinished. Legacy Promtail assets
-are historical; the preserved Alloy proposal is not an eligible monitoring release.
-No monitoring screenshot here is presented as current secure-release evidence.
+## Documentation
 
-[Phase 63](docs/phase-reviews/phase-63.md) restored exact local row hashes and proved
-a new API write. Its latency/recovery timings are a small synthetic sample, not
-AWS RTO/RPO, PITR or capacity measurements. Budgets notify; request quotas,
-concurrency, scaling bounds and retention are separate cost controls.
+Start with the [documentation index](docs/README.md): architecture, local setup,
+security, testing, releases, recovery and costs. Historical implementation notes are
+kept in the [archive](docs/archive/README.md); [progress](phases-progress.md) distinguishes
+completed work from remaining milestones.
 
-## Verification and documentation
-
-- [Testing](docs/testing.md), [CI/CD](docs/ci-cd.md), [phase progress](phases-progress.md)
-- [Java runtime cutover](docs/java-runtime-cutover.md), [operator security](docs/java-operator-security.md)
-- [Security review](docs/security/phase-64-review.md), [security policy](SECURITY.md), [contributing](CONTRIBUTING.md)
-- [Architecture](docs/architecture.md), [TargetGroupBinding ownership](docs/targetgroupbinding-design.md)
-- [Backup/restore](docs/backup-restore.md), [incident response](docs/incident-response.md), [cost analysis](docs/cost-analysis.md)
-- [Proofbase integration](docs/proofbase-integration.md), [AgentOps integration](docs/agentops-integration.md)
-- [AWS setup and blocked launch decision](docs/aws-launch-checklist.md), [priced dev/demo proposal](docs/cost-analysis.md)
-- [Completion scope](docs/portfolio-completion-plan.md), [release decisions](docs/publication-decisions.md)
-
-The project uses the [MIT License](LICENSE), selected by the owner on 2026-09-16.
-Third-party dependencies and vendored materials retain their respective licenses.
-The repository remains private, with no release published.
-Historical phase reviews retain earlier runtime evidence; current claims follow
-this README, the latest phase progress and the linked measured results.
+[Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [MIT License](LICENSE)

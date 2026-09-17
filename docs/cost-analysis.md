@@ -47,7 +47,7 @@ owner-skipped and have **no allocation** in this estimate.
 Hourly items multiply quantity x rate x hours. Storage/secret/key items use the
 730-hour planning convention, quantity x monthly rate x hours / 730; actual AWS
 billing periods, minimums and rounding can differ. Sum unrounded lines before
-rounding the subtotal. [Machine-readable arithmetic and pricing provenance](phase-reviews/phase-65-cost-estimate.json)
+rounding the subtotal. [Machine-readable arithmetic and pricing provenance](archive/phase-reviews/phase-65-cost-estimate.json)
 retain quantities/rates, source URLs, current RDS/Redis SKUs, publication dates and
 source hashes. Both price lists were retrieved publicly without credentials.
 RDS/Redis standard node rates are USD 0.016/hour; extended-support SKUs were
@@ -123,7 +123,7 @@ both representations into a double-counted total. Proofbase/AgentOps telemetry
 is best-effort and operational only; missing or aggregate-only token/cost data
 must remain unknown/unpriced where appropriate. No paid provider is enabled.
 
-[Phase 63](phase-reviews/phase-63.md) measured a mock total of USD 0.000120 and
+[Phase 63](archive/phase-reviews/phase-63.md) measured a mock total of USD 0.000120 and
 restored 24 request/cost rows. These were not incurred provider charges. The
 [default dashboard captures](assets/screenshots/phase-64.md) are fixed fixtures;
 actual usage needs OIDC/project grants. The monitoring prototype's historical

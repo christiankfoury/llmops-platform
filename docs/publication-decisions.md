@@ -1,27 +1,23 @@
-# Publication and license decisions
+# Source publication decision record
 
-Preparation status: **publication blocked; no release or visibility change approved**.
-Read-only GitHub inspection on 2026-09-08 found the repository private, no license
-metadata, and zero deployment environments. Those observations do not modify settings.
+Updated 2026-09-17. **Preparation in progress; visibility approval pending.**
 
-| Item | Current decision / remaining input |
+The owner approved preparing source publication before the AWS demonstration for
+job applications. This supersedes earlier publication ordering, not deployment gates.
+
+| Item | Decision / verification |
 |---|---|
-| License | Owner selected MIT on 2026-09-16. Standard [LICENSE](../LICENSE) added with copyright 2026 Christian Kfoury; third-party materials retain their own licenses. |
-| Visibility and release | Remain private/unpublished. Separate explicit Phase 69 approval required. |
-| Private reporting channel | Owner must choose and verify a channel before public release; SECURITY.md uses an existing private contact path meanwhile. |
-| Monitoring | Phase 62 remains incomplete; known vulnerability fixes/custom rebuilds deferred, not risk-accepted. |
-| AWS evidence | No installation yet. Complete eligible and explicitly approved Phase 66 first. |
-| Public demo / real domain | Not authorized. A private AWS demonstration is sufficient; real exposure/DNS/TLS needs separate approval. |
-| CI/security evidence | Require successful current mandatory checks and unexpired exact-revision artifacts at publication, not only this preparation snapshot. |
-| Assets and claims | Two local fixed-fixture screenshots reviewed; use the current README/script, not historical Python or live-cloud claims. |
+| License | MIT selected; third-party notices retained. |
+| Presentation | Current Java/local behavior, 12-request synthetic dataset, three actual screenshots and archived historical notes; local checks passed. |
+| Reporting | GitHub private vulnerability-reporting form; enable and verify during publication. |
+| Main branch | Require PRs, up-to-date CI, no additional reviewer, administrator enforcement, no bypass/force pushes/deletion. Saved settings verified: all 11 applicable GitHub Actions contexts, strict/up-to-date checks, zero extra reviewers, enforce administrators, required conversation resolution, no bypass, force push or deletion. |
+| GHCR | Images remain private with explicit owner and repository Actions access. Inherited repository readership removed for all three existing packages; private visibility and explicit repository Actions access verified. Main digest checks pending. |
+| CI | Preserve all required tests/scans, 14-day reports, digest verification and USD 5/month Actions cost controls. [Cleanup PR #2](https://github.com/christiankfoury/production-ai-platform/pull/2) tracks current-revision CI and merged-main verification; preparation is not complete until both pass. |
+| Exposure review | Review all downloadable retained logs/artifacts and current Git refs. Record unavailable material separately. [Baseline review](security/publication-review.md) complete; new PR/main evidence pending. |
+| Visibility | Final approval follows the finished README, screenshots, evidence and findings. No visibility change performed by preparation. |
+| Monitoring and AWS | Phase 62 remains blocked; Phase 66 setup/deployment and final cloud closeout remain outstanding. |
 
-The independent preparation fixes are accurate runtime/demo documentation,
-security/contribution guidance, sanitized assets and explicit remaining decisions.
-No scanner exceptions, branch-protection bypass, secret rotation or paid services
-were introduced. Historical monitoring reports remain visible with their limits.
-
-The completed [Phase 65 package](aws-launch-checklist.md) records specific missing
-AWS inputs and the cost/change proposal with a blocked launch decision. The owner's
-2026-09-16 MIT selection resolves the project-license decision only. Phase 69's
-publication approval, the private reporting channel and the other release
-prerequisites remain outstanding. No repository visibility or release was changed.
+Historical failed runs and Git history are retained. No scanner exception, credential
+rotation, evidence deletion or history rewrite is part of this cleanup. After approval,
+verify public rendering, reporting, branch protection, private package access and a
+complete CI run under public visibility before closing the transition.

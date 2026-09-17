@@ -131,7 +131,7 @@ test("renders scopes, filters, and dashboard data from API responses", async () 
   screen.getByText("3");
   screen.getByText("123 ms");
   screen.getByText("$0.012345");
-  screen.getByText("http://api.test");
+  expect(screen.queryByText("http://api.test")).not.toBeInTheDocument();
   screen.getAllByText("mock-llm-small");
   screen.getAllByText("proofbase");
   screen.getAllByText("Rag Query");
@@ -181,7 +181,7 @@ test("source app filter requests Proofbase telemetry and renders event details",
   );
 
   await screen.findAllByText("Proofbase");
-  fireEvent.click(screen.getByRole("button", { name: "ext_proofbas" }));
+  fireEvent.click(screen.getByRole("button", { name: "ext_proofbase1" }));
 
   const detailPanel = screen.getByLabelText("Request details");
   within(detailPanel).getByText("Telemetry reported by proofbase.", { exact: false });
@@ -221,7 +221,7 @@ test("clicking a failed request opens the detail panel with error details", asyn
   render(<Dashboard />);
 
   await screen.findByText("42");
-  fireEvent.click(screen.getByRole("button", { name: "req_failedte" }));
+  fireEvent.click(screen.getByRole("button", { name: "req_failedtest" }));
 
   const detailPanel = screen.getByLabelText("Request details");
   within(detailPanel).getByText("Request Detail");

@@ -1,3 +1,5 @@
+> Historical document. Current behavior and scope are described in the [documentation index](../README.md).
+
 # AgentOps Integration Plan
 
 AgentOps Workflow Platform is integrated as the second client app for Production AI Platform telemetry.
@@ -239,7 +241,7 @@ Acceptance:
 Phase 46 implementation notes:
 
 - Use `scripts/send_agentops_browser_demo_event.py` for the automated local browser proof path.
-- Use [agentops-browser-telemetry-demo.md](agentops-browser-telemetry-demo.md) for the dashboard checklist, AgentOps port guidance, screenshot rules, and troubleshooting notes.
+- Use [agentops-browser-telemetry-demo.md](../agentops-browser-telemetry-demo.md) for the dashboard checklist, AgentOps port guidance, screenshot rules, and troubleshooting notes.
 - Use the real AgentOps smoke sender, `S:\github-repos\agentops-workflow-platform\scripts\send_platform_telemetry_smoke.py`, only after the platform API is running and seeded.
 - Avoid real AgentOps workflow runs unless provider credentials and quota usage are intentional.
 
@@ -264,7 +266,7 @@ Acceptance:
 
 Phase 47 implementation notes:
 
-- The final connection summary lives in [agentops-integration.md](agentops-integration.md).
+- The final connection summary lives in [agentops-integration.md](../agentops-integration.md).
 - Runbook, security, observability, architecture, portfolio, and README docs now describe AgentOps as a connected telemetry client while preserving the workflow boundary.
 - Proofbase remains the RAG/product integration; AgentOps remains the workflow/orchestration integration.
 

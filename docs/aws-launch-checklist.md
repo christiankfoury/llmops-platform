@@ -52,7 +52,7 @@ private setup record; never send credentials through chat, Git, screenshots or l
 |---|---|---|
 | Monitoring / owner | Resume only on owner direction; close final image/security, compatibility, immutable delivery/SBOM, mandatory monitoring CI and private transport/storage/credential checks in the [backlog](security/monitoring-vulnerability-backlog.md) | BLOCKED, deferred; no exceptions |
 | AWS account and region | Intended account ID, approved role/profile, billing owner, region and 48-hour timestamps; verify identity privately before any account operation | Missing |
-| Current release | Full candidate SHA and successful current CI run; unexpired, verified API/migration/web OCI digests, chart/value hashes and schema contract; qualified compatible rollback SHA/run retained | Preparation CI recorded in [review](phase-reviews/phase-65.md); refresh at launch |
+| Current release | Full candidate SHA and successful current CI run; unexpired, verified API/migration/web OCI digests, chart/value hashes and schema contract; qualified compatible rollback SHA/run retained | Preparation CI recorded in [review](archive/phase-reviews/phase-65.md); refresh at launch |
 | Regional compatibility | EKS 1.36 standard support, exact five add-on builds, AL2023 amd64 availability, RDS 16.15/class/storage and Redis 7.2/node/snapshot support | Unverified; version syntax fixtures are not availability evidence |
 | Quota and capacity | EKS clusters/nodes, EC2 Standard on-demand vCPUs (at least 6 for two workers + runner; 8 if third node approved), EIP/NAT, ALB/targets, RDS, ElastiCache, ENIs/subnet IPs and EBS capacity | Unverified; headroom and other account workloads must be counted |
 | Network/access | CIDR conflict check for `10.20.0.0/16`, private DNS/EKS connectivity, approved client ranges, NAT egress; secure operator path to internal ALB and IdP | Missing; do not expose EKS to fix a disconnected runner |
@@ -141,7 +141,7 @@ Verify actual RDS backup retention (current default one day), encryption, latest
 restorable point and snapshot posture; verify Redis snapshot behavior and counter
 reset implications. Current dev disables DB deletion protection and skips a final
 snapshot. Those defaults do not authorize data loss: choose an explicit snapshot
-and retention decision before cleanup. [Local recovery](phase-reviews/phase-63.md)
+and retention decision before cleanup. [Local recovery](archive/phase-reviews/phase-63.md)
 proved 24 request/cost rows and a new write; it is not cloud RTO/RPO or PITR proof.
 
 ## Cleanup plan: separate approval, no deletion now
@@ -171,4 +171,6 @@ automatic teardown authorization; charges continue while resources are retained.
    owners explicitly approve deletion. Record what remains, cost and next owner date.
 
 The handoff stops here before Phase 66. Phase 62 remains blocked, 67-68 remain
-owner-skipped, and Phase 69 publication/license approval remains separate.
+owner-skipped. Source publication may precede AWS under the owner-approved
+[publication plan](publication-decisions.md); final visibility approval remains separate.
+Phase 69 cloud closeout still requires the approved AWS evidence.

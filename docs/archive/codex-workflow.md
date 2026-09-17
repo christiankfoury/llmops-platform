@@ -1,3 +1,5 @@
+> Historical document. Current behavior and scope are described in the [documentation index](../README.md).
+
 # Codex Workflow
 
 Use this workflow for every implementation phase. Codex should continue sequentially through phases without waiting for human approval unless a stop condition applies.

@@ -1,211 +1,79 @@
-# Continuation handoff - 2026-09-08
+# Maintainer handoff
 
-## Start here
+## Current task
 
-Work in `S:\github-repos\production-ai-platform`. Read `AGENTS.md`,
-`PROJECT_SPEC.md`, `phases.md`, `phases-progress.md`,
-`docs/java-aws-implementation-plan.md`, this file and
-`docs/security/monitoring-vulnerability-backlog.md` and
-`docs/portfolio-completion-plan.md` first.
+Source-publication preparation is in progress on `codex/publication-readiness` in the
+isolated `.maven-cache/ghcr-ci` checkout. Read [AGENTS.md](../AGENTS.md),
+[progress](../phases-progress.md) and [publication decisions](publication-decisions.md).
+The approved plan covers documentation, a coherent synthetic demo and actual screenshots,
+exposure review, private GHCR access and required PR/CI protection. Complete the
+reviewable candidate and stop for final visibility approval.
 
-Phases 1-61 and the bounded preparation Phases 63-65 are completed. Phase 62 is
-**Blocked**, incomplete, with vulnerability fixes/custom rebuilds deferred by the
-owner. **STOP before Phase 66.** AWS setup and explicit approval are missing, and
-the Phase 62 prerequisite remains unresolved. Do not restart its remediation,
-remove cloud-job holds, create environments/runners/secrets or perform AWS actions
-automatically. Phases 67-68 remain owner-skipped; Phase 69 has separate approval.
+## Preserve existing work
 
-The concrete handoff is [the AWS setup/checklist](aws-launch-checklist.md),
-[the cost model](cost-analysis.md), and [Phase 65 review](phase-reviews/phase-65.md).
-It proposes one private us-east-1 dev/demo for 48 hours: USD 29.52 estimated, with
-a USD 50 review envelope, **not approved or an enforced cap**. Account/profile,
-region/date, private access/runner, protected GitHub environments, state/bootstrap,
-quotas/versions, identity/HTTPS, secret delivery and cleanup decisions remain
-explicit missing inputs. Domain/IdP/private-access purchases need separate pricing.
-Only unsigned public price reads were made; no authenticated AWS API/plan ran.
+The original checkout and `.maven-cache/continuation` contain uncommitted Phase 62
+monitoring work. Parked custom rebuild experiments and backups remain in ignored
+local caches. Do not reset, merge, discard, stage wholesale or publish these files.
+Use the isolated checkout. Existing database containers/volumes must not be deleted.
 
-Completed candidate evidence (all 11 mandatory jobs passed for each):
+## Baseline and gates
 
-- Phase 63: 140d35e, separate fixes 208c5d6/d03a9c1; final candidate CI 34192015607.
-  Closeout 3b8162e also passed CI 34192564066.
-- Phase 64: ad8bcbf, CI 34193634531; no additional pushed findings. Closeout
-  161848d passed CI 34194112651. Two actual synthetic browser captures retained.
-- Phase 65: 218bc46, CI 34195008384; no additional pushed findings. Java 280 tests,
-  zero skips, history 196 commits/zero unreviewed, image/OCI/infrastructure gates
-  passed. Exact-revision verification reported deployment_authorized=false.
+Baseline main `c6fa6e77c0e1ea06f210fe04dd1736aed654698f` passed CI `35176589414`
+attempt 2 and exact-revision verification. A transient scanner EOF required one
+investigated full retry. Deployment authorization remained false.
 
-This closeout also requires its own successful CI before final delivery. On any
-resumption inspect the latest remote main SHA/run; historical green checks and
-14-day artifacts do not authorize a new deployment or override current policy.
+The account Actions budget is USD 5/month with Stop usage and 75/90/100% alerts.
+Other product budgets stay zero. Images remain private in GHCR; reports stay in
+Actions for 14 days. Verify billing before billable runs and record actual run estimates.
 
-Owner follow-up (2026-09-16): MIT selected and added as `LICENSE`. This resolves
-the project-license choice only; publication/private reporting channel, AWS and
-monitoring gates remain unchanged. Do not make the repository public automatically.
+After the publication cleanup, normal changes use PRs and required checks, replacing
+the earlier direct-push loop. Always verify merged-main CI and exact provenance.
+Phase 62 stays blocked; 63–65 are completed; Phase 66 requires monitoring completion,
+AWS setup and explicit approval; 67–68 remain skipped. Source-sharing does not complete
+Phase 69's final cloud closeout. [AWS setup](aws-launch-checklist.md)
 
-## CI storage follow-up (2026-09-16)
+Historical phase evidence and prior handoffs are in [the archive](archive/README.md).
+New findings and final settings/CI readbacks belong in the publication decision record.
 
-The owner selected private GHCR retention to avoid paid artifact storage. The CI
-transport change is documented in `docs/ci-cd.md`; all scans, digest verification,
-small evidence uploads and AWS holds remain mandatory. Its current-revision CI
-must pass before claiming completion. Main has eleven required successful jobs
-plus an explicitly inactive read-only PR image counterpart. Rerun all jobs for
-release qualification; partial retries cannot mix evidence between attempts.
+## Publication implementation and review
 
-Fourteen older image archives were backed up and removed with owner approval;
-all reports and the latest prior image artifact were preserved. GitHub still
-reported quota exhaustion on be9d67e attempt 2 after cleanup. Account allowances
-and quota refresh remain external blockers until successful uploads prove recovery.
-Do not enable billing, delete more artifacts or weaken evidence checks by default.
+The cleanup is in [PR #2](https://github.com/christiankfoury/production-ai-platform/pull/2).
+Application/capture commit `b6e59ff` passed local frontend checks, Compose smoke and
+history review (204 commits; ten existing synthetic findings). Screenshot source
+hashes and archived JSON evidence were verified. A separate review fix corrects
+Markdown punctuation encoding and records saved repository settings.
 
-First GHCR candidate `14cefc5`, run `35165106845`, passed image builds, scans and
-local registry rehearsal, then failed its required post-upload package metadata
-check. No GHCR round-trip evidence or green eligibility exists yet. A bounded
-follow-up adds source-repository build labels and clearer safe diagnostics. The
-Owner sign-in allowed a read-only settings check: the API package is private,
-linked to this repository and grants it Actions access. No settings changed.
-Follow-up `b90639f`, run `35168711182`, still failed because the REST guard assumed
-repository linkage was always returned for granular GHCR packages. The next fix
-checks fixed package ownership/privacy, rejects conflicting linkage when supplied,
-and requires the source label inside digest-verified OCI configuration bytes.
-Trust still depends on exact-revision eligible CI and complete blob verification.
+Main protection is active: all eleven applicable PR checks from GitHub Actions,
+strict/up-to-date branches, zero additional reviewer approvals, administrator
+enforcement, required conversation resolution, no bypass, force push or deletion.
+The three private GHCR packages have no inherited repository readership and retain
+explicit repository Actions access. Read the exposure review before visibility approval.
 
-The account page confirmed Actions storage at 2 GB used / 2 GB included (100%),
-with included usage resetting in 14 days on 2026-09-16. Storage accrues hourly;
-deleting archives does not restore already consumed monthly allowance. Current
-Actions billed usage was zero. A 6-12 hour refresh is not a guaranteed unblock.
-Keep small evidence uploads mandatory and do not change billing automatically.
+Complete PR CI and normal merge, verify the resulting main run with the release
+verifier, and record exact run/attempt, cost estimate and any follow-up findings in
+PR #2's rollout review. That linked review is the final evidence index and avoids
+creating a documentation-only commit solely to name its own future CI revision.
+Final visibility approval remains pending even after the cleanup is merged.
 
-The original Phase 62 work and a monitoring-only review patch remain uncommitted.
-Custom rebuild experiments are backed up under the ignored local cache. The GHCR
-change uses its own `.maven-cache/ghcr-ci` checkout; `.maven-cache/continuation` now
-contains the uncommitted monitoring-only review and must not be staged wholesale.
-Phase 62 remains Blocked and Phase 66 still requires AWS setup and approval.
+PR run `35183064854` failed its container smoke because the old assertion expected
+one synthetic request. All other independent jobs passed. Run `35183406989` on
+the punctuation-only fix was canceled after diagnosis to avoid repeating that
+known failure. The focused smoke fix validates twelve requests, three scopes,
+derived cost/latency/error totals, failure filtering, configuration panels and
+blocked writes against the actual built web application. Full current-revision
+CI remains mandatory; no failed or canceled run is treated as passing evidence.
 
-## Approved CI cost controls (2026-09-16)
+Further PR review found that Java ignores the status selector for its failures
+endpoint. The synthetic adapter now preserves that behavior with a regression test
+and container smoke assertion; all 24 frontend tests, lint, types, production build
+and actual HTTP smoke passed. On Windows, fork-worker startup timed out; the complete
+suite passed with bundled Node 24, a threads pool and one worker. CI settings are
+unchanged. Screenshots were recaptured and their actual 1280x720 window dimensions
+and image/source hashes recorded. Fixed example times are illustrative, not capture
+or operational-event evidence. A separate policy fix retains the existing private
+contact fallback until GitHub private reporting is enabled during publication.
 
-Owner selected USD 5/month account-wide Actions overage with Stop usage and
-75/90/100% alerts. This supersedes the earlier zero-paid-usage direction for
-Actions only. Keep the other product budgets at zero, large images in private
-GHCR, and required reports in Actions for 14 days. No report-to-GHCR migration.
-The previous candidate `7fae01b` verified all three GHCR image round trips in run
-`35169391921`; mandatory evidence uploads failed only on the storage allowance.
-
-The bounded cost-control change adds explicit 30-minute maximum CI job timeouts,
-five minutes for eligibility, preserves the 15-minute controller limit, and
-cancels only superseded PR runs. Main runs remain independent. Policy regression
-tests enforce these settings. GitHub billing, not workflow code, enforces spend.
-No billing credentials or recurring cost-monitor workflow are added.
-
-Billing setup was verified after the owner saved a payment method: GitHub accepted
-the existing Actions budget update from USD 0 to USD 5, with Stop usage and all
-three alert thresholds retained. Other product budgets remain unchanged. Current
-CI must still pass; saved billing settings alone do not establish eligibility.
-Candidate `de906db99cbbdbcb5f8a926f14f6ff290b2359b4` subsequently passed CI
-`35176129982` attempt 1 (all eleven mandatory jobs; inactive PR counterpart).
-Exact-revision verification succeeded, with deployment authorization still false.
-All required reports and GHCR round trips passed. The run used an estimated 22
-rounded runner-minutes (USD 0.132 if fully billable) and nine artifacts totalling
-600,571 bytes. See `docs/phase-reviews/ci-cost-controls.md`. The documentation
-closeout and any later commit still require their own successful CI.
-Record the final saved billing settings, current-revision CI and observed
-runner-minutes/artifact bytes in the follow-up review. Do not automatically raise
-the budget if CI is blocked. The broader strategy is local development, then one
-separately approved bounded AWS demo and separately approved cleanup.
-
-## Remaining phases
-
-| Phase | Remaining outcome / boundary |
-|---|---|
-| 62 | Runnable monitoring finalization; vulnerabilities, final image compatibility/delivery and monitoring CI remain deferred launch blockers |
-| 63 | Completed: 20/20 requests, p95 173 ms, Redis recovery 1.297 s, compatible rollback and 24 request/cost rows restored; monitoring checks remain with 62 |
-| 64 | Completed: focused security review, two actual synthetic captures, corrected README/script and current scans; MIT subsequently selected, publication remains gated |
-| 65 | Completed: practical checklist, current cost/provenance and gated cleanup package; launch decision BLOCKED |
-| 66 | Blocked before execution: owner AWS setup/explicit approval plus Phase 62 completion/current eligibility required |
-| 67 | Skipped: separate staging deployment is optional future work |
-| 68 | Skipped: separate production deployment is optional future work |
-| 69 | Separately approved repository publication/closeout after required single-environment evidence; MIT selected, 67-68 are not prerequisites |
-
-Bound the remaining work to the completion plan. Preserve staging/prod code and
-static checks, but do not create those environments or claim live validation.
-Phase 66 can be an approved private demo; public exposure/real DNS/TLS remains a
-separate approval. No deployments or cleanup are authorized by this scope change.
-
-## CI repair completed; inspect latest status before continuing
-
-The failure below is historical. Repair a291ad7 pins an audited Red Hat UBI
-Skopeo image and explicit executable. CI 34190824931 passed all 11 jobs and the
-actual three-image OCI round trip. Details: `docs/phase-reviews/ci-skopeo-repair.md`.
-Phase 63 final CI 34192015607 also passed. Do not restart this repair without a
-new failure.
-
-### Historical failure
-
-The documentation deferral is on main at `4cf7b9a7bbccb3775a6f51aad36cb98f7f12cd50`.
-Its [CI run 34188573590](https://github.com/christiankfoury/production-ai-platform/actions/runs/34188573590)
-completed with nine successful jobs and two failures. The primary failure was
-**Package immutable images/charts and rehearse registry promotion**, in the
-production image job. The runner could not pull:
-
-```text
-quay.io/skopeo/stable@sha256:e5d9c4af8ec327785c7ca938d1e4f8452c6a05014850e58e2ff9456899ebd97c
-manifest unknown
-```
-
-The subsequent handoff commit `513758a` also failed CI run `34189266499`
-with the same Skopeo manifest error (nine jobs passed; image/promotion and
-release eligibility failed). Check the latest run before acting.
-
-Release eligibility then correctly failed. Java, Python, frontend, repository
-vulnerability scan, history secret scan, infrastructure, TGB and policy checks
-passed. This was a tool-image availability failure, not a newly detected monitoring
-vulnerability or Java test failure. Check the latest CI state before acting;
-repair verified tool availability/pinning as needed, validate the actual immutable
-OCI promotion round trip and fix it in a separate conventional commit. Do not use
-a mutable tag, skip the check or change registry authentication without its gates.
-Relevant files: `infra/release/toolchain.json`, `scripts/release_bundle.py`,
-`scripts/tests/test_release_bundle.py`, `.github/workflows/ci.yml`.
-
-## Preserve workspace work
-
-There are substantial uncommitted Phase 62 changes. Inspect `git status` before
-editing; they are not part of main or successful CI. They include Compose,
-monitoring images/configuration, Helm/bootstrap changes, a Java Dockerfile log
-folder, validation scripts, custom source-build recipes and candidate evidence.
-Do not discard them, stage them wholesale, publish their images or count them as
-another phase's completed implementation. The active isolated checkout is `.maven-cache/continuation` (detached HEAD, normal
-`HEAD:main` pushes). Original local main stays at 2b65581 to preserve its dirty
-Phase 62 work; remote main has advanced. Do not merge/reset that original tree.
-Do not delete existing databases, volumes, namespaces, secrets or caches as cleanup.
-
-The prototype ran metrics, dashboards, searchable logs/traces and fired/resolved
-local alerts. The complete final secure image set has not passed validation.
-The [backlog](security/monitoring-vulnerability-backlog.md) and
-[exact historical findings](security/monitoring-vulnerability-backlog.json) retain
-known issues and candidate progress. Do not restart those fixes/custom rebuilds,
-repeatedly rescan known unchanged monitoring candidates, activate scanner exceptions
-or adopt a failing image to make a phase appear complete.
-
-## Execution boundaries
-
-- AWS remains the target; Java is in `apps/api-java`; `apps/api` is retained as the
-  Python reference. Flyway is the sole migration owner after cutover.
-- Follow plan, implement, validate, commit, push main, review and separate fixes
-  for each independent preparation phase. Preserve full mandatory CI and real
-  PostgreSQL/Redis integration tests. Never count skips as successful validation.
-- Use focused local checks and verified caches. Reassess investigations after
-  20-30 minutes; do not create another open-ended third-party rebuild project.
-- Record outstanding monitoring-dependent checks under Phase 62 and in Phase 65's
-  blocked launch decision. Preparation progress does not imply deployment readiness.
-- No AWS apply/destroy/resources, paid providers, production, real secrets,
-  destructive migration, real-domain DNS/TLS, publication, security-check bypass
-  or branch-protection bypass. These retain their existing approval gates.
-- The Phase 59 KSV-0056 scanner proposal remains inactive. Its permission fix is
-  completed: Terraform owns load balancing; the pinned controller uses restricted
-  TargetGroupBinding permissions and has no Ingress writes.
-
-Phase 63 evidence and review are in `docs/phase-reviews/phase-63.md` and its JSON.
-Phase 64 security/demo and Phase 65 checklist/cost reviews are in the same directory.
-The isolated checkout is clean at phase delivery; the new rehearsal and screenshot
-containers are stopped, with data retained.
-Both rehearsal databases remain as stopped local containers/volumes. No existing
-database was deleted. Phase 62 remains blocked and AWS deployment is not approved.
+Superseded PR run `35183603661` was canceled after the additional filter finding.
+The four newly completed PR/review runs and their 17 downloadable log/artifact
+archives were inventoried and scanned with zero detections. Current final PR and
+main evidence still require their own verification and exposure review.

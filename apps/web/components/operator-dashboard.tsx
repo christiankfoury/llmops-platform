@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Dashboard } from "./dashboard";
+import styles from "./dashboard.module.css";
 
 type Session = { authenticated: boolean; mode: string; csrf?: string; expiresAt?: number; projects?: { project_id: string; role: string }[] };
 export function OperatorDashboard() {
@@ -31,6 +32,6 @@ export function OperatorDashboard() {
   if (!identity) return <main><p>Checking sign-in…</p></main>;
   if (!identity.authenticated) return <main><h1>Production AI Platform</h1>{identity.mode === "disabled" ?
     <p>Operator sign-in has not been configured.</p> : <a href="/api/auth/login">Sign in to the operator dashboard</a>}</main>;
-  return <><aside aria-label="Dashboard access">{identity.mode === "synthetic_demo" ?
+  return <><aside className={styles.accessNotice} aria-label="Dashboard access">{identity.mode === "synthetic_demo" ?
     <p>Synthetic demo · Fixed example data · Read only</p> : <><span>Signed in · Project access controlled by your grants</span> <button onClick={() => void signOut()}>Sign out</button></>}</aside><Dashboard /></>;
 }
