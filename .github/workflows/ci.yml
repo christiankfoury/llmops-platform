@@ -429,6 +429,7 @@ jobs:
           push: false
           platforms: linux/amd64
           outputs: type=oci,dest=.maven-cache/release-images/api.oci.tar,compression=gzip
+          labels: org.opencontainers.image.source=https://github.com/christiankfoury/production-ai-platform
           tags: |
             production-ai-platform-api:ci
             production-ai-platform-api:local
@@ -447,6 +448,7 @@ jobs:
           push: false
           platforms: linux/amd64
           outputs: type=oci,dest=.maven-cache/release-images/migration.oci.tar,compression=gzip
+          labels: org.opencontainers.image.source=https://github.com/christiankfoury/production-ai-platform
           tags: |
             production-ai-platform-migration:ci
             production-ai-platform-migration:local
@@ -462,6 +464,7 @@ jobs:
           push: false
           platforms: linux/amd64
           outputs: type=oci,dest=.maven-cache/release-images/web.oci.tar,compression=gzip
+          labels: org.opencontainers.image.source=https://github.com/christiankfoury/production-ai-platform
           tags: |
             production-ai-platform-web:ci
             production-ai-platform-web:local

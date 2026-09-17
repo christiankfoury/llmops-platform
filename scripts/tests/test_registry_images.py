@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 import registry_images as registry  # noqa: E402
 import test_release_bundle as fixtures  # noqa: E402
 from release_bundle import IMAGES, REPOSITORY, inspect_oci  # noqa: E402
+from validate_ci_policy import check_image_source_labels  # noqa: E402
 
 
 class RegistryImagesTest(unittest.TestCase):
@@ -90,6 +91,9 @@ class RegistryImagesTest(unittest.TestCase):
         for bad in (
             {**package, "visibility": "public"},
             {**package, "repository": {"full_name": "foreign/repo"}},
+            {**package, "repository": None},
+            {**package, "name": "foreign-package"},
+            {**package, "package_type": "npm"},
         ):
             with patch(
                 "registry_images.urllib.request.urlopen",
@@ -97,6 +101,11 @@ class RegistryImagesTest(unittest.TestCase):
             ):
                 with self.assertRaises(ValueError):
                     registry.private_package("api", "synthetic-token")
+        with patch(
+            "registry_images.urllib.request.urlopen",
+            return_value=io.BytesIO(json.dumps(package).encode()),
+        ):
+            registry.private_package("api", "synthetic-token")
         for code in (401, 403, 404, 500):
             error = urllib.error.HTTPError("https://api.github.com", code, "fixture", {}, None)
             with patch("registry_images.urllib.request.urlopen", side_effect=error):
@@ -134,6 +143,20 @@ class RegistryImagesTest(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     registry.publish_images()
                 call.assert_not_called()
+
+    def test_every_image_build_requires_its_source_label_before_testing(self):
+        step = {
+            "uses": "docker/build-push-action@" + "a" * 40,
+            "with": {"labels": "org.opencontainers.image.source=https://github.com/" + REPOSITORY},
+        }
+        job = {"steps": [copy.deepcopy(step) for _ in IMAGES]}
+        check_image_source_labels(job)
+        for index in range(3):
+            for label in (None, "org.opencontainers.image.source=https://github.com/foreign/repo"):
+                bad = copy.deepcopy(job)
+                bad["steps"][index]["with"]["labels"] = label
+                with self.subTest(index=index, label=label), self.assertRaises(ValueError):
+                    check_image_source_labels(bad)
 
     def test_registry_errors_do_not_echo_credentials_or_response_bodies(self):
         with patch("registry_images.subprocess.run") as run:

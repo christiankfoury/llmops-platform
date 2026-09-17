@@ -84,13 +84,12 @@ def private_package(name: str, token: str, allow_missing: bool = False) -> None:
                 raise ValueError("New registry packages require this private repository")
             return
         raise ValueError("Cannot verify private package access") from None
-    if (
-        data.get("visibility") != "private"
-        or data.get("package_type") != "container"
-        or data.get("name") != package
-        or (data.get("repository") or {}).get("full_name") != REPOSITORY
-    ):
-        raise ValueError("Package must be private and linked to this repository")
+    if data.get("visibility") != "private":
+        raise ValueError("Package visibility must be private")
+    if data.get("package_type") != "container" or data.get("name") != package:
+        raise ValueError("Package identity does not match the fixed destination")
+    if (data.get("repository") or {}).get("full_name") != REPOSITORY:
+        raise ValueError("Private package must be linked to this repository")
 
 
 @contextlib.contextmanager

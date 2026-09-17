@@ -67,3 +67,24 @@ findings receive separate follow-up commits and relevant validation.
 
 Phase 62 remains Blocked; Phase 66 AWS setup/approval and all publication gates
 remain. Optional staging/prod remain skipped. No source publication was performed.
+
+## First pushed candidate and bounded follow-up
+
+- Candidate `14cefc5aaa856a063e707ee8c906e47fb7f48d4b`, CI run `35165106845`:
+  application image builds, fresh Java Compose/TLS checks, image scans/SBOMs and
+  local OCI registry rehearsal passed. The first GHCR transfer completed, but the
+  required package metadata guard rejected its post-upload metadata. No verified
+  GHCR manifest or successful release eligibility was produced.
+- Java, history and TGB evidence uploads still failed on the Actions storage
+  quota. This is separate from the package metadata failure.
+- Follow-up adds the official OCI source-repository label at build time, before
+  testing/scanning, for all three images; checks that the labels remain present;
+  and separates sanitized package privacy/identity/link errors. Package privacy
+  and association checks remain mandatory. Local 37-test suite, Ruff, CI policy,
+  actionlint and whitespace checks passed.
+- The existing CLI token cannot read package metadata (403, read:packages absent)
+  and the in-app browser is signed out. Inspect the first package's actual private
+  visibility and repository association before retrying publication. Do not infer
+  the failing metadata field or relax the check. If an association is missing,
+  connect the fixed private package to this repository; do not change visibility.
+  New image labels do not by themselves prove that an existing package is linked.

@@ -57,6 +57,14 @@ reported quota exhaustion on be9d67e attempt 2 after cleanup. Account allowances
 and quota refresh remain external blockers until successful uploads prove recovery.
 Do not enable billing, delete more artifacts or weaken evidence checks by default.
 
+First GHCR candidate `14cefc5`, run `35165106845`, passed image builds, scans and
+local registry rehearsal, then failed its required post-upload package metadata
+check. No GHCR round-trip evidence or green eligibility exists yet. A bounded
+follow-up adds source-repository build labels and clearer safe diagnostics. The
+CLI lacks package-read scope and the in-app browser needs owner sign-in to inspect
+the existing API package's private visibility/repository association. Preserve the
+guard; labels alone cannot repair a package rejected before the next upload.
+
 The original Phase 62 work and a monitoring-only review patch remain uncommitted.
 Custom rebuild experiments are backed up under the ignored local cache. The GHCR
 change uses its own `.maven-cache/ghcr-ci` checkout; `.maven-cache/continuation` now
