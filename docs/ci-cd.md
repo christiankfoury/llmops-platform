@@ -34,7 +34,7 @@ Gitleaks runs its unmodified default rules across `git log --all` after a full-h
 
 The initial scan of 171 commits found ten matches: nine documented local placeholder seed keys in historical curl examples and one unsigned `alg=none` JWT used to assert HTTP 401. Each was checked against its historical source. `history-synthetic-findings.json` records only those exact commit/path/rule/line fingerprints, the SHA-256 of the matched source lines and the review reason. No whole path, rule, commit or token pattern is excluded from detection. New matches or changed source fail review, including newly introduced copies of a fixture. The raw scan is accurately reported as ten reviewed synthetic findings, not zero detections. No credential rotation or history rewrite was needed.
 
-This review is separate from the inactive Trivy controller-permission proposal, which remains untouched. Future unknown findings require review before eligibility; actual secrets require the existing owner/rotation approval gates, never plaintext reports or a suppression to get a green build. [Gitleaks documentation](https://github.com/gitleaks/gitleaks/tree/v8.30.1) describes its history scanning and redaction controls.
+This review is separate from the [superseded controller-permission proposal](archive/security-proposals/phase59-controller-permission.md). The implemented design removed Ingress writes; no exception was activated. Future unknown findings require review before eligibility; actual secrets require the existing owner/rotation approval gates, never plaintext reports or a suppression to get a green build. [Gitleaks documentation](https://github.com/gitleaks/gitleaks/tree/v8.30.1) describes its history scanning and redaction controls.
 
 ## Exact-revision eligibility
 
@@ -76,7 +76,7 @@ python scripts/install_validation_tools.py --tools gitleaks
 python scripts/validate_supply_chain.py history --gitleaks .maven-cache/tools/pinned/gitleaks.exe
 ```
 
-Maven `clean verify` requires an available real Redis test endpoint and starts isolated PostgreSQL test instances; CI additionally supplies PostgreSQL for the packaged smoke. Missing services fail, not skip. Linux Docker became available on the Windows workstation during Phase 62; isolated local container checks now complement mandatory hosted CI. The pinned CI toolchain remains authoritative for release evidence.
+Maven `clean verify` requires an available real Redis test endpoint and starts isolated PostgreSQL test instances; CI additionally supplies PostgreSQL for the packaged smoke. Missing services fail, not skip. Isolated local container checks complement mandatory hosted CI. The pinned CI toolchain remains authoritative for release evidence.
 
 History detection, SBOMs and advisory scans reduce known supply-chain risks; they cannot prove absence of all secrets or vulnerabilities. Cloud IAM, ALB data plane, EKS network enforcement, backups and deployment health retain their separate approved validation phases.
 
@@ -109,8 +109,8 @@ Large image archives are no longer uploaded to Actions by CI. Smaller reports,
 SBOMs, charts and eligibility manifests retain their 14-day lifetime. GHCR images
 alone do not extend release eligibility beyond expiring evidence. Private GHCR
 container storage/bandwidth are currently free; private hosted-runner minutes and
-Actions artifacts still have account-wide allowances. The owner approved USD 5/month
-of Actions overage with Stop usage enabled; other product budgets remain zero.
+Actions artifacts still have account-wide allowances. Configured account budgets and stop-usage controls bound authorized overage;
+repository settings do not enforce an account invoice.
 Storage cleanup/accounting delays can still block small evidence uploads; never
 ignore an upload failure or claim the release passed without complete evidence.
 
@@ -120,11 +120,10 @@ Sources checked 2026-09-16: [Container Registry billing](https://docs.github.com
 ## Cost-aware CI operating policy
 
 Keep required reports in Actions for 14 days and tested images in private GHCR.
-GitHub's account-wide USD 5/month Actions overage budget, Stop usage setting and
-75/90/100% alerts control paid usage; workflow code cannot enforce billing. The
-owner supplies payment details. Do not increase spending, other product budgets,
-runner size or cache capacity automatically. This is not a prepaid subscription
-or an invoice guarantee, and is separate from future AWS approval.
+Account budgets, stop-usage controls and alerts belong in private billing settings;
+workflow code cannot enforce an invoice. Verify the approved allowance before
+billable runs. Do not raise budgets, runner size or cache capacity automatically.
+CI spending and future AWS deployment have separate approval boundaries.
 
 All ordinary CI jobs have explicit limits of 30 minutes or less; controller
 compatibility retains 15 minutes and eligibility uses five. Concurrency groups

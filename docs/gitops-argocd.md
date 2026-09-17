@@ -4,7 +4,7 @@
 
 This document explains the optional Argo CD GitOps path for the LLMOps Platform.
 
-GitHub Actions remains the default CI/CD path. Argo CD is an additional portfolio-grade deployment option that can continuously reconcile the same Helm chart from Git when an operator intentionally enables it.
+GitHub Actions remains the default CI/CD path. Argo CD is an optional deployment design that can continuously reconcile the same Helm chart from Git when an operator intentionally enables it.
 
 ## Repository Layout
 
@@ -50,7 +50,7 @@ kubectl apply --filename infra/gitops/argocd/applications/ai-platform-staging.ya
 kubectl apply --filename infra/gitops/argocd/applications/ai-platform-prod.yaml
 ```
 
-Do not run these commands from Codex without explicit human approval.
+These commands change a cluster. Use them only for an explicitly approved environment; this optional GitOps path has not been deployed in AWS.
 
 ## Sync Strategy
 

@@ -4,7 +4,33 @@ Reviewed 2026-09-17 against main `c6fa6e7` and the publication candidate.
 Visibility has not changed. This review supports a source-sharing decision, not
 AWS deployment or acceptance of the monitoring vulnerabilities.
 
-## Retained GitHub material
+## Latest verified checkpoint
+
+Main `4c79901` passed [CI 35251189555](https://github.com/christiankfoury/llmops-platform/actions/runs/35251189555),
+attempt 1, with eleven applicable jobs successful, 280 Java tests and zero skips.
+Exact-revision verification passed with deployment authorization false. The
+[rollout review](https://github.com/christiankfoury/llmops-platform/pull/4#issuecomment-5718497884)
+records private image read-back and package-access checks.
+
+An independent follow-up reviewed all fourteen newer completed runs and 92 downloaded
+log/artifact archives after the baseline below, plus the four PR discussions. The
+archive-aware scan found six artifact SHA-256 references, each verified against its
+actual evidence bytes (twelve detections when archived and extracted copies are
+both scanned). No credential was identified. Full reachable history contained 215
+commits, ten existing synthetic findings and zero unreviewed findings. A source scan
+also reviewed the deliberately invalid JWT test and local placeholder curl keys.
+
+A fresh isolated build of the documented Compose stack verified two migrations,
+mock request/cost persistence, health checks, rejected invalid keys and anonymous
+operator access, private management endpoints, and the built sample dashboard's
+fixed rows, filters and blocked writes. Only those review services were stopped;
+volumes were retained. The current screenshot image/source hashes matched.
+
+The baseline's ten expired artifacts and one unavailable log remain unreviewed.
+Later revisions require their own CI and incremental exposure checks. See the
+[publication checklist](../publication-decisions.md) for transition requirements.
+
+## Baseline retained GitHub material
 
 The [coverage record](publication-exposure-review.json) inventories 329 runs and
 481 artifacts. Downloaded and reviewed 328 log archives and all 471 unexpired
@@ -32,8 +58,7 @@ history nor failed-run evidence has been deleted or rewritten.
 
 At baseline, the remote exposes one branch, no tags/releases/release assets, and
 one historical closed PR with no issue or inline review comments. Discussions are
-disabled; no wiki Git repository was available. The new cleanup PR and its runs
-must be included in the final pre-publication review.
+disabled; no wiki Git repository was available. The cleanup and subsequent PRs are covered by the follow-up above.
 
 ## Source and application checks
 
@@ -51,18 +76,18 @@ must be included in the final pre-publication review.
   and web containers, successful documented mock completion, and one corresponding
   PostgreSQL request row verified. Services stopped; volumes retained.
 - CI policy validation and 21 focused supply-chain/registry tests passed.
-  Current PR and merged-main mandatory scans/integration evidence remain required.
+  These local checks were followed by the verified PR/main evidence linked above.
 
 ## Settings and final gate
 
 All three existing CI image packages remain private. Inherited repository
 permissions were removed; explicit repository Actions access and owner access
 remain. Package identity/digest checks and fail-closed creation policy are unchanged.
-The Actions budget was read back as USD 5/month, Stop usage enabled, initially USD 0 spent and subsequently less than USD 0.01;
-other product budgets remain zero. Billing figures can lag usage.
+Account spending controls were verified privately; no billing settings changed.
 
-Required PR protection is saved and verified. Complete candidate/main CI and
-final settings readbacks are tracked in [publication decisions](../publication-decisions.md). After those
-pass, obtain final visibility approval, then enable GitHub private reporting and
+Required PR protection is saved and verified. The checkpoint above has complete
+main CI; subsequent changes still require current evidence. Final settings readbacks
+and approval are tracked in [publication decisions](../publication-decisions.md).
+During the approved visibility transition, enable GitHub private reporting and
 verify public rendering, branch protection, private package access and public CI.
 Expired material remains an explicit review limitation, not a pass.

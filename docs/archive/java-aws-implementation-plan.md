@@ -78,7 +78,7 @@ override in AGENTS.md. Continue the revised independent scopes of Phases 63-65;
 keep monitoring-dependent evidence and image eligibility unresolved under Phase
 62 and as pre-Phase 66 prerequisites. A complete Phase 65 preparation package may
 record a blocked launch decision. No security gate, required CI, publication or
-AWS approval is waived. Read [the next-chat handoff](../next-chat-handoff.md), including
+AWS approval is waived. Read [current progress](../../phases-progress.md), including
 the separate Skopeo CI availability failure and preserved dirty prototype.
 
 For each phase: reread AGENTS.md/spec/roadmap/progress; write the implementation plan; implement only that phase; run relevant checks and fix issues; update evidence and progress; create a detailed conventional commit; push main without bypassing protections; review the pushed diff; fix each top finding in a separate validated/pushed commit; record the prescribed phase review; advance automatically until a genuine blocker or approval gate.

@@ -1,6 +1,14 @@
 # Proposed ALB controller permission exception
 
-Status: **Pending user approval. No scanner suppression is active.**
+Status: **Superseded by the implemented TargetGroupBinding design. No exception was activated.**
+
+The current controller has no Ingress write permissions. Terraform owns the load
+balancer resources, and a restricted controller registers targets through
+bootstrap-approved TargetGroupBindings. See the [implemented design](../../targetgroupbinding-design.md)
+and [current security baseline](../../security-baseline.md). The proposal below is
+retained as a historical alternative, not a remaining blocker or an approval request.
+
+## Historical proposal
 
 The remaining Phase 59 scan finding is `KSV-0056` on the `load-balancer-reconciler` Role. The local configured-manifest scan reports eight copies of the same capability because it validates base/dev/staging/prod and both bootstrap stages. All other rendered HIGH/CRITICAL findings were removed by implementation changes. Pushed [CI 34094603109](https://github.com/christiankfoury/production-ai-platform/actions/runs/34094603109) confirms the same sole blocker after all Java, frontend and production image/TLS checks passed.
 
@@ -29,15 +37,16 @@ The permission is intentionally powerful: a compromised controller could modify 
 
 ## Concrete proposed change
 
-[phase59-trivyignore.proposed.yaml](phase59-trivyignore.proposed.yaml) proposes one finding ID, a bounded list of exact source/resource paths, an explanation and expiration on **2026-10-07**. It is not at a default ignore location and no workflow references it. There are no vulnerability or secret exceptions.
+[inactive proposal data](../../security-proposals/phase59-trivyignore.proposed.yaml) proposes one finding ID, a bounded list of exact source/resource paths, an explanation and expiration on **2026-10-07**. It is not at a default ignore location and no workflow references it. There are no vulnerability or secret exceptions.
 
 If approved, activate explicit ignore-file selection only for the repository/configured-infrastructure scans, test that the expected finding is filtered and that an unrelated Role or changed permission still fails, then rerun full CI. Every other security finding remains blocking. Expiration or a changed controller permission requires a fresh review. A blanket `KSV-0056` exception, scan removal, lower severity threshold, or `continue-on-error` is not proposed. [Trivy's scoped/expiring ignore-file format](https://trivy.dev/docs/latest/configuration/filtering/#trivyignoreyaml).
 
 Reviewed source: `infra/bootstrap/ai-platform-bootstrap/templates/load-balancer-rbac.yaml`.
 Canonical LF SHA-256: `8ad34b68a95cdd63a4cf6b83685c2f1be0f2021a9d7f74823b02053e538853d2`.
 
-## Why approval is required
+## Disposition
 
-[AGENTS.md](../../AGENTS.md:228) lists “Disabling security checks” among actions requiring approval. I am treating suppression of this specific blocking check as covered by that gate, even though it would be limited to the documented controller capability. Implementation fixes, schema/plan validation, commits and pushed reviews continue to be authorized; enabling this exception requires the user's decision.
-
-This approval would authorize only the scanner exception. It would not authorize AWS apply/resources, credentials, production deployment, DNS, public repository visibility or any other release gate.
+The original proposal required security-policy approval. The final implementation
+instead removed the Ingress-writing capability. The inactive YAML remains historical
+proposal data; no workflow selects it and no exception is authorized. Current
+[engineering boundaries](../../../AGENTS.md) and the implemented design take precedence.

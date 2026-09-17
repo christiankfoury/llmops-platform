@@ -27,4 +27,4 @@ exceptions or adopt unreviewed prototype images to make checks pass.
 
 Preserve the [MIT license](LICENSE) and applicable third-party notices.
 Report vulnerabilities through [the security policy](SECURITY.md).
-Maintainer execution and spending rules are in [AGENTS.md](AGENTS.md).
+Repository engineering and validation rules are in [AGENTS.md](AGENTS.md).

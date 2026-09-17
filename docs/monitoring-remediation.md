@@ -1,4 +1,4 @@
-# Phase 62 remediation handoff
+# Monitoring remediation status
 
 Status: **deferred by the owner on 2026-09-08**. Stop fixing the monitoring image
 vulnerabilities and stop custom third-party rebuilds. Preserve the findings for
@@ -14,9 +14,9 @@ The local monitoring prototype has working integration evidence. The final secur
 image set, immutable delivery, required monitoring CI and deployment validation
 are incomplete. Runtime and custom-build changes remain local workspace work;
 this documentation does not adopt or publish them. Phase 62 is Blocked and not
-completed. Phase 63 is selected for independent continuation (implementation not
-yet started), followed by Phases 64-65 preparation under the scoped AGENTS.md
-override. See [the next-chat handoff](next-chat-handoff.md).
+completed. Phases 63–65 subsequently completed their independent local recovery,
+security/demo and AWS preparation scopes. Monitoring eligibility still blocks
+Phase 66. See [current progress](../phases-progress.md).
 
 No scanner exception, risk acceptance for deployment, cloud installation, security
 policy change or approval bypass is authorized by the decision to defer fixes.
