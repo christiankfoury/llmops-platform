@@ -1,6 +1,6 @@
 # Java gateway implementation
 
-Phase 52 implements `POST /v1/gateway/completions` in the Java service. AWS remains the target, while Docker Compose/Helm still run the Python reference until Phase 58. The Java endpoint uses a local mock adapter; it requires no provider credentials and makes no external model calls.
+Phase 52 introduced `POST /v1/gateway/completions` in the Java service. Java is now the default Docker Compose/Helm runtime; Python remains a compatibility reference. AWS is not deployed. The Java endpoint uses a local mock adapter; it requires no provider credentials and makes no external model calls.
 
 ## Request and response
 
