@@ -7,15 +7,15 @@ No backend, database, identity provider or paid LLM service supplies the example
 
 ## Overview
 
-![Application overview with synthetic usage and request records](assets/screenshots/dashboard-overview.jpg)
+![Application overview with sample usage and request records](assets/screenshots/dashboard-overview.jpg)
 
 ## Request details
 
-![Synthetic request detail with latency, tokens and cost](assets/screenshots/request-detail.jpg)
+![Sample request detail with latency, tokens and cost](assets/screenshots/request-detail.jpg)
 
 ## Failure filtering
 
-![Dashboard filtered to failed synthetic requests](assets/screenshots/failure-filter.jpg)
+![Dashboard filtered to failed sample requests](assets/screenshots/failure-filter.jpg)
 
 The examples have fixed September 17, 2026 timestamps. Use **All time** to view the
 whole fixture set; relative date filters can legitimately return no rows later.
@@ -31,7 +31,7 @@ remain as historical evidence. Neither gallery demonstrates Grafana or AWS opera
 ## Reproduce
 
 Start the default Compose stack and open the web dashboard. Confirm its
-**Synthetic demo · Fixed example data · Read only** notice. Capture the overview,
+**Demo mode · Sample data · Read only** notice. Capture the overview,
 open `demo-request-001`, then close the details and set Status to `failed`.
 Use a 1280 by 720 desktop viewport (the final capture dimensions) and preserve the notice. Inspect mobile layout
 separately. Do not edit screenshot content or substitute generated images.

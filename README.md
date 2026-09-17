@@ -8,9 +8,9 @@ access, infrastructure as code, and tested local recovery procedures.
 
 **Java 21 · Spring Boot · Next.js · PostgreSQL · Redis · Terraform · Kubernetes · Helm**
 
-![Dashboard with synthetic requests, usage totals and failure categories](docs/assets/screenshots/dashboard-overview.jpg)
+![Dashboard with sample requests, usage totals and failure categories](docs/assets/screenshots/dashboard-overview.jpg)
 
-*Actual local application capture using invented, read-only example data.*
+*Actual local application capture in Demo mode, using read-only sample data.*
 [View request details and filtering screenshots →](docs/dashboard-screenshots.md)
 
 ## What it demonstrates
