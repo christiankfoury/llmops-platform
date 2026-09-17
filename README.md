@@ -8,9 +8,9 @@ access, infrastructure as code, and tested local recovery procedures.
 
 **Java 21 · Spring Boot · Next.js · PostgreSQL · Redis · Terraform · Kubernetes · Helm**
 
-![Dashboard with synthetic requests, usage totals and failure categories](docs/assets/screenshots/dashboard-overview.jpg)
+![Dashboard with sample requests, usage totals and failure categories](docs/assets/screenshots/dashboard-overview.jpg)
 
-*Actual local application capture using invented, read-only example data.*
+*Actual local application capture in Demo mode, using read-only sample data.*
 [View request details and filtering screenshots →](docs/dashboard-screenshots.md)
 
 ## What it demonstrates
@@ -49,7 +49,7 @@ curl -X POST http://localhost:8000/v1/gateway/completions \
 ```
 
 The API stores this request and returns its request ID and usage metadata. The
-**default dashboard uses fixed synthetic data** and does not reflect that request.
+**default dashboard uses fixed sample data** and does not reflect that request.
 To display API-backed usage, configure [operator sign-in and project grants](docs/java-operator-security.md).
 The gateway currently implements a mock provider; no paid LLM calls are made.
 
@@ -92,7 +92,7 @@ agent workflows. [Integration boundaries](docs/architecture.md#client-integratio
 - **Monitoring finalization is incomplete.** Dated prototype evidence and
   [known monitoring vulnerabilities](docs/security/monitoring-vulnerability-backlog.md)
   remain documented. The monitoring release and AWS deployment are blocked.
-- The screenshots show synthetic UI examples, not live provider usage, Grafana or AWS.
+- The screenshots show sample UI data, not live provider usage, Grafana or AWS.
   The project is not offered as a production service and makes no HA/SLA claim.
 
 ## Documentation
