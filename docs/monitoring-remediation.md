@@ -8,7 +8,7 @@ The durable [vulnerability backlog](security/monitoring-vulnerability-backlog.md
 and its [exact findings](security/monitoring-vulnerability-backlog.json) supersede
 the earlier active investigation notes. They separate original image findings,
 additional source-lock/plugin findings, and local passing candidates. The
-[original audit](phase-reviews/phase-62-evidence.json) remains unchanged.
+[original audit](archive/phase-reviews/phase-62-evidence.json) remains unchanged.
 
 The local monitoring prototype has working integration evidence. The final secure
 image set, immutable delivery, required monitoring CI and deployment validation

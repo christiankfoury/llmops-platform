@@ -1,7 +1,6 @@
-# Screenshot Assets
+# Screenshot assets
 
-Approved recruiter-facing screenshots should be stored here after they are captured from local or staging demo data.
-
-Do not store screenshots that reveal real account IDs, hostnames, credentials, customer data, sensitive prompts, or incident details.
-
-See `docs/dashboard-screenshots.md` for the capture checklist.
+Current captures and their provenance are linked from [the gallery](../../dashboard-screenshots.md).
+They show the real application with invented read-only data. Keep original image bytes,
+source hashes and captions together. September 8 captures remain historical evidence.
+No screenshot here demonstrates a completed monitoring release or AWS deployment.

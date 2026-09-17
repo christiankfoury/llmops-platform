@@ -1,7 +1,7 @@
 ## Phase 65 Review
 
 ### Summary
-- Prepared one practical [AWS dev/demo checklist](../aws-launch-checklist.md),
+- Prepared one practical [AWS dev/demo checklist](../../aws-launch-checklist.md),
   dated cost model, missing-input matrix, ordered release/rollback procedure and
   separately gated cleanup plan. Launch decision: **BLOCKED**.
 - Plan: inspect actual defaults and existing runbooks; price one 48-hour private

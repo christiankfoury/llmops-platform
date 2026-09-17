@@ -1,107 +1,35 @@
-# Dashboard Screenshots
+# Application screenshots
 
-## Status
+These are actual local browser captures of the production-built Next.js application,
+using fixed invented fixtures. The default demo contains 12 requests across three
+application scopes, including three failures and corresponding configuration records.
+No backend, database, identity provider or paid LLM service supplies the example data.
 
-The repository includes dashboard implementations and dashboard definitions, but it does not commit live screenshots from an AWS or Grafana deployment.
+## Overview
 
-Reason:
+![Application overview with synthetic usage and request records](assets/screenshots/dashboard-overview.jpg)
 
-- No approved live Grafana deployment is created by this repository.
-- Screenshots must not expose real account IDs, hostnames, API keys, prompts, users, provider credentials, or incident data.
-- The correct portfolio move is to capture screenshots from a seeded local or staging demo environment.
+## Request details
 
-## Screenshot Targets
+![Synthetic request detail with latency, tokens and cost](assets/screenshots/request-detail.jpg)
 
-Application dashboard:
+## Failure filtering
 
-- Next.js dashboard overview
-- usage summary cards
-- recent gateway requests
-- Proofbase-filtered telemetry view
-- AgentOps-filtered telemetry view
-- recent gateway failures
-- prompt versions
-- model routes
+![Dashboard filtered to failed synthetic requests](assets/screenshots/failure-filter.jpg)
 
-Grafana dashboards:
+The examples have fixed September 17, 2026 timestamps. Use **All time** to view the
+whole fixture set; relative date filters can legitimately return no rows later.
+Counts, averages and costs derive from the displayed fixture dataset, not actual
+provider charges or the measured local recovery sample.
 
-- Production AI Platform Overview
-- Production AI Platform Reliability
-- Production AI Platform Cost
-- Production AI Platform Logs
+[Capture provenance](assets/screenshots/publication-capture.json) records source
+hashes, viewport and image hashes. [Original September 8 captures](assets/screenshots/phase-64.md)
+remain as historical evidence. Neither gallery demonstrates Grafana or AWS operation.
 
-Operational views:
+## Reproduce
 
-- GitHub Actions CI run
-- deployment workflow summary
-- rollback workflow inputs
-- Argo CD Applications view if GitOps is installed
-
-## Capture Checklist
-
-1. Use local or staging demo data only.
-2. Run migrations and seed data.
-3. Generate gateway traffic:
-
-   ```bash
-   python scripts/smoke_load.py --requests 20 --concurrency 4
-   ```
-
-4. Generate at least one provider failure:
-
-   ```bash
-   curl -X POST http://localhost:8000/v1/gateway/completions \
-     -H "Content-Type: application/json" \
-     -H "X-API-Key: local-dev-placeholder-key-not-a-secret" \
-     -d '{"input":"[simulate_failure] screenshot demo"}'
-   ```
-
-5. Confirm dashboards have meaningful time ranges and non-empty panels.
-6. For the Proofbase telemetry screenshot, run:
-
-   ```bash
-   python scripts/send_proofbase_browser_demo_event.py
-   ```
-
-   Then filter the dashboard **Source App** control to `proofbase`.
-
-7. For the AgentOps telemetry screenshot, run:
-
-   ```bash
-   python scripts/send_agentops_browser_demo_event.py
-   ```
-
-   Then filter the dashboard **Source App** control to `agentops`.
-
-8. Redact or avoid:
-   - account IDs
-   - API keys
-   - provider credentials
-   - database URLs
-   - Redis URLs
-   - customer data
-   - sensitive prompts
-   - full questions
-   - generated outputs
-   - workflow input/output JSON
-   - tool arguments or tool results
-   - retrieved chunks
-   - citation text
-   - document text
-9. Store approved screenshots under:
-
-   ```text
-   docs/assets/screenshots/
-   ```
-
-10. Update README image links only after approved screenshots exist.
-
-## Current Evidence Without Screenshots
-
-- Web dashboard code: `apps/web/components/dashboard.tsx`
-- Web dashboard test: `apps/web/components/dashboard.test.tsx`
-- Proofbase browser demo guide: `docs/proofbase-browser-telemetry-demo.md`
-- AgentOps browser demo guide: `docs/agentops-browser-telemetry-demo.md`
-- Grafana dashboards: `infra/monitoring/grafana/dashboards/`
-- Grafana provisioning: `infra/monitoring/grafana/provisioning/`
-- Observability docs: `docs/observability.md`
+Start the default Compose stack and open the web dashboard. Confirm its
+**Synthetic demo Â· Fixed example data Â· Read only** notice. Capture the overview,
+open `demo-request-001`, then close the details and set Status to `failed`.
+Use a 1440-pixel desktop viewport and preserve the notice. Inspect mobile layout
+separately. Do not edit screenshot content or substitute generated images.

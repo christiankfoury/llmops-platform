@@ -5,7 +5,7 @@ Captured and visually checked on 2026-09-08 in the local browser at
 `d03a9c166f2e4efb1ceebda540b1c7e567da794f` (also unchanged at the Phase 63 closeout).
 Image ID: `sha256:2bef6ea2a4b8245b0a3b94e7df8923157ce0f95c4739f63832fd4b822a2fd50c`.
 Both are unedited original JPEG captures, 1265 × 1010; hashes and checks are in
-[the evidence record](../../phase-reviews/phase-64-evidence.json).
+[the evidence record](../../archive/phase-reviews/phase-64-evidence.json).
 
 ![Synthetic overview](phase-64-overview.jpg)
 

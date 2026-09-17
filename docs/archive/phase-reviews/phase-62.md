@@ -2,8 +2,8 @@
 
 Status: **Blocked; vulnerability remediation deferred by the owner on
 2026-09-08.** Do not automatically resume fixes or custom third-party rebuilds.
-See the [deferred backlog](../security/monitoring-vulnerability-backlog.md) and
-[current handoff](../monitoring-remediation.md). Phase 62 remains incomplete;
+See the [deferred backlog](../../security/monitoring-vulnerability-backlog.md) and
+[current handoff](../../monitoring-remediation.md). Phase 62 remains incomplete;
 monitoring release eligibility and all security/cloud approval gates remain held.
 
 The sections below retain the **initial 2026-09-07 audit checkpoint**, before

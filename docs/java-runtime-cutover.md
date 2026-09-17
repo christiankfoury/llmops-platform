@@ -1,6 +1,6 @@
 # Java runtime cutover
 
-Phase 58 switches default Compose and Kubernetes packaging to Java 21/Spring Boot. AWS remains the target. Runtime acceptance is tracked in the [phase review](phase-reviews/phase-58.md); AWS deployment, immutable promotion and monitoring installation require the subsequent phases. Existing deployment/rollback jobs have an explicit cutover hold so manual dispatch cannot publish a Python image against the new Java chart. Phase 61 replaces those jobs before the hold is removed. No AWS resources or real secrets are changed by the cutover code.
+Phase 58 switches default Compose and Kubernetes packaging to Java 21/Spring Boot. AWS remains the target. Runtime acceptance is tracked in the [phase review](archive/phase-reviews/phase-58.md); AWS deployment, immutable promotion and monitoring installation require the subsequent phases. Existing deployment/rollback jobs have an explicit cutover hold so manual dispatch cannot publish a Python image against the new Java chart. Phase 61 replaces those jobs before the hold is removed. No AWS resources or real secrets are changed by the cutover code.
 
 ## Fresh local stack
 

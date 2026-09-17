@@ -405,7 +405,6 @@ export function Dashboard() {
           <p className={styles.kicker}>LLMOps Dashboard</p>
           <h1>Production AI Platform</h1>
         </div>
-        <div className={styles.endpoint}>{apiBaseUrl ?? "loading"}</div>
       </header>
       {content}
     </main>
@@ -663,7 +662,7 @@ function RequestTable({
             <tr key={row.request_id}>
               <td title={row.request_id}>
                 <button className={styles.requestButton} type="button" onClick={() => onSelect(row)}>
-                  {row.request_id.slice(0, 12)}
+                  {row.request_id.length > 24 ? `${row.request_id.slice(0, 12)}…${row.request_id.slice(-6)}` : row.request_id}
                 </button>
               </td>
               <td>

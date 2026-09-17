@@ -1,4 +1,6 @@
-# Focused security and claims review — 2026-09-08
+> Historical review (2026-09-08). Current source-publication ordering, MIT selection and demo updates are recorded in [publication decisions](../publication-decisions.md).
+
+# Focused security and claims review â€” 2026-09-08
 
 Scope: independent Phase 64 preparation, using current source, existing tests and
 mandatory CI. This is not a new audit program or authorization to deploy/publish.
@@ -18,7 +20,7 @@ Phase 62's [monitoring backlog](monitoring-vulnerability-backlog.md) remains def
 
 The local screenshot image audit passed Trivy 0.70.0 with `HIGH,CRITICAL`,
 `--ignore-unfixed`, `vuln,secret` and exit code 1 on findings. Alpine 3.24.1 and
-application dependencies were recognized. [Capture evidence](../phase-reviews/phase-64-evidence.json)
+application dependencies were recognized. [Capture evidence](../archive/phase-reviews/phase-64-evidence.json)
 retains the exact image and report hash. An audit pass is a selected-policy result,
 not proof that every dependency is free of vulnerabilities.
 
@@ -44,6 +46,6 @@ Phase 65 supplies AWS setup/cost inputs. Phase 62 final image eligibility,
 compatibility/delivery and monitoring checks remain unresolved before Phase 66.
 No risk acceptance, secret rotation, AWS modification or public exposure occurred.
 
-The [phase review](../phase-reviews/phase-64.md) records the final candidate CI and
+The [phase review](../archive/phase-reviews/phase-64.md) records the final candidate CI and
 post-push review. Preparation can complete with these explicit release blockers;
 publication and deployment cannot.

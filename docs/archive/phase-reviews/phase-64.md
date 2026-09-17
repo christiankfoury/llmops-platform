@@ -9,7 +9,7 @@
 
 ### Scope Check
 - In scope: documentation, synthetic assets, existing security evidence and bounded
-  browser/API checks. Details: [security review](../security/phase-64-review.md).
+  browser/API checks. Details: [security review](../../security/phase-64-review.md).
 - Out of scope avoided: broader audit framework, provider calls, monitoring rebuilds,
   AWS installation, license selection, visibility change or public release.
 

@@ -38,6 +38,6 @@ Canonical LF SHA-256: `8ad34b68a95cdd63a4cf6b83685c2f1be0f2021a9d7f74823b02053e5
 
 ## Why approval is required
 
-[AGENTS.md](../../AGENTS.md:228) lists ìDisabling security checksî among actions requiring approval. I am treating suppression of this specific blocking check as covered by that gate, even though it would be limited to the documented controller capability. Implementation fixes, schema/plan validation, commits and pushed reviews continue to be authorized; enabling this exception requires the user's decision.
+[AGENTS.md](../../AGENTS.md:228) lists ‚ÄúDisabling security checks‚Äù among actions requiring approval. I am treating suppression of this specific blocking check as covered by that gate, even though it would be limited to the documented controller capability. Implementation fixes, schema/plan validation, commits and pushed reviews continue to be authorized; enabling this exception requires the user's decision.
 
 This approval would authorize only the scanner exception. It would not authorize AWS apply/resources, credentials, production deployment, DNS, public repository visibility or any other release gate.

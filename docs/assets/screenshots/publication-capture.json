@@ -1,0 +1,84 @@
+{
+  "captured_on": "2026-09-17",
+  "source_base_revision": "c6fa6e77c0e1ea06f210fe04dd1736aed654698f",
+  "source_revision_note": "Publication candidate changes identified by normalized source hashes; captures precede the containing commit.",
+  "source_sha256": {
+    "apps/web/lib/synthetic-demo.ts": "106af46dd633311a38492c6430737580f3aef7349577c9409a2ffbe052f8a1f9",
+    "apps/web/components/dashboard.tsx": "632022417cd11358344890e88e37a57d4e37f5560e5547181a88b62d8ba31bbc",
+    "apps/web/components/dashboard.module.css": "1faa4463e2e12758f025560f6cbca995cfff42310d8fbae02e5f64de83a0bb4f",
+    "apps/web/components/operator-dashboard.tsx": "0a1725de3790a2dec8ba05f462f83ad271a9a03cd75e42439ff13be9e2e2d926",
+    "apps/web/app/globals.css": "dc69dff15a373b0d92919d32a550cedb441d132a3c41c771741a1f089a85da38",
+    "apps/web/package-lock.json": "66881f73374a436dcc9f45a72c6fdfdbef4a1ad9453b298c107b0f313b4c2b73"
+  },
+  "runtime": "Next.js production build on local Node.js; synthetic_demo; API_BASE_URL intentionally unreachable",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "mobile_check": {
+    "width": 390,
+    "height": 844,
+    "horizontal_page_overflow": false,
+    "visually_reviewed": true
+  },
+  "browser_warnings_or_errors": [],
+  "images": {
+    "dashboard-overview.jpg": {
+      "sha256": "b9d33a124b157755cbda6f90eeb63203b64abdd4749927d0f7481f30aff45b01",
+      "dimensions": [
+        1425,
+        2017
+      ],
+      "format": "JPEG",
+      "unedited_browser_capture": true
+    },
+    "request-detail.jpg": {
+      "sha256": "254870672a7601e8116e40e3ba90c6cb5d4e361e24250fc04403aade94203a6a",
+      "dimensions": [
+        1425,
+        990
+      ],
+      "format": "JPEG",
+      "unedited_browser_capture": true
+    },
+    "failure-filter.jpg": {
+      "sha256": "ee8ddddf9d036273f67146ddd7bcae3dcfe34b0a44eb4ef83b83bdc911e34049",
+      "dimensions": [
+        1425,
+        1522
+      ],
+      "format": "JPEG",
+      "unedited_browser_capture": true
+    }
+  },
+  "fixtures": {
+    "requests": 12,
+    "errors": 3,
+    "fixed_timestamp_date": "2026-09-17",
+    "provider": "mock",
+    "backend_connected": false,
+    "measured_provider_costs": false
+  },
+  "http_probes": [
+    {
+      "path": "v1/usage/summary",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "v1/admin/prompt-versions",
+      "method": "POST",
+      "status": 403
+    },
+    {
+      "path": "v1/admin/model-routes/00000000-0000-4000-8000-000000000301",
+      "method": "PATCH",
+      "status": 403
+    },
+    {
+      "path": "v1/admin/applications/00000000-0000-4000-8000-000000000011/api-keys",
+      "method": "GET",
+      "status": 404
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+> Historical document. Current behavior and scope are described in the [documentation index](../README.md).
+
 # Java Spring Boot conversion and AWS public release
 
 Decision date: 2026-09-06. Continuation updated: 2026-09-08. Phases 48-61 are completed; Phase 62 is blocked/deferred. Phases 63-65 are completed with local recovery, security/demo evidence and a blocked AWS launch package. Execution is stopped before Phase 66 for Phase 62 completion, owner AWS setup and explicit approval.
@@ -16,7 +18,7 @@ and one approved AWS dev/demo deployment. Separate staging and production
 installations are optional future work (Phases 67-68 are Skipped), with existing
 configuration preserved and live behavior explicitly untested. After approved
 Phase 66, the next required phase is 69 with its separate publication/license
-approval. See [the completion plan](portfolio-completion-plan.md).
+approval. See [the completion plan](../portfolio-completion-plan.md).
 
 The Phase 62 monitoring gate and all required CI/approval gates remain unchanged.
 No custom monitoring rebuilds resume automatically. A prepared launch package
@@ -34,10 +36,10 @@ limits; it does not assert a production SLA or multiple deployed environments.
 - Introduce atomic Redis limits and explicit outage behavior, real dependency readiness, safe liveness, graceful shutdown, and bounded retries. Redis integration must use TLS in the AWS configuration.
 - Instrument with Actuator, Micrometer and OpenTelemetry; preserve metric compatibility or update dashboards atomically. Keep identities/request IDs out of metric labels. Spring describes the [observation API](https://docs.spring.io/spring-boot/reference/actuator/observability.html).
 - Retain Helm packaging and AWS service definitions. Separate privileged cluster bootstrap from namespace release permissions, solve private EKS runner connectivity, and promote scanned images by digest from a successful exact-revision CI run.
-- Phase 59 design (2026-09-07): initial pinned v3.5.0 compatibility passed before adoption of Terraform-owned ALB/listeners/rules/security groups/target groups plus restricted TargetGroupBinding reconciliation. Actual bootstrap templates and IAM policy now receive lifecycle, readiness, restart/outage, RBAC and admission regression tests. Ingress remains read-only because its reconciler cannot be switched off; native admission forbids Ingress creation. No scanner exception is approved or active. [Design and evidence](targetgroupbinding-design.md); live AWS IAM/data-plane validation remains approval-gated.
-- Phase 61 release ownership: CI builds/scans once and verifies OCI digest preservation before adoption. Manual preflight verifies current-policy artifacts and staged receipts; distinct publisher/migration/application OIDC roles remain hard-held until environment approval. Rollback uses a read-only live-schema verifier and never downgrades data. See [release procedure](immutable-release-runbook.md).
+- Phase 59 design (2026-09-07): initial pinned v3.5.0 compatibility passed before adoption of Terraform-owned ALB/listeners/rules/security groups/target groups plus restricted TargetGroupBinding reconciliation. Actual bootstrap templates and IAM policy now receive lifecycle, readiness, restart/outage, RBAC and admission regression tests. Ingress remains read-only because its reconciler cannot be switched off; native admission forbids Ingress creation. No scanner exception is approved or active. [Design and evidence](../targetgroupbinding-design.md); live AWS IAM/data-plane validation remains approval-gated.
+- Phase 61 release ownership: CI builds/scans once and verifies OCI digest preservation before adoption. Manual preflight verifies current-policy artifacts and staged receipts; distinct publisher/migration/application OIDC roles remain hard-held until environment approval. Rollback uses a read-only live-schema verifier and never downgrades data. See [release procedure](../immutable-release-runbook.md).
 - Deploy a working monitoring stack and replace Promtail with Alloy. Capture measured local evidence first and cloud evidence only after approved deployment.
-- Phase 62 remediation was deferred by the owner on 2026-09-08. Preserve the local runnable prototype and [known vulnerability backlog](security/monitoring-vulnerability-backlog.md); do not automatically resume custom third-party rebuilds or vulnerability fixes. Phase 62 remains incomplete and monitoring release eligibility remains blocked. All security and cloud gates hold; no scanner exception is active. See [the handoff](monitoring-remediation.md).
+- Phase 62 remediation was deferred by the owner on 2026-09-08. Preserve the local runnable prototype and [known vulnerability backlog](../security/monitoring-vulnerability-backlog.md); do not automatically resume custom third-party rebuilds or vulnerability fixes. Phase 62 remains incomplete and monitoring release eligibility remains blocked. All security and cloud gates hold; no scanner exception is active. See [the handoff](../monitoring-remediation.md).
 - Keep paid provider integration optional. The mock gateway and synthetic client events support this DevOps demonstration. Azure conversion, advanced RAG, workflow orchestration, automatic secret rotation, and multi-region expansion are outside this release scope.
 
 ## Phase sequence
@@ -67,7 +69,7 @@ limits; it does not assert a production SLA or multiple deployed environments.
 | 68 | Optional separate production launch — Skipped for this release |
 | 69 | Approved public repository release and closeout |
 
-Detailed deliverables and acceptance criteria are authoritative in [phases.md](../phases.md); execution status is in [phases-progress.md](../phases-progress.md).
+Detailed deliverables and acceptance criteria are authoritative in [phases.md](../../phases.md); execution status is in [phases-progress.md](../../phases-progress.md).
 
 ## Execution and review
 
@@ -76,7 +78,7 @@ override in AGENTS.md. Continue the revised independent scopes of Phases 63-65;
 keep monitoring-dependent evidence and image eligibility unresolved under Phase
 62 and as pre-Phase 66 prerequisites. A complete Phase 65 preparation package may
 record a blocked launch decision. No security gate, required CI, publication or
-AWS approval is waived. Read [the next-chat handoff](next-chat-handoff.md), including
+AWS approval is waived. Read [the next-chat handoff](../next-chat-handoff.md), including
 the separate Skopeo CI availability failure and preserved dirty prototype.
 
 For each phase: reread AGENTS.md/spec/roadmap/progress; write the implementation plan; implement only that phase; run relevant checks and fix issues; update evidence and progress; create a detailed conventional commit; push main without bypassing protections; review the pushed diff; fix each top finding in a separate validated/pushed commit; record the prescribed phase review; advance automatically until a genuine blocker or approval gate.

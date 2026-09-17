@@ -1,6 +1,6 @@
 # Java admission, readiness and shutdown
 
-Phase 56 makes PostgreSQL and Redis required dependencies of the Java API. AWS remains the deployment target; Docker/Helm runtime cutover is Phase 58. These checks are local and CI evidence, not an AWS availability claim.
+The Java runtime makes PostgreSQL and Redis required dependencies of the Java API. AWS remains the deployment target; Docker and Helm default to Java. These checks are local and CI evidence, not an AWS availability claim.
 
 ## Distributed quotas
 
@@ -31,7 +31,7 @@ The application bounds /v1/ paths to 2,048 characters and queries to 4,096 chara
 
 `/health/live` and management-port `/actuator/health/liveness` describe process lifecycle independently of Redis/PostgreSQL. `/health/ready` and management-port `/actuator/health/readiness` require both dependencies and an accepting, non-draining process. Details are hidden. One daemon checker refreshes a dependency snapshot one second after its previous bounded check completes; readiness refuses snapshots older than three seconds. HTTP probes read that snapshot without querying dependencies. A failed/stale snapshot may temporarily refuse work; recovery automatically restores readiness after a successful check.
 
-On context shutdown, draining rejects new admitted work and readiness fails. Tomcat receives a 40-second graceful shutdown budget. `PROVIDER_TIMEOUT_SECONDS` is a total budget across queue wait, all attempts and backoff: default 15 seconds, maximum 20 seconds. Canceled/queued provider tasks are handled explicitly. The body, bounded admission and provider budgets leave time for recording and response completion; this is not an absolute guarantee for an adapter that ignores interruption. Future real provider adapters must implement their own network deadlines. Kubernetes termination grace must exceed the application budget; its configuration is Phase 58.
+On context shutdown, draining rejects new admitted work and readiness fails. Tomcat receives a 40-second graceful shutdown budget. `PROVIDER_TIMEOUT_SECONDS` is a total budget across queue wait, all attempts and backoff: default 15 seconds, maximum 20 seconds. Canceled/queued provider tasks are handled explicitly. The body, bounded admission and provider budgets leave time for recording and response completion; this is not an absolute guarantee for an adapter that ignores interruption. Future real provider adapters must implement their own network deadlines. Kubernetes termination grace must exceed the application budget; the chart configures this separately.
 
 For dependency incidents, check the private application/Redis/database health and connectivity, restore the dependency, then wait for readiness recovery. Do not restart an otherwise live API merely because a dependency is down. Check a 429 response's retry interval and configured traffic volume before changing quotas. Record intentional quota changes consistently across replicas.
 

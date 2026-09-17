@@ -16,7 +16,7 @@ Tradeoff:
 
 - AWS can be more complex and costly than local-only or simpler PaaS options.
 
-## ADR-002: Backend framework
+## ADR-002: Backend framework (superseded by ADR-007)
 
 Decision: Use FastAPI.
 
@@ -78,3 +78,19 @@ Tradeoff:
 Future integration:
 
 - Proofbase should connect through telemetry first, then gateway routing later. In the telemetry-first step, Proofbase keeps owning retrieval, citations, permission filtering, memory, and evaluation, while this platform centralizes cost, latency, token, error, and request visibility. Gateway-routed model calls can follow after the gateway supports Proofbase's richer request contract.
+
+## ADR-007: Java runtime and migration ownership
+
+Java 21/Spring Boot is the default runtime after the validated compatibility and
+container cutover. Retain Python as a contract reference. Flyway owns migrations
+through a separate image; application startup only validates schema. This adds JVM
+packaging and explicit handover complexity while preserving the existing contracts.
+See [runtime cutover](java-runtime-cutover.md).
+
+## ADR-008: Source publication before AWS
+
+Publish source for technical review after documentation, demo, exposure and CI checks,
+with final visibility approval. AWS and monitoring remain explicitly unfinished.
+Preserve historical evidence in the archive and use PR/check protection for main.
+This makes the repository reviewable without presenting static designs as live cloud
+operation. [Publication record](publication-decisions.md)
