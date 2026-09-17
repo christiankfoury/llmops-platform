@@ -39,6 +39,13 @@ test("date boundaries are inclusive and fixed examples remain deterministic", ()
   expect(rows().map((row) => row.created_at)).toEqual(rows().map((row) => row.created_at).sort().reverse());
 });
 
+test("failure lists ignore status while retaining the other Java API filters", () => {
+  expect(rows("status=succeeded", "errors")).toEqual(rows("", "errors"));
+  expect(rows("status=succeeded&source_app=agentops&limit=1", "errors")).toHaveLength(1);
+  expect(rows("status=succeeded&source_app=agentops", "errors").every((row) => row.status === "failed")).toBe(true);
+  expect(summary("status=succeeded")).toMatchObject({ request_count: 9, error_count: 0 });
+});
+
 test("limits apply to lists after filtering and never alter summary totals", () => {
   expect(rows("status=failed&limit=1")).toHaveLength(1);
   expect(rows("limit=1", "errors")).toHaveLength(1);

@@ -19,6 +19,8 @@ No backend, database, identity provider or paid LLM service supplies the example
 
 The examples have fixed September 17, 2026 timestamps. Use **All time** to view the
 whole fixture set; relative date filters can legitimately return no rows later.
+The Status selector filters requests and summary totals; the failures panel
+always shows failed rows within the other selected filters, matching the Java API.
 Counts, averages and costs derive from the displayed fixture dataset, not actual
 provider charges or the measured local recovery sample.
 
@@ -31,5 +33,5 @@ remain as historical evidence. Neither gallery demonstrates Grafana or AWS opera
 Start the default Compose stack and open the web dashboard. Confirm its
 **Synthetic demo · Fixed example data · Read only** notice. Capture the overview,
 open `demo-request-001`, then close the details and set Status to `failed`.
-Use a 1440-pixel desktop viewport and preserve the notice. Inspect mobile layout
+Use a 1280 by 720 desktop viewport (the final capture dimensions) and preserve the notice. Inspect mobile layout
 separately. Do not edit screenshot content or substitute generated images.

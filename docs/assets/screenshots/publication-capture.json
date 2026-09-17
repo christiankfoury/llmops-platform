@@ -1,9 +1,9 @@
 {
   "captured_on": "2026-09-17",
-  "source_base_revision": "c6fa6e77c0e1ea06f210fe04dd1736aed654698f",
+  "source_base_revision": "c4d23f01056e41f0fbfb7e0ae34f56d386ae8db6",
   "source_revision_note": "Publication candidate changes identified by normalized source hashes; captures precede the containing commit.",
   "source_sha256": {
-    "apps/web/lib/synthetic-demo.ts": "106af46dd633311a38492c6430737580f3aef7349577c9409a2ffbe052f8a1f9",
+    "apps/web/lib/synthetic-demo.ts": "814443d5fbbf0da2c12206c76a79a131598569dfc3e3eb6d68afb0660055896d",
     "apps/web/components/dashboard.tsx": "632022417cd11358344890e88e37a57d4e37f5560e5547181a88b62d8ba31bbc",
     "apps/web/components/dashboard.module.css": "1faa4463e2e12758f025560f6cbca995cfff42310d8fbae02e5f64de83a0bb4f",
     "apps/web/components/operator-dashboard.tsx": "0a1725de3790a2dec8ba05f462f83ad271a9a03cd75e42439ff13be9e2e2d926",
@@ -12,39 +12,40 @@
   },
   "runtime": "Next.js production build on local Node.js; synthetic_demo; API_BASE_URL intentionally unreachable",
   "viewport": {
-    "width": 1440,
-    "height": 1000
+    "width": 1280,
+    "height": 720
   },
   "mobile_check": {
     "width": 390,
     "height": 844,
     "horizontal_page_overflow": false,
-    "visually_reviewed": true
+    "visually_reviewed": true,
+    "source_note": "Prior responsive check before the filter-only correction; layout/CSS unchanged."
   },
   "browser_warnings_or_errors": [],
   "images": {
     "dashboard-overview.jpg": {
-      "sha256": "b9d33a124b157755cbda6f90eeb63203b64abdd4749927d0f7481f30aff45b01",
+      "sha256": "626ab44818cf014fab678b82f3d7c5093ba619ae8a8f819d47520e102906742c",
       "dimensions": [
-        1425,
+        1265,
         2017
       ],
       "format": "JPEG",
       "unedited_browser_capture": true
     },
     "request-detail.jpg": {
-      "sha256": "254870672a7601e8116e40e3ba90c6cb5d4e361e24250fc04403aade94203a6a",
+      "sha256": "b8c269f22cb085a540dedfadaa952403c9b40e2c227d5d3b3f8a74bb155572c7",
       "dimensions": [
-        1425,
-        990
+        1265,
+        712
       ],
       "format": "JPEG",
       "unedited_browser_capture": true
     },
     "failure-filter.jpg": {
-      "sha256": "ee8ddddf9d036273f67146ddd7bcae3dcfe34b0a44eb4ef83b83bdc911e34049",
+      "sha256": "c07e265254d611b0681b66b87330165b7c4e7d9cbae71d16628ea4837f31f9af",
       "dimensions": [
-        1425,
+        1265,
         1522
       ],
       "format": "JPEG",
@@ -80,5 +81,6 @@
       "method": "GET",
       "status": 404
     }
-  ]
+  ],
+  "viewport_note": "Actual window dimensions read from the browser. Captures exclude browser chrome; full-page images have different heights."
 }

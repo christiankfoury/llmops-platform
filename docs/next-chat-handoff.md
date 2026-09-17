@@ -62,3 +62,18 @@ known failure. The focused smoke fix validates twelve requests, three scopes,
 derived cost/latency/error totals, failure filtering, configuration panels and
 blocked writes against the actual built web application. Full current-revision
 CI remains mandatory; no failed or canceled run is treated as passing evidence.
+
+Further PR review found that Java ignores the status selector for its failures
+endpoint. The synthetic adapter now preserves that behavior with a regression test
+and container smoke assertion; all 24 frontend tests, lint, types, production build
+and actual HTTP smoke passed. On Windows, fork-worker startup timed out; the complete
+suite passed with bundled Node 24, a threads pool and one worker. CI settings are
+unchanged. Screenshots were recaptured and their actual 1280x720 window dimensions
+and image/source hashes recorded. Fixed example times are illustrative, not capture
+or operational-event evidence. A separate policy fix retains the existing private
+contact fallback until GitHub private reporting is enabled during publication.
+
+Superseded PR run `35183603661` was canceled after the additional filter finding.
+The four newly completed PR/review runs and their 17 downloadable log/artifact
+archives were inventoried and scanned with zero detections. Current final PR and
+main evidence still require their own verification and exposure review.

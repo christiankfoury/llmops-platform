@@ -42,7 +42,7 @@ must be included in the final pre-publication review.
   Literal demo keys in newly archived command examples use shell variables;
   original examples remain in history. The complete patch also includes removed
   historical placeholders, which are not new credentials.
-- Frontend: 23 tests, lint, type checks and production build passed. Tests cover
+- Frontend: 24 tests, lint, type checks and production build passed. Tests cover
   fixture consistency, filters, time bounds, limits, empty results, details,
   blocked writes and absence of backend calls.
 - Actual browser captures: [gallery and source hashes](../dashboard-screenshots.md).

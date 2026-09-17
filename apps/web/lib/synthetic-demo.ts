@@ -33,9 +33,10 @@ const requests = latency.map((latencyMs, index) => {
   };
 });
 
-function matchingRequests(query: URLSearchParams) {
+function matchingRequests(query: URLSearchParams, errorsOnly = false) {
   return requests.filter((request) => [...query.entries()].every(([key, value]) => {
-    if (key === "limit") return true;
+    // Java keeps its failures panel independent of the request status selector.
+    if (key === "limit" || (errorsOnly && key === "status")) return true;
     if (key === "created_from") return new Date(request.created_at) >= new Date(value);
     if (key === "created_to") return new Date(request.created_at) <= new Date(value);
     return key in request && String(request[key as keyof typeof request]) === value;
@@ -51,7 +52,7 @@ function limited<T>(rows: T[], query: URLSearchParams) {
 }
 
 export function syntheticDemo(path: string, query: URLSearchParams): unknown {
-  const matching = matchingRequests(query);
+  const matching = matchingRequests(query, path === "v1/usage/errors");
   switch (path) {
     case "v1/usage/summary": return {
       request_count: matching.length,

@@ -49,6 +49,7 @@ def validate_synthetic_dashboard(http, port: str) -> None:
         < 0.000001
     )
     assert read("v1/usage/requests?status=failed") == errors
+    assert read("v1/usage/errors?status=succeeded") == errors
     assert read("v1/usage/summary?status=failed")["request_count"] == len(errors)
     assert len(read("v1/admin/prompt-versions")) == 3
     assert len(read("v1/admin/model-routes")) == 3
