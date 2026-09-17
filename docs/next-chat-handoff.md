@@ -100,6 +100,13 @@ Billing setup was verified after the owner saved a payment method: GitHub accept
 the existing Actions budget update from USD 0 to USD 5, with Stop usage and all
 three alert thresholds retained. Other product budgets remain unchanged. Current
 CI must still pass; saved billing settings alone do not establish eligibility.
+Candidate `de906db99cbbdbcb5f8a926f14f6ff290b2359b4` subsequently passed CI
+`35176129982` attempt 1 (all eleven mandatory jobs; inactive PR counterpart).
+Exact-revision verification succeeded, with deployment authorization still false.
+All required reports and GHCR round trips passed. The run used an estimated 22
+rounded runner-minutes (USD 0.132 if fully billable) and nine artifacts totalling
+600,571 bytes. See `docs/phase-reviews/ci-cost-controls.md`. The documentation
+closeout and any later commit still require their own successful CI.
 Record the final saved billing settings, current-revision CI and observed
 runner-minutes/artifact bytes in the follow-up review. Do not automatically raise
 the budget if CI is blocked. The broader strategy is local development, then one

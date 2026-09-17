@@ -46,7 +46,17 @@ automatically. Phase 62 remains Blocked and Phase 66 requires separate approval.
 
 ## Post-commit review
 
-Prepared diff review found no further actionable issues. Remote CI, artifact
-retention, final eligibility and post-run usage remain pending the candidate CI run;
-none are recorded as successful here. Any actionable pushed finding receives a
-separate fix commit and relevant validation plus mandatory CI.
+Pushed candidate `de906db99cbbdbcb5f8a926f14f6ff290b2359b4` passed CI run
+[`35176129982`](https://github.com/christiankfoury/production-ai-platform/actions/runs/35176129982),
+attempt 1: eleven mandatory jobs succeeded and the separate PR image job was
+correctly inactive. Exact-revision verification succeeded with
+`deployment_authorized=false`. Java, history, TGB, image/SBOM, manifest/chart and
+eligibility evidence uploads succeeded; all three private GHCR image round trips
+passed. The storage blocker is resolved for this run without bypassing checks.
+
+GitHub job timestamps imply 22 rounded runner-minutes (USD 0.132 if fully billable,
+before included usage). Nine artifacts totalled 600,571 bytes, approximately
+0.57 MiB, including three Docker build records. These are usage estimates, not
+an account invoice; GitHub billing remains authoritative. No further actionable
+code findings were identified. This documentation closeout receives its own
+mandatory CI; candidate evidence does not automatically qualify a later revision.
