@@ -22,6 +22,7 @@ on:
 permissions:
   contents: read
   actions: read
+  packages: read
   id-token: write
 concurrency:
   group: aws-release-${{ inputs.environment }}

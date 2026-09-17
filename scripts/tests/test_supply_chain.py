@@ -35,6 +35,7 @@ class EligibilityTest(unittest.TestCase):
             "ref": "refs/heads/main",
         }
         self.needs = {key: {"result": "success"} for key in release.REQUIRED}
+        self.needs["docker-pr"] = {"result": "skipped"}
         for name in release.EVIDENCE_FILES:
             artifact, filename = name.split("/", 1)
             path = self.directory / f"{artifact}-2" / filename
@@ -63,6 +64,29 @@ class EligibilityTest(unittest.TestCase):
             }
             for name in list(release.REQUIRED.values()) + ["Release eligibility"]
         ]
+        self.jobs.append(
+            {
+                "name": release.PR_IMAGE_JOB,
+                "status": "completed",
+                "conclusion": "skipped",
+                "head_sha": self.sha,
+                "run_attempt": 2,
+            }
+        )
+
+    def test_each_event_requires_its_image_checks_and_rejects_wrong_context_execution(self):
+        pr = copy.deepcopy(self.needs)
+        pr["docker"]["result"] = "skipped"
+        pr["docker-pr"]["result"] = "success"
+        release.validation_needs("pull_request", "refs/pull/1/merge", release.REPOSITORY, pr)
+        for name in ("docker", "docker-pr"):
+            wrong = copy.deepcopy(self.needs)
+            wrong[name]["result"] = "failure" if name == "docker" else "success"
+            with self.assertRaises(ValueError):
+                release.validation_needs("push", "refs/heads/main", release.REPOSITORY, wrong)
+        pr["docker-pr"]["result"] = "skipped"
+        with self.assertRaises(ValueError):
+            release.validation_needs("pull_request", "refs/pull/1/merge", release.REPOSITORY, pr)
 
     def test_successful_exact_main_revision(self):
         release.verify(self.run, self.jobs, self.evidence, self.sha, 123)

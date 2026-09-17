@@ -16,7 +16,7 @@ Every main push and pull request runs the same checks on disposable Ubuntu 24.04
 | Infrastructure | Checksum-pinned tools, readonly provider locks, every Terraform root and mock plan, strict Helm/Kustomize/CRD schemas and rendered configuration scan |
 | Controller | Actual pinned v3.5.0 controller with bootstrap templates, real Kubernetes RBAC/admission/readiness/lifecycle and rejected unauthorized operations; local fake AWS endpoints only |
 | Repository/history | Dependency/config/secret scan and full fetched Git-history scan with fully redacted findings |
-| CI policy | Immutable action pins, read-only identity, mandatory dependencies, cloud holds and positive/negative eligibility tests |
+| CI policy | Immutable action pins, read-only PR identity, scoped main package writer, mandatory dependencies, cloud holds and positive/negative eligibility tests |
 
 Trivy retains the existing policy: block fixable HIGH/CRITICAL dependency/image vulnerabilities (`--ignore-unfixed`); configuration checks block HIGH/CRITICAL findings without that filter. Unfixed or lower-severity advisories are not a clean bill of health. Advisory databases are refreshed by the pinned scanner; a failed download or scanner failure fails CI. npm audit blocks high/critical advisories; pip-audit remains strict. No KSV-0056 exception is active.
 
@@ -48,7 +48,7 @@ After the run completes, verify it read-only **from a clean, trusted checkout of
 python scripts/release_eligibility.py verify --sha <full-40-character-commit> --run-id <CI-run-id>
 ```
 
-The verifier uses authenticated `gh api` reads, checks the exact successful completed main-push run in this repository and workflow, paginates every current-attempt job, and rejects missing/duplicate/unexpected/failed/skipped jobs, other SHAs, forks, other workflows, stale attempts, incomplete evidence, a different current policy and expired/ambiguous artifacts. Text policy hashes normalize Git line endings so Windows and Linux verification agree. It rereads run state to detect a rerun during verification. It does not grant AWS access, publish images or deploy anything.
+The verifier uses authenticated `gh api` reads, checks the exact successful completed main-push run in this repository and workflow, paginates every current-attempt job, and rejects missing/duplicate/unexpected/failed/skipped mandatory jobs (the explicit PR-only image counterpart must be skipped on main), other SHAs, forks, other workflows, stale attempts, incomplete evidence, a different current policy and expired/ambiguous artifacts. Text policy hashes normalize Git line endings so Windows and Linux verification agree. It rereads run state to detect a rerun during verification. It does not grant AWS access, publish images or deploy anything.
 
 This phase establishes **source revision eligibility**, not a registry image digest or deployable release. Phase 61 must bind the verified revision to immutable built/scanned image artifacts, verify their bytes/digests, and preserve the protected environment, migration-owner and infrastructure approval gates. Rebuilding a tag is not evidence that it is the scanned image.
 
@@ -79,3 +79,35 @@ python scripts/validate_supply_chain.py history --gitleaks .maven-cache/tools/pi
 Maven `clean verify` requires an available real Redis test endpoint and starts isolated PostgreSQL test instances; CI additionally supplies PostgreSQL for the packaged smoke. Missing services fail, not skip. Linux Docker became available on the Windows workstation during Phase 62; isolated local container checks now complement mandatory hosted CI. The pinned CI toolchain remains authoritative for release evidence.
 
 History detection, SBOMs and advisory scans reduce known supply-chain risks; they cannot prove absence of all secrets or vulnerabilities. Cloud IAM, ALB data plane, EKS network enforcement, backups and deployment health retain their separate approved validation phases.
+
+## Private image retention (2026-09-16)
+
+Trusted main CI now retains API, migration and web images in private GHCR packages
+`ghcr.io/christiankfoury/production-ai-platform-ci-{api,migration,web}`. OCI builds,
+container integration tests, vulnerability/secret scans, SBOM generation and the
+local registry rehearsal remain mandatory. The GHCR transfer uses pinned Skopeo,
+TLS and `--all --preserve-digests`; it reads all three images back and verifies
+all referenced blobs plus root, runtime-manifest and configuration digests before
+recording the registry sources in the evidence-bound manifest. Tags identify a
+commit/run/attempt; releases consume digests, never mutable tags.
+
+There are now twelve job entries: eleven must pass on main, and the explicit
+read-only PR image counterpart must be skipped. On pull requests that counterpart
+runs the identical anchored build/test/scan steps, while the main image job is
+inactive. Skipping either context's required image job fails the aggregate check.
+Only the main image job has `packages: write`; all other CI jobs retain read-only
+contents access. Its token is passed to the guarded retention step, not stored in
+checkout credentials. Existing destination packages must be private and linked
+to this repository; missing packages can only be created from this private repo.
+No workflow changes package visibility, grants public access or deletes packages.
+
+Large image archives are no longer uploaded to Actions by CI. Smaller reports,
+SBOMs, charts and eligibility manifests retain their 14-day lifetime. GHCR images
+alone do not extend release eligibility beyond expiring evidence. Private GHCR
+container storage/bandwidth are currently free; private hosted-runner minutes and
+Actions artifacts still have account-wide allowances. Leave paid usage disabled.
+Storage cleanup/accounting delays can still block small evidence uploads; never
+ignore an upload failure or claim the release passed without complete evidence.
+
+Sources checked 2026-09-16: [Container Registry billing](https://docs.github.com/en/billing/concepts/product-billing/github-packages),
+[workflow package permissions](https://docs.github.com/en/packages/managing-github-packages-using-github-actions-workflows/publishing-and-installing-a-package-with-github-actions).

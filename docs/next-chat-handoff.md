@@ -42,6 +42,27 @@ Owner follow-up (2026-09-16): MIT selected and added as `LICENSE`. This resolves
 the project-license choice only; publication/private reporting channel, AWS and
 monitoring gates remain unchanged. Do not make the repository public automatically.
 
+## CI storage follow-up (2026-09-16)
+
+The owner selected private GHCR retention to avoid paid artifact storage. The CI
+transport change is documented in `docs/ci-cd.md`; all scans, digest verification,
+small evidence uploads and AWS holds remain mandatory. Its current-revision CI
+must pass before claiming completion. Main has eleven required successful jobs
+plus an explicitly inactive read-only PR image counterpart. Rerun all jobs for
+release qualification; partial retries cannot mix evidence between attempts.
+
+Fourteen older image archives were backed up and removed with owner approval;
+all reports and the latest prior image artifact were preserved. GitHub still
+reported quota exhaustion on be9d67e attempt 2 after cleanup. Account allowances
+and quota refresh remain external blockers until successful uploads prove recovery.
+Do not enable billing, delete more artifacts or weaken evidence checks by default.
+
+The original Phase 62 work and a monitoring-only review patch remain uncommitted.
+Custom rebuild experiments are backed up under the ignored local cache. The GHCR
+change uses its own `.maven-cache/ghcr-ci` checkout; `.maven-cache/continuation` now
+contains the uncommitted monitoring-only review and must not be staged wholesale.
+Phase 62 remains Blocked and Phase 66 still requires AWS setup and approval.
+
 ## Remaining phases
 
 | Phase | Remaining outcome / boundary |

@@ -4174,3 +4174,13 @@ Next phase:
 
 - Phase N+1: <title>
 ```
+
+### 2026-09-16 CI storage maintenance
+
+Owner selected private GHCR image retention instead of paid Actions storage.
+Implementation and local validation are recorded in
+[the CI storage review](docs/phase-reviews/ci-ghcr-storage.md). Mandatory scans,
+exact-image verification, small evidence uploads and cloud approval holds remain.
+Full pushed-revision CI and actual private registry transfer must pass before this
+maintenance is considered complete. Phase 62 remains Blocked, 63-65 remain
+Completed, 66 remains approval-blocked and 67-68 remain owner-skipped.

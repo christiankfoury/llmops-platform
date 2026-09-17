@@ -8,10 +8,12 @@ import json
 import os
 import re
 import subprocess
+import tempfile
 import zipfile
 from pathlib import Path
 
-from release_bundle import IMAGES, SHA, inspect_oci, json_bytes, sha256
+from registry_images import fetch_images, validate_storage, verify_image
+from release_bundle import IMAGES, SHA, json_bytes, sha256
 from release_eligibility import REPOSITORY, check_github, gh_json, pages
 
 ENVIRONMENTS = ("dev", "staging", "prod")
@@ -39,6 +41,7 @@ def validate_manifest(manifest: dict, revision: str, operation: str, schema_vers
         for field in ("digest", "config_digest", "runtime_manifest_digest"):
             if not SHA.fullmatch(record[field]):
                 raise ValueError("Mutable or malformed image digest")
+    validate_storage(manifest)
     rehearsal = manifest.get("copy_rehearsal", {})
     if rehearsal.get("aws_calls") != 0 or set(rehearsal.get("images_verified", [])) != set(IMAGES):
         raise ValueError("Missing successful digest-preserving registry rehearsal")
@@ -168,15 +171,19 @@ def prepare(args) -> None:
     hashes = {"manifest.json": expected_hash, **manifest["values"]}
     hashes.update({v["file"]: v["sha256"] for v in manifest["charts"].values()})
     extract_exact(archive, directory, hashes)
-    images = download_zip(args.run_id, f"release-images-{attempt}", directory)
-    extract_exact(
-        images,
-        directory,
-        {f"{name}.oci.tar": r["sha256"] for name, r in manifest["images"].items()},
-    )
-    for name, record in manifest["images"].items():
-        if inspect_oci(directory / f"{name}.oci.tar") != record:
-            raise ValueError("OCI contents differ from the tested image")
+    if manifest.get("image_storage"):
+        # Verify the complete read-back here without re-uploading image bytes between jobs.
+        with tempfile.TemporaryDirectory(prefix="release-image-check-") as scratch:
+            fetch_images(manifest, Path(scratch))
+    else:
+        images = download_zip(args.run_id, f"release-images-{attempt}", directory)
+        extract_exact(
+            images,
+            directory,
+            {f"{name}.oci.tar": r["sha256"] for name, r in manifest["images"].items()},
+        )
+        for name, record in manifest["images"].items():
+            verify_image(directory / f"{name}.oci.tar", record, registry=False)
     if args.environment in PREVIOUS and args.operation == "deploy":
         if not args.previous_run_id:
             raise ValueError("Staged promotion requires the previous environment run ID")

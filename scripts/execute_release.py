@@ -15,7 +15,8 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-from release_bundle import IMAGES, ROOT, inspect_oci, json_bytes, sha256
+from registry_images import fetch_images, verify_image
+from release_bundle import IMAGES, ROOT, json_bytes, sha256
 from release_eligibility import check_github
 from release_plan import validate_manifest
 
@@ -111,9 +112,10 @@ def load_release(directory: Path, expected_hash: str, config: dict) -> tuple[dic
     validate_manifest(manifest, plan["revision"], plan["operation"], plan["schema_version"])
     if plan["images"] != {n: r["digest"] for n, r in manifest["images"].items()}:
         raise ValueError("Release plan contains substituted image digests")
+    if manifest.get("image_storage"):
+        fetch_images(manifest, directory)
     for name, record in manifest["images"].items():
-        if inspect_oci(directory / f"{name}.oci.tar") != record:
-            raise ValueError("Release image changed after preflight")
+        verify_image(directory / f"{name}.oci.tar", record, bool(manifest.get("image_storage")))
     for record in manifest["charts"].values():
         if sha256(directory / record["file"]) != record["sha256"]:
             raise ValueError("Release chart changed after preflight")
@@ -168,7 +170,7 @@ def publish(directory: Path, config: dict, manifest: dict) -> None:
                     raise ValueError("Existing immutable ECR tag identifies a different image")
                 continue
             source = f"oci-archive:/images/{name}.oci.tar"
-            if record["reference"]:
+            if record["reference"] and not manifest.get("image_storage"):
                 source += ":" + record["reference"]
             invoke(
                 base

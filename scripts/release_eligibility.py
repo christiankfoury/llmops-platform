@@ -44,6 +44,30 @@ REQUIRED = {
     "ci-policy": "CI policy and eligibility tests",
     "tgb": "tgb / compatibility",
 }
+PR_IMAGE_JOB = "Pull-request image build and scan"
+MAIN_IMAGE_IF = "${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/production-ai-platform' }}"
+PR_IMAGE_IF = "${{ github.event_name == 'pull_request' }}"
+
+
+def validation_needs(event: str, ref: str, repository: str, needs: dict) -> dict:
+    """Both events run the same checks; only main's image job can write packages."""
+    if set(needs) != set(REQUIRED) | {"docker-pr"}:
+        raise ValueError("Missing or unexpected validation jobs")
+    if event == "push" and ref == "refs/heads/main" and repository == REPOSITORY:
+        selected, inactive = "docker", "docker-pr"
+    elif event == "pull_request":
+        selected, inactive = "docker-pr", "docker"
+    else:
+        raise ValueError("Unsupported CI event or repository")
+    if needs[inactive].get("result") != "skipped":
+        raise ValueError("Image job ran outside its permitted event")
+    result = {key: value for key, value in needs.items() if key != "docker-pr"}
+    result["docker"] = needs[selected]
+    if any(job.get("result") != "success" for job in result.values()):
+        raise ValueError("Every applicable validation job must pass; skips never pass")
+    return result
+
+
 EVIDENCE_FILES = (
     "release-supply-chain/manifest.json",
     "java-supply-chain/bom.json",
@@ -82,10 +106,7 @@ def candidate(context: dict, needs: dict, directory: Path) -> dict:
     )
     if context["event_name"] != "push" or context["ref"] != "refs/heads/main":
         raise ValueError("Only a main push can produce release candidate evidence")
-    if set(needs) != set(REQUIRED) or any(
-        item.get("result") != "success" for item in needs.values()
-    ):
-        raise ValueError("Every required job must pass; missing/skipped/failed jobs are ineligible")
+    validation_needs(context["event_name"], context["ref"], context["repository"], needs)
     hashes = {}
     for name in EVIDENCE_FILES:
         artifact, filename = name.split("/", 1)
@@ -124,11 +145,11 @@ def verify(run: dict, jobs: list, evidence: dict, sha: str, run_id: int) -> None
         run.get(key, {}).get("full_name") != REPOSITORY for key in ("repository", "head_repository")
     ):
         raise ValueError("Foreign repository or fork cannot establish eligibility")
-    expected_names = set(REQUIRED.values()) | {"Release eligibility"}
+    expected_names = set(REQUIRED.values()) | {"Release eligibility", PR_IMAGE_JOB}
     if len(jobs) != len(expected_names) or {job["name"] for job in jobs} != expected_names:
         raise ValueError("Missing, duplicate or unexpected CI jobs")
     if any(
-        job.get("conclusion") != "success"
+        job.get("conclusion") != ("skipped" if job["name"] == PR_IMAGE_JOB else "success")
         or job.get("status") != "completed"
         or job.get("head_sha") != sha
         or job.get("run_attempt") != run["run_attempt"]

@@ -8,7 +8,7 @@ CI builds each API, migration and web image once, tests/scans the loaded image, 
 
 Manual `deploy-dev.yml`, `deploy-staging.yml`, `deploy-prod.yml` and `rollback.yml` use `release.yml`. Supply a full commit SHA and successful main CI run ID. Mutable branches/tags, foreign/fork runs, failed/skipped jobs, old policy evidence, expired/ambiguous artifacts, altered files and unsupported schema declarations fail before cloud credentials. The trusted workflow checkout remains on main; it never executes scripts from the candidate's artifact or switches to its source. A change to the current release policy requires fresh CI qualification; older green runs do not override stricter current policy.
 
-The prepared artifact contains only verified OCI images, charts, values, manifest and a hashed plan. Dev requires no previous release. Staging requires the successful dev release run ID; prod requires staging's. Their receipts must identify the same commit and all three digests, the current successful run attempt, and passed functional health. Missing/expired evidence fails closed. CI artifacts expire after 14 days; prepared plans after seven, receipts after 90. Longer release retention needs an approved artifact archival design; never replace missing evidence with a mutable ECR tag.
+New CI retains verified images in private GHCR. Preflight reads them by their evidence-bound digests, verifies every blob, and uploads only charts, values, manifest and a hashed plan. Approved execution jobs retrieve and verify the same digests again. Historical Actions-archive releases retain their exact archive-hash path; current policy still requires fresh CI qualification. Dev requires no previous release. Staging requires the successful dev release run ID; prod requires staging's. Their receipts must identify the same commit and all three digests, the current successful run attempt, and passed functional health. Missing/expired evidence fails closed. Small CI evidence artifacts expire after 14 days; GHCR image presence alone cannot replace expired evidence; prepared plans after seven, receipts after 90. Longer release retention needs an approved artifact archival design; never replace missing evidence with a mutable ECR tag.
 
 After approval, each environment copies these same verified OCI bytes to its own ECR repositories, using `--all --preserve-digests` and TLS verification. It does not rebuild. An existing immutable SHA tag is accepted only if its manifest digest matches. The actual image references installed by Helm are `repository@sha256:...`. Linux amd64 is the tested platform and is selected explicitly by the workloads.
 
@@ -47,3 +47,17 @@ On migration/health failure, preserve Jobs, history and deployment evidence. Ins
 ## Validation boundary
 
 Unit/negative policy tests, real PostgreSQL schema checks, offline Terraform plans, strict Helm schemas, CI runtime/TLS tests/scans and a real disposable-registry copy establish local behavior. No live AWS publish, protected-environment approval, private EKS migration, ALB data-plane smoke, production rollback, DNS or secret modification has been performed. The [Phase 65 launch package](aws-launch-checklist.md) records the blocked decision. Phase 66 requires explicit approval and live evidence for one AWS dev/demo; phases 67-68 remain owner-skipped optional work.
+
+## Registry transport verification
+
+The original OCI export hash remains recorded as build provenance. Registry
+retrieval can repack the tar envelope, so GHCR releases compare all image/blob
+content digests and platform rather than requiring the transport tar header bytes
+to match. Chart, values, plan and manifest file hashes remain exact. Legacy archive
+releases still require the entire original archive hash. A registry source must
+name one of the three fixed private packages and the exact recorded SHA-256.
+
+Preflight and future approved cloud jobs need only `packages: read` via their
+workflow token. No new personal access token, AWS credential, billing setting or
+public package is introduced. Private runners will need HTTPS access to GHCR as
+well as their existing GitHub/ECR endpoints. AWS execution holds remain in place.

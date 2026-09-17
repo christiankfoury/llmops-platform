@@ -8,7 +8,7 @@ import shlex
 from pathlib import Path
 
 import yaml
-from release_eligibility import REQUIRED
+from release_eligibility import MAIN_IMAGE_IF, PR_IMAGE_IF, PR_IMAGE_JOB, REQUIRED
 from validate_aws_manifests import UniqueLoader
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,11 +38,14 @@ def check_workflow(data: dict, pins: dict) -> None:
     events = data.get("on", data.get(True, {}))
     if "pull_request_target" in events or "workflow_run" in events:
         raise ValueError("Untrusted code must not run in a privileged event context")
-    for job in data["jobs"].values():
+    for key, job in data["jobs"].items():
+        expected_permissions = {"contents": "read"}
+        if key == "docker" and job.get("if") == MAIN_IMAGE_IF:
+            expected_permissions["packages"] = "write"
         if (
             "environment" in job
             or "secrets" in job
-            or job.get("permissions", {"contents": "read"}) != {"contents": "read"}
+            or job.get("permissions", {"contents": "read"}) != expected_permissions
         ):
             raise ValueError("CI job cannot receive deployment secrets or a privileged identity")
         if "uses" in job and job["uses"] != "./.github/workflows/tgb-compatibility.yml":
@@ -76,22 +79,41 @@ def main() -> None:
         if file == "ci.yml":
             jobs = data["jobs"]
             check_image_scanners(jobs["docker"])
-            if set(jobs) != set(REQUIRED) | {"release-eligibility"}:
+            if set(jobs) != set(REQUIRED) | {"release-eligibility", "docker-pr"}:
                 raise ValueError("Required job inventory changed without eligibility policy review")
-            if set(jobs["release-eligibility"]["needs"]) != set(REQUIRED):
+            if set(jobs["release-eligibility"]["needs"]) != set(REQUIRED) | {"docker-pr"}:
                 raise ValueError("Eligibility must depend on every required check")
             if jobs["release-eligibility"]["if"] != "${{ always() }}":
                 raise ValueError("Eligibility must report failure when dependencies fail or skip")
             for key, name in REQUIRED.items():
-                if "if" in jobs[key] or jobs[key].get("continue-on-error"):
+                if (key != "docker" and "if" in jobs[key]) or jobs[key].get("continue-on-error"):
                     raise ValueError("Required job cannot be conditional or optional")
                 if key != "tgb" and jobs[key]["name"] != name:
                     raise ValueError("Required job name does not match GitHub verification policy")
+            if (
+                jobs["docker"].get("if") != MAIN_IMAGE_IF
+                or jobs["docker-pr"].get("if") != PR_IMAGE_IF
+                or jobs["docker-pr"].get("name") != PR_IMAGE_JOB
+                or jobs["docker-pr"].get("continue-on-error")
+                or jobs["docker-pr"]["steps"] != jobs["docker"]["steps"]
+            ):
+                raise ValueError(
+                    "Main and read-only PR image checks must be identical and mandatory"
+                )
+            publish = [
+                s
+                for s in jobs["docker"]["steps"]
+                if "registry_images.py publish" in s.get("run", "")
+            ]
+            if len(publish) != 1 or publish[0].get("if") != MAIN_IMAGE_IF:
+                raise ValueError("Private registry retention must run only on trusted main pushes")
+            if "release-images-${{" in source:
+                raise ValueError("CI image bytes belong in private GHCR, not Actions artifacts")
     from validate_release_workflows import main as validate_releases
 
     validate_releases()
     print(
-        "Read-only CI, pinned actions, complete eligibility dependencies and cloud holds verified"
+        "Scoped main registry writer, read-only PR checks, complete eligibility and cloud holds verified"
     )
 
 

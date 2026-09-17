@@ -23,6 +23,7 @@ on:
 permissions:
   contents: read
   actions: read
+  packages: read
 jobs:
   preflight:
     name: Verify immutable release without cloud access
@@ -30,6 +31,7 @@ jobs:
     permissions:
       contents: read
       actions: read
+      packages: read
     timeout-minutes: 30
     outputs:
       plan_sha256: ${{ steps.plan.outputs.plan_sha256 }}
@@ -44,7 +46,7 @@ jobs:
         env:
           CONTROL_REF: ${{ github.ref }}
         run: test "$CONTROL_REF" = refs/heads/main
-      - name: Verify CI, archives, schema and prior environment receipt
+      - name: Verify CI, images, schema and prior environment receipt
         id: plan
         env:
           GH_TOKEN: ${{ github.token }}
@@ -69,6 +71,7 @@ jobs:
             ${{ runner.temp }}/prepared-release/values
             ${{ runner.temp }}/prepared-release/*.oci.tar
           if-no-files-found: error
+          # Only historical releases contain OCI tar files; new releases use GHCR.
           compression-level: 0
           retention-days: 7
       - name: Record approval hold
@@ -84,6 +87,7 @@ jobs:
     permissions:
       contents: read
       actions: read
+      packages: read
       id-token: write
     env:
       GH_TOKEN: ${{ github.token }}
@@ -135,6 +139,7 @@ jobs:
     permissions:
       contents: read
       actions: read
+      packages: read
       id-token: write
     env:
       GH_TOKEN: ${{ github.token }}
@@ -186,6 +191,7 @@ jobs:
     permissions:
       contents: read
       actions: read
+      packages: read
       id-token: write
     env:
       GH_TOKEN: ${{ github.token }}

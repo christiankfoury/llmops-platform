@@ -36,7 +36,8 @@ def check_release_workflows(documents: dict, pins: dict) -> None:
         raise ValueError("Unexpected release workflow inventory")
     jobs = common["jobs"]
     if (
-        jobs["preflight"]["permissions"] != {"contents": "read", "actions": "read"}
+        jobs["preflight"]["permissions"]
+        != {"contents": "read", "actions": "read", "packages": "read"}
         or "environment" in jobs["preflight"]
     ):
         raise ValueError("Release preflight cannot receive an OIDC identity or environment secrets")

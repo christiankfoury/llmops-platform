@@ -396,8 +396,12 @@ jobs:
   # This catches Dockerfile/runtime issues before Kubernetes or Helm ever see them.
   docker:
     name: Production image build and scan
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/production-ai-platform' }}
+    permissions:
+      contents: read
+      packages: write
     runs-on: ubuntu-24.04
-    steps:
+    steps: &image_checks
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -486,15 +490,11 @@ jobs:
           python3 scripts/release_bundle.py build
           python3 scripts/release_bundle.py rehearse
 
-      - name: Retain immutable image bytes
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: release-images-${{ github.run_attempt }}
-          path: .maven-cache/release-images/*.oci.tar
-          include-hidden-files: true
-          compression-level: 0
-          if-no-files-found: error
-          retention-days: 14
+      - name: Retain verified images in private GHCR
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/production-ai-platform' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/registry_images.py publish
 
       - name: Retain immutable release manifest and charts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -513,6 +513,14 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
+
+  docker-pr:
+    name: Pull-request image build and scan
+    if: ${{ github.event_name == 'pull_request' }}
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    steps: *image_checks
 
   # Python dependency audit focuses on the production requirements file.
   # This is intentionally separate from tests so dependency risk is explicit.
@@ -643,17 +651,17 @@ jobs:
       - name: Validate release workflow expression contexts
         run: |
           python scripts/install_validation_tools.py --tools actionlint
-          .maven-cache/tools/pinned/actionlint .github/workflows/release.yml .github/workflows/deploy-dev.yml .github/workflows/deploy-staging.yml .github/workflows/deploy-prod.yml .github/workflows/rollback.yml
+          .maven-cache/tools/pinned/actionlint .github/workflows/ci.yml .github/workflows/release.yml .github/workflows/deploy-dev.yml .github/workflows/deploy-staging.yml .github/workflows/deploy-prod.yml .github/workflows/rollback.yml
       - name: Enforce CI boundaries and test rejected evidence
         run: |
           python scripts/validate_ci_policy.py
           python -m unittest discover -s scripts/tests -p 'test_*.py' -v
-          python -m ruff check scripts/validate_supply_chain.py scripts/release_eligibility.py scripts/validate_ci_policy.py scripts/tests/test_supply_chain.py scripts/tests/test_release_bundle.py scripts/release_bundle.py scripts/release_plan.py scripts/execute_release.py scripts/check_release_runner.py scripts/validate_release_workflows.py scripts/validate_release_manifests.py scripts/tests/test_release_plan.py scripts/install_validation_tools.py scripts/rehearse_local_recovery.py scripts/tests/test_local_recovery.py
-          python -m ruff format --check scripts/validate_supply_chain.py scripts/release_eligibility.py scripts/validate_ci_policy.py scripts/tests/test_supply_chain.py scripts/tests/test_release_bundle.py scripts/release_bundle.py scripts/release_plan.py scripts/execute_release.py scripts/check_release_runner.py scripts/validate_release_workflows.py scripts/validate_release_manifests.py scripts/tests/test_release_plan.py scripts/install_validation_tools.py scripts/rehearse_local_recovery.py scripts/tests/test_local_recovery.py
+          python -m ruff check scripts/validate_supply_chain.py scripts/release_eligibility.py scripts/validate_ci_policy.py scripts/tests/test_supply_chain.py scripts/tests/test_release_bundle.py scripts/release_bundle.py scripts/registry_images.py scripts/tests/test_registry_images.py scripts/release_plan.py scripts/execute_release.py scripts/check_release_runner.py scripts/validate_release_workflows.py scripts/validate_release_manifests.py scripts/tests/test_release_plan.py scripts/install_validation_tools.py scripts/rehearse_local_recovery.py scripts/tests/test_local_recovery.py
+          python -m ruff format --check scripts/validate_supply_chain.py scripts/release_eligibility.py scripts/validate_ci_policy.py scripts/tests/test_supply_chain.py scripts/tests/test_release_bundle.py scripts/release_bundle.py scripts/registry_images.py scripts/tests/test_registry_images.py scripts/release_plan.py scripts/execute_release.py scripts/check_release_runner.py scripts/validate_release_workflows.py scripts/validate_release_manifests.py scripts/tests/test_release_plan.py scripts/install_validation_tools.py scripts/rehearse_local_recovery.py scripts/tests/test_local_recovery.py
 
   release-eligibility:
     name: Release eligibility
-    needs: [java, backend, frontend, docker, dependency-scan, repository-scan, infrastructure, tgb, history-secrets, ci-policy]
+    needs: [java, backend, frontend, docker, docker-pr, dependency-scan, repository-scan, infrastructure, tgb, history-secrets, ci-policy]
     if: ${{ always() }}
     runs-on: ubuntu-24.04
     steps:
@@ -666,10 +674,9 @@ jobs:
         run: |
           python3 - <<'PY'
           import json, os
-          from scripts.release_eligibility import REQUIRED
+          from scripts.release_eligibility import validation_needs
           jobs = json.loads(os.environ['CI_NEEDS_JSON'])
-          if set(jobs) != set(REQUIRED) or any(j['result'] != 'success' for j in jobs.values()):
-              raise SystemExit('Missing, failed, cancelled or skipped checks prevent eligibility')
+          validation_needs(os.environ['GITHUB_EVENT_NAME'], os.environ['GITHUB_REF'], os.environ['GITHUB_REPOSITORY'], jobs)
           PY
       - name: Collect supply-chain evidence from this run
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'christiankfoury/production-ai-platform'
