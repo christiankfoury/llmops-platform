@@ -4,7 +4,7 @@ metadata:
   name: ai-platform
   namespace: argocd
 spec:
-  description: Production AI Platform GitOps applications
+  description: LLMOps Platform GitOps applications
   sourceRepos:
     - https://github.com/christiankfoury/llmops-platform.git
   destinations:

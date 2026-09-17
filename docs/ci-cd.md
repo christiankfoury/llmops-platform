@@ -170,5 +170,7 @@ The registry verifier pins those package destinations while requiring the new
 source-repository label and trusted-main identity for newly built releases.
 Historical artifacts retain their original provenance; use a fresh eligible build
 for releases after the rename. Archived evidence and existing workspace directory
-names remain unchanged. Never create a replacement repository at the old GitHub
+names remain unchanged. The Python reference OpenAPI title and existing mock
+prompt content remain unchanged to preserve the contract baseline and stored data.
+Never create a replacement repository at the old GitHub
 path, since historical links rely on its redirect.

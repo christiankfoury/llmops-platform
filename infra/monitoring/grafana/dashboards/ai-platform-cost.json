@@ -415,7 +415,7 @@
     "to": "now"
   },
   "timezone": "browser",
-  "title": "Production AI Platform Cost",
+  "title": "LLMOps Platform Cost",
   "uid": "ai-platform-cost",
   "version": 1,
   "weekStart": ""
