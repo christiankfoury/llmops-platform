@@ -29,7 +29,7 @@ remain as historical evidence. Neither gallery demonstrates Grafana or AWS opera
 ## Reproduce
 
 Start the default Compose stack and open the web dashboard. Confirm its
-**Synthetic demo Â· Fixed example data Â· Read only** notice. Capture the overview,
+**Synthetic demo · Fixed example data · Read only** notice. Capture the overview,
 open `demo-request-001`, then close the details and set Status to `failed`.
 Use a 1440-pixel desktop viewport and preserve the notice. Inspect mobile layout
 separately. Do not edit screenshot content or substitute generated images.

@@ -58,11 +58,11 @@ must be included in the final pre-publication review.
 All three existing CI image packages remain private. Inherited repository
 permissions were removed; explicit repository Actions access and owner access
 remain. Package identity/digest checks and fail-closed creation policy are unchanged.
-The Actions budget was read back as USD 5/month, Stop usage enabled, USD 0 spent;
+The Actions budget was read back as USD 5/month, Stop usage enabled, initially USD 0 spent and subsequently less than USD 0.01;
 other product budgets remain zero. Billing figures can lag usage.
 
-Required PR protection, complete candidate/main CI and final settings readbacks
-are tracked in [publication decisions](../publication-decisions.md). After those
+Required PR protection is saved and verified. Complete candidate/main CI and
+final settings readbacks are tracked in [publication decisions](../publication-decisions.md). After those
 pass, obtain final visibility approval, then enable GitHub private reporting and
 verify public rendering, branch protection, private package access and public CI.
 Expired material remains an explicit review limitation, not a pass.

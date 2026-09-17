@@ -34,3 +34,23 @@ Phase 69's final cloud closeout. [AWS setup](aws-launch-checklist.md)
 
 Historical phase evidence and prior handoffs are in [the archive](archive/README.md).
 New findings and final settings/CI readbacks belong in the publication decision record.
+
+## Publication implementation and review
+
+The cleanup is in [PR #2](https://github.com/christiankfoury/production-ai-platform/pull/2).
+Application/capture commit `b6e59ff` passed local frontend checks, Compose smoke and
+history review (204 commits; ten existing synthetic findings). Screenshot source
+hashes and archived JSON evidence were verified. A separate review fix corrects
+Markdown punctuation encoding and records saved repository settings.
+
+Main protection is active: all eleven applicable PR checks from GitHub Actions,
+strict/up-to-date branches, zero additional reviewer approvals, administrator
+enforcement, required conversation resolution, no bypass, force push or deletion.
+The three private GHCR packages have no inherited repository readership and retain
+explicit repository Actions access. Read the exposure review before visibility approval.
+
+Complete PR CI and normal merge, verify the resulting main run with the release
+verifier, and record exact run/attempt, cost estimate and any follow-up findings in
+PR #2's rollout review. That linked review is the final evidence index and avoids
+creating a documentation-only commit solely to name its own future CI revision.
+Final visibility approval remains pending even after the cleanup is merged.

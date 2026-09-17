@@ -1,6 +1,6 @@
 > Historical review (2026-09-08). Current source-publication ordering, MIT selection and demo updates are recorded in [publication decisions](../publication-decisions.md).
 
-# Focused security and claims review â€” 2026-09-08
+# Focused security and claims review — 2026-09-08
 
 Scope: independent Phase 64 preparation, using current source, existing tests and
 mandatory CI. This is not a new audit program or authorization to deploy/publish.

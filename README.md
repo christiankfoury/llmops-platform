@@ -6,12 +6,12 @@
 A Java LLM gateway and usage dashboard with reproducible delivery, project-scoped
 access, infrastructure as code, and tested local recovery procedures.
 
-**Java 21 Â· Spring Boot Â· Next.js Â· PostgreSQL Â· Redis Â· Terraform Â· Kubernetes Â· Helm**
+**Java 21 · Spring Boot · Next.js · PostgreSQL · Redis · Terraform · Kubernetes · Helm**
 
 ![Dashboard with synthetic requests, usage totals and failure categories](docs/assets/screenshots/dashboard-overview.jpg)
 
 *Actual local application capture using invented, read-only example data.*
-[View request details and filtering screenshots â†’](docs/dashboard-screenshots.md)
+[View request details and filtering screenshots →](docs/dashboard-screenshots.md)
 
 ## What it demonstrates
 
@@ -102,4 +102,4 @@ security, testing, releases, recovery and costs. Historical implementation notes
 kept in the [archive](docs/archive/README.md); [progress](phases-progress.md) distinguishes
 completed work from remaining milestones.
 
-[Contributing](CONTRIBUTING.md) Â· [Security policy](SECURITY.md) Â· [MIT License](LICENSE)
+[Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [MIT License](LICENSE)
