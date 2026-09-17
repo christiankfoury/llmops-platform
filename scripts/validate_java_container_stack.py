@@ -25,6 +25,36 @@ def free_port() -> str:
         return str(sock.getsockname()[1])
 
 
+def validate_synthetic_dashboard(http, port: str) -> None:
+    """Check the built web image's coherent fixtures independently of stored API rows."""
+
+    def read(path: str):
+        status, body = http(port, "/api/platform/" + path)
+        assert status == 200, f"Synthetic dashboard read failed: {path}"
+        return json.loads(body)
+
+    assert json.loads(http(port, "/api/auth/session")[1])["mode"] == "synthetic_demo"
+    rows = read("v1/usage/requests")
+    summary = read("v1/usage/summary")
+    errors = read("v1/usage/errors")
+    assert summary["request_count"] == len(rows) == 12
+    assert len({row["project_id"] for row in rows}) == 3
+    assert summary["error_count"] == len(errors) == 3
+    assert errors == [row for row in rows if row["status"] == "failed"]
+    assert Decimal(summary["estimated_cost_usd"]) == sum(
+        Decimal(row["estimated_cost_usd"]) for row in rows
+    )
+    assert (
+        abs(summary["average_latency_ms"] - sum(row["latency_ms"] for row in rows) / len(rows))
+        < 0.000001
+    )
+    assert read("v1/usage/requests?status=failed") == errors
+    assert read("v1/usage/summary?status=failed")["request_count"] == len(errors)
+    assert len(read("v1/admin/prompt-versions")) == 3
+    assert len(read("v1/admin/model-routes")) == 3
+    assert http(port, "/api/platform/v1/admin/prompt-versions", {})[0] == 403
+
+
 def main() -> None:
     cache = ROOT / ".maven-cache"
     cache.mkdir(exist_ok=True)
@@ -192,12 +222,7 @@ def main() -> None:
             "seed-local",
         )
         assert sql("SELECT count(*) FROM gateway_requests") == "9"
-        assert json.loads(http(env["WEB_PORT"], "/api/auth/session")[1])["mode"] == "synthetic_demo"
-        assert (
-            json.loads(http(env["WEB_PORT"], "/api/platform/v1/usage/summary")[1])["request_count"]
-            == 1
-        )
-        assert http(env["WEB_PORT"], "/api/platform/v1/admin/prompt-versions", {})[0] == 403
+        validate_synthetic_dashboard(http, env["WEB_PORT"])
         metrics = cc("exec", "-T", "api", *probe, "metrics").stdout
         assert (
             "llm_gateway_requests_total" in metrics

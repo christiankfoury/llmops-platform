@@ -54,3 +54,11 @@ verifier, and record exact run/attempt, cost estimate and any follow-up findings
 PR #2's rollout review. That linked review is the final evidence index and avoids
 creating a documentation-only commit solely to name its own future CI revision.
 Final visibility approval remains pending even after the cleanup is merged.
+
+PR run `35183064854` failed its container smoke because the old assertion expected
+one synthetic request. All other independent jobs passed. Run `35183406989` on
+the punctuation-only fix was canceled after diagnosis to avoid repeating that
+known failure. The focused smoke fix validates twelve requests, three scopes,
+derived cost/latency/error totals, failure filtering, configuration panels and
+blocked writes against the actual built web application. Full current-revision
+CI remains mandatory; no failed or canceled run is treated as passing evidence.
