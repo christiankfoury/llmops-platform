@@ -1,14 +1,15 @@
 {
   "captured_on": "2026-09-17",
-  "source_base_revision": "8cc815c8504465db95c5deb3bc60c288dcbeafe7",
-  "source_revision_note": "Demo notice wording refresh identified by normalized source hashes; actual browser captures precede the containing commit.",
+  "source_base_revision": "47f02fd52f52e05364b12ea415795e2f842b8d66",
+  "source_revision_note": "LLMOps Platform naming candidate identified by normalized source hashes; actual captures precede the containing commit.",
   "source_sha256": {
     "apps/web/lib/synthetic-demo.ts": "814443d5fbbf0da2c12206c76a79a131598569dfc3e3eb6d68afb0660055896d",
-    "apps/web/components/dashboard.tsx": "632022417cd11358344890e88e37a57d4e37f5560e5547181a88b62d8ba31bbc",
+    "apps/web/components/dashboard.tsx": "0fdc0813afd1d65d9b92b3d96407ea79a01be00b3d16bf5685b9ca42188b3ec4",
     "apps/web/components/dashboard.module.css": "1faa4463e2e12758f025560f6cbca995cfff42310d8fbae02e5f64de83a0bb4f",
-    "apps/web/components/operator-dashboard.tsx": "f575dbc83e62972cad0f7e5ee8d93774cd94b9cfbdb4e22936bb5c96842891f9",
+    "apps/web/components/operator-dashboard.tsx": "8810b43d97572fa7f0a00282cace16e9e0c59f10162fcba861ec859cf5742aaf",
     "apps/web/app/globals.css": "dc69dff15a373b0d92919d32a550cedb441d132a3c41c771741a1f089a85da38",
-    "apps/web/package-lock.json": "66881f73374a436dcc9f45a72c6fdfdbef4a1ad9453b298c107b0f313b4c2b73"
+    "apps/web/package-lock.json": "66881f73374a436dcc9f45a72c6fdfdbef4a1ad9453b298c107b0f313b4c2b73",
+    "apps/web/app/layout.tsx": "8cb5f16ce6cbdc5db9baf03ab1620afaf90e2b8d558fb6b24ec94f3143e56c56"
   },
   "runtime": "Next.js production build on local Node.js; synthetic_demo; API_BASE_URL intentionally unreachable",
   "viewport": {
@@ -20,12 +21,12 @@
     "height": 844,
     "horizontal_page_overflow": false,
     "visually_reviewed": true,
-    "source_note": "Prior responsive check; this refresh changes only the notice text. Layout/CSS unchanged."
+    "source_note": "Prior responsive check; only display/notice text has changed since that check. Layout/CSS unchanged."
   },
   "browser_warnings_or_errors": [],
   "images": {
     "dashboard-overview.jpg": {
-      "sha256": "7291e15398399cfdc44fc5b147843422c9f9bf102c66c7aa356c93b863f22f40",
+      "sha256": "e80d3e3cc947bc4c6b5cab3d21ba902aa6197592b8c9ed3b2efca32c3722120d",
       "dimensions": [
         1265,
         2017
@@ -34,7 +35,7 @@
       "unedited_browser_capture": true
     },
     "request-detail.jpg": {
-      "sha256": "2867b62168c0af9a068ebf8b24e52725b56674530d47cec3037f4e0e5472baeb",
+      "sha256": "49a2fa00bd6daae0e5b3cd83dffd6ea86872050fb77c040117cb1214683155e6",
       "dimensions": [
         1265,
         712
@@ -43,7 +44,7 @@
       "unedited_browser_capture": true
     },
     "failure-filter.jpg": {
-      "sha256": "ce4ca96e4c45270bc5821637bb7c3867b1f86b82f4f4e5355d025bc78b6b9e07",
+      "sha256": "bcd7911e146b30e9ef88bcb2a638de728e1304cfa81d5f38353c095a1aca4375",
       "dimensions": [
         1265,
         1522
@@ -83,5 +84,5 @@
     }
   ],
   "viewport_note": "Actual window dimensions read from the browser. Captures exclude browser chrome; full-page images have different heights.",
-  "http_probes_note": "Retained prior behavior probes; this refresh changes only notice text and captures."
+  "http_probes_note": "Retained prior behavior probes; this refresh changes only display text, metadata and captures."
 }

@@ -18,13 +18,17 @@ from pathlib import Path
 
 from release_bundle import IMAGES, REPOSITORY, ROOT, SHA, inspect_oci, json_bytes
 
+# Keep existing private packages stable across the source repository rename.
+# Source labels and Actions identity still bind new releases to REPOSITORY.
+REGISTRY_NAMESPACE = "christiankfoury/production-ai-platform"
+
 FIELDS = ("digest", "config_digest", "runtime_manifest_digest", "platform")
 
 
 def image_repository(name: str) -> str:
     if name not in IMAGES:
         raise ValueError("Unexpected release image")
-    return f"ghcr.io/{REPOSITORY}-ci-{name}"
+    return f"ghcr.io/{REGISTRY_NAMESPACE}-ci-{name}"
 
 
 def validate_storage(manifest: dict) -> None:

@@ -43,6 +43,16 @@ class RegistryImagesTest(unittest.TestCase):
             },
         }
 
+    def test_source_rename_preserves_fixed_private_package_destinations(self):
+        self.assertEqual(REPOSITORY, "christiankfoury/llmops-platform")
+        for name in IMAGES:
+            self.assertEqual(
+                registry.image_repository(name),
+                f"ghcr.io/christiankfoury/production-ai-platform-ci-{name}",
+            )
+        with self.assertRaises(ValueError):
+            registry.image_repository("foreign")
+
     def test_registry_transport_allows_repacked_tar_but_not_changed_image_bytes(self):
         repacked = self.path.with_name("repacked.tar")
         with tarfile.open(self.path) as source, tarfile.open(repacked, "w") as dest:
@@ -172,7 +182,11 @@ class RegistryImagesTest(unittest.TestCase):
                     check_image_source_labels(bad)
 
     def test_verified_registry_bytes_require_the_exact_source_repository(self):
-        for source in (None, "https://github.com/foreign/repo"):
+        for source in (
+            None,
+            "https://github.com/foreign/repo",
+            "https://github.com/christiankfoury/production-ai-platform",
+        ):
             fixture = fixtures.BundleTest()
             fixture.source = source
             fixture.setUp()

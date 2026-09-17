@@ -1,7 +1,7 @@
 # TargetGroupBinding compatibility experiment
 
 Initial compatibility passed before design adoption. The final actual-bootstrap
-regression passed in [CI 34142470972](https://github.com/christiankfoury/production-ai-platform/actions/runs/34142470972)
+regression passed in [CI 34142470972](https://github.com/christiankfoury/llmops-platform/actions/runs/34142470972)
 on `67d3becbfb85c79edd7465561d7145789604754e`. It renders actual bootstrap
 RBAC/admission/bindings and reads the Terraform IAM template, including real pod
 readiness and fail-closed webhook-outage tests. No cloud operation is approved by this evidence.

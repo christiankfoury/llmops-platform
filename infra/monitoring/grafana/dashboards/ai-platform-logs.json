@@ -375,7 +375,7 @@
     "to": "now"
   },
   "timezone": "browser",
-  "title": "Production AI Platform Logs",
+  "title": "LLMOps Platform Logs",
   "uid": "ai-platform-logs",
   "version": 1,
   "weekStart": ""

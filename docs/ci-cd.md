@@ -155,3 +155,22 @@ The three existing GHCR packages remain private. Repository permission inheritan
 is disabled; explicit repository Actions access and owner access remain. Public
 source readership must not grant image access. Missing/public packages fail closed.
 See the [publication record](publication-decisions.md) for settings verification.
+
+## Repository name
+
+The owner selected **LLMOps Platform** (`christiankfoury/llmops-platform`) as the
+public-facing name. Current GitHub links, CI source identity, GitOps source URLs
+and prospective AWS OIDC repository subjects use that name. This is a source
+repository rename, not an infrastructure migration or deployment.
+
+Existing private GHCR packages retain `production-ai-platform-ci-*`; local image,
+Maven/npm, Kubernetes, Terraform resource and telemetry identifiers also retain
+their existing names. Their identity is independent of the display/repository name.
+The registry verifier pins those package destinations while requiring the new
+source-repository label and trusted-main identity for newly built releases.
+Historical artifacts retain their original provenance; use a fresh eligible build
+for releases after the rename. Archived evidence and existing workspace directory
+names remain unchanged. The Python reference OpenAPI title and existing mock
+prompt content remain unchanged to preserve the contract baseline and stored data.
+Never create a replacement repository at the old GitHub
+path, since historical links rely on its redirect.

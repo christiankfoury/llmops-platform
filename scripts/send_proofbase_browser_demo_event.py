@@ -70,7 +70,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--api-base-url",
         default=os.getenv("PLATFORM_API_BASE_URL", DEFAULT_API_BASE_URL),
-        help="Production AI Platform API base URL.",
+        help="LLMOps Platform API base URL.",
     )
     parser.add_argument(
         "--api-key",

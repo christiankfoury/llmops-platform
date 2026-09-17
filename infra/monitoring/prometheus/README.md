@@ -1,6 +1,6 @@
 # Prometheus Alert Rules
 
-Phase 23 adds alert rule files for the Production AI Platform.
+Phase 23 adds alert rule files for the LLMOps Platform.
 
 ## Files
 

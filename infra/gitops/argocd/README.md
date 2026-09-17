@@ -1,6 +1,6 @@
 # Argo CD GitOps
 
-This directory contains optional Argo CD manifests for deploying the Production AI Platform Helm chart.
+This directory contains optional Argo CD manifests for deploying the LLMOps Platform Helm chart.
 
 It is not the default deployment path. GitHub Actions remains the primary CI/CD and release workflow unless an operator intentionally chooses the GitOps path for a namespace.
 

@@ -403,7 +403,7 @@ export function Dashboard() {
       <header className={styles.header}>
         <div>
           <p className={styles.kicker}>LLMOps Dashboard</p>
-          <h1>Production AI Platform</h1>
+          <h1>LLMOps Platform</h1>
         </div>
       </header>
       {content}

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the recovery posture for the Production AI Platform. It covers PostgreSQL backups, restore runbooks, Terraform state recovery, Redis persistence decisions, and disaster recovery assumptions.
+This document defines the recovery posture for the LLMOps Platform. It covers PostgreSQL backups, restore runbooks, Terraform state recovery, Redis persistence decisions, and disaster recovery assumptions.
 
 All cloud restore actions are approval-gated. This repository may document and validate recovery paths, but it must not run `terraform apply`, mutate AWS resources, rotate secrets, or redirect production traffic without explicit human approval.
 

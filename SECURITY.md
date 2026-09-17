@@ -8,7 +8,7 @@ pipeline. AWS is not deployed; the monitoring release has known unresolved findi
 
 Use GitHub's private **Report a vulnerability** form:
 
-[Submit a private security report](https://github.com/christiankfoury/production-ai-platform/security/advisories/new)
+[Submit a private security report](https://github.com/christiankfoury/llmops-platform/security/advisories/new)
 
 Private reporting is selected for source publication and will be enabled and verified
 as part of the visibility change. Publication status is tracked in

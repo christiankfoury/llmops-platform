@@ -9,7 +9,7 @@ metadata:
 spec:
   project: ai-platform
   source:
-    repoURL: https://github.com/christiankfoury/production-ai-platform.git
+    repoURL: https://github.com/christiankfoury/llmops-platform.git
     targetRevision: main
     path: infra/helm/ai-platform
     helm:

@@ -1,15 +1,15 @@
 # Proofbase Integration
 
-Proofbase is now a connected client app for Production AI Platform telemetry.
+Proofbase is now a connected client app for LLMOps Platform telemetry.
 
-Production AI Platform centralizes Proofbase AI operation visibility for usage, token counts, estimated cost, latency, status, failures, source-app filtering, and dashboard review. Proofbase still owns the AI product layer: document ingestion, scoped retrieval, citation grounding, permission filtering, memory behavior, and benchmark-driven answer quality.
+LLMOps Platform centralizes Proofbase AI operation visibility for usage, token counts, estimated cost, latency, status, failures, source-app filtering, and dashboard review. Proofbase still owns the AI product layer: document ingestion, scoped retrieval, citation grounding, permission filtering, memory behavior, and benchmark-driven answer quality.
 
 ## What Is Connected
 
 The integration is telemetry-first:
 
 - Proofbase sends best-effort LLM usage events to `POST /v1/usage/llm-events`.
-- Production AI Platform authenticates the Proofbase application API key, validates the event contract, persists usage/cost data, emits ingestion metrics, and shows the event in the dashboard.
+- LLMOps Platform authenticates the Proofbase application API key, validates the event contract, persists usage/cost data, emits ingestion metrics, and shows the event in the dashboard.
 - Dashboard filters can isolate `source_app=proofbase` and show `Proofbase / Enterprise Knowledge Agent` traffic.
 
 Covered Proofbase operation types:
@@ -22,7 +22,7 @@ Covered Proofbase operation types:
 
 ## Boundary
 
-Production AI Platform does not perform Proofbase retrieval, citation validation, permission filtering, document ingestion, memory evaluation, or answer-quality benchmarking.
+LLMOps Platform does not perform Proofbase retrieval, citation validation, permission filtering, document ingestion, memory evaluation, or answer-quality benchmarking.
 
 Proofbase does not need to route provider calls through this gateway for the current integration. Gateway-routed Proofbase calls can be considered later only after the gateway supports Proofbase's richer provider contract and product-safety requirements.
 
@@ -54,7 +54,7 @@ Telemetry payloads must not include:
 
 ## Failure Behavior
 
-Proofbase telemetry is best-effort. If Production AI Platform is unavailable, slow, or rejects an event, Proofbase should continue serving users and record a local diagnostic entry without exposing secrets.
+Proofbase telemetry is best-effort. If LLMOps Platform is unavailable, slow, or rejects an event, Proofbase should continue serving users and record a local diagnostic entry without exposing secrets.
 
 Expected operator response:
 

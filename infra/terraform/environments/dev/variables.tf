@@ -245,7 +245,7 @@ variable "create_github_actions_role" {
 variable "github_repository" {
   description = "GitHub repository in owner/name format allowed to assume the optional CI/CD role."
   type        = string
-  default     = "christiankfoury/production-ai-platform"
+  default     = "christiankfoury/llmops-platform"
 }
 
 variable "bootstrap_principal_arn" {

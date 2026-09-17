@@ -14,7 +14,7 @@ import urllib.request
 from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
-REPOSITORY = "christiankfoury/production-ai-platform"
+REPOSITORY = "christiankfoury/llmops-platform"
 IMAGES = ("api", "migration", "web")
 SHA = re.compile(r"sha256:[0-9a-f]{64}")
 MANIFEST_TYPES = {

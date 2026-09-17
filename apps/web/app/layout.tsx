@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Production AI Platform",
-  description: "LLMOps gateway and usage dashboard"
+  title: "LLMOps Platform",
+  description: "An LLM gateway and operations dashboard with usage tracking, cost monitoring, and reproducible cloud infrastructure."
 };
 
 export default function RootLayout({

@@ -47,9 +47,7 @@ def check_image_source_labels(job: dict) -> None:
         for step in job.get("steps", [])
         if step.get("uses", "").startswith("docker/build-push-action@")
     ]
-    expected = (
-        "org.opencontainers.image.source=https://github.com/christiankfoury/production-ai-platform"
-    )
+    expected = "org.opencontainers.image.source=https://github.com/christiankfoury/llmops-platform"
     if len(builds) != 3 or any(step.get("with", {}).get("labels") != expected for step in builds):
         raise ValueError("All three tested image builds must identify their source repository")
 

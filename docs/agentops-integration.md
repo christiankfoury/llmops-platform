@@ -1,15 +1,15 @@
 # AgentOps Integration
 
-AgentOps Workflow Platform is now a connected client app for Production AI Platform telemetry.
+AgentOps Workflow Platform is now a connected client app for LLMOps Platform telemetry.
 
-Production AI Platform centralizes AgentOps operational visibility for agent-step usage, token counts, estimated cost, latency, status, failures, source-app filtering, workflow summaries, and dashboard review. AgentOps still owns the agent workflow layer: workflow execution, agent prompts, structured outputs, tool behavior, workflow input/output state, local evaluation, and per-workflow product UX.
+LLMOps Platform centralizes AgentOps operational visibility for agent-step usage, token counts, estimated cost, latency, status, failures, source-app filtering, workflow summaries, and dashboard review. AgentOps still owns the agent workflow layer: workflow execution, agent prompts, structured outputs, tool behavior, workflow input/output state, local evaluation, and per-workflow product UX.
 
 ## What Is Connected
 
 The integration is telemetry-first:
 
 - AgentOps can send best-effort LLM usage events to `POST /v1/usage/llm-events`.
-- Production AI Platform authenticates the AgentOps application API key, validates the event contract, persists usage/cost data when present, emits ingestion metrics, and shows the event in the dashboard.
+- LLMOps Platform authenticates the AgentOps application API key, validates the event contract, persists usage/cost data when present, emits ingestion metrics, and shows the event in the dashboard.
 - Dashboard filters can isolate `source_app=agentops` and show `AgentOps Workflow Platform / AgentOps Workflow Platform` traffic.
 
 Covered AgentOps operation types:
@@ -20,7 +20,7 @@ Covered AgentOps operation types:
 
 ## Boundary
 
-Production AI Platform does not execute AgentOps workflows, route AgentOps tool calls, own AgentOps prompts, inspect generated outputs, parse workflow input/output JSON, evaluate workflow quality, or handle tool payloads.
+LLMOps Platform does not execute AgentOps workflows, route AgentOps tool calls, own AgentOps prompts, inspect generated outputs, parse workflow input/output JSON, evaluate workflow quality, or handle tool payloads.
 
 AgentOps does not need to route provider calls through this gateway for the current integration. The current path centralizes operational telemetry while AgentOps keeps its workflow runtime, local cost tracking, retries, tools, and product behavior.
 
@@ -50,7 +50,7 @@ Telemetry payloads must not include:
 
 ## Failure Behavior
 
-AgentOps telemetry is best-effort. If Production AI Platform is unavailable, slow, or rejects an event, AgentOps should continue running workflows and record a redacted local diagnostic entry without exposing secrets or workflow payloads.
+AgentOps telemetry is best-effort. If LLMOps Platform is unavailable, slow, or rejects an event, AgentOps should continue running workflows and record a redacted local diagnostic entry without exposing secrets or workflow payloads.
 
 Expected operator response:
 

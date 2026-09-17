@@ -418,7 +418,7 @@
     "to": "now"
   },
   "timezone": "browser",
-  "title": "Production AI Platform Reliability",
+  "title": "LLMOps Platform Reliability",
   "uid": "ai-platform-reliability",
   "version": 1,
   "weekStart": ""
