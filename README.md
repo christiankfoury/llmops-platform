@@ -49,7 +49,7 @@ curl -X POST http://localhost:8000/v1/gateway/completions \
 ```
 
 The API stores this request and returns its request ID and usage metadata. The
-**default dashboard uses fixed synthetic data** and does not reflect that request.
+**default dashboard uses fixed sample data** and does not reflect that request.
 To display API-backed usage, configure [operator sign-in and project grants](docs/java-operator-security.md).
 The gateway currently implements a mock provider; no paid LLM calls are made.
 
@@ -92,7 +92,7 @@ agent workflows. [Integration boundaries](docs/architecture.md#client-integratio
 - **Monitoring finalization is incomplete.** Dated prototype evidence and
   [known monitoring vulnerabilities](docs/security/monitoring-vulnerability-backlog.md)
   remain documented. The monitoring release and AWS deployment are blocked.
-- The screenshots show synthetic UI examples, not live provider usage, Grafana or AWS.
+- The screenshots show sample UI data, not live provider usage, Grafana or AWS.
   The project is not offered as a production service and makes no HA/SLA claim.
 
 ## Documentation
