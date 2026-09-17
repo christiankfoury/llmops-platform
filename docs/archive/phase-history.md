@@ -20,7 +20,7 @@ Codex must update this file at the end of every phase.
 
 Phase 66: Approved single AWS dev/demo deployment - Blocked before execution. Phases 63-65 completed their bounded preparation, mandatory candidate CI and pushed review. Stop here for owner AWS setup and explicit approval; Phase 62 remains independently Blocked with monitoring remediation deferred. Do not resume monitoring fixes, unhold cloud jobs or start AWS actions automatically. The concrete input/cost/cleanup package is docs/aws-launch-checklist.md.
 
-Handoff (2026-09-08): docs/next-chat-handoff.md records the dirty local Phase 62 prototype, deferred vulnerability backlog and next actions. Phases 1-61 remain historical completion evidence. AWS is the cloud target. Phase 59 removed Ingress writes; its scanner exception remains inactive.
+Historical handoff (2026-09-08): the local Phase 62 prototype and vulnerability backlog were deferred. See [current progress](../../phases-progress.md) for the subsequent state; the execution handoff is retained outside the current source tree. Phases 1-61 remain historical completion evidence. AWS is the cloud target. Phase 59 removed Ingress writes; its scanner exception remains inactive.
 
 CI prerequisite repaired: a291ad7 passed all 11 jobs in CI run 34190824931, including the audited immutable Skopeo image and three-image OCI round trip. See docs/phase-reviews/ci-skopeo-repair.md. Phase 62 remains a separate unresolved monitoring gate.
 
@@ -390,7 +390,7 @@ Status: Completed
 
 Implementation plan:
 
-- Read docs/next-chat-handoff.md and preserve the dirty Phase 62 prototype; use an isolated checkout for independent work where practical.
+- Preserve the dirty Phase 62 prototype and use an isolated checkout for independent work; consult [current progress](../../phases-progress.md) rather than the retired execution handoff.
 - Resolve the pinned Skopeo availability failure from CI 34188573590 in a separate focused follow-up; retain OCI digest preservation and all required CI gates.
 - Run one bounded disposable Java/PostgreSQL/Redis rehearsal: short synthetic load, one Redis outage/recovery, API restart/compatible rollback and one PostgreSQL backup/restore into a new target. Record actual latency/error/recovery/record-count evidence; reuse existing tests and stop expanding after acceptance passes.
 - Record monitoring-dependent alert checks as deferred to Phase 62/pre-Phase 66. Do not use unapproved candidate images, restart custom monitoring rebuilds or claim skipped validation passed.
